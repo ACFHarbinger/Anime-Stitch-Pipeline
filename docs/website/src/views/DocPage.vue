@@ -23,6 +23,36 @@ const currentPath = computed(() => {
   return p === "//" ? "/" : p.replace(/\/$/, "") || "/";
 });
 
+const currentIndex = computed(() => searchIndex.findIndex((p) => p.path === currentPath.value));
+const prevDoc = computed(() => (currentIndex.value > 0 ? searchIndex[currentIndex.value - 1] : null));
+const nextDoc = computed(() =>
+  currentIndex.value >= 0 && currentIndex.value < searchIndex.length - 1
+    ? searchIndex[currentIndex.value + 1]
+    : null
+);
+
+const contentEl = ref<HTMLElement | null>(null);
+
+function addCopyButtons() {
+  const blocks = contentEl.value?.querySelectorAll<HTMLElement>("pre.hljs");
+  blocks?.forEach((pre) => {
+    if (pre.querySelector(".copy-btn")) return;
+    const code = pre.querySelector("code");
+    if (!code) return;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "copy-btn";
+    btn.textContent = "Copy";
+    btn.addEventListener("click", () => {
+      navigator.clipboard.writeText(code.textContent || "").then(() => {
+        btn.textContent = "Copied!";
+        setTimeout(() => (btn.textContent = "Copy"), 1500);
+      });
+    });
+    pre.appendChild(btn);
+  });
+}
+
 async function load() {
   state.value = "loading";
   notebookSource.value = null;
@@ -54,6 +84,7 @@ async function load() {
   state.value = "ok";
   await nextTick();
   renderMermaid();
+  addCopyButtons();
   document.title = `${title.value} — Anime-Stitch-Pipeline Docs`;
 }
 
@@ -90,10 +121,20 @@ onMounted(load);
     <template v-else>
       <NotebookView v-if="notebookSource" :source="notebookSource" :title="title" />
       <article v-else class="doc-content">
-        <div class="markdown-body" v-html="html"></div>
+        <div ref="contentEl" class="markdown-body" v-html="html"></div>
         <a class="edit-link" :href="REPO_EDIT_BASE + editSource" target="_blank" rel="noopener noreferrer">
           Edit this page on GitHub ↗
         </a>
+
+        <nav class="prev-next">
+          <router-link v-if="prevDoc" :to="prevDoc.path" class="prev-next-link prev">
+            <span>← Previous</span>{{ prevDoc.title }}
+          </router-link>
+          <span v-else></span>
+          <router-link v-if="nextDoc" :to="nextDoc.path" class="prev-next-link next">
+            <span>Next →</span>{{ nextDoc.title }}
+          </router-link>
+        </nav>
       </article>
 
       <aside v-if="toc.length" class="doc-toc">
@@ -145,6 +186,37 @@ onMounted(load);
 }
 .edit-link:hover {
   color: var(--accent);
+}
+
+.prev-next {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.prev-next-link {
+  display: flex;
+  flex-direction: column;
+  max-width: 45%;
+  padding: 0.9rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.prev-next-link:hover {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+.prev-next-link.next {
+  text-align: right;
+  margin-left: auto;
+}
+.prev-next-link span {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
 }
 
 .doc-toc {

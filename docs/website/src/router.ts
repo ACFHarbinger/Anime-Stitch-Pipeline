@@ -10,6 +10,11 @@ const router = createRouter({
   },
   routes: [
     {
+      path: "/",
+      name: "home",
+      component: () => import("./views/HomeView.vue"),
+    },
+    {
       path: "/submodules/:slug",
       name: "submodule",
       component: () => import("./views/SubmodulePage.vue"),

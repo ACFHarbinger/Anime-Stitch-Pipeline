@@ -9,16 +9,18 @@
 }
 
 .markdown-body h1 {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 1.5rem;
 }
 
 .markdown-body h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
   margin: 2.75rem 0 1rem;
   padding-top: 0.25rem;
   border-top: 1px solid var(--border);
@@ -100,6 +102,7 @@
 }
 
 .markdown-body pre {
+  position: relative;
   margin: 1.25rem 0;
   border-radius: var(--radius);
   overflow-x: auto;
@@ -115,6 +118,26 @@
   font-size: 0.85rem;
   line-height: 1.6;
   color: inherit;
+}
+.markdown-body pre .copy-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+.markdown-body pre:hover .copy-btn {
+  opacity: 1;
+}
+.markdown-body pre .copy-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .markdown-body table {

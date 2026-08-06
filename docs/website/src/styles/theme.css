@@ -5,11 +5,14 @@
 
 :root {
   --font-sans: -apple-system, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", "Georgia", serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 
   --accent: #6366f1;
   --accent-2: #8b5cf6;
+  --accent-3: #22d3ee;
   --radius: 10px;
+  --glass-blur: 14px;
 }
 
 :root[data-theme="light"] {
@@ -87,4 +90,71 @@ kbd {
 }
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+
+/* ===================================================================
+   Reusable "hero" building blocks — used by HomeView.vue and available
+   to any doc page that wants a polished call-to-action strip.
+   =================================================================== */
+
+.badge {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 9px;
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, background 0.2s ease,
+    border-color 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-secondary:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-muted);
+  transform: translateY(-2px);
+}
+
+.panel-glass {
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+.panel-glass:hover {
+  border-color: color-mix(in srgb, var(--border), var(--text) 20%);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18);
+  transform: translateY(-3px);
 }
