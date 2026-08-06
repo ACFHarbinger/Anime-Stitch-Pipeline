@@ -1,9 +1,9 @@
-site_name: Dev-Repo-Template Documentation
+site_name: Anime-Stitch-Pipeline Documentation
 site_description: >-
-  Unified documentation portal for repositories generated from Dev-Repo-Template.
+  Documentation portal for the Anime Stitch Pipeline (ASP) panorama stitching engine.
 site_author: ACFHarbinger
-repo_url: https://github.com/ACFHarbinger/Dev-Repo-Template
-repo_name: ACFHarbinger/Dev-Repo-Template
+repo_url: https://github.com/ACFHarbinger/Anime-Stitch-Pipeline
+repo_name: ACFHarbinger/Anime-Stitch-Pipeline
 edit_uri: edit/main/docs/
 
 docs_dir: .

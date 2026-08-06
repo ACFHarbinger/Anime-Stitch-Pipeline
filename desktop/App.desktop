@@ -1,9 +1,0 @@
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Name=App
-Comment=Application generated from Dev-Repo-Template
-Exec=dist/App # <--- Full path to the executable!
-Icon=assets/images/icon.png # <--- Full path to the icon file!
-Terminal=false
-Type=Application
-Categories=Utility;Development;

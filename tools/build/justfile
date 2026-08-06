@@ -3,25 +3,10 @@
 set shell := ["bash", "-c"]
 
 # Build all modules
-all: python typescript kotlin java rust go cpp
+all: python cpp
 
 python:
     cd python && uv build
-
-typescript:
-    cd typescript && npm run build
-
-kotlin:
-    cd kotlin && ./gradlew build
-
-java:
-    cd java && mvn -B package
-
-rust:
-    cd rust && cargo build --release
-
-go:
-    cd go && go build ./...
 
 cpp:
     cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build cpp/build -j

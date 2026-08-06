@@ -6,11 +6,6 @@ set shell := ["bash", "-c"]
 setup:
     @echo "Setting up dev environment..."
     cd python && uv sync --all-extras --dev
-    cd typescript && npm ci
-    cd kotlin && ./gradlew --version
-    cd java && mvn -q -B dependency:go-offline
-    cd rust && cargo fetch
-    cd go && go mod download
     pip install pre-commit || true
     pre-commit install --install-hooks || echo "pre-commit not available"
     @echo "Setup complete. Run 'just test' to verify."
@@ -19,9 +14,6 @@ setup:
 update:
     @echo "Updating dependencies..."
     cd python && uv sync --upgrade
-    cd typescript && npm update
-    cd rust && cargo update
-    cd go && go get -u ./... && go mod tidy
 
 # Run pre-commit hooks manually
 pre-commit:
@@ -30,9 +22,4 @@ pre-commit:
 # Clean build artifacts across every module
 clean:
     rm -rf python/.pytest_cache python/.ruff_cache python/.mypy_cache python/**/__pycache__
-    rm -rf typescript/dist typescript/node_modules/.cache
-    rm -rf rust/target
-    rm -rf go/bin
-    rm -rf kotlin/build
-    rm -rf java/target
     rm -rf cpp/build
