@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Restored `backend/test/conftest.py`'s missing fixture helpers (`make_frame`, `make_translation_affine`, `make_rotation_affine`, `make_edge`, `compute_ty_gaps` + 4 fixtures), recovered verbatim from Image-Toolkit's own `backend/test/conftest.py` (where this repo's ASP test suite was originally split from). Unblocks 342 previously-uncollectible tests across 6 files. Closes issue #6.
 - Fixed `backend/pyproject.toml` requiring a CUDA toolchain (`nvcc`) just to run `uv sync`: moved `mamba_ssm`/`ptlflow`/`romatch`/`pycocotools`/`sam-2` (already-lazy-imported research matcher plugins) into an optional `matchers` extra. Closes issue #5.
 - Phase 6.1 (Tutorials & Onboarding): `gui/src/tabs/stencil/onboarding_wizard.py::HybridStitchOnboardingWizard` — a first-run, dismissible, re-invocable `QWizard` guided tour over `HybridStitchPanel`, paging through pages that switch the panel's live tool tabs to match. New "?" toolbar button re-invokes it. 10 new tests. Closes issue #1.
 - Phase 6.2 (Tutorials & Onboarding): `docs/tutorials/getting-started-hybridstitch.md` and `docs/tutorials/pipeline-overview.md` — beginner-facing docs-site tutorials for `HybridStitchPanel` and the automated `AnimeStitchPipeline`, wired into `docs/mkdocs.yml` nav and `docs/index.md`. Closes issue #2.

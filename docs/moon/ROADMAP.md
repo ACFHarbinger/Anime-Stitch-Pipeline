@@ -100,7 +100,14 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   (regardless of GPU) surfaces two further pre-existing issues — see the
   expanded issue #3 (namespace collisions between this repo's and
   Image-Toolkit's identically-named top-level `backend`/`gui` packages) and
-  issue #6 (6 test files import nonexistent fixture helpers). It also
+  issue #6 (6 test files import nonexistent fixture helpers — `[DONE
+  2026-08-06]`: recovered verbatim from Image-Toolkit's own
+  `backend/test/conftest.py`, where the ASP test suite was originally split
+  from; `make_frame`/`make_translation_affine`/`make_rotation_affine`/
+  `make_edge`/`compute_ty_gaps` plus 4 fixtures restored to this repo's
+  `backend/test/conftest.py`. 342 previously-uncollectible tests now pass;
+  `backend/test/`'s collection error count drops from 9 to 3, the remaining
+  3 all being the still-open issue #3). It also
   revealed that `backend/`'s lint/type checks have had **no CI enforcement
   at all** for as long as the `uv sync` bug existed: 2252 ruff errors + 345
   mypy errors, invisible until `uv sync` could actually complete — issue #7,
