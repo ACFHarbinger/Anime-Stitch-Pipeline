@@ -816,7 +816,16 @@ Candidate approaches (not mutually exclusive, roughly cheapest-first):
 1. **In-app guided walkthrough** — a first-run `QWizard` overlay in the
    PySide6 GUI walking a new user through `HybridStitchPanel`'s tool tabs
    once, dismissible, re-invocable from a Help menu. Lowest effort, most
-   direct.
+   direct. `[DONE 2026-08-06, issue #1]`
+   `gui/src/tabs/stencil/onboarding_wizard.py::HybridStitchOnboardingWizard`
+   — welcome page + one page per tool tab (sequence sidebar, Control
+   Points, Color Correct, Seam Painter, Mesh Warp, Render); paging through
+   switches the panel's live `QTabWidget` to match, so the tour points at
+   real UI. First-run only via `AppSettings` (same convention
+   `_thumbnail_file_picker.py` already uses), re-invocable from a new "?"
+   toolbar button in the panel (no menu bar exists in `HybridStitchPanel`
+   to hang a Help menu off of). Non-modal — never blocks the panel
+   underneath. 10 new tests (`gui/test/tabs/test_onboarding_wizard.py`).
 2. **Content-first tutorials** on the docs site (`docs/website/` — already
    functional) — written/video walkthroughs, cheaper to iterate than in-app
    UI but doesn't meet users inside the tool. `[DONE 2026-08-06, issue #2]`
