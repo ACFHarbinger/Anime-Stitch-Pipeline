@@ -1,0 +1,24 @@
+# tools/build — compile every language module.
+
+set shell := ["bash", "-c"]
+
+# Build all modules
+all: python typescript kotlin rust go cpp
+
+python:
+    cd python && uv build
+
+typescript:
+    cd typescript && npm run build
+
+kotlin:
+    cd kotlin && ./gradlew build
+
+rust:
+    cd rust && cargo build --release
+
+go:
+    cd go && go build ./...
+
+cpp:
+    cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build cpp/build -j
