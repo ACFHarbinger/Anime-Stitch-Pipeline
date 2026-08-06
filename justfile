@@ -46,15 +46,21 @@ clean:
     @just dev::clean
 
 # --- Build (→ tools/build) ---
+#
+# Named build-all/test-all/docs-build/bench-all below, not build/test/docs/
+# bench: `just` 1.46 forbids a recipe sharing a name with a declared `mod`,
+# and the `mod` names above are what make `just build::rust`-style direct
+# submodule access work (fixed 2026-08-06, issue #9 -- this collision made
+# every `just` command in this repo a hard parse error until now).
 
 # Build every language module
-build:
+build-all:
     @just build::all
 
 # --- Test (→ tools/test) ---
 
 # Run every language module's test suite
-test:
+test-all:
     @just test::all
 
 # --- Validation (→ tools/validation) ---
@@ -66,10 +72,10 @@ lint:
 # --- Docs (→ tools/docs) ---
 
 # Build the documentation site (MkDocs + Sphinx)
-docs:
+docs-build:
     @just docs::build
 
 # --- Benchmark (→ tools/bench) ---
 
-bench:
+bench-all:
     @just bench::all

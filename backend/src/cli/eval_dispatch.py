@@ -33,7 +33,7 @@ Usage:
     just asp-benchmark-assess          # the inspector
     just asp-triage                    # build the FiftyOne dataset + open the App
     # or directly:
-    uv run python backend/controllers/bench_eval_dispatch.py
+    uv run python backend/src/cli/eval_dispatch.py
         [--surface {inspector,triage,ingest,sync}] [--data-dir DIR] [--out PATH]
         [--results PATH] [--redo] [--start-at DATASET]
         [--default-view {display,pixel}] [--theme {dark,light}]
@@ -54,8 +54,33 @@ session.
 from __future__ import annotations
 
 import datetime
+import importlib.util
 import os
 import sys
+from pathlib import Path
+
+
+def _load_package(alias: str, src_dir: Path) -> None:
+    """Register ``src_dir`` in ``sys.modules`` under ``alias``, the same
+    collision-avoiding pattern ``backend/test/conftest.py`` and
+    ``gui/test/conftest.py`` use for ``asp_backend``/``asp_gui``/
+    ``asp_backend_evaluation`` (see issue #3): this repo's and
+    Image-Toolkit's top-level ``backend``/``gui`` directories share a name,
+    so a raw absolute import resolves inconsistently depending on which
+    repo's package Python's import system finds first. When this script is
+    run under Image-Toolkit's own bootstrap the aliases already exist and
+    this is a no-op (see the ``alias in sys.modules`` guard); when run as a
+    standalone script it performs the same registration itself."""
+    if alias in sys.modules or not src_dir.is_dir():
+        return
+    spec = importlib.util.spec_from_file_location(
+        alias, src_dir / "__init__.py", submodule_search_locations=[str(src_dir)]
+    )
+    if spec is None or spec.loader is None:
+        return
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[alias] = module
+    spec.loader.exec_module(module)
 
 
 def _bootstrap_repo_root() -> str:
@@ -82,7 +107,9 @@ def _bootstrap_repo_root() -> str:
     raise RuntimeError(f"Could not locate repo root (pyproject.toml) above {__file__}")
 
 
-_bootstrap_repo_root()
+_REPO_ROOT = Path(_bootstrap_repo_root())
+_load_package("asp_backend", _REPO_ROOT / "backend" / "src")
+_load_package("asp_backend_evaluation", _REPO_ROOT / "backend" / "benchmark" / "evaluation")
 
 from asp_backend_evaluation.constants.user_interface import (  # noqa: E402
     DISPLAY_PIXEL,

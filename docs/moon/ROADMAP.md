@@ -117,6 +117,14 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
 
 ## Ground Rules (carried from the critical evaluation — non-negotiable)
 
+**`just asp-benchmark-verify`/`asp-benchmark`/`asp-benchmark-assess`/`asp-triage`/
+`test-base-cpp` referenced throughout this document did not exist as runnable
+recipes until 2026-08-06 (issue #9) — worse, `just` itself hard-failed to parse
+the root `justfile` at all (a `mod`/recipe name collision), so no `just` command
+in this repo had ever actually run. Both fixed; see issue #9 for the full list
+of what's wired up now vs. still blocked on a GPU/OpenCV-dev-headers/external
+tools not present in a plain checkout.**
+
 1. **One change → one benchmark → keep or revert.** 5-test verify
    (`just asp-benchmark-verify`) per change; full 97 (`just asp-benchmark`, ~2.5 h)
    before any default flips. Record the JSON filename in the item when done.

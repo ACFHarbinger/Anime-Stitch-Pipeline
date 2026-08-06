@@ -1,8 +1,90 @@
 # tools/bench — run benchmarks.
+#
+# ASP-specific recipes below are referenced throughout docs/moon/ROADMAP.md
+# (the "one change -> one benchmark" ground rule, Phase 0.1's human rating
+# tool) but were never actually wired up here until 2026-08-06 (issue #9)
+# -- the commands existed as documentation, not as runnable recipes.
+#
+# Two independent environment requirements neither recipe here can satisfy
+# inside a plain checkout of this repo alone:
+#   - asp-benchmark / asp-benchmark-verify need a CUDA-capable GPU for the
+#     ML models (BiRefNet, LoFTR, etc.) -- see issue #5's packaging fix,
+#     which unblocks `uv sync` but not the hardware requirement itself.
+#   - All ASP recipes below need Image-Toolkit's own environment on
+#     PYTHONPATH (this repo's `backend.src.constants` absolute imports
+#     resolve to Image-Toolkit's shared constants module -- deliberate
+#     cross-repo coupling, not a bug) AND assume this repo is checked out
+#     at Image-Toolkit/submodules/Anime-Stitch-Pipeline/, matching every
+#     other cross-repo bootstrap in this codebase (gui/launch.py,
+#     base/CMakeLists.txt, etc.). `_IMAGE_TOOLKIT_ROOT` below computes that
+#     relative path; `_IMAGE_TOOLKIT_PY` uses Image-Toolkit's own venv.
+#
+# Recipes here run with this file's own directory (tools/bench/) as cwd,
+# not the repo root -- hence `cd ../../backend`, not `cd backend`.
 
 set shell := ["bash", "-c"]
+
+# justfile_directory() resolves to this repo's own root (Anime-Stitch-Pipeline/,
+# where the *root* justfile lives) regardless of which module file this
+# variable is defined in -- so Image-Toolkit's root is only 2 levels up
+# (Anime-Stitch-Pipeline/../..), not 4. Recipe bodies below, in contrast, run
+# with this file's own directory (tools/bench/) as cwd, hence `cd ../../backend`.
+_IMAGE_TOOLKIT_ROOT := justfile_directory() / "../.."
+_IMAGE_TOOLKIT_PY := _IMAGE_TOOLKIT_ROOT / ".venv/bin/python"
 
 all: backend
 
 backend:
-    cd backend && uv run pytest benchmark --benchmark-only
+    cd ../../backend && uv run pytest benchmark --benchmark-only
+
+# --- ASP quality benchmark (docs/moon/ROADMAP.md's Ground Rules) ---
+
+# Full 97-test corpus run (~2.5h, needs a CUDA GPU + dump/ populated).
+# Invoked by file path, not `-m backend.benchmark.X`: the latter needs
+# `backend` to resolve as a top-level package, which collides with
+# Image-Toolkit's own `backend` package the same way issue #3 describes.
+asp-benchmark *ARGS:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/bench_anime_stitch.py --data-dir dump {{ARGS}}
+
+# 5-test rapid subset (asp_test04/08/09/27/57) -- run before any default-flag flip
+asp-benchmark-verify:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/bench_anime_stitch.py --data-dir dump \
+        --tests asp_test04 asp_test08 asp_test09 asp_test27 asp_test57
+
+# --- Phase 0.1 human coherence evaluation tool (issue #123) ---
+
+# The PySide6 per-test inspector (default surface)
+asp-benchmark-assess *ARGS:
+    cd ../../backend && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        src/cli/eval_dispatch.py --surface inspector {{ARGS}}
+
+# The FiftyOne corpus-triage surface (needs the `benchmark-eval` extra + asp-triage-db)
+asp-triage *ARGS:
+    cd ../../backend && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        src/cli/eval_dispatch.py --surface triage {{ARGS}}
+
+# Local MongoDB via Docker for asp-triage (fiftyone-db ships no mongod for Ubuntu 26.04)
+asp-triage-db:
+    docker run -d --name asp-triage-mongo -p 27017:27017 -v asp-triage-mongo-data:/data/db mongo:7
+
+# --- Third-party comparators (docs/moon/ROADMAP.md §0.3/§0.5) ---
+
+# Overmix comparator run (docs/moon/ROADMAP.md §0.3)
+asp-run-overmix *ARGS:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        -m backend.benchmark.run_overmix {{ARGS}}
+
+# Hugin comparator run (docs/moon/ROADMAP.md §0.5)
+asp-run-hugin *ARGS:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        -m backend.benchmark.run_hugin {{ARGS}}
+
+# --- C++ core tests (base/, mirrors .github/workflows/ci.yml's build-test-base job) ---
+
+# Needs OpenCV 4.6+ dev headers + this repo checked out under Image-Toolkit/submodules/
+test-base-cpp:
+    cd ../.. && cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+    cd ../.. && cmake --build base/build --parallel
+    cd ../.. && ctest --test-dir base/build --output-on-failure

@@ -29,6 +29,34 @@ import numpy as np
 import psutil
 import torch
 
+
+def _load_package(alias: str, src_dir: Path) -> None:
+    """Register ``src_dir`` under ``alias`` in ``sys.modules``, the same
+    collision-avoiding pattern ``backend/test/conftest.py`` uses for
+    ``asp_backend`` (see issue #3: this repo's and Image-Toolkit's
+    top-level ``backend`` packages share a name, so a raw absolute
+    ``backend.X`` import resolves inconsistently depending on which repo's
+    package Python's import system finds first — this script needs to be
+    run by file path (``python backend/benchmark/bench_anime_stitch.py``),
+    not ``-m backend.benchmark.bench_anime_stitch``, for the same reason).
+    A no-op when the alias is already registered (e.g. by Image-Toolkit's
+    own bootstrap)."""
+    import importlib.util
+
+    if alias in sys.modules or not src_dir.is_dir():
+        return
+    spec = importlib.util.spec_from_file_location(
+        alias, src_dir / "__init__.py", submodule_search_locations=[str(src_dir)]
+    )
+    if spec is None or spec.loader is None:
+        return
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[alias] = module
+    spec.loader.exec_module(module)
+
+
+_load_package("asp_backend", Path(__file__).resolve().parents[1] / "src")
+
 from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine
 from asp_backend.alignment.canvas import (
     _compute_canvas,
@@ -3859,25 +3887,25 @@ if __name__ == "__main__":
         epilog="""
 Examples:
   # Run all 94 tests (default)
-  python3 -m backend.benchmark.bench_anime_stitch
+  python3 backend/benchmark/bench_anime_stitch.py
 
   # Run specific tests by name
-  python3 -m backend.benchmark.bench_anime_stitch --tests asp_test04 asp_test27
+  python3 backend/benchmark/bench_anime_stitch.py --tests asp_test04 asp_test27
 
   # Run a numeric range (zero-padded names)
-  python3 -m backend.benchmark.bench_anime_stitch --range 1-10
+  python3 backend/benchmark/bench_anime_stitch.py --range 1-10
 
   # Mix: explicit comma list of numbers
-  python3 -m backend.benchmark.bench_anime_stitch --range 1,4,8,27,57
+  python3 backend/benchmark/bench_anime_stitch.py --range 1,4,8,27,57
 
   # First N tests only
-  python3 -m backend.benchmark.bench_anime_stitch --first 5
+  python3 backend/benchmark/bench_anime_stitch.py --first 5
 
   # Skip tests already processed (panorama.png exists)
-  python3 -m backend.benchmark.bench_anime_stitch --skip-done
+  python3 backend/benchmark/bench_anime_stitch.py --skip-done
 
   # Combine: first 20 tests, skip done
-  python3 -m backend.benchmark.bench_anime_stitch --first 20 --skip-done
+  python3 backend/benchmark/bench_anime_stitch.py --first 20 --skip-done
 """,
     )
     parser.add_argument(
