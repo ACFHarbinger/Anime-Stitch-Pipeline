@@ -1,0 +1,6 @@
+{
+  "app": {
+    "name": "dev-repo-template",
+    "log_level": "info"
+  }
+}
