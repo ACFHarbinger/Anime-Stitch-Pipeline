@@ -1,0 +1,70 @@
+{% if is_external %}
+<div class='uml-header'>&lt;&lt;external_library&gt;&gt;<br/><b>{{ name }}</b></div>
+<div class='uml-body'><div class='uml-section'>Third-party or built-in module.</div></div>
+{% else %}
+<div class='uml-header'>&lt;&lt;module&gt;&gt;<br/><b>{{ filename }}</b></div>
+<div class='uml-body'>
+    <div class='uml-section'><b>Path:</b><br/>{{ display_path }}</div>
+
+    <div class='uml-section-title'>+ defines:</div>
+    <ul class='uml-list'>
+    {# This macro replaces your _render_defs_html python function #}
+    {% macro render_defs(children, limit, is_top) %}
+        {% if not children %}
+            {% if is_top %}<li><i>(None)</i></li>{% endif %}
+        {% else %}
+            {% for child in children %}
+                {% if loop.index0 == limit %}
+                    <details><summary>... (+{{ children|length - limit }} more)</summary><ul class='uml-list'>
+                {% endif %}
+                <li><span class='bullet'>+</span> {{ child.name }}
+                {% if child.children %}
+                    <ul>{{ render_defs(child.children, 50, False) }}</ul>
+                {% endif %}
+                </li>
+            {% endfor %}
+            {% if children|length > limit %}
+                </ul></details>
+            {% endif %}
+        {% endif %}
+    {% endmacro %}
+
+    {{ render_defs(defs_tree, 10, True) }}
+    </ul>
+
+    <div class='uml-section-title'>+ imports:</div>
+    <ul class='uml-list'>
+    {# This replaces your _render_imports_html python function #}
+    {% set total_items = direct_imps|length + grouped_imps|length %}
+    {% if total_items == 0 %}
+        <li><i>(None)</i></li>
+    {% else %}
+        {% set count = namespace(val=0) %}
+        {% for imp in direct_imps %}
+            {% if count.val == imports_limit %}
+                <details><summary>... (+{{ total_items - imports_limit }} more items)</summary><ul class='uml-list'>
+            {% endif %}
+            <li><span class='bullet'>+</span> import {{ imp }}</li>
+            {% set count.val = count.val + 1 %}
+        {% endfor %}
+
+        {% for prefix, names in grouped_imps.items() %}
+            {% if count.val == imports_limit %}
+                <details><summary>... (+{{ total_items - imports_limit }} more items)</summary><ul class='uml-list'>
+            {% endif %}
+            <li><span class='bullet'>+</span> from <b>{{ prefix }}</b>:
+                <ul>
+                {% for name in names %}
+                    <li><span class='bullet'>-</span> import {{ name }}</li>
+                {% endfor %}
+                </ul>
+            </li>
+            {% set count.val = count.val + 1 %}
+        {% endfor %}
+        {% if total_items > imports_limit %}
+            </ul></details>
+        {% endif %}
+    {% endif %}
+    </ul>
+</div>
+{% endif %}
