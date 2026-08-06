@@ -27,7 +27,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: docs/website/package-lock.json
       - run: npm ci
@@ -49,7 +49,7 @@ jobs:
       - name: Deploy to Pages branch
         run: |
           set -euo pipefail
-          AUTH_URL="${GITHUB_SERVER_URL/#https:\/\//https:\/\/x-access-token:${{ secrets.GITHUB_TOKEN }}@}/${GITHUB_REPOSITORY}.git"
+          AUTH_URL="${GITHUB_SERVER_URL/#https:\/\//https:\/\/x-access-token:${{ secrets.REPO_PROJECT_TOKEN }}@}/${GITHUB_REPOSITORY}.git"
           cd site
           git init -q -b pages
           git config user.name "forgejo-actions"

@@ -68,7 +68,7 @@ jobs:
 
       - name: Run backlog sync
         env:
-          GITHUB_TOKEN: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.REPO_PROJECT_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PROJECT_ID: ${{ vars.PROJECT_ID }}
         run: |
