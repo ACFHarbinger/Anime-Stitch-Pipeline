@@ -10,9 +10,7 @@ on:
       - "mkdocs.yml"
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
   group: docs-${{ github.ref }}
@@ -38,7 +36,9 @@ jobs:
         env:
           SITE_BASE: /${{ github.event.repository.name }}/app/
       - run: mkdir -p site/app && cp -r docs/website/dist/. site/app/
-      - uses: actions/upload-pages-artifact@v3
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: site
-      - uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
