@@ -21,6 +21,7 @@ import platform
 import shutil
 import sys
 import time
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import cv2
@@ -67,7 +68,7 @@ for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXP
 cv2.setNumThreads(int(_THREAD_CAP))
 torch.set_num_threads(int(_THREAD_CAP))
 
-sys.path.insert(0, os.path.expanduser("~/Repositories/Image-Toolkit"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
 os.environ.setdefault("PYTORCH_ALLOC_CONF", "expandable_segments:True")
 
 
