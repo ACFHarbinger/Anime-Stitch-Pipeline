@@ -1,0 +1,62 @@
+site_name: Dev-Repo-Template Documentation
+site_description: >-
+  Unified documentation portal for repositories generated from Dev-Repo-Template.
+site_author: ACFHarbinger
+repo_url: https://github.com/ACFHarbinger/Dev-Repo-Template
+repo_name: ACFHarbinger/Dev-Repo-Template
+edit_uri: edit/main/docs/
+
+docs_dir: .
+site_dir: ../site
+exclude_docs: |
+  sphinx/conf.py
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [../python/src]
+          options:
+            docstring_style: google
+            show_source: true
+
+nav:
+  - Home: index.md
+  - Architecture: ARCHITECTURE.md
+  - Development: DEVELOPMENT.md
+  - Testing: TESTING.md
+  - Dependencies: DEPENDENCIES.md
+  - Dependency Policy: DEPENDENCY_POLICY.md
+  - Documentation Standards: DOCUMENTATION_STANDARDS.md
+  - Benchmarks: BENCHMARKS.md
+  - Troubleshooting: TROUBLESHOOTING.md
+  - Glossary: GLOSSARY.md
+  - Architecture Decisions: adr/

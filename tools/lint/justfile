@@ -1,0 +1,24 @@
+# tools/lint — run every language module's linters/formatters.
+
+set shell := ["bash", "-c"]
+
+# Run all linters
+all: python typescript kotlin rust go cpp
+
+python:
+    cd python && uv run ruff check . && uv run ruff format --check .
+
+typescript:
+    cd typescript && npm run lint
+
+kotlin:
+    cd kotlin && ./gradlew ktlintCheck
+
+rust:
+    cd rust && cargo fmt -- --check && cargo clippy --all-targets -- -D warnings
+
+go:
+    cd go && gofmt -l . && go vet ./...
+
+cpp:
+    find cpp/src cpp/include cpp/test -name '*.cpp' -o -name '*.hpp' -o -name '*.h' | xargs clang-format --dry-run --Werror
