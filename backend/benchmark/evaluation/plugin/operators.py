@@ -2,7 +2,7 @@
 
 Kept in its own module rather than in the package ``__init__`` because it imports
 ``fiftyone.operators`` at module scope: FiftyOne is an optional dev extra, so
-``asp_backend.evaluation.plugin`` has to stay importable without it. The
+``asp_backend_evaluation.plugin`` has to stay importable without it. The
 package's ``register()`` defers to this module lazily.
 
 Three registrations bridge the two surfaces (issue #123):
@@ -48,7 +48,7 @@ def _bootstrap() -> None:
     """Put the repo root on ``sys.path``.
 
     FiftyOne loads a plugin by importing its directory as a standalone module,
-    *not* as part of ``asp_backend.evaluation.plugin`` — so relative
+    *not* as part of ``asp_backend_evaluation.plugin`` — so relative
     imports out of this directory don't resolve under that loader and the shared
     data layer has to be imported absolutely. Same walk-up-to-``pyproject.toml``
     guard ``bench_eval_dispatch.py`` uses for the same reason.
@@ -60,7 +60,7 @@ def _bootstrap() -> None:
 
 _bootstrap()
 
-from asp_backend.evaluation.other.metrics_view import (  # noqa: E402
+from asp_backend_evaluation.other.metrics_view import (  # noqa: E402
     RADAR_SCALES,
     radar_value,
 )
@@ -297,7 +297,7 @@ class SyncEvaluations(foo.Operator):
         return types.Property(inputs)
 
     def execute(self, ctx):
-        from asp_backend.evaluation.plugin import sync
+        from asp_backend_evaluation.plugin import sync
 
         path = ctx.params["evaluations_path"]
         if ctx.params.get("direction") == "push":

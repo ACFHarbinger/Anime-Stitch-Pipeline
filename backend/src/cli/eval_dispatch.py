@@ -84,12 +84,12 @@ def _bootstrap_repo_root() -> str:
 
 _bootstrap_repo_root()
 
-from asp_backend.evaluation.constants.user_interface import (  # noqa: E402
+from asp_backend_evaluation.constants.user_interface import (  # noqa: E402
     DISPLAY_PIXEL,
     DISPLAY_RAW,
 )
-from asp_backend.evaluation.other.discovery import repo_root_from  # noqa: E402
-from asp_backend.evaluation.other.settings import load_settings  # noqa: E402
+from asp_backend_evaluation.other.discovery import repo_root_from  # noqa: E402
+from asp_backend_evaluation.other.settings import load_settings  # noqa: E402
 
 
 def _default_out_path(repo_root: str) -> str:
@@ -112,7 +112,7 @@ def _resolve_out_path(args, repo_root: str) -> str:
 def build_dashboard(args):
     """Constructs (but does not show/exec) the inspector window — split out so a
     smoke test can build it under an offscreen QPA without an event loop."""
-    from asp_backend.evaluation.ui.main_window import InspectorWindow
+    from asp_backend_evaluation.ui.main_window import InspectorWindow
 
     repo_root = repo_root_from(__file__)
     default_view = DISPLAY_PIXEL if args.default_view == "pixel" else DISPLAY_RAW
@@ -155,7 +155,7 @@ def _run_inspector(args) -> None:
 
 
 def _run_triage(args, launch_app: bool) -> None:
-    from asp_backend.evaluation.plugin import ingest, preflight
+    from asp_backend_evaluation.plugin import ingest, preflight
 
     check = preflight.check(require_db=True)
     if not check.ok:
@@ -187,7 +187,7 @@ def _run_triage(args, launch_app: bool) -> None:
 
 
 def _run_sync(args) -> None:
-    from asp_backend.evaluation.plugin import preflight, sync
+    from asp_backend_evaluation.plugin import preflight, sync
 
     check = preflight.check(require_db=True)
     if not check.ok:

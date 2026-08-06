@@ -4,6 +4,14 @@ Registers this repo's own backend/src and gui/src packages under the same
 asp_backend / asp_gui aliases Image-Toolkit's own bootstrap uses (see
 Image-Toolkit's _submodule_bootstrap.py), so tests here and tests run via
 Image-Toolkit import identically regardless of which repo mounted them.
+
+Also registers backend/benchmark/evaluation under asp_backend_evaluation,
+for the same reason: this repo's and Image-Toolkit's top-level `backend`
+directories share a name and neither has a package-qualifying `__init__.py`
+distinguishing them from the other, so a raw `backend.benchmark.evaluation`
+absolute import resolves inconsistently (or not at all) depending on which
+repo's `backend` package Python's import system finds first -- see issue
+#3. The alias sidesteps that entirely, the same way asp_backend/asp_gui do.
 """
 
 from __future__ import annotations
@@ -33,6 +41,7 @@ def _load_package(alias: str, src_dir: Path) -> None:
 
 _load_package("asp_backend", _REPO_ROOT / "backend" / "src")
 _load_package("asp_gui", _REPO_ROOT / "gui" / "src")
+_load_package("asp_backend_evaluation", _REPO_ROOT / "backend" / "benchmark" / "evaluation")
 
 
 # ----------------------------------------------------------------------

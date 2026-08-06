@@ -208,7 +208,11 @@ defined against**, and the explicit prerequisite for flipping any of Phase
 
 **Tool: two surfaces over one source of truth**
 (`data/benchmarks/asp_evaluations_YYYYMMDD.json`), entry point
-`backend/controllers/bench_eval_dispatch.py --surface {inspector,triage,ingest,sync}`:
+`backend/src/cli/eval_dispatch.py --surface {inspector,triage,ingest,sync}`
+(path corrected 2026-08-06; the module itself now lives at
+`backend/benchmark/evaluation/`, matching the `ui/` reference just below,
+rather than `backend/src/evaluation/` — moved back to mirror the layout it
+had before the ASP/Image-Toolkit split, see issue #8):
 
 - **`just asp-benchmark-assess`** — the PySide6 inspector
   (`backend/benchmark/evaluation/ui/`). N-way comparison of every comparator a

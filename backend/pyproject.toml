@@ -61,7 +61,7 @@ matchers = [
     "pycocotools",
 ]
 # The FiftyOne corpus-triage surface of the ASP evaluation tool
-# (src/animation/evaluation/plugin/). Dev-only and deliberately not a
+# (backend/benchmark/evaluation/plugin/). Dev-only and deliberately not a
 # default dependency — pulls ~30 packages plus an embedded MongoDB.
 benchmark-eval = [
     "fiftyone>=1.19.0,<2",
