@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Moved `moon/`, `reports/`, and `research/` into `docs/` (`docs/moon/`, `docs/reports/`, `docs/research/`), consolidating all documentation under one directory; extended `docs/mkdocs.yml`'s nav with Roadmap/Changelog/Research/Reports sections at the new locations plus a link back to the parent Image-Toolkit project.
+- Added `docs/website/` — a Vue 3 + Vite documentation site (same design as Image-Toolkit's own) rendering every `docs/**/*.md` directly, nav/search generated from this repo's own `docs/mkdocs.yml`. Includes a "Related Projects" sidebar section embedding Image-Toolkit's and Cel-Shaded-Generator's own docs sites via iframe. Deployed alongside the MkDocs portal in CI (`.github/workflows/docs.yml` + Forgejo/Gitea/GitLab mirrors) at `/app/`.
+- Fixed `.gitlab/.gitlab-ci.yml`, `.gitlab/issue_templates/`, `.gitlab/merge_request_templates/`, and `.devcontainer/` — all still referenced the polyglot template's removed rust/typescript/kotlin/go/java dirs, missed when the `base`/`backend`/`gui` rename+flatten landed.
 - Imported the Anime Stitch Pipeline (ASP) engine from Image-Toolkit: the C++ pipeline (`cpp/src/animation`, `cpp/test/animation`), the Python pipeline (`python/src/animation`), tests (`python/test/animation`, `python/test/gui`), the benchmark evaluation dashboard (`python/src/animation/evaluation`), benchmark scripts (`python/benchmark`), the stitch GUI tab/elements/helpers/dialogs (`python/src/animation/gui`), QML mockups (`qml/`), the roadmap (`moon/ROADMAP.md`), research reports, and ASP-specific `.agent/` workflow/rule/skill/prompt/cache files.
 - Pruned the template to Python + C++ only (removed rust/java/kotlin/typescript/go scaffolding, the template-meta `dev/` tool, and desktop/infra scaffolding this project doesn't need).
 
