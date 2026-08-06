@@ -7,13 +7,12 @@ name = "anime-stitch-pipeline"
 version = "0.1.0"
 description = "Anime Stitch Pipeline (ASP) — panorama stitching engine."
 readme = "README.md"
-license = { file = "../LICENSE.md" }
+license = "AGPL-3.0-or-later"
 requires-python = ">=3.11"
 authors = [{ name = "ACFHarbinger" }]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Programming Language :: Python :: 3.11",
 ]
 dependencies = [

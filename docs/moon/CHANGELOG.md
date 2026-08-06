@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+> **Continuity note (2026-08-06):** `docs/moon/ROADMAP.md` cites specific
+> session numbers (e.g. "S214", "S216") as being documented "in
+> `docs/moon/CHANGELOG.md`". That detailed, session-by-session history
+> (~S1–S266+) was kept in the original standalone `Anime-Stitch-Pipeline`
+> repository before it was imported into this `Dev-Repo-Template`-based
+> layout; it was never migrated into this file, which otherwise only
+> contains this template's own scaffolding history. Those roadmap citations
+> are dead pending an explicit import of that history — treat any
+> `docs/moon/CHANGELOG.md SNNN` reference in the roadmap as pointing at
+> content that does not currently exist in this repo, not as a citation you
+> can follow.
+
 ## [Unreleased]
 
 ### Added

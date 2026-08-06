@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv sync --group dev
+      - run: uv sync --extra dev
         working-directory: backend
       - run: uv run ruff check .
         working-directory: backend
@@ -35,12 +35,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv sync --group dev
+      - run: uv sync --extra dev
         working-directory: gui
       - run: uv run ruff check .
         working-directory: gui
       - run: uv run mypy src
         working-directory: gui
+      # continue-on-error: gui/test/conftest.py currently fails to import
+      # (backend/src's absolute `from backend.src... import` requires the
+      # repo root on sys.path, which gui's standalone `uv sync` doesn't
+      # provide — a pre-existing test-harness wiring gap, not something
+      # introduced here). Non-blocking until that's fixed so this step adds
+      # visibility without blocking merges; see docs/TESTING.md.
+      - run: uv run pytest test -v
+        working-directory: gui
+        env:
+          QT_QPA_PLATFORM: offscreen
+        continue-on-error: true
 
   build-test-base:
     runs-on: ubuntu-latest

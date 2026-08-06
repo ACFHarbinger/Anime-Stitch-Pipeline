@@ -44,6 +44,52 @@ serves as Phase 2.6's full-corpus host-freeze-fix confirmation (issue #25).
 
 ---
 
+## §0 — Product Scope (2026-08-06)
+
+*Findings from an independent whole-app review (not just the ML pipeline);
+recorded here because they set the resourcing context every phase below
+competes for.*
+
+The review found substantial effort going into meta-infrastructure —
+a Tauri+React frontend scaffold, Android/iOS mobile scaffolds, a duplicate
+QML tab tree alongside the working PySide6 widgets, and five parallel
+documentation toolchains — while the core product (a stitcher whose output
+an artist would keep) still loses to the OpenCV baseline on most tests. None
+of that meta-work was bad in isolation, but it was opportunity cost the
+project couldn't afford pre-product-market-fit. Resulting decisions:
+
+- **Mobile (`app/android`, `app/ios`) — deleted, not just frozen.** Both were
+  explicitly-labeled skeletons that (per their own README) can't even run the
+  pipeline on-device without a remote API that doesn't exist and isn't
+  planned. Zero present value, real maintenance/CI/Dependabot surface;
+  trivially re-scaffolded from `Dev-Repo-Template` later if a real plan
+  emerges.
+- **`gui/qml/` — deleted.** A second, undecided UI paradigm (QML) duplicating
+  panels that already exist and work as PySide6 widgets (the Stitch tab,
+  `HybridStitchPanel`). PySide6 Widgets is canonical; there is now only one
+  GUI implementation to maintain.
+- **`frontend/` (Tauri) — frozen, not deleted.** Still a 9-line placeholder
+  (`main.ts`). Kept in git (cheap to keep, expensive to rebuild) but no work
+  starts here until the Phase 4 exit gate is met — see `frontend/README.md`.
+- **Documentation toolchains — flagged, not yet consolidated.** MkDocs
+  Material, a hand-built Vue site, Sphinx, Structurizr, and Doxygen/TypeDoc
+  all currently target the same underlying `docs/**/*.md` / API surface.
+  Worth reducing to two (e.g. MkDocs for the portal + Sphinx for API
+  autodoc) — parked as a follow-up decision, not executed in this pass.
+- **`HybridStitchPanel` (`gui/src/tabs/stencil/hybrid_stitch_panel.py`) is
+  the closest thing to shippable, artist-facing value that exists today** —
+  a working manual/interactive stitching tool independent of whether the
+  automated `AnimeStitchPipeline` ever beats the OpenCV baseline. It and the
+  automated pipeline are resourced in parallel going forward (neither blocks
+  the other), per the same review.
+- **Tutorials/onboarding do not exist at all** — no wizard, no first-run
+  help, no guided walkthrough, in either the Stitch tab or
+  `HybridStitchPanel`. This is a real feature gap against the stated product
+  vision, not a maturity issue on existing code — tracked as a new item,
+  see Phase 6 below.
+
+---
+
 ## Ground Rules (carried from the critical evaluation — non-negotiable)
 
 1. **One change → one benchmark → keep or revert.** 5-test verify
@@ -403,9 +449,11 @@ warp incompatible poses together. Evaluation §9.2 has the full sketch.*
 ### 2.1 `ASP_HOLD_AVERAGE=1` A/B  `[done — measured at full-corpus scale, S214/S217]`
 Overmix-style ECC sub-pixel averaging within hold blocks. Needed real
 engineering before it was even measurable — the benchmark had its own
-disconnected frame-selection reimplementation; see `docs/moon/CHANGELOG.md` S214
-for the consolidation + bugs found/fixed (both pre-dated this work and
-already affected the GUI path). **Full-corpus (S217, n=96/97, combined with
+disconnected frame-selection reimplementation; the S214 session that
+consolidated it + the bugs found/fixed (both pre-dated this work and already
+affected the GUI path) is documented in the pre-import project history, not
+in this repo's `docs/moon/CHANGELOG.md` — see the note at the top of that
+file. **Full-corpus (S217, n=96/97, combined with
 2.3's flag — not isolated) vs the 2026-07-09 baseline**: CV verdict 31/36/27/2
 (was 27/41/29/0); aligned GT-SSIM 0.694 vs 0.719 (was 0.693 vs 0.718 — flat,
 expected: preprocessing win, not the pose-gap fix 2.4 targets); sharpness
@@ -427,8 +475,9 @@ primitive as hold detection one level up. Measurement-only (JSON diagnostics
 different phases skip midpoint-warp entirely and escalate to single-pose
 from the dominant phase, via `_dominant_frame_in_band` in `compositing.py`.
 `phase_ids` computed once in `AnimeStitchPipeline.run()`, shared by GUI and
-benchmark (see `docs/moon/CHANGELOG.md` S216 for an index-alignment bug caught
-before shipping). 5-test verify: neutral-to-slightly-better, 8 seams
+benchmark (S216 caught an index-alignment bug here before shipping — again,
+pre-import history, not in this repo's `CHANGELOG.md`; see its top-of-file
+note). 5-test verify: neutral-to-slightly-better, 8 seams
 correctly escalated, spot-checked visually coherent. Full-corpus: see 2.1's
 numbers (run combined). Human ratings — the roadmap's actual Phase-2.3
 success criterion ("zero coherence-class losses among true
@@ -704,6 +753,84 @@ specialty — √N sub-pixel averaging), optional Real-ESRGAN anime_6B or APISR 
 SemanticStitch mesh-based seam barrier as a third seam candidate (§R), and
 revisiting generative seam synthesis with whatever 1.1 found — each as a measured
 A/B, and any generative step behind the report-mandated LPIPS/CLIP quality gate.
+
+### 5.1 Bounded RL / mathematical-optimization reintroduction
+
+**History, so this isn't attempted blind:** PSO and DRL (for multi-frame
+super-resolution) and a full RLHF reward-model/trainer/feedback-tab stack
+(for compositing quality) were all built during the pre-trim era and deleted
+in the S200 "great trim" as unverified complexity — see
+`research/ASP_Critical_Evaluation_2026-07-08.md` and
+`.agent/cache/asp_state_of_the_pipeline.md` §1. They failed under exactly the
+conditions that made everything else in that era fail: no coherence metric
+to optimize against, no A/B discipline, default-shipped without measurement.
+That is settled negative evidence about *how* these methods were used, not
+about whether RL/mathematical-optimization has a place here — the two are
+different questions, and this section is deliberately scoped to keep them
+distinct.
+
+Reintroduction is allowed only narrow-and-bounded, under the same Ground
+Rules as everything else (one change → one benchmark → keep or revert; no
+default-ON without a full-97 run; a human coherence rating, once Phase 0.1
+lands, as the success criterion — never a proxy metric alone). Candidates,
+in priority order:
+
+1. **RL for pose-consistent frame selection.** The evaluation's own §9.2 and
+   this roadmap's §R call frame/phase-consistent selection "the single most
+   important unimplemented idea" — closer to the actual bottleneck (pose
+   gaps at frame selection, not compositing) than RLHF-for-compositing ever
+   was. A policy trained against Phase 0.1's human coherence ratings
+   (unavailable until that rating pass runs) to pick frame groups by
+   animation phase, evaluated the same way 2.4's phase-aware selection
+   attempt was (and was rejected) — this must beat that attempt's numbers,
+   not just exist.
+2. **PSO/genetic search over the remaining gate thresholds and warp
+   parameters** (the ~8 gates in `.agent/cache/asp_state_of_the_pipeline.md`
+   §3, plus ARAP regularization weights) — a much smaller, more legible
+   search space than "learn compositing end-to-end," with a clear objective
+   (the human coherence rating) once it exists.
+3. **Evolutionary search over blend/photometric parameters** (gain-solve
+   priors, feather curves) — lowest priority; §3.1's joint gain solve
+   postmortems suggest the current gap there is architectural (local vs.
+   global fixes), not a tuning problem search would help with.
+
+Do not revisit RLHF-style reward modeling or DRL-based super-resolution in
+their prior forms without first reading why they were removed — if
+reattempted, they must be re-justified against the same discipline as (1)–(3)
+above, not shipped as a wholesale subsystem.
+
+**Gate:** none of this starts before the Phase 4 exit gate, per the
+Anti-Goals below — this section documents the plan, it does not schedule it.
+
+---
+
+## Phase 6 — Tutorials & Onboarding *(unscheduled; parallel-eligible with
+Phase 2+, does not block or get blocked by pipeline-coherence work)*
+
+Grepped `gui/` and `frontend/` for tutorial/onboarding/wizard/guide
+(2026-08-06 whole-app review): zero hits. This is a genuine gap against the
+stated product vision ("tutorials to help beginner artists"), not a
+maturity issue on existing code — nothing exists yet, not even a stub.
+Candidate approaches (not mutually exclusive, roughly cheapest-first):
+
+1. **In-app guided walkthrough** — a first-run `QWizard` overlay in the
+   PySide6 GUI walking a new user through `HybridStitchPanel`'s tool tabs
+   once, dismissible, re-invocable from a Help menu. Lowest effort, most
+   direct.
+2. **Content-first tutorials** on the docs site (`docs/website/` — already
+   functional) — written/video walkthroughs, cheaper to iterate than in-app
+   UI but doesn't meet users inside the tool.
+3. **Bundled sample projects** — 2–3 example frame sequences shipped with a
+   guided "try HybridStitch on this" mode; teaches by doing.
+4. **Assisted-use suggestions** — surface `gui/src/elements/_stats_recommendations.py`'s
+   existing diagnostics as explained, in-context suggestions ("why this seam
+   adjustment") rather than a separate tutorial mode. The most
+   vision-aligned option (ML-assisted teaching) but should wait until the
+   automated pipeline's suggestions are trustworthy enough to be worth
+   following — i.e. not before the Phase 4 exit gate.
+
+No A/B-benchmark discipline applies here (this isn't pipeline-quality work);
+normal UI review and user testing is the right bar.
 
 ---
 
