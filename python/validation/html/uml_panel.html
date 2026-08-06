@@ -1,0 +1,84 @@
+<style>
+#uml-panel {
+    display: none;
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: #ffffff;
+    border: 2px solid #000;
+    font-family: 'Consolas', 'Courier New', monospace;
+    color: #000;
+    box-shadow: 6px 6px 15px rgba(0,0,0,0.6);
+    z-index: 1000;
+}
+.uml-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+    border-bottom: 2px solid #000;
+    background-color: #5ab3d9;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.uml-body { padding: 12px; background-color: #ffffff; }
+.uml-section { margin-bottom: 10px; border-bottom: 1px dashed #444; padding-bottom: 5px; word-wrap: break-word;}
+.uml-section-title { font-weight: bold; margin-top: 10px; }
+
+.uml-list { margin-top: 5px; font-size: 0.9em; list-style-type: none; margin-left: 0; padding-left: 0; white-space: nowrap;}
+.uml-list ul { list-style-type: none; padding-left: 18px; margin: 2px 0 6px 0; border-left: 1px dashed #ccc; }
+.bullet { font-weight: bold; color: #333; margin-right: 4px; }
+
+details { margin: 2px 0; }
+details > summary {
+    cursor: pointer;
+    color: #0066cc;
+    font-weight: bold;
+    list-style: none;
+    margin-top: 4px;
+}
+details > summary::-webkit-details-marker { display: none; }
+details > summary:hover { text-decoration: underline; }
+
+#close-btn {
+    position: absolute; right: 5px; top: 5px;
+    cursor: pointer; font-weight: bold; color: #000; z-index: 20;
+}
+</style>
+
+<div id="uml-panel">
+    <span id="close-btn" onclick="document.getElementById('uml-panel').style.display='none'">X</span>
+    <div id="uml-content"></div>
+</div>
+
+<script type="text/javascript">
+setTimeout(function() {
+    if (typeof network !== 'undefined') {
+        network.on("click", function(params) {
+            var panel = document.getElementById("uml-panel");
+            var content = document.getElementById("uml-content");
+
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0];
+                var node = nodes.get(nodeId);
+                if (node && node.uml) {
+                    content.innerHTML = node.uml;
+                    panel.style.display = "block";
+                }
+            } else if (params.edges.length > 0) {
+                var edgeId = params.edges[0];
+                var edge = edges.get(edgeId);
+                if (edge && edge.uml) {
+                    content.innerHTML = edge.uml;
+                    panel.style.display = "block";
+                }
+            } else {
+                panel.style.display = "none";
+            }
+        });
+    }
+}, 1000);
+</script>
