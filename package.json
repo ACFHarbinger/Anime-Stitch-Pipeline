@@ -1,0 +1,15 @@
+{
+    "name": "dev-repo-template-root",
+    "private": true,
+    "description": "Root workspace manifest for Dev-Repo-Template. The actual TypeScript module lives in typescript/ (see typescript/package.json).",
+    "scripts": {
+        "dev": "npm run dev --prefix typescript",
+        "build": "npm run build --prefix typescript",
+        "lint": "npm run lint --prefix typescript",
+        "test": "npm run test --prefix typescript",
+        "install:all": "npm install && npm install --prefix typescript"
+    },
+    "workspaces": [
+        "typescript"
+    ]
+}
