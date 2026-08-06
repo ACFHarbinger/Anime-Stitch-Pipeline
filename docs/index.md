@@ -10,5 +10,7 @@ Welcome to the documentation portal for this repository. This site is built with
 - [Development](DEVELOPMENT.md) — local setup
 - [Testing](TESTING.md) — how to run and write tests
 - [Troubleshooting](TROUBLESHOOTING.md) — common problems and fixes
+- [Getting Started with HybridStitch](tutorials/getting-started-hybridstitch.md) — a beginner's walkthrough of the manual/interactive stitching tool
+- [ASP Pipeline Overview](tutorials/pipeline-overview.md) — what the automated pipeline does, and how it differs from HybridStitch
 - [`moon/ROADMAP.md`](../moon/ROADMAP.md) — what's planned
 - [`moon/CHANGELOG.md`](../moon/CHANGELOG.md) — what shipped
