@@ -30,7 +30,7 @@ class _MatcherSelectionMixin:
 
         if self.use_jamma and _is_4k:
             try:
-                from backend.src.models.wrappers.jamma_wrapper import JamMaWrapper  # §3.14 lazy
+                from animation.models.wrappers.jamma_wrapper import JamMaWrapper  # §3.14 lazy
 
                 _jamma_inst = JamMaWrapper()
                 _jamma_inst.load_model()
@@ -46,7 +46,7 @@ class _MatcherSelectionMixin:
         if _active_loftr is None and self.use_efficient_loftr:
             if self._eloftr is None:
                 try:
-                    from backend.src.models.wrappers.efficient_loftr_wrapper import (
+                    from animation.models.wrappers.efficient_loftr_wrapper import (
                         EfficientLoFTRWrapper,
                     )  # §3.14 lazy
 
@@ -74,7 +74,7 @@ class _MatcherSelectionMixin:
 
         if self.use_aliked and self._aliked is None:
             try:
-                from backend.src.models.wrappers.aliked_lg_wrapper import (
+                from animation.models.wrappers.aliked_lg_wrapper import (
                     ALIKEDLightGlueWrapper,
                 )  # §3.14 lazy
 

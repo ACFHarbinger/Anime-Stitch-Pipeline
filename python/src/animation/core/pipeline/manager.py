@@ -24,10 +24,10 @@ from ._thin_wrappers_mixin import _ThinWrappersMixin
 from .run_stage import _RunStageMixin
 
 if TYPE_CHECKING:
-    from backend.src.models.core.stitch_net import AnimeStitchNet
-    from backend.src.models.wrappers.aliked_lg_wrapper import ALIKEDLightGlueWrapper
+    from animation.models.stitch_net import AnimeStitchNet
+    from animation.models.wrappers.aliked_lg_wrapper import ALIKEDLightGlueWrapper
     from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
-    from backend.src.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
+    from animation.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
     from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
 
 

@@ -56,7 +56,7 @@ _ALIKED_OK: bool = _importlib_util_pipeline.find_spec("kornia") is not None
 
 # roma_wrapper: romatch library (not typically installed)
 try:
-    from backend.src.models.wrappers.roma_wrapper import RoMaWrapper
+    from animation.models.wrappers.roma_wrapper import RoMaWrapper
 
     _ROMA_OK = True
 except ImportError:
