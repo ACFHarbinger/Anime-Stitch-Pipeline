@@ -18,11 +18,13 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QLabel,
     QListWidget,
     QListWidgetItem,
     QMessageBox,
     QPushButton,
     QTabWidget,
+    QToolButton,
     QVBoxLayout,
     QWidget,
 )
@@ -35,6 +37,11 @@ from gui.src.constants import (
 from gui.src.styles import apply_shadow_effect
 from ..widgets import ColorCorrectionWidget, MeshWarpWidget, SeamPainterWidget
 from .control_point_editor import ControlPointEditor, _apply_color_correction, _load_thumb
+from .onboarding_wizard import (
+    HybridStitchOnboardingWizard,
+    hybrid_stitch_onboarding_seen,
+    mark_hybrid_stitch_onboarding_seen,
+)
 from .render_panel import RenderPanel
 
 
@@ -67,7 +74,12 @@ class RealHybridStitchPanel(QWidget):
         self._seam_masks: Dict[Tuple[int, int], np.ndarray] = {}
         self._corrections: Dict[str, dict] = {}
         self._current_pair: Tuple[int, int] = (0, 1)
+        self._onboarding_wizard: HybridStitchOnboardingWizard | None = None
         self._build_ui()
+        # First-run only: fires once the panel actually becomes visible so
+        # the wizard doesn't pop up behind a not-yet-shown window. Re-entrant
+        # calls after the first run are gated by AppSettings (Phase 6.1).
+        QTimer.singleShot(0, self._maybe_show_first_run_onboarding)
 
     # ── UI construction ──────────────────────────────────────────────
 
@@ -82,6 +94,25 @@ class RealHybridStitchPanel(QWidget):
         sl = QVBoxLayout(sidebar)
         sl.setContentsMargins(0, 0, 0, 0)
         sl.setSpacing(4)
+
+        # ── Toolbar: title + re-invocable help/tour button ─────────────
+        toolbar = QHBoxLayout()
+        toolbar.setContentsMargins(0, 0, 0, 0)
+        title = QLabel("Hybrid Stitch")
+        title.setStyleSheet("font-weight:bold; color:#ddd;")
+        toolbar.addWidget(title)
+        toolbar.addStretch()
+        self._help_btn = QToolButton()
+        self._help_btn.setText("?")
+        self._help_btn.setToolTip("Show the guided tour")
+        self._help_btn.setFixedSize(24, 24)
+        self._help_btn.setStyleSheet(
+            "QToolButton { border-radius:12px; background:#3a3d42; color:#ccc; "
+            "font-weight:bold; } QToolButton:hover { background:#1976D2; color:white; }"
+        )
+        self._help_btn.clicked.connect(self._show_onboarding_wizard)
+        toolbar.addWidget(self._help_btn)
+        sl.addLayout(toolbar)
 
         seq_group = QGroupBox("Sequence")
         seq_group.setStyleSheet(DARK_GROUP_STYLE)
@@ -390,3 +421,26 @@ class RealHybridStitchPanel(QWidget):
             QMessageBox.information(self, "Hybrid Stitch", "Sequence is empty.")
             return
         self.sequence_accepted.emit(list(self._sequence))
+
+    # ── Onboarding wizard (roadmap Phase 6.1) ──────────────────────────
+
+    def _maybe_show_first_run_onboarding(self):
+        """Auto-open the guided tour once, the first time this panel runs."""
+        if not hybrid_stitch_onboarding_seen():
+            self._show_onboarding_wizard()
+
+    def _show_onboarding_wizard(self):
+        """(Re-)open the guided tour. Non-modal: never blocks normal use."""
+        if self._onboarding_wizard is not None:
+            self._onboarding_wizard.close()
+        wizard = HybridStitchOnboardingWizard(self, self)
+        wizard.setModal(False)
+        wizard.finished.connect(self._on_onboarding_finished)
+        self._onboarding_wizard = wizard
+        wizard.show()
+
+    def _on_onboarding_finished(self, _result: int):
+        # Dismissed at any step (Finish, Cancel, or the window's close box)
+        # all land here -- mark it seen so it doesn't auto-open again.
+        mark_hybrid_stitch_onboarding_seen()
+        self._onboarding_wizard = None
