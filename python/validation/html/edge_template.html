@@ -1,0 +1,10 @@
+<div class='uml-header'>&lt;&lt;import_dependency&gt;&gt;<br/><b>Connection</b></div>
+<div class='uml-body'>
+{% if direction == "backward" %}
+    <div class='uml-section'>+ <b>Importer:</b><br>{{ src_label }}</div>
+    <div class='uml-section'>+ <b>Provider:</b><br>{{ tgt_label }}</div>
+{% else %}
+    <div class='uml-section'>+ <b>Provider:</b><br>{{ src_label }}</div>
+    <div class='uml-section'>+ <b>Importer:</b><br>{{ tgt_label }}</div>
+{% endif %}
+</div>
