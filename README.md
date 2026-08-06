@@ -1,12 +1,12 @@
 <div align="center">
 
-# Dev-Repo-Template
+# Anime-Stitch-Pipeline
 
-**A batteries-included GitHub template repository — CI/CD, docs, containerization, LLM agent scaffolding, and multi-language module skeletons in one place.**
+**The Anime Stitch Pipeline (ASP) — a multimodal panorama stitching engine for scrolling anime/manga captures, with a C++ compute core and a Python/PySide6 HITL pipeline + GUI.**
 
-<a href="https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/ci.yml/badge.svg"></a>
-<a href="https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/docs.yml"><img alt="Docs" src="https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/docs.yml/badge.svg"></a>
-<a href="https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/security.yml"><img alt="Security Audit" src="https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/security.yml/badge.svg"></a>
+<a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/ci.yml/badge.svg"></a>
+<a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/docs.yml"><img alt="Docs" src="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/docs.yml/badge.svg"></a>
+<a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/security.yml"><img alt="Security Audit" src="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/security.yml/badge.svg"></a>
 <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg">
 <a href="https://github.com/astral-sh/ruff"><img alt="Ruff" src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json"></a>
 <a href="https://mypy-lang.org/"><img alt="MyPy" src="https://img.shields.io/badge/MyPy-checked-2f4f4f.svg"></a>

@@ -36,7 +36,7 @@ sys.path.insert(0, _repo_root)
 
 pytest.importorskip("PySide6", reason="the inspector needs PySide6")
 
-from backend.benchmark.evaluation.constants.user_interface import (  # noqa: E402
+from animation.evaluation.constants.user_interface import (  # noqa: E402
     DISPLAY_PIXEL,
     DISPLAY_RAW,
     LAYOUT_GRID,
@@ -49,9 +49,9 @@ from backend.benchmark.evaluation.constants.user_interface import (  # noqa: E40
     ZOOM_MAX,
     ZOOM_MIN,
 )
-from backend.benchmark.evaluation.ui.image_panel import ImagePanel  # noqa: E402
-from backend.benchmark.evaluation.ui.panel_grid import PanelGrid  # noqa: E402
-from backend.benchmark.evaluation.ui.scoring_panel import ScoringPanel  # noqa: E402
+from animation.evaluation.ui.image_panel import ImagePanel  # noqa: E402
+from animation.evaluation.ui.panel_grid import PanelGrid  # noqa: E402
+from animation.evaluation.ui.scoring_panel import ScoringPanel  # noqa: E402
 from PySide6.QtCore import QPoint  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
@@ -339,7 +339,7 @@ def _qrectf(x, y, w, h):
 
 
 def test_edge_builder_needs_two_before_it_can_finish():
-    from backend.benchmark.evaluation.ui.annotations import EdgeBuilder
+    from animation.evaluation.ui.annotations import EdgeBuilder
 
     builder = EdgeBuilder()
     assert builder.can_finish() is False
@@ -350,7 +350,7 @@ def test_edge_builder_needs_two_before_it_can_finish():
 
 
 def test_edge_builder_supports_chains_beyond_two():
-    from backend.benchmark.evaluation.ui.annotations import EdgeBuilder
+    from animation.evaluation.ui.annotations import EdgeBuilder
 
     builder = EdgeBuilder()
     for key in ("asp", "simple", "overmix", "ground_truth"):
@@ -362,7 +362,7 @@ def test_edge_builder_supports_chains_beyond_two():
 
 
 def test_edge_builder_finish_below_two_returns_none_and_keeps_state():
-    from backend.benchmark.evaluation.ui.annotations import EdgeBuilder
+    from animation.evaluation.ui.annotations import EdgeBuilder
 
     builder = EdgeBuilder()
     builder.add("asp", 0.1, 0.1)
@@ -371,7 +371,7 @@ def test_edge_builder_finish_below_two_returns_none_and_keeps_state():
 
 
 def test_edge_builder_reset_discards_pending_points():
-    from backend.benchmark.evaluation.ui.annotations import EdgeBuilder
+    from animation.evaluation.ui.annotations import EdgeBuilder
 
     builder = EdgeBuilder()
     builder.add("asp", 0.1, 0.1)
@@ -382,7 +382,7 @@ def test_edge_builder_reset_discards_pending_points():
 
 
 def test_edge_builder_mixes_points_and_regions():
-    from backend.benchmark.evaluation.ui.annotations import EdgeBuilder
+    from animation.evaluation.ui.annotations import EdgeBuilder
 
     builder = EdgeBuilder()
     builder.add("asp", 0.1, 0.1)  # a point
@@ -398,8 +398,8 @@ def test_edge_builder_mixes_points_and_regions():
 
 
 def test_overlay_renders_a_pending_chain_across_panels(qapp):
-    from backend.benchmark.evaluation.other.schema import EdgePoint
-    from backend.benchmark.evaluation.ui.annotations import EdgeOverlay
+    from animation.evaluation.other.schema import EdgePoint
+    from animation.evaluation.ui.annotations import EdgeOverlay
 
     a = ImagePanel("asp", "ASP")
     b = ImagePanel("simple", "Simple")
@@ -423,7 +423,7 @@ def test_overlay_renders_a_pending_chain_across_panels(qapp):
 
 
 def test_restoring_bboxes_after_a_reload_does_not_accumulate(panel):
-    from backend.benchmark.evaluation.other.schema import BoundingBox
+    from animation.evaluation.other.schema import BoundingBox
 
     boxes = [BoundingBox(image="asp", x=0.1, y=0.1, w=0.2, h=0.2)]
     panel.restore_bboxes(boxes)
@@ -434,7 +434,7 @@ def test_restoring_bboxes_after_a_reload_does_not_accumulate(panel):
 
 
 def test_bboxes_for_other_panels_are_ignored(panel):
-    from backend.benchmark.evaluation.other.schema import BoundingBox
+    from animation.evaluation.other.schema import BoundingBox
 
     panel.restore_bboxes([BoundingBox(image="simple", x=0.1, y=0.1, w=0.2, h=0.2)])
     assert panel._overlay_items == []
@@ -666,14 +666,14 @@ def test_order_changed_signal_does_not_fire_on_a_noop_reorder(grid):
 
 @pytest.fixture()
 def restore_dark_theme(qapp):
-    from backend.benchmark.evaluation.ui.theme import apply_theme
+    from animation.evaluation.ui.theme import apply_theme
 
     yield
     apply_theme(qapp, "dark")  # theme is module-level state; don't leak into other tests
 
 
 def test_grid_refresh_theme_updates_the_focused_chips_inline_style(grid, restore_dark_theme):
-    from backend.benchmark.evaluation.ui.theme import apply_theme, current_palette
+    from animation.evaluation.ui.theme import apply_theme, current_palette
 
     grid.set_focus("asp")
     apply_theme(grid, "light")
@@ -683,7 +683,7 @@ def test_grid_refresh_theme_updates_the_focused_chips_inline_style(grid, restore
 
 
 def test_grid_refresh_theme_also_updates_unfocused_cells(grid, restore_dark_theme):
-    from backend.benchmark.evaluation.ui.theme import apply_theme, current_palette
+    from animation.evaluation.ui.theme import apply_theme, current_palette
 
     grid.set_focus("asp")
     apply_theme(grid, "light")
@@ -701,7 +701,7 @@ def test_grid_refresh_theme_also_updates_unfocused_cells(grid, restore_dark_them
 def scoring(qapp):
     widget = ScoringPanel()
     widget.set_comparators(["asp", "simple", "overmix"])
-    from backend.benchmark.evaluation.other.schema import RatingEntry
+    from animation.evaluation.other.schema import RatingEntry
 
     widget.load_entry(RatingEntry())
     return widget
@@ -771,7 +771,7 @@ def test_expanding_dimensions_shows_every_row(scoring):
 
 
 def test_loading_an_entry_does_not_emit_changes(scoring):
-    from backend.benchmark.evaluation.other.schema import RatingEntry
+    from animation.evaluation.other.schema import RatingEntry
 
     seen = []
     scoring.changed.connect(lambda: seen.append(1))
@@ -787,7 +787,7 @@ def test_comparators_are_rebuilt_per_test(scoring):
 
 
 def test_scoring_panel_refresh_theme_updates_every_chip(scoring, restore_dark_theme):
-    from backend.benchmark.evaluation.ui.theme import apply_theme, current_palette
+    from animation.evaluation.ui.theme import apply_theme, current_palette
 
     apply_theme(scoring, "light")
     scoring.refresh_theme()
@@ -799,7 +799,7 @@ def test_scoring_panel_refresh_theme_updates_every_chip(scoring, restore_dark_th
 
 
 def test_scoring_panel_refresh_theme_updates_optional_dimension_label(scoring, restore_dark_theme):
-    from backend.benchmark.evaluation.ui.theme import apply_theme, current_palette
+    from animation.evaluation.ui.theme import apply_theme, current_palette
 
     apply_theme(scoring, "light")
     scoring.refresh_theme()

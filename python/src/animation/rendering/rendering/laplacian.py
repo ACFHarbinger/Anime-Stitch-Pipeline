@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 import cv2
 import numpy as np
 
-from backend.src.animation.core.stateless import _laplacian_blend
+from animation.core.stateless import _laplacian_blend
 
 from . import _native
 

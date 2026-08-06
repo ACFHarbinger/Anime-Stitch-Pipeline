@@ -21,7 +21,7 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from backend.src.animation.alignment.bundle_adjust import (  # noqa: E402
+from animation.alignment.bundle_adjust import (  # noqa: E402
     _bundle_adjust_affine,
     _compute_adaptive_f_scale,
     _gnc_weights_geman_mcclure,
@@ -331,7 +331,7 @@ class TestGNCRobustLoss:
         original = _os.environ.get("ASP_BA_F_SCALE")
         try:
             _os.environ["ASP_BA_F_SCALE"] = "5.0"
-            import backend.src.animation.alignment.bundle_adjust as _ba
+            import animation.alignment.bundle_adjust as _ba
 
             importlib.reload(_ba)
             assert abs(_ba._BA_F_SCALE - 5.0) < 1e-6

@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from backend.src.animation.alignment.fg_register import register_foreground_at_seam
+from animation.alignment.fg_register import register_foreground_at_seam
 
 from ._boundaries import _dominant_frame_in_band
 from ._flags import _FG_REGISTER_ENABLED, _PHASE_COMPOSITE

@@ -13,7 +13,7 @@ import sys
 
 import numpy as np
 import pytest
-from backend.src.animation.alignment.matching import (
+from animation.alignment.matching import (
     _compute_bg_match_ratio,
     _compute_translation_spread,
     _extract_similarity,

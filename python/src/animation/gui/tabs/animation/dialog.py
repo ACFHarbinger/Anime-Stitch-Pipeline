@@ -1,4 +1,4 @@
-from gui.src.elements.animation.stitch_tab.dialog import (
+from animation.gui.elements.animation.stitch_tab.dialog import (
     BoundaryEditorDialog,
     CanvasInspectorDialog,
     CanvasLayoutInspectorDialog,

@@ -31,7 +31,7 @@ pytestmark = pytest.mark.inspector_ui
 # ---------------------------------------------------------------------------
 
 def _make_grid():
-    from backend.benchmark.evaluation.ui.panel_grid import PanelGrid
+    from animation.evaluation.ui.panel_grid import PanelGrid
     return PanelGrid()
 
 

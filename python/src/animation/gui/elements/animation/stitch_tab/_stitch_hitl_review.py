@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import os
 
-from backend.src.animation.ingestion.masking import (
+from animation.ingestion.masking import (
     _compute_fg_masks_grounded_sam2,
     _refine_masks_with_clicks,
 )

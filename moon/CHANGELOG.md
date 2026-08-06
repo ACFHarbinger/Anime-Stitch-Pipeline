@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Imported the Anime Stitch Pipeline (ASP) engine from Image-Toolkit: the C++ pipeline (`cpp/src/animation`, `cpp/test/animation`), the Python pipeline (`python/src/animation`), tests (`python/test/animation`, `python/test/gui`), the benchmark evaluation dashboard (`python/src/animation/evaluation`), benchmark scripts (`python/benchmark`), the stitch GUI tab/elements/helpers/dialogs (`python/src/animation/gui`), QML mockups (`qml/`), the roadmap (`moon/ROADMAP.md`), research reports, and ASP-specific `.agent/` workflow/rule/skill/prompt/cache files.
+- Pruned the template to Python + C++ only (removed rust/java/kotlin/typescript/go scaffolding, the template-meta `dev/` tool, and desktop/infra scaffolding this project doesn't need).
+
+### Template scaffolding
+
 - Initial template scaffolding: root files (`LICENSE.md`, `README.md`, `.env.example`, `.pre-commit-config.yaml`, `.gitignore`/`.gitattributes`), `.github/` CI/CD, `git/` (`CONTRIBUTING.md`, `codecov.yaml`), `docs/` documentation portal (MkDocs + Sphinx + Structurizr + ADRs), `moon/` roadmap and changelog.
 - `.agent/` LLM coding-agent scaffolding: `AGENTS.md` plus generic rules, workflows, prompts, and skills covering all six supported languages.
 - Six language module skeletons (`python/`, `typescript/`, `kotlin/`, `rust/`, `go/`, `cpp/`), root workspace orchestrator files, and merged `python/validation/` dev-tooling.

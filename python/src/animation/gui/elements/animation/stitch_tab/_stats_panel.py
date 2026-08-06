@@ -36,7 +36,7 @@ from ._thumb_workers import _ThumbTask
 
 class _StatsPanelMixin:
     def _build_stats_panel(self) -> QWidget:
-        from gui.src.tabs.animation.stencil import StatsPanel
+        from animation.gui.tabs.animation.stencil import StatsPanel
 
         panel = StatsPanel(self)
         root = QVBoxLayout(panel)

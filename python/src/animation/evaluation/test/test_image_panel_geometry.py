@@ -46,7 +46,7 @@ pytestmark = pytest.mark.inspector_ui
 
 def _make_panel(key: str = "asp"):
     """Instantiate an ImagePanel without a parent widget."""
-    from backend.benchmark.evaluation.ui.image_panel import ImagePanel
+    from animation.evaluation.ui.image_panel import ImagePanel
 
     return ImagePanel(key=key, title=key.upper())
 

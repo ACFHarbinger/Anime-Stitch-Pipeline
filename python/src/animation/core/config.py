@@ -9,7 +9,7 @@ Existing env-var values always win over the config file.
 
 Usage::
 
-    from backend.src.animation.core.config import load_asp_config
+    from animation.core.config import load_asp_config
     load_asp_config()  # reads backend/config/asp_config.toml
 
 Example ``asp_config.toml``::

@@ -31,15 +31,15 @@ import matplotlib  # noqa: E402
 
 matplotlib.use("Agg")
 
-from backend.benchmark.evaluation.constants.logic import (  # noqa: E402
+from animation.evaluation.constants.logic import (  # noqa: E402
     FFT_PERCENTILE_HI,
     FFT_PERCENTILE_LO,
     VIZ_MAX_EDGE,
 )
-from backend.benchmark.evaluation.logic import comparison_maps as cm  # noqa: E402
-from backend.benchmark.evaluation.logic import visualizations_basic as vb  # noqa: E402
-from backend.benchmark.evaluation.logic import visualizations_matching as vm  # noqa: E402
-from backend.benchmark.evaluation.logic.figure_theme import empty_figure, themed_figure  # noqa: E402
+from animation.evaluation.logic import comparison_maps as cm  # noqa: E402
+from animation.evaluation.logic import visualizations_basic as vb  # noqa: E402
+from animation.evaluation.logic import visualizations_matching as vm  # noqa: E402
+from animation.evaluation.logic.figure_theme import empty_figure, themed_figure  # noqa: E402
 
 
 def _sharp(h=240, w=200, seed=0) -> np.ndarray:

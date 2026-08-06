@@ -4,13 +4,13 @@ import os
 from unittest.mock import patch
 
 import pytest
-from gui.src.elements.animation.stitch_tab import StitchTab
-from gui.src.elements.animation.stitch_tab.dialog.canvas_layout_inspector_dialog import (
+from animation.gui.elements.animation.stitch_tab import StitchTab
+from animation.gui.elements.animation.stitch_tab.dialog.canvas_layout_inspector_dialog import (
     CanvasLayoutInspectorDialog,
     _canvas_frame_corners,
     parse_canvas_json,
 )
-from gui.src.elements.animation.stitch_tab.dialog.edge_graph_inspector_dialog import (
+from animation.gui.elements.animation.stitch_tab.dialog.edge_graph_inspector_dialog import (
     EdgeGraphInspectorDialog,
     _edge_graph_node_positions,
     parse_edge_json,
@@ -32,7 +32,7 @@ class TestStitchTabBrowseOutput:
 
         # Mock QFileDialog.getSaveFileName to avoid popping up UI
         with patch(
-            "gui.src.elements.animation.stitch_tab._stitch_execution.QFileDialog.getSaveFileName"
+            "animation.gui.elements.animation.stitch_tab._stitch_execution.QFileDialog.getSaveFileName"
         ) as mock_save_dialog:
             mock_save_dialog.return_value = (
                 "/home/user/downloads/my_panorama.png",
@@ -61,7 +61,7 @@ class TestStitchTabBrowseOutput:
         tab._output_path.setText("my_custom_panorama.png")
 
         with patch(
-            "gui.src.elements.animation.stitch_tab._stitch_execution.QFileDialog.getSaveFileName"
+            "animation.gui.elements.animation.stitch_tab._stitch_execution.QFileDialog.getSaveFileName"
         ) as mock_save_dialog:
             mock_save_dialog.return_value = ("", "")
 
@@ -291,28 +291,28 @@ class TestStitchWorkerVideoPath:
 
     def test_video_path_stored(self, q_app):
         """video_path is stored when passed to __init__."""
-        from gui.src.helpers.animation.stitch_worker import StitchWorker
+        from animation.gui.helpers.animation.stitch_worker import StitchWorker
 
         w = StitchWorker([], "out.png", {}, video_path="/tmp/test.mp4")
         assert w._video_path == "/tmp/test.mp4"
 
     def test_no_video_path_defaults_to_none(self, q_app):
         """video_path is None when not provided."""
-        from gui.src.helpers.animation.stitch_worker import StitchWorker
+        from animation.gui.helpers.animation.stitch_worker import StitchWorker
 
         w = StitchWorker([], "out.png", {})
         assert w._video_path is None
 
     def test_sig_review_video_signal_exists(self, q_app):
         """StitchWorker exposes sig_review_video signal for HITL checkpoint 0."""
-        from gui.src.helpers.animation.stitch_worker import StitchWorker
+        from animation.gui.helpers.animation.stitch_worker import StitchWorker
 
         w = StitchWorker([], "out.png", {})
         assert hasattr(w, "sig_review_video")
 
     def test_video_mode_allows_empty_image_paths(self, q_app):
         """When video_path is set, image_paths can be empty (frames extracted by worker)."""
-        from gui.src.helpers.animation.stitch_worker import StitchWorker
+        from animation.gui.helpers.animation.stitch_worker import StitchWorker
 
         w = StitchWorker([], "out.png", {}, video_path="/tmp/video.mp4")
         assert len(w._image_paths) == 0
@@ -320,7 +320,7 @@ class TestStitchWorkerVideoPath:
 
     def test_video_n_frames_stored(self, q_app):
         """video_n_frames is stored and accessible."""
-        from gui.src.helpers.animation.stitch_worker import StitchWorker
+        from animation.gui.helpers.animation.stitch_worker import StitchWorker
 
         w = StitchWorker([], "out.png", {}, video_path="/tmp/v.mp4", video_n_frames=42)
         assert w._video_n_frames == 42

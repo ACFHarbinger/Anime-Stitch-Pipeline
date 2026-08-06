@@ -84,12 +84,12 @@ def _bootstrap_repo_root() -> str:
 
 _bootstrap_repo_root()
 
-from backend.benchmark.evaluation.constants.user_interface import (  # noqa: E402
+from animation.evaluation.constants.user_interface import (  # noqa: E402
     DISPLAY_PIXEL,
     DISPLAY_RAW,
 )
-from backend.benchmark.evaluation.other.discovery import repo_root_from  # noqa: E402
-from backend.benchmark.evaluation.other.settings import load_settings  # noqa: E402
+from animation.evaluation.other.discovery import repo_root_from  # noqa: E402
+from animation.evaluation.other.settings import load_settings  # noqa: E402
 
 
 def _default_out_path(repo_root: str) -> str:
@@ -112,7 +112,7 @@ def _resolve_out_path(args, repo_root: str) -> str:
 def build_dashboard(args):
     """Constructs (but does not show/exec) the inspector window — split out so a
     smoke test can build it under an offscreen QPA without an event loop."""
-    from backend.benchmark.evaluation.ui.main_window import InspectorWindow
+    from animation.evaluation.ui.main_window import InspectorWindow
 
     repo_root = repo_root_from(__file__)
     default_view = DISPLAY_PIXEL if args.default_view == "pixel" else DISPLAY_RAW
@@ -155,7 +155,7 @@ def _run_inspector(args) -> None:
 
 
 def _run_triage(args, launch_app: bool) -> None:
-    from backend.benchmark.evaluation.plugin import ingest, preflight
+    from animation.evaluation.plugin import ingest, preflight
 
     check = preflight.check(require_db=True)
     if not check.ok:
@@ -187,7 +187,7 @@ def _run_triage(args, launch_app: bool) -> None:
 
 
 def _run_sync(args) -> None:
-    from backend.benchmark.evaluation.plugin import preflight, sync
+    from animation.evaluation.plugin import preflight, sync
 
     check = preflight.check(require_db=True)
     if not check.ok:
@@ -202,7 +202,7 @@ def _run_sync(args) -> None:
 
 
 def evaluate_benchmark_outputs() -> None:
-    from backend.controllers.cli.bench_eval_args import build_parser
+    from animation.cli.eval_args import build_parser
 
     args = build_parser(__doc__).parse_args()
     if args.surface == "inspector":

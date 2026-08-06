@@ -27,13 +27,13 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from backend.benchmark.evaluation.constants.schema import (  # noqa: E402
+from animation.evaluation.constants.schema import (  # noqa: E402
     DEFECT_KEYS,
     DIM_COHERENCE,
     DIMENSION_KEYS,
     SCORABLE_KEYS,
 )
-from backend.benchmark.evaluation.other.schema import (  # noqa: E402
+from animation.evaluation.other.schema import (  # noqa: E402
     BoundingBox,
     Edge,
     EdgePoint,

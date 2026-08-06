@@ -29,8 +29,8 @@ from typing import Dict, List, Optional
 import cv2
 import numpy as np
 
-from backend.src.animation.alignment.bundle_adjust import _bundle_adjust_affine
-from backend.src.animation.alignment.canvas import (
+from animation.alignment.bundle_adjust import _bundle_adjust_affine
+from animation.alignment.canvas import (
     _compute_canvas,
     _crop_to_valid,
     _detect_scroll_axis,
@@ -40,16 +40,16 @@ from backend.src.animation.alignment.canvas import (
     _scan_stitch_fallback,
     _telea_fill_gaps,
 )
-from backend.src.animation.core.validation import (
+from animation.core.validation import (
     _compute_adaptive_min_gap,
     _compute_adaptive_rot_scale,
     _validate_affines,
 )
-from backend.src.animation.ingestion.frame_selection import detect_animation_phases
-from backend.src.animation.ingestion.masking import _compute_fg_masks
-from backend.src.animation.rendering.compositing import _composite_foreground
-from backend.src.animation.rendering.photometric import _apply_basic, _correct_vignetting
-from backend.src.animation.rendering.rendering import _render
+from animation.ingestion.frame_selection import detect_animation_phases
+from animation.ingestion.masking import _compute_fg_masks
+from animation.rendering.compositing import _composite_foreground
+from animation.rendering.photometric import _apply_basic, _correct_vignetting
+from animation.rendering.rendering import _render
 from backend.src.constants import SPATIAL_DEDUP_PX
 from backend.src.errors import CanvasError, PipelineError
 
@@ -583,7 +583,7 @@ class _RunStageMixin:
         """Stage 5-6's actual pairwise-match call, using the matcher chosen by
         ``_select_matcher``. Split out of ``run()`` only to keep that one call
         readable; not a meaningful behavioural boundary on its own."""
-        from backend.src.animation.alignment.matching import _pairwise_match
+        from animation.alignment.matching import _pairwise_match
 
         return _pairwise_match(
             frames,
@@ -602,7 +602,7 @@ class _RunStageMixin:
         Hessian); SEA-RAFT uses learned cost volumes that remain informative
         over uniform colour regions.
         """
-        from backend.src.animation.alignment.ecc import _ecc_refine
+        from animation.alignment.ecc import _ecc_refine
 
         from ._probes import _flow_refine, _load_sea_raft
 

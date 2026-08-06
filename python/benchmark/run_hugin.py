@@ -34,7 +34,7 @@ from typing import Dict, List, Optional, Tuple
 
 from PIL import Image
 
-from backend.src.animation.ingestion.frame_selection import smart_select_frames
+from animation.ingestion.frame_selection import smart_select_frames
 
 # All the required CLI tools ship in Debian/Ubuntu's `hugin-tools` + `enblend`
 # packages — no vendor/Hugin submodule build needed (that fork's CMake only

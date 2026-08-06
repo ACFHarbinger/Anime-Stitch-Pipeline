@@ -10,37 +10,37 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from backend.src.animation.alignment.canvas import (
+from animation.alignment.canvas import (
     _compute_canvas,
     _crop_to_valid,
     _normalise_widths,
     _scan_stitch_fallback,
     find_optimal_sequence,
 )
-from backend.src.animation.alignment.canvas import _load_frames as _load_frames_fn
-from backend.src.animation.alignment.ecc import _ecc_refine
-from backend.src.animation.alignment.matching import (
+from animation.alignment.canvas import _load_frames as _load_frames_fn
+from animation.alignment.ecc import _ecc_refine
+from animation.alignment.matching import (
     _match_pair,
     _pairwise_match,
     _phase_correlate,
     _sample_bg_points,
     _template_match,
 )
-from backend.src.animation.ingestion.masking import (
+from animation.ingestion.masking import (
     _cleanup_sam2_state as _cleanup_sam2_state_fn,
 )
-from backend.src.animation.ingestion.masking import (
+from animation.ingestion.masking import (
     _compute_fg_masks,
     _compute_fg_masks_sam2_stateful,
 )
-from backend.src.animation.rendering.compositing import _composite_foreground
-from backend.src.animation.rendering.photometric import (
+from animation.rendering.compositing import _composite_foreground
+from animation.rendering.photometric import (
     _apply_basic,
 )
-from backend.src.animation.rendering.photometric import (
+from animation.rendering.photometric import (
     _correct_vignetting as _correct_vignetting_fn,
 )
-from backend.src.animation.rendering.rendering import (
+from animation.rendering.rendering import (
     _cluster_animation_phases,
     _render,
     _render_first,

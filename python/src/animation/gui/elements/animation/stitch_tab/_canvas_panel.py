@@ -41,7 +41,7 @@ from ._thumb_workers import _ThumbTask
 
 class _CanvasPanelMixin:
     def _build_canvas_panel(self) -> QWidget:
-        from gui.src.tabs.animation.stencil import CanvasPanel
+        from animation.gui.tabs.animation.stencil import CanvasPanel
 
         panel = CanvasPanel(self)
         root_layout = QVBoxLayout(panel)

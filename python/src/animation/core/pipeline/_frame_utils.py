@@ -10,7 +10,7 @@ from typing import Dict, List, Optional, Tuple
 import cv2
 import numpy as np
 
-from backend.src.animation.alignment.canvas import _load_frames, _normalise_widths
+from animation.alignment.canvas import _load_frames, _normalise_widths
 
 from ._probes import _HAS_BATCH, _batch
 

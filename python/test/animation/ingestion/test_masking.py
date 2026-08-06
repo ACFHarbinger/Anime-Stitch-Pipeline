@@ -1,5 +1,5 @@
 """
-Tests for backend.src.animation.ingestion.masking — Issue 10A2 S83.
+Tests for animation.ingestion.masking — Issue 10A2 S83.
 
 Focus: _compute_fg_masks_sam2_stateful and _cleanup_sam2_state.
 All tests pass whether or not SAM-2 is installed (graceful fallback paths).
@@ -12,7 +12,7 @@ import tempfile
 import unittest.mock as mock
 
 import numpy as np
-from backend.src.animation.ingestion.masking import (
+from animation.ingestion.masking import (
     _cleanup_sam2_state,
     _compute_fg_masks_sam2_stateful,
 )

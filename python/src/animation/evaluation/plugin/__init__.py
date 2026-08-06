@@ -27,7 +27,7 @@ Module layout:
 - ``operators.py``     — the FiftyOne panel and operators registered below.
 - ``fiftyone.yml``     — the manifest FiftyOne discovers this plugin by.
 
-This directory is both a Python package (``backend.benchmark.evaluation.plugin``)
+This directory is both a Python package (``animation.evaluation.plugin``)
 and a FiftyOne plugin: FiftyOne finds a plugin by its ``fiftyone.yml``, imports
 the directory, and calls ``register()`` on it. Hence the thin ``register`` below,
 which defers the ``operators`` import so that merely importing this package never

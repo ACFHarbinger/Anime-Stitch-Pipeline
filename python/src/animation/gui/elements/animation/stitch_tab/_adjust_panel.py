@@ -37,7 +37,7 @@ from ....styles import apply_shadow_effect
 
 class _AdjustPanelMixin:
     def _build_adjust_panel(self) -> QWidget:
-        from gui.src.tabs.animation.stencil import AdjustPanel
+        from animation.gui.tabs.animation.stencil import AdjustPanel
 
         panel = AdjustPanel(self)
         layout = QHBoxLayout(panel)

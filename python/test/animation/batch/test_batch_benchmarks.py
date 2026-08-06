@@ -87,7 +87,7 @@ class TestBundleAdjustSpeedup:
     )
     def test_bundle_adjust_exceeds_5x_speedup(self):
         try:
-            from backend.src.animation.alignment.bundle_adjust import _bundle_adjust_affine_python  # type: ignore
+            from animation.alignment.bundle_adjust import _bundle_adjust_affine_python  # type: ignore
         except ImportError:
             pytest.skip("Python reference _bundle_adjust_affine_python not exposed")
 

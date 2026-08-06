@@ -9,7 +9,7 @@ import os
 
 import cv2
 import numpy as np
-from backend.src.animation import AnimeStitchPipeline
+from animation import AnimeStitchPipeline
 from PySide6.QtCore import Qt, QThreadPool, QTimer, Slot
 from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import QDialog, QListWidgetItem, QMessageBox

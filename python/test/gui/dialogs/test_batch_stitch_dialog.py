@@ -7,8 +7,8 @@ import os
 from unittest.mock import patch
 
 import pytest
-from gui.src.components.dialogs.batch_stitch_dialog import BatchStitchDialog
-from gui.src.helpers.animation.batch_stitch_worker import BatchStitchWorker
+from animation.gui.dialogs.batch_stitch_dialog import BatchStitchDialog
+from animation.gui.helpers.animation.batch_stitch_worker import BatchStitchWorker
 
 pytestmark = pytest.mark.gui
 
@@ -35,7 +35,7 @@ class TestBatchStitchWorker:
         finished = []
         batch_done = []
         with patch(
-            "gui.src.helpers.animation.batch_stitch_worker._run_single_stitch",
+            "animation.gui.helpers.animation.batch_stitch_worker._run_single_stitch",
             return_value=True,
         ) as mock_stitch:
             worker.sig_item_started.connect(lambda n, i, t: started.append((n, i, t)))
@@ -58,7 +58,7 @@ class TestBatchStitchWorker:
         worker = BatchStitchWorker(batch_dir=batch_dir, renderer="median", resume=True)
         finished = []
         with patch(
-            "gui.src.helpers.animation.batch_stitch_worker._run_single_stitch",
+            "animation.gui.helpers.animation.batch_stitch_worker._run_single_stitch",
             return_value=True,
         ) as mock_stitch:
             worker.sig_item_finished.connect(lambda n, s: finished.append((n, s)))
@@ -72,7 +72,7 @@ class TestBatchStitchWorker:
         batch_dir = _make_batch_dir(tmp_path, ["seq_a"])
         worker = BatchStitchWorker(batch_dir=batch_dir, renderer="median")
         with patch(
-            "gui.src.helpers.animation.batch_stitch_worker._run_single_stitch",
+            "animation.gui.helpers.animation.batch_stitch_worker._run_single_stitch",
             return_value=True,
         ):
             worker.run()
@@ -93,7 +93,7 @@ class TestBatchStitchWorker:
 
         finished = []
         with patch(
-            "gui.src.helpers.animation.batch_stitch_worker._run_single_stitch",
+            "animation.gui.helpers.animation.batch_stitch_worker._run_single_stitch",
             side_effect=_stitch_and_cancel,
         ) as mock_stitch:
             worker.sig_item_finished.connect(lambda n, s: finished.append((n, s)))
@@ -121,7 +121,7 @@ class TestBatchStitchWorker:
         worker = BatchStitchWorker(batch_dir=str(tmp_path), renderer="median")
         finished = []
         with patch(
-            "gui.src.helpers.animation.batch_stitch_worker._run_single_stitch"
+            "animation.gui.helpers.animation.batch_stitch_worker._run_single_stitch"
         ) as mock_stitch:
             worker.sig_item_finished.connect(lambda n, s: finished.append((n, s)))
             worker.run()

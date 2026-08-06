@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from backend.src.animation.core.stateless import _largest_valid_rect, _trim_dark_border
+from animation.core.stateless import _largest_valid_rect, _trim_dark_border
 from backend.src.constants import CANVAS_MAX_DIM
 from backend.src.errors import CanvasError
 
@@ -159,7 +159,7 @@ def _crop_to_valid(canvas: np.ndarray, valid_mask: np.ndarray) -> np.ndarray:
     valid_ratio = float(bb_sub.sum()) / max(float(bb_sub.size), 1.0)
 
     if valid_ratio < 0.80:
-        # relocated: from backend.src.animation.core.stateless import _largest_valid_rect
+        # relocated: from animation.core.stateless import _largest_valid_rect
 
         xv0, yv0, xv1, yv1 = _largest_valid_rect(valid_mask > 0)
         if (xv1 - xv0) * (yv1 - yv0) > 0:
@@ -221,7 +221,7 @@ def _scan_stitch_fallback(
     # Crop to the largest fully-covered interior rectangle so no black border pixels remain.
     # _largest_valid_rect handles diagonal staircases; the simple "all-rows-valid" approach
     # silently bails when no column is valid across every row (common for diagonal scrolls).
-    # relocated: from backend.src.animation.core.stateless import _largest_valid_rect
+    # relocated: from animation.core.stateless import _largest_valid_rect
 
     valid_mask = pano.max(axis=2) > 0
     x0, y0, x1, y1 = _largest_valid_rect(valid_mask)
@@ -278,7 +278,7 @@ def _panorama_stitch_fallback(
                 f"PANORAMA stitcher failed (status={status}); caller should try SCANS."
             )
 
-    # relocated: from backend.src.animation.core.stateless import _largest_valid_rect
+    # relocated: from animation.core.stateless import _largest_valid_rect
 
     valid_mask = pano.max(axis=2) > 0
     x0, y0, x1, y1 = _largest_valid_rect(valid_mask)

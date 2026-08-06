@@ -214,7 +214,7 @@ def _compute_fg_masks_grounded_sam2(
         )
 
     try:
-        from backend.src.animation.hitl.grounding import (
+        from animation.hitl.grounding import (
             _detect_best_box,
         )  # §3.14 lazy — GroundingDINO is optional
     except ImportError:

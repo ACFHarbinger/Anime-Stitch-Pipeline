@@ -30,13 +30,13 @@ from typing import Callable, Dict, List, Optional
 import cv2
 import numpy as np
 import torch
-from backend.src.animation import AnimeStitchPipeline
-from backend.src.animation.alignment.bundle_adjust import _bundle_adjust_affine
-from backend.src.animation.core.data_serialization import create_session_serializers
-from backend.src.animation.core.pipeline import _build_manual_edge
-from backend.src.animation.hitl.hitl_session import autosave_path
-from backend.src.animation.hitl.hitl_session import save_session as _save_session_impl
-from backend.src.animation.rendering.compositing import _compute_initial_boundaries
+from animation import AnimeStitchPipeline
+from animation.alignment.bundle_adjust import _bundle_adjust_affine
+from animation.core.data_serialization import create_session_serializers
+from animation.core.pipeline import _build_manual_edge
+from animation.hitl.hitl_session import autosave_path
+from animation.hitl.hitl_session import save_session as _save_session_impl
+from animation.rendering.compositing import _compute_initial_boundaries
 from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
 from PIL import Image as _Image
 

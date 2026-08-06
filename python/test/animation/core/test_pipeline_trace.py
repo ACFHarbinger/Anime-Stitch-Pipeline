@@ -2,7 +2,7 @@
 
 import datetime
 
-from gui.src.helpers.animation._progress_pipeline import _STAGE_LABELS
+from animation.gui.helpers.animation._progress_pipeline import _STAGE_LABELS
 
 
 def test_stage_labels_indexing():

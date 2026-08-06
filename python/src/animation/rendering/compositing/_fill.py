@@ -7,7 +7,7 @@ from typing import List, Optional
 
 import numpy as np
 
-from backend.src.animation.core.stateless import _laplacian_blend
+from animation.core.stateless import _laplacian_blend
 
 from ._fg_pose import _seam_color_match, _single_pose_soft_edge
 from ._flags import _BLOCKS_GAIN_COMP, _BLOCKS_LUM_COMP

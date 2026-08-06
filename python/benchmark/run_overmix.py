@@ -35,7 +35,7 @@ import subprocess
 import time
 from typing import Dict, List, Optional
 
-from backend.src.animation.ingestion.frame_selection import smart_select_frames
+from animation.ingestion.frame_selection import smart_select_frames
 
 _TOOLKIT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _OVERMIX_BIN = os.path.join(_TOOLKIT_ROOT, "vendor", "Overmix", "build", "OvermixCli")

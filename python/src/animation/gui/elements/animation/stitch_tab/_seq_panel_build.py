@@ -26,7 +26,7 @@ from ....styles import apply_shadow_effect
 
 class _SeqPanelBuildMixin:
     def _build_seq_panel(self) -> QWidget:
-        from gui.src.tabs.animation.stencil import SeqBuilderPanel
+        from animation.gui.tabs.animation.stencil import SeqBuilderPanel
 
         panel = SeqBuilderPanel(self)
         root = QVBoxLayout(panel)

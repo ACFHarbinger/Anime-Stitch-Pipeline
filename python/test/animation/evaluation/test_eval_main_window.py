@@ -34,7 +34,7 @@ sys.path.insert(0, _repo_root)
 
 pytest.importorskip("PySide6", reason="the inspector needs PySide6")
 
-from backend.benchmark.evaluation.ui.toolbar import InspectorToolbar  # noqa: E402
+from animation.evaluation.ui.toolbar import InspectorToolbar  # noqa: E402
 from PySide6.QtCore import Qt  # noqa: E402
 from PySide6.QtWidgets import QApplication, QLabel, QSplitter  # noqa: E402
 
@@ -144,7 +144,7 @@ def test_hiding_two_of_three_children_leaves_the_middle_one_full_width(splitter,
 
 def test_image_panel_size_hints_bounded(qapp):
     import numpy as np
-    from backend.benchmark.evaluation.ui.image_panel import ImagePanel
+    from animation.evaluation.ui.image_panel import ImagePanel
 
     panel = ImagePanel("asp", "ASP")
     # Even with a huge native image, sizeHint should be bounded (not 4000px)

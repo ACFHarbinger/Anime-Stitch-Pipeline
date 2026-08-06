@@ -16,9 +16,9 @@ import sys
 import cv2
 import numpy as np
 import pytest
-from backend.src.animation.core import config
-from backend.src.animation.rendering import compositing
-from backend.src.animation.rendering.compositing import (  # noqa: E402
+from animation.core import config
+from animation.rendering import compositing
+from animation.rendering.compositing import (  # noqa: E402
     _GC_FEATHER_PX,
     _GLOBAL_GAIN_COMP,
     _blocks_gain_compensate,
@@ -32,7 +32,7 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from backend.src.animation.rendering.compositing import (  # noqa: E402
+from animation.rendering.compositing import (  # noqa: E402
     _adaptive_gain_clamp,
     _bg_gain_unclamped,
     _build_seam_cost_map,
@@ -1388,7 +1388,7 @@ class TestComputeInitialBoundaries:
 
     def test_two_frames_single_boundary_at_midpoint(self):
         """Two frames: single boundary at midpoint between strip centres."""
-        from backend.src.animation.rendering.compositing import _compute_initial_boundaries
+        from animation.rendering.compositing import _compute_initial_boundaries
 
         frames = [self._frame(40), self._frame(40)]
         affines = [self._affine(0.0), self._affine(40.0)]
@@ -1399,7 +1399,7 @@ class TestComputeInitialBoundaries:
 
     def test_n_minus_one_boundaries(self):
         """N frames produce exactly N-1 boundaries."""
-        from backend.src.animation.rendering.compositing import _compute_initial_boundaries
+        from animation.rendering.compositing import _compute_initial_boundaries
 
         N = 5
         frames = [self._frame() for _ in range(N)]
@@ -1409,7 +1409,7 @@ class TestComputeInitialBoundaries:
 
     def test_boundaries_monotonically_increasing(self):
         """Boundaries should be monotonically increasing for top-to-bottom scroll."""
-        from backend.src.animation.rendering.compositing import _compute_initial_boundaries
+        from animation.rendering.compositing import _compute_initial_boundaries
 
         frames = [self._frame() for _ in range(4)]
         affines = [self._affine(i * 50.0) for i in range(4)]
@@ -1419,7 +1419,7 @@ class TestComputeInitialBoundaries:
 
     def test_preset_boundaries_accepted_by_composite_foreground(self):
         """_composite_foreground respects preset_boundaries of correct length."""
-        from backend.src.animation.rendering.compositing import (
+        from animation.rendering.compositing import (
             _composite_foreground,
             _compute_initial_boundaries,
         )
@@ -1449,7 +1449,7 @@ class TestComputeInitialBoundaries:
 
     def test_wrong_length_preset_boundaries_ignored(self):
         """preset_boundaries with wrong length falls back to midpoint computation."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [np.zeros((H, W, 3), dtype=np.uint8) for _ in range(2)]
@@ -1490,7 +1490,7 @@ class TestPaintMask:
 
     def test_paint_mask_none_runs_without_error(self):
         """Passing paint_mask=None is equivalent to the default (no mask)."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W), self._frame(H, W, 100)]
@@ -1511,7 +1511,7 @@ class TestPaintMask:
 
     def test_paint_mask_correct_shape_accepted(self):
         """A paint_mask matching (canvas_h, canvas_w) is accepted without error."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W), self._frame(H, W, 100)]
@@ -1535,7 +1535,7 @@ class TestPaintMask:
 
     def test_paint_mask_wrong_shape_ignored(self):
         """A paint_mask with wrong canvas dimensions is silently ignored."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W), self._frame(H, W)]
@@ -1558,7 +1558,7 @@ class TestPaintMask:
 
     def test_paint_mask_combined_with_exclusion_masks(self):
         """paint_mask + existing exclusion_masks are both applied (no conflict)."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W, 60), self._frame(H, W, 120)]
@@ -1585,7 +1585,7 @@ class TestPaintMask:
 
     def test_paint_mask_all_black_behaves_like_no_mask(self):
         """An all-zero paint_mask has no effect on seam routing."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W), self._frame(H, W)]
@@ -1642,7 +1642,7 @@ class TestSeamMetaOut:
 
     def test_seam_meta_out_populated_with_boundaries(self):
         """seam_meta_out receives boundaries, seam_post_diffs, seam_single_pose on return."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W, 80), self._frame(H, W, 100)]
@@ -1672,7 +1672,7 @@ class TestSeamMetaOut:
 
     def test_seam_meta_out_single_frame_empty_boundaries(self):
         """With only one frame no seams are created; boundaries list is empty."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W, 80)]
@@ -1700,7 +1700,7 @@ class TestSeamMetaOut:
 
     def test_force_single_pose_override_escalates_seam(self):
         """force_single_pose override must result in seam k appearing in seam_single_pose."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W, 80), self._frame(H, W, 100)]
@@ -1740,7 +1740,7 @@ class TestSeamMetaOut:
         This ensures that force_blend's post-loop removal is the only influence
         on whether seam 0 appears in seam_single_pose.
         """
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 60, 30
         # Overlap frames by 20px → max_feather ≥ 10 → zone_h ≥ 21 > ASP_ZONE_MIN_HEIGHT=20
@@ -1797,7 +1797,7 @@ class TestSeamMetaOut:
 
     def test_seam_meta_out_none_does_not_raise(self):
         """Passing seam_meta_out=None (the default) must not raise any error."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [self._frame(H, W, 80), self._frame(H, W, 100)]
@@ -1825,7 +1825,7 @@ class TestSeamCropExtraction:
         return c
 
     def test_crops_extracted_for_all_seams(self):
-        from backend.src.animation.rendering.compositing import _extract_seam_crops
+        from animation.rendering.compositing import _extract_seam_crops
 
         canvas = self._canvas(100, 30)
         boundaries = np.array([40, 70], dtype=np.float64)
@@ -1833,7 +1833,7 @@ class TestSeamCropExtraction:
         assert set(crops.keys()) == {0, 1}, "one crop per seam"
 
     def test_crop_height_is_twice_band(self):
-        from backend.src.animation.rendering.compositing import _extract_seam_crops
+        from animation.rendering.compositing import _extract_seam_crops
 
         canvas = self._canvas(100, 30)
         boundaries = np.array([50.0])
@@ -1841,7 +1841,7 @@ class TestSeamCropExtraction:
         assert crops[0].shape == (30, 30, 3), "crop height = 2*band_px, full width"
 
     def test_crop_clamped_at_top_boundary(self):
-        from backend.src.animation.rendering.compositing import _extract_seam_crops
+        from animation.rendering.compositing import _extract_seam_crops
 
         canvas = self._canvas(100, 30)
         # boundary at row 5 with band=20 → crop [0:25], height=25 (not 40)
@@ -1850,7 +1850,7 @@ class TestSeamCropExtraction:
         assert crops[0].shape[0] == 25, "top clamp gives narrower crop (5+20=25)"
 
     def test_empty_boundaries_returns_empty_dict(self):
-        from backend.src.animation.rendering.compositing import _extract_seam_crops
+        from animation.rendering.compositing import _extract_seam_crops
 
         canvas = self._canvas(100, 30)
         crops = _extract_seam_crops(canvas, np.array([]), band_px=10)
@@ -1858,7 +1858,7 @@ class TestSeamCropExtraction:
 
     def test_seam_crops_in_meta_out(self):
         """_composite_foreground populates seam_meta_out['seam_crops']."""
-        from backend.src.animation.rendering.compositing import _composite_foreground
+        from animation.rendering.compositing import _composite_foreground
 
         H, W = 40, 30
         frames = [
@@ -2007,7 +2007,7 @@ class TestSeamCropExtraction:
 
 class TestAuditSeamLumSteps:
     def test_flat_canvas_zero_steps(self):
-        from backend.src.animation.rendering.compositing import _audit_seam_lum_steps
+        from animation.rendering.compositing import _audit_seam_lum_steps
 
         canvas = np.full((100, 80, 3), 128, dtype=np.uint8)
         steps = _audit_seam_lum_steps(canvas, [30.0, 60.0], band_px=5, warn_thresh=8.0)
@@ -2016,7 +2016,7 @@ class TestAuditSeamLumSteps:
         assert steps[1] < 1.0
 
     def test_sharp_step_detected(self):
-        from backend.src.animation.rendering.compositing import _audit_seam_lum_steps
+        from animation.rendering.compositing import _audit_seam_lum_steps
 
         canvas = np.zeros((100, 80, 3), dtype=np.uint8)
         canvas[:50] = 200
@@ -2025,7 +2025,7 @@ class TestAuditSeamLumSteps:
         assert steps[0] > 50.0
 
     def test_returns_dict_keyed_by_index(self):
-        from backend.src.animation.rendering.compositing import _audit_seam_lum_steps
+        from animation.rendering.compositing import _audit_seam_lum_steps
 
         canvas = np.full((80, 60, 3), 100, dtype=np.uint8)
         steps = _audit_seam_lum_steps(canvas, [20.0, 40.0, 60.0])
@@ -2033,14 +2033,14 @@ class TestAuditSeamLumSteps:
         assert set(steps.keys()) == {0, 1, 2}
 
     def test_empty_boundaries_empty_dict(self):
-        from backend.src.animation.rendering.compositing import _audit_seam_lum_steps
+        from animation.rendering.compositing import _audit_seam_lum_steps
 
         canvas = np.full((60, 40, 3), 128, dtype=np.uint8)
         steps = _audit_seam_lum_steps(canvas, [])
         assert steps == {}
 
     def test_function_in_all(self):
-        import backend.src.animation.rendering.compositing as comp
+        import animation.rendering.compositing as comp
 
         assert "_audit_seam_lum_steps" in comp.__all__
         assert "_POST_SEAM_WARN_THRESH" in comp.__all__
@@ -2219,7 +2219,7 @@ class TestBlocksLumCompensateBatchWiring:
 
 def _call_find_optimal_boundaries_cpp(warped_list, order, init_bounds, H, W, **kw):
     """Call batch.compositing.find_optimal_boundaries; skip if stub or not compiled."""
-    from backend.src.animation.rendering import compositing as comp_mod
+    from animation.rendering import compositing as comp_mod
     if not comp_mod.BATCH_AVAILABLE:
         pytest.skip("batch not available")
     if not hasattr(comp_mod.batch.compositing, "find_optimal_boundaries"):

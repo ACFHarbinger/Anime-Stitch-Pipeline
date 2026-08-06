@@ -85,7 +85,7 @@ class TestSeamCutVsPython:
 
     def test_path_length_matches(self):
         try:
-            from backend.src.animation.rendering.compositing import _seam_cut_python  # type: ignore
+            from animation.rendering.compositing import _seam_cut_python  # type: ignore
         except ImportError:
             pytest.skip("Python reference _seam_cut_python not yet exposed for testing")
 
@@ -101,7 +101,7 @@ class TestSeamCutVsPython:
 
     def test_pixel_agreement_within_1px(self):
         try:
-            from backend.src.animation.rendering.compositing import _seam_cut_python  # type: ignore
+            from animation.rendering.compositing import _seam_cut_python  # type: ignore
         except ImportError:
             pytest.skip("Python reference _seam_cut_python not yet exposed for testing")
 
@@ -121,7 +121,7 @@ class TestSeamCutVsPython:
     @pytest.mark.parametrize("seed", [0, 7, 42, 99, 123])
     def test_pixel_agreement_multiple_seeds(self, seed: int):
         try:
-            from backend.src.animation.rendering.compositing import _seam_cut_python  # type: ignore
+            from animation.rendering.compositing import _seam_cut_python  # type: ignore
         except ImportError:
             pytest.skip("Python reference _seam_cut_python not yet exposed for testing")
 
@@ -173,7 +173,7 @@ class TestBundleAdjustVsPython:
         return edges
 
     def _run_bundle_adjust_python(self, edges, N):
-        import backend.src.animation.alignment.bundle_adjust as ba
+        import animation.alignment.bundle_adjust as ba
         orig_avail = ba.BATCH_AVAILABLE
         try:
             ba.BATCH_AVAILABLE = False
@@ -314,7 +314,7 @@ class TestBlocksGainCompensateVsPython:
 
     def test_identical_zones_no_change(self):
         """Identical fa/fb → gain=1.0 everywhere → output == fb."""
-        from backend.src.animation.rendering.compositing import _blocks_gain_compensate
+        from animation.rendering.compositing import _blocks_gain_compensate
         H, W = 64, 80
         zone = _rand_bgr(H, W, 0)
         out_py  = _blocks_gain_compensate(zone, zone.copy(), block_size=32)
@@ -326,7 +326,7 @@ class TestBlocksGainCompensateVsPython:
 
     def test_brighter_fa_brightens_fb(self):
         """fa brighter than fb → gain > 1 → output brighter than fb."""
-        from backend.src.animation.rendering.compositing import _blocks_gain_compensate
+        from animation.rendering.compositing import _blocks_gain_compensate
         H, W = 64, 80
         fa = np.full((H, W, 3), 180, dtype=np.uint8)
         fb = np.full((H, W, 3), 90, dtype=np.uint8)
@@ -374,7 +374,7 @@ class TestBlocksLumCompensateVsPython:
     """Phase 5 wiring: batch.compositing.blocks_lum_compensate_pair vs Python."""
 
     def test_identical_zones_no_change(self):
-        from backend.src.animation.rendering.compositing import _blocks_lum_compensate
+        from animation.rendering.compositing import _blocks_lum_compensate
         H, W = 64, 80
         zone = _rand_bgr(H, W, 3)
         out_py  = _blocks_lum_compensate(zone, zone.copy(), block_size=32)
@@ -384,7 +384,7 @@ class TestBlocksLumCompensateVsPython:
         assert np.abs(out_py.astype(np.int32) - out_cpp.astype(np.int32)).max() <= 2
 
     def test_brighter_fa_brightens_fb(self):
-        from backend.src.animation.rendering.compositing import _blocks_lum_compensate
+        from animation.rendering.compositing import _blocks_lum_compensate
         H, W = 64, 80
         fa = np.full((H, W, 3), 180, dtype=np.uint8)
         fb = np.full((H, W, 3), 90, dtype=np.uint8)
@@ -487,7 +487,7 @@ class TestCorrectVignettingVsPython:
 
 class TestBuildSeamCostMapVsPython:
     def _run_build_seam_cost_map_python(self, canvas_zone, mask_a, mask_b):
-        import backend.src.animation.rendering.compositing as comp
+        import animation.rendering.compositing as comp
         orig_avail = comp.BATCH_AVAILABLE
         try:
             comp.BATCH_AVAILABLE = False
@@ -563,8 +563,8 @@ def _py_find_optimal_boundaries(warped_list, order, init_bounds, H, W,
                                  search_range=250, search_slab=20,
                                  bg_masks=None, affines=None):
     """Python reference: calls the wired _find_optimal_boundaries dispatcher."""
-    import backend.src.animation.rendering.compositing as comp
-    from backend.src.animation.rendering.compositing import _find_optimal_boundaries
+    import animation.rendering.compositing as comp
+    from animation.rendering.compositing import _find_optimal_boundaries
     orig_avail = comp.BATCH_AVAILABLE
     try:
         comp.BATCH_AVAILABLE = False

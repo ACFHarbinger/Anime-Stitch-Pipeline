@@ -55,7 +55,7 @@ class _GraphPanelMixin:
         4. Select a _StitchOpNode and set its output path in the sidebar.
         5. Hit "Run Graph" — operations execute in topological order.
         """
-        from gui.src.tabs.animation.stencil import GraphPanel
+        from animation.gui.tabs.animation.stencil import GraphPanel
 
         panel = GraphPanel(self)
         vbox_lay = QVBoxLayout(panel)

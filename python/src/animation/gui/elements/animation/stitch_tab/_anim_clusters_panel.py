@@ -36,7 +36,7 @@ from ._thumb_workers import _ThumbTask
 
 class _AnimClustersPanelMixin:
     def _build_anim_clusters_panel(self) -> QWidget:
-        from gui.src.tabs.animation.stencil import AnimClustersPanel
+        from animation.gui.tabs.animation.stencil import AnimClustersPanel
 
         panel = AnimClustersPanel(self)
         root = QVBoxLayout(panel)

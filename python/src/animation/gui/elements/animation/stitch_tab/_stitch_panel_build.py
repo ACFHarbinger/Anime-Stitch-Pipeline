@@ -45,7 +45,7 @@ from ._match_editor import _MatchScene, _MatchView
 
 class _StitchPanelBuildMixin:
     def _build_stitch_panel(self) -> QWidget:
-        from gui.src.tabs.animation.stencil import StitchPanel
+        from animation.gui.tabs.animation.stencil import StitchPanel
 
         panel = StitchPanel(self)
         root = QVBoxLayout(panel)

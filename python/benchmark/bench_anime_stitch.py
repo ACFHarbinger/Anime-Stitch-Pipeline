@@ -28,26 +28,26 @@ import numpy as np
 import psutil
 import torch
 
-from backend.src.animation.alignment.bundle_adjust import _bundle_adjust_affine
-from backend.src.animation.alignment.canvas import (
+from animation.alignment.bundle_adjust import _bundle_adjust_affine
+from animation.alignment.canvas import (
     _compute_canvas,
     _crop_to_valid,
     _load_frames,
     _normalise_widths,
     _scan_stitch_fallback,
 )
-from backend.src.animation.alignment.ecc import _ecc_refine
-from backend.src.animation.alignment.matching import _pairwise_match
-from backend.src.animation.core.pipeline import AnimeStitchPipeline
-from backend.src.animation.core.validation import _validate_affines
-from backend.src.animation.ingestion.frame_selection import (
+from animation.alignment.ecc import _ecc_refine
+from animation.alignment.matching import _pairwise_match
+from animation.core.pipeline import AnimeStitchPipeline
+from animation.core.validation import _validate_affines
+from animation.ingestion.frame_selection import (
     detect_animation_phases,
     phase_spans,
     smart_select_frames,
 )
-from backend.src.animation.ingestion.masking import _compute_fg_masks
-from backend.src.animation.rendering.compositing import _composite_foreground
-from backend.src.animation.rendering.rendering import _render_median
+from animation.ingestion.masking import _compute_fg_masks
+from animation.rendering.compositing import _composite_foreground
+from animation.rendering.rendering import _render_median
 
 # §2.6 (2026-07-27): repeated benchmark runs have frozen the host hard enough
 # to force a restart, and the user independently observed the benchmark

@@ -18,7 +18,7 @@ import cv2
 import numpy as np
 from PIL import Image
 
-from backend.src.animation.alignment.canvas import _scan_stitch_fallback
+from animation.alignment.canvas import _scan_stitch_fallback
 from backend.src.constants import NEAR_DUP_LUMA_THRESH
 
 from ._frame_utils import _reload_scans_frames

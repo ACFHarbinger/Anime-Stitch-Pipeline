@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dev-repo-template-python"
+name = "anime-stitch-pipeline"
 version = "0.1.0"
-description = "Python module template for Dev-Repo-Template."
+description = "Anime Stitch Pipeline (ASP) — panorama stitching engine."
 readme = "README.md"
 license = { file = "../LICENSE.md" }
 requires-python = ">=3.11"
@@ -40,6 +40,10 @@ select = ["E", "F", "I", "UP", "B"]
 python_version = "3.11"
 ignore_missing_imports = true
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
 [tool.pytest.ini_options]
 testpaths = ["test"]
+pythonpath = ["src"]
 addopts = "-ra"

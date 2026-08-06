@@ -9,7 +9,7 @@ from typing import List, Optional
 import cv2
 import numpy as np
 
-from backend.src.animation.core.stateless import _luma
+from animation.core.stateless import _luma
 from backend.src.constants import (
     ECC_EPS,
     ECC_MAX_DRIFT,

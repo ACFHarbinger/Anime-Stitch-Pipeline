@@ -20,7 +20,7 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from backend.src.animation.alignment.fg_register import (  # noqa: E402
+from animation.alignment.fg_register import (  # noqa: E402
     _arap_push,
     _arap_regularise,  # noqa: F401
     _dense_flow,
@@ -322,7 +322,7 @@ class TestLSDCollinearity:
 
     def test_image_offset_shifts_line_coordinates(self):
         """image_offset correctly shifts LSD line coordinates to canvas space."""
-        from backend.src.animation.alignment.fg_register import _arap_regularise
+        from animation.alignment.fg_register import _arap_regularise
 
         # Full canvas is 256×256; crop is the bottom half (rows 128:256)
         canvas_H, canvas_W = 256, 256
@@ -371,7 +371,7 @@ class TestLSDCollinearity:
         Cells aligned along a detected line should receive the group-average
         translation, making the flow more collinear than raw per-cell medians.
         """
-        from backend.src.animation.alignment.fg_register import _arap_regularise
+        from animation.alignment.fg_register import _arap_regularise
 
         H, W = 64, 256
         cell_size = 16

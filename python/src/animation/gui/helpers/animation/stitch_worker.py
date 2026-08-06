@@ -13,9 +13,9 @@ from typing import Callable, Dict, List, Optional
 
 import cv2
 import numpy as np
-from backend.src.animation.hitl.hitl_session import load_session
-from backend.src.animation.hitl.hitl_session import save_session as _save_session_impl
-from backend.src.animation.ingestion.video_ingestion import ingest_video
+from animation.hitl.hitl_session import load_session
+from animation.hitl.hitl_session import save_session as _save_session_impl
+from animation.ingestion.video_ingestion import ingest_video
 from PySide6.QtCore import QMutex, QThread, QWaitCondition, Signal
 
 from ._progress_pipeline import _TOTAL_STAGES, _build_pipeline_kwargs, _ProgressPipeline

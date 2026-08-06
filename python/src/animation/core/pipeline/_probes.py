@@ -64,7 +64,7 @@ except ImportError:
     _ROMA_OK = False
 
 try:
-    from backend.src.animation.flow.flow_refine import _flow_refine, _load_sea_raft
+    from animation.flow.flow_refine import _flow_refine, _load_sea_raft
 
     _SEA_RAFT_OK = True
 except ImportError:

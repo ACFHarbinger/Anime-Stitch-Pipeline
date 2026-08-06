@@ -21,7 +21,7 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from backend.src.animation.core.pipeline import (  # noqa: E402
+from animation.core.pipeline import (  # noqa: E402
     AnimeStitchPipeline,
     _compute_adaptive_min_disp,
     _reject_static_edges,

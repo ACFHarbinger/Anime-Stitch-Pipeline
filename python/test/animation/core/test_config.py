@@ -13,7 +13,7 @@ import os
 import warnings
 
 import pytest
-from backend.src.animation.core.config import (
+from animation.core.config import (
     dump_asp_config,
     load_asp_config,
     validate_asp_config,
