@@ -28,12 +28,12 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from animation.evaluation.other.schema import (  # noqa: E402
+from asp_backend.evaluation.other.schema import (  # noqa: E402
     BoundingBox,
     RatingEntry,
     save_evaluations,
 )
-from animation.evaluation.other.session import EvaluationSession  # noqa: E402
+from asp_backend.evaluation.other.session import EvaluationSession  # noqa: E402
 
 NAMES = [f"asp_test{i:02d}" for i in range(1, 7)]
 

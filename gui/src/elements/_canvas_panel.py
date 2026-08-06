@@ -32,16 +32,16 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....constants import SIZE_PRESETS
-from ....helpers.animation import CanvasWorker
-from ....styles import apply_shadow_effect
-from ....windows.settings.splitter_persistence import persist_splitter
+from gui.src.constants import SIZE_PRESETS
+from ..helpers import CanvasWorker
+from gui.src.styles import apply_shadow_effect
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from ._thumb_workers import _ThumbTask
 
 
 class _CanvasPanelMixin:
     def _build_canvas_panel(self) -> QWidget:
-        from animation.gui.tabs.animation.stencil import CanvasPanel
+        from asp_gui.tabs.stencil import CanvasPanel
 
         panel = CanvasPanel(self)
         root_layout = QVBoxLayout(panel)

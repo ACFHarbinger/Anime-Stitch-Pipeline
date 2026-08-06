@@ -27,12 +27,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....constants import (
+from gui.src.constants import (
     DARK_GROUP_STYLE,
     STITCH_THUMB_H,
     STITCH_THUMB_W,
 )
-from ....styles import apply_shadow_effect
+from gui.src.styles import apply_shadow_effect
 from ..widgets import ColorCorrectionWidget, MeshWarpWidget, SeamPainterWidget
 from .control_point_editor import ControlPointEditor, _apply_color_correction, _load_thumb
 from .render_panel import RenderPanel

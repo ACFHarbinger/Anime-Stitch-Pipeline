@@ -32,28 +32,28 @@ repos:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
         types_or: [python, pyi]
-        files: ^python/
+        files: ^(backend|gui)/
       - id: ruff-format
         types_or: [python, pyi]
-        files: ^python/
+        files: ^(backend|gui)/
 
   # ── Python: mypy (advisory) ──────────────────────────────────────────────
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.1
     hooks:
       - id: mypy
-        name: mypy (python/src)
+        name: mypy (backend/src, gui/src)
         args: [--ignore-missing-imports, --no-error-summary]
-        files: ^python/src/
+        files: ^(backend|gui)/src/
 
   # ── C++: clang-format ─────────────────────────────────────────────────────
   - repo: local
     hooks:
       - id: clang-format-cpp
-        name: clang-format (cpp/ sources)
+        name: clang-format (base/ sources)
         language: system
         entry: bash -c 'clang-format --dry-run --Werror "$@"' --
-        files: ^cpp/(src|include|test)/.*\.(cpp|hpp|h)$
+        files: ^base/(src|include|tests)/.*\.(cpp|hpp|h)$
         pass_filenames: true
 
   # ── Markdown: link checker ───────────────────────────────────────────────

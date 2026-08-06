@@ -37,15 +37,15 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....helpers.animation import StitchWorker
-from ....styles import apply_shadow_effect
-from ....windows.settings.splitter_persistence import persist_splitter
+from ..helpers import StitchWorker
+from gui.src.styles import apply_shadow_effect
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from ._match_editor import _MatchScene, _MatchView
 
 
 class _StitchPanelBuildMixin:
     def _build_stitch_panel(self) -> QWidget:
-        from animation.gui.tabs.animation.stencil import StitchPanel
+        from asp_gui.tabs.stencil import StitchPanel
 
         panel = StitchPanel(self)
         root = QVBoxLayout(panel)

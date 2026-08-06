@@ -30,13 +30,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....helpers.animation import StatsWorker
+from ..helpers import StatsWorker
 from ._thumb_workers import _ThumbTask
 
 
 class _StatsPanelMixin:
     def _build_stats_panel(self) -> QWidget:
-        from animation.gui.tabs.animation.stencil import StatsPanel
+        from asp_gui.tabs.stencil import StatsPanel
 
         panel = StatsPanel(self)
         root = QVBoxLayout(panel)

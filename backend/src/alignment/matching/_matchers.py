@@ -12,7 +12,7 @@ from typing import Optional, Tuple
 import cv2
 import numpy as np
 
-from animation.core.stateless import _highpass, _luma
+from asp_backend.core.stateless import _highpass, _luma
 from backend.src.constants import MIN_TEMPLATE_SCORE, PC_CONF_THRESHOLD
 
 

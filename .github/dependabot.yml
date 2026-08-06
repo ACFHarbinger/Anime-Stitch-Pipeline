@@ -1,8 +1,8 @@
 version: 2
 updates:
-  # Python dependencies
+  # Backend Python dependencies
   - package-ecosystem: "pip"
-    directory: "/python"
+    directory: "/backend"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -10,7 +10,22 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
-      - "python"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # GUI Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/gui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "gui"
     commit-message:
       prefix: "chore(deps)"
       include: "scope"

@@ -12,7 +12,7 @@ from PySide6.QtCore import QPointF, Qt, Signal
 from PySide6.QtGui import QPainter, QWheelEvent
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView, QSizePolicy
 
-from ....constants import NODE_BODY_HEIGHT, NODE_HDR_HEIGHT
+from gui.src.constants import NODE_BODY_HEIGHT, NODE_HDR_HEIGHT
 from ._node_graph_items import _BaseNode, _GraphEdge, _Port, _SourceNode, _StitchOpNode
 
 

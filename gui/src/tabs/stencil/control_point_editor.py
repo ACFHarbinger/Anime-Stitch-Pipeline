@@ -37,13 +37,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....constants import (
+from gui.src.constants import (
     STITCH_CP_COLORS,
     STITCH_THUMB_H,
     STITCH_THUMB_W,
 )
-from ....styles import apply_shadow_effect
-from ....windows.settings.splitter_persistence import persist_splitter
+from gui.src.styles import apply_shadow_effect
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 
 
 def _load_thumb(path: str, w: int = STITCH_THUMB_W, h: int = STITCH_THUMB_H) -> QPixmap:

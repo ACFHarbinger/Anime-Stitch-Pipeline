@@ -20,14 +20,14 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from animation.alignment.canvas import (  # noqa: E402
+from asp_backend.alignment.canvas import (  # noqa: E402
     _compute_canvas,
     _crop_to_valid,
     _detect_scroll_axis,
     _panorama_stitch_fallback,
     _telea_fill_gaps,
 )
-from animation.core.pipeline import _compute_row_coverage  # noqa: E402
+from asp_backend.core.pipeline import _compute_row_coverage  # noqa: E402
 from backend.src.constants import CANVAS_MAX_DIM as _CANVAS_MAX_DIM  # noqa: E402
 from conftest import make_frame, make_translation_affine  # noqa: E402
 
@@ -415,7 +415,7 @@ class TestPanoramaStitchFallback:
     @pytest.fixture(autouse=True)
     def mock_batch_canvas(self):
         from unittest.mock import patch
-        with patch("animation.alignment.canvas._BATCH_CANVAS", False):
+        with patch("asp_backend.alignment.canvas._BATCH_CANVAS", False):
             yield
 
     def _solid_bgr(self, h: int = 64, w: int = 128, v: int = 128) -> np.ndarray:

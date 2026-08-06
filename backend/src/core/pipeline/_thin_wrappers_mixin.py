@@ -10,37 +10,37 @@ from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
-from animation.alignment.canvas import (
+from asp_backend.alignment.canvas import (
     _compute_canvas,
     _crop_to_valid,
     _normalise_widths,
     _scan_stitch_fallback,
     find_optimal_sequence,
 )
-from animation.alignment.canvas import _load_frames as _load_frames_fn
-from animation.alignment.ecc import _ecc_refine
-from animation.alignment.matching import (
+from asp_backend.alignment.canvas import _load_frames as _load_frames_fn
+from asp_backend.alignment.ecc import _ecc_refine
+from asp_backend.alignment.matching import (
     _match_pair,
     _pairwise_match,
     _phase_correlate,
     _sample_bg_points,
     _template_match,
 )
-from animation.ingestion.masking import (
+from asp_backend.ingestion.masking import (
     _cleanup_sam2_state as _cleanup_sam2_state_fn,
 )
-from animation.ingestion.masking import (
+from asp_backend.ingestion.masking import (
     _compute_fg_masks,
     _compute_fg_masks_sam2_stateful,
 )
-from animation.rendering.compositing import _composite_foreground
-from animation.rendering.photometric import (
+from asp_backend.rendering.compositing import _composite_foreground
+from asp_backend.rendering.photometric import (
     _apply_basic,
 )
-from animation.rendering.photometric import (
+from asp_backend.rendering.photometric import (
     _correct_vignetting as _correct_vignetting_fn,
 )
-from animation.rendering.rendering import (
+from asp_backend.rendering.rendering import (
     _cluster_animation_phases,
     _render,
     _render_first,

@@ -28,26 +28,26 @@ import numpy as np
 import psutil
 import torch
 
-from animation.alignment.bundle_adjust import _bundle_adjust_affine
-from animation.alignment.canvas import (
+from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine
+from asp_backend.alignment.canvas import (
     _compute_canvas,
     _crop_to_valid,
     _load_frames,
     _normalise_widths,
     _scan_stitch_fallback,
 )
-from animation.alignment.ecc import _ecc_refine
-from animation.alignment.matching import _pairwise_match
-from animation.core.pipeline import AnimeStitchPipeline
-from animation.core.validation import _validate_affines
-from animation.ingestion.frame_selection import (
+from asp_backend.alignment.ecc import _ecc_refine
+from asp_backend.alignment.matching import _pairwise_match
+from asp_backend.core.pipeline import AnimeStitchPipeline
+from asp_backend.core.validation import _validate_affines
+from asp_backend.ingestion.frame_selection import (
     detect_animation_phases,
     phase_spans,
     smart_select_frames,
 )
-from animation.ingestion.masking import _compute_fg_masks
-from animation.rendering.compositing import _composite_foreground
-from animation.rendering.rendering import _render_median
+from asp_backend.ingestion.masking import _compute_fg_masks
+from asp_backend.rendering.compositing import _composite_foreground
+from asp_backend.rendering.rendering import _render_median
 
 # §2.6 (2026-07-27): repeated benchmark runs have frozen the host hard enough
 # to force a restart, and the user independently observed the benchmark

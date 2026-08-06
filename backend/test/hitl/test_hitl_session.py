@@ -11,7 +11,7 @@ import json
 
 import numpy as np
 import pytest
-from animation.hitl.hitl_session import (
+from asp_backend.hitl.hitl_session import (
     _decode_array,
     _encode_array,
     _from_json,

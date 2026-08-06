@@ -30,7 +30,7 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
-from ....constants import ANCHOR_RADIUS, MAX_DISPLAYED_MATCHES
+from gui.src.constants import ANCHOR_RADIUS, MAX_DISPLAYED_MATCHES
 from ._pixmap_utils import _bgr_to_qpixmap, _conf_color, _mask_to_qpixmap
 
 

@@ -1,12 +1,12 @@
-# tools/build — compile every language module.
+# tools/build — compile every module.
 
 set shell := ["bash", "-c"]
 
 # Build all modules
-all: python cpp
+all: backend base
 
-python:
-    cd python && uv build
+backend:
+    cd backend && uv build
 
-cpp:
-    cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build cpp/build -j
+base:
+    cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release && cmake --build base/build -j

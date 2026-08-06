@@ -12,12 +12,12 @@ if(NOT Catch2_FOUND)
 endif()
 
 add_executable(animation_tests
-    animation/test_seam.cpp
-    animation/test_compositing.cpp
-    animation/test_bundle_adjust.cpp
-    animation/test_matching.cpp
-    animation/test_validation.cpp
-    animation/test_fuzz.cpp
+    test_seam.cpp
+    test_compositing.cpp
+    test_bundle_adjust.cpp
+    test_matching.cpp
+    test_validation.cpp
+    test_fuzz.cpp
 )
 target_link_libraries(animation_tests PRIVATE animation_impl Catch2::Catch2WithMain)
 

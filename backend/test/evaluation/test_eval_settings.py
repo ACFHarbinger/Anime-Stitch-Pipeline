@@ -21,11 +21,11 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from animation.evaluation.constants.user_interface import (  # noqa: E402
+from asp_backend.evaluation.constants.user_interface import (  # noqa: E402
     THEME_DARK,
     THEME_LIGHT,
 )
-from animation.evaluation.other.settings import (  # noqa: E402
+from asp_backend.evaluation.other.settings import (  # noqa: E402
     AppSettings,
     load_settings,
     save_settings,
@@ -85,7 +85,7 @@ def test_blank_out_dir_normalizes_to_none():
 
 pytest.importorskip("PySide6", reason="the settings dialog needs PySide6")
 
-from animation.evaluation.ui.settings_dialog import SettingsDialog  # noqa: E402
+from asp_backend.evaluation.ui.settings_dialog import SettingsDialog  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
 

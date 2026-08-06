@@ -21,7 +21,7 @@ optimisations, per the roadmap item:
   in the current pipeline, so this half of the bullet is not implemented.
 - `_ecc_refine`: at ECC_MAX_ITER = 20 / 50 / 80 (default) per-pyramid-level
   iteration caps, via a module-attribute monkeypatch (the constant is read
-  fresh from `animation.alignment.ecc` on every call, not
+  fresh from `asp_backend.alignment.ecc` on every call, not
   captured at import time, so this is a legitimate way to vary it without
   touching the pipeline itself).
 
@@ -42,14 +42,14 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from backend.benchmark.managers import BenchmarkManager, measure_memory  # noqa: E402
-from animation.alignment import ecc as _ecc_module  # noqa: E402
-from animation.alignment.bundle_adjust import (  # noqa: E402
+from asp_backend.alignment import ecc as _ecc_module  # noqa: E402
+from asp_backend.alignment.bundle_adjust import (  # noqa: E402
     _bundle_adjust_affine,
     _spanning_tree_inlier_filter,
 )
-from animation.alignment.ecc import _ecc_refine  # noqa: E402
-from animation.alignment.matching import _pairwise_match  # noqa: E402
-from animation.rendering.compositing import _composite_foreground  # noqa: E402
+from asp_backend.alignment.ecc import _ecc_refine  # noqa: E402
+from asp_backend.alignment.matching import _pairwise_match  # noqa: E402
+from asp_backend.rendering.compositing import _composite_foreground  # noqa: E402
 
 try:
     from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper  # type: ignore[import]

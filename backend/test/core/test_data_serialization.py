@@ -1,12 +1,12 @@
 """
-Tests for animation.core.data_serialization — Issue 10B1+10B2.
+Tests for asp_backend.core.data_serialization — Issue 10B1+10B2.
 """
 
 import json
 import os
 
 import numpy as np
-from animation.core.data_serialization import (
+from asp_backend.core.data_serialization import (
     COCOAnnotationBuilder,
     LabelStudioExporter,
     _bbox_from_mask,

@@ -14,7 +14,7 @@ import cv2
 import numpy as np
 from scipy.optimize import least_squares
 
-from animation.core.stateless import _luma
+from asp_backend.core.stateless import _luma
 
 try:
     import base as _batch_photo

@@ -40,7 +40,7 @@ import glob
 import os
 from typing import Optional
 
-from animation.gui.helpers.animation.stitch_worker import StitchWorker
+from asp_gui.helpers.stitch_worker import StitchWorker
 from PySide6.QtCore import Property, QObject, QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog
 from gui.src.constants.tabs import _IMAGE_EXTS

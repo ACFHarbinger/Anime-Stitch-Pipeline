@@ -21,10 +21,10 @@ from __future__ import annotations
 import os
 import sys
 
-import animation.rendering.rendering as _rendering_mod
+import asp_backend.rendering.rendering as _rendering_mod
 import numpy as np
 import pytest
-from animation.rendering.rendering import (
+from asp_backend.rendering.rendering import (
     _adaptive_render_gain_clamp,
     _check_gain_chain_drift,
     _render,
@@ -368,7 +368,7 @@ class TestForegroundExcludedMedian:
         monkeypatch.setenv("ASP_FG_EXCLUDE_MEDIAN", "1")
         import importlib
 
-        import animation.rendering.rendering as r
+        import asp_backend.rendering.rendering as r
 
         importlib.reload(r)
         frames, affines, masks, H, W = self._scene([True, True, True, False])
@@ -388,8 +388,8 @@ class TestForegroundExcludedMedian:
         # submodule that actually owns it, then the package so its
         # `from .median import _render_median` re-export picks up the fresh
         # function object.
-        import animation.rendering.rendering as r
-        import animation.rendering.rendering.median as _median_mod
+        import asp_backend.rendering.rendering as r
+        import asp_backend.rendering.rendering.median as _median_mod
 
         importlib.reload(_median_mod)
         importlib.reload(r)
@@ -406,7 +406,7 @@ class TestForegroundExcludedMedian:
         monkeypatch.setenv("ASP_FG_EXCLUDE_MEDIAN", "1")
         import importlib
 
-        import animation.rendering.rendering as r
+        import asp_backend.rendering.rendering as r
 
         importlib.reload(r)
         frames, affines, masks, H, W = self._scene([True, True, True, True])

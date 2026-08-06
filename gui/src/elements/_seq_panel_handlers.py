@@ -13,7 +13,7 @@ from PySide6.QtCore import Qt, QThreadPool, Slot
 from PySide6.QtGui import QColor, QIcon, QImage, QPixmap
 from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
 
-from ....helpers.animation import SequenceBuilderWorker
+from ..helpers import SequenceBuilderWorker
 from ._thumb_workers import _ThumbTask
 
 

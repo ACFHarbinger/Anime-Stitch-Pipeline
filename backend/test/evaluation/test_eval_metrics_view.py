@@ -36,10 +36,10 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from animation.evaluation.other import discovery  # noqa: E402
-from animation.evaluation.other import metrics_view as mv  # noqa: E402
-from animation.evaluation.other.schema import BoundingBox, RatingEntry  # noqa: E402
-from animation.evaluation.plugin import sample_fields as sf  # noqa: E402
+from asp_backend.evaluation.other import discovery  # noqa: E402
+from asp_backend.evaluation.other import metrics_view as mv  # noqa: E402
+from asp_backend.evaluation.other.schema import BoundingBox, RatingEntry  # noqa: E402
+from asp_backend.evaluation.plugin import sample_fields as sf  # noqa: E402
 
 ENTRY = {
     "name": "asp_test01",

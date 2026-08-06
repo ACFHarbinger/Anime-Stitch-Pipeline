@@ -1,7 +1,7 @@
 """Unit tests for Matcher abstract base class, plugins, and MatcherRegistry (§5.3 Architecture)."""
 
 import numpy as np
-from animation.alignment.matching import (
+from asp_backend.alignment.matching import (
     Matcher,
     MatcherRegistry,
     PhaseCorrelateMatcher,

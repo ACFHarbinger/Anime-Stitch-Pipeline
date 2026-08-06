@@ -13,7 +13,7 @@ from PySide6.QtWidgets import QMessageBox, QWidget
 
 class _HybridPanelMixin:
     def _build_hybrid_panel(self) -> QWidget:
-        from animation.gui.tabs.animation.stencil import HybridStitchPanel
+        from asp_gui.tabs.stencil import HybridStitchPanel
 
         self._hybrid_panel = HybridStitchPanel(self)
         self._hybrid_panel.sequence_accepted.connect(self._on_hybrid_sequence_accepted)

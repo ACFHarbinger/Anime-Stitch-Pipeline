@@ -27,13 +27,13 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from animation.evaluation.constants.schema import (  # noqa: E402
+from asp_backend.evaluation.constants.schema import (  # noqa: E402
     DEFECT_KEYS,
     DIM_COHERENCE,
     DIMENSION_KEYS,
     SCORABLE_KEYS,
 )
-from animation.evaluation.other.schema import (  # noqa: E402
+from asp_backend.evaluation.other.schema import (  # noqa: E402
     BoundingBox,
     Edge,
     EdgePoint,

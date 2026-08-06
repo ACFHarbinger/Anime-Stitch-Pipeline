@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ...helpers.animation.batch_stitch_worker import BatchStitchWorker
+from ..helpers.batch_stitch_worker import BatchStitchWorker
 from gui.src.constants.components import _STATUS_ICON
 
 

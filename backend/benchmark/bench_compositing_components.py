@@ -33,7 +33,7 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 from backend.benchmark.managers import BenchmarkManager, measure_memory  # noqa: E402
-from animation.rendering.compositing import (  # noqa: E402
+from asp_backend.rendering.compositing import (  # noqa: E402
     _build_seam_cost_map,
     _seam_cut,
     _soft_seam_weight,

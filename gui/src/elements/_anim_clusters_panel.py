@@ -29,14 +29,14 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....constants import ANIM_CLUSTER_COLORS
-from ....helpers.animation import AnimClusterWorker
+from gui.src.constants import ANIM_CLUSTER_COLORS
+from ..helpers import AnimClusterWorker
 from ._thumb_workers import _ThumbTask
 
 
 class _AnimClustersPanelMixin:
     def _build_anim_clusters_panel(self) -> QWidget:
-        from animation.gui.tabs.animation.stencil import AnimClustersPanel
+        from asp_gui.tabs.stencil import AnimClustersPanel
 
         panel = AnimClustersPanel(self)
         root = QVBoxLayout(panel)

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from animation.rendering.photometric import (
+from asp_backend.rendering.photometric import (
     _correct_vignetting,
 )
 
@@ -89,7 +89,7 @@ class TestCorrectVignettingPython:
 
 def _call_vignetting_cpp(frame, gain_map):
     """Call batch.exposure.correct_vignetting; skip if not compiled or still a stub."""
-    from animation.rendering import photometric as photo_mod
+    from asp_backend.rendering import photometric as photo_mod
 
     if not photo_mod._BATCH_PHOTO:
         pytest.skip("batch.exposure not available")

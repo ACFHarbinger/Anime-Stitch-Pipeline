@@ -56,7 +56,7 @@ _ALIKED_OK: bool = _importlib_util_pipeline.find_spec("kornia") is not None
 
 # roma_wrapper: romatch library (not typically installed)
 try:
-    from animation.models.wrappers.roma_wrapper import RoMaWrapper
+    from asp_backend.models.wrappers.roma_wrapper import RoMaWrapper
 
     _ROMA_OK = True
 except ImportError:
@@ -64,7 +64,7 @@ except ImportError:
     _ROMA_OK = False
 
 try:
-    from animation.flow.flow_refine import _flow_refine, _load_sea_raft
+    from asp_backend.flow.flow_refine import _flow_refine, _load_sea_raft
 
     _SEA_RAFT_OK = True
 except ImportError:

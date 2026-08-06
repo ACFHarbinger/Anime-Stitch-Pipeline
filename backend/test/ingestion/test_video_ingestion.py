@@ -1,5 +1,5 @@
 """
-Tests for animation.ingestion.video_ingestion — Issue 9.
+Tests for asp_backend.ingestion.video_ingestion — Issue 9.
 
 pyav is optional. All tests must pass whether or not it is installed:
 - When absent: error-path tests verify graceful RuntimeError / None return.
@@ -13,7 +13,7 @@ import os
 import cv2
 import numpy as np
 import pytest
-from animation.ingestion.video_ingestion import (
+from asp_backend.ingestion.video_ingestion import (
     VideoIngestionStream,
     _telecine_dedup,
     _uniform_select,

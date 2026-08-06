@@ -34,8 +34,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from ....windows.settings.app_settings import AppSettings
-from ....windows.settings.splitter_persistence import persist_splitter
+from gui.src.windows.settings.app_settings import AppSettings
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from ._thumb_workers import _ThumbHub, _ThumbTask
 
 

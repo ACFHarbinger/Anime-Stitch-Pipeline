@@ -48,13 +48,13 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader, random_split
 
 # --- Relocated Nested Imports ---
-from animation.models.stitch_net import AnimeStitchNet
-from animation.models.data.stitch_dataset import (
+from asp_backend.models.stitch_net import AnimeStitchNet
+from asp_backend.models.data.stitch_dataset import (
     SyntheticStitchDataset,
     stitch_collate_fn,
 )
 from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
-from animation.models.pipeline.stitch_losses import StitchNetLoss
+from asp_backend.models.pipeline.stitch_losses import StitchNetLoss
 from backend.src.constants.pipeline import DEFAULT_CONFIG
 
 # ---------------------------------------------------------------------------
@@ -108,12 +108,12 @@ class StitchTrainer:
     # ------------------------------------------------------------------
 
     def _setup(self):
-        # relocated: from animation.models.stitch_net import AnimeStitchNet
-        # relocated: from animation.models.data.stitch_dataset import (
+        # relocated: from asp_backend.models.stitch_net import AnimeStitchNet
+        # relocated: from asp_backend.models.data.stitch_dataset import (
             # relocated: SyntheticStitchDataset,
             # relocated: stitch_collate_fn,
         # relocated: )
-        # relocated: from animation.models.pipeline.stitch_losses import StitchNetLoss
+        # relocated: from asp_backend.models.pipeline.stitch_losses import StitchNetLoss
 
         cfg = self.cfg
 
@@ -364,7 +364,7 @@ class StitchTrainer:
         target: torch.Tensor,
         is_neg: torch.Tensor,
     ) -> torch.Tensor:
-        # relocated: from animation.models.stitch_net.model import AnimeStitchNet
+        # relocated: from asp_backend.models.stitch_net.model import AnimeStitchNet
 
         w = self.cfg["distill_weight"]
         pH, pW = self.cfg["patch_hw"]

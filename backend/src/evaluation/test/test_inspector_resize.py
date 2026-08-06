@@ -74,7 +74,7 @@ class TestScheduleFit:
 
     def _make_window(self, tmp_path: str):
         """Build an InspectorWindow with an empty corpus directory."""
-        from animation.evaluation.ui.main_window import InspectorWindow
+        from asp_backend.evaluation.ui.main_window import InspectorWindow
 
         return InspectorWindow(
             base_dir=tmp_path,
@@ -167,7 +167,7 @@ class TestFitAllReentrancy:
     """_fit_all must be re-entrancy safe via the _fitting guard."""
 
     def _make_window(self, tmp_path: str):
-        from animation.evaluation.ui.main_window import InspectorWindow
+        from asp_backend.evaluation.ui.main_window import InspectorWindow
         return InspectorWindow(
             base_dir=tmp_path,
             out_path=os.path.join(tmp_path, "eval.json"),
@@ -234,7 +234,7 @@ class TestInspectorWindowGeometry:
     """
 
     def _make_window(self, tmp_path: str, w: int = 1200, h: int = 800):
-        from animation.evaluation.ui.main_window import InspectorWindow
+        from asp_backend.evaluation.ui.main_window import InspectorWindow
 
         window = InspectorWindow(
             base_dir=tmp_path,
@@ -348,7 +348,7 @@ class TestElidingLabels:
     """
 
     def _make_window(self, tmp_path: str, w: int = 1200, h: int = 800):
-        from animation.evaluation.ui.main_window import InspectorWindow
+        from asp_backend.evaluation.ui.main_window import InspectorWindow
 
         window = InspectorWindow(
             base_dir=tmp_path,
@@ -391,7 +391,7 @@ class TestElidingLabels:
         """The rendered hints text must shrink to fit the label's own width,
         not overflow it — the full crib sheet remains available as a tooltip."""
         window = self._make_window(str(tmp_path), w=1200, h=800)
-        from animation.evaluation.constants.user_interface import KEY_HINTS
+        from asp_backend.evaluation.constants.user_interface import KEY_HINTS
 
         full_text = "   ".join(f"{k}: {v}" for k, v in KEY_HINTS)
         hints_label = None

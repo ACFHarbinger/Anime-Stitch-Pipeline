@@ -26,7 +26,7 @@ from PySide6.QtWidgets import (
     QGraphicsRectItem,
 )
 
-from ....constants import (
+from gui.src.constants import (
     EDGE_COLOR,
     NODE_BODY_HEIGHT,
     NODE_HDR_HEIGHT,

@@ -2,7 +2,7 @@
 
 import datetime
 
-from animation.gui.helpers.animation._progress_pipeline import _STAGE_LABELS
+from asp_gui.helpers._progress_pipeline import _STAGE_LABELS
 
 
 def test_stage_labels_indexing():

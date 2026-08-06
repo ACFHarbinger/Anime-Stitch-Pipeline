@@ -48,7 +48,7 @@ import cv2
 import numpy as np
 
 # --- Relocated Nested Imports ---
-from animation.ingestion.frame_selection import smart_select_frames
+from asp_backend.ingestion.frame_selection import smart_select_frames
 
 logger = logging.getLogger(__name__)
 
@@ -336,7 +336,7 @@ class VideoIngestionStream:
 
         if self.mode == "smart":
             try:
-                # relocated: from animation.ingestion.frame_selection import smart_select_frames
+                # relocated: from asp_backend.ingestion.frame_selection import smart_select_frames
                 proxy_imgs = [self._proxy_frames[i][1] for i in proxy_subset]
                 # smart_select_frames returns list of BGR ndarrays; we need indices
                 selected_imgs = smart_select_frames(proxy_imgs, target_n=want)

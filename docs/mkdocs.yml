@@ -43,7 +43,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [../python/src]
+          paths: [../backend/src, ../gui/src]
           options:
             docstring_style: google
             show_source: true

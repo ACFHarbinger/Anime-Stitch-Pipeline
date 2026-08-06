@@ -29,15 +29,15 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....constants import CROP_PRESETS
-from ....helpers.animation import AdjustWorker
-from ....helpers.animation.adjust_worker import _apply_adjustments
-from ....styles import apply_shadow_effect
+from gui.src.constants import CROP_PRESETS
+from ..helpers import AdjustWorker
+from ..helpers.adjust_worker import _apply_adjustments
+from gui.src.styles import apply_shadow_effect
 
 
 class _AdjustPanelMixin:
     def _build_adjust_panel(self) -> QWidget:
-        from animation.gui.tabs.animation.stencil import AdjustPanel
+        from asp_gui.tabs.stencil import AdjustPanel
 
         panel = AdjustPanel(self)
         layout = QHBoxLayout(panel)

@@ -9,12 +9,12 @@ import os
 
 import cv2
 import numpy as np
-from animation import AnimeStitchPipeline
+from asp_backend import AnimeStitchPipeline
 from PySide6.QtCore import Qt, QThreadPool, QTimer, Slot
 from PySide6.QtGui import QIcon, QImage, QPixmap
 from PySide6.QtWidgets import QDialog, QListWidgetItem, QMessageBox
 
-from ....helpers.animation import MaskPreviewWorker, MatchWorker
+from ..helpers import MaskPreviewWorker, MatchWorker
 from ._thumb_workers import _ThumbTask
 from ._thumbnail_file_picker import _ThumbnailFilePicker
 

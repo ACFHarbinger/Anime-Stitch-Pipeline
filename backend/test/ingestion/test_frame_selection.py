@@ -26,7 +26,7 @@ import sys
 import cv2
 import numpy as np
 import pytest
-from animation.ingestion.frame_selection import (
+from asp_backend.ingestion.frame_selection import (
     _DINOV2_CACHE,  # noqa: F401
     _compute_dhash,
     _compute_dinov2_features,
@@ -287,7 +287,7 @@ class TestDINOv2Features:
 
     def test_returns_none_when_model_unavailable(self, tmp_path):
         """When the cache records a failed model load, the function returns None."""
-        import animation.ingestion.frame_selection as fs_mod
+        import asp_backend.ingestion.frame_selection as fs_mod
         import torch
 
         device = "cuda" if torch.cuda.is_available() else "cpu"

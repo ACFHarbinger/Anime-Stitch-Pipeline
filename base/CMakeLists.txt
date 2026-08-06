@@ -9,10 +9,10 @@ option(BUILD_TESTING "Build tests" OFF)
 # ---------------------------------------------------------------------------
 # NOTE: this C++ core does not build a standalone Python extension. It is
 # compiled directly into Image-Toolkit's single `base` pybind11 module
-# (see ../../../base/CMakeLists.txt, which lists these same src/animation/
+# (see ../../../base/CMakeLists.txt, which lists these same src/
 # sources by relative path) — that is the only way these sources are
-# actually loaded at runtime. This CMakeLists.txt exists so `cpp/test/` can
-# be built and run in isolation (`just test::cpp`, this submodule's own
+# actually loaded at runtime. This CMakeLists.txt exists so `base/tests/`
+# can be built and run in isolation (`just test::cpp`, this submodule's own
 # CI), and therefore assumes this repo is checked out at
 # Image-Toolkit/submodules/Anime-Stitch-Pipeline/ — it depends on shared
 # headers (affine_types.hpp, common.hpp, image_utils.hpp, math/graph.hpp)
@@ -57,15 +57,15 @@ find_package(OpenMP REQUIRED)
 # lives in ../../../base/src/bindings.cpp) so Catch2 tests can link it
 # directly, matching ../../../base/tests/CMakeLists.txt's own approach.
 add_library(animation_impl STATIC
-    src/animation/matching.cpp
-    src/animation/bundle_adjust.cpp
-    src/animation/validation.cpp
-    src/animation/canvas.cpp
-    src/animation/seam.cpp
-    src/animation/compositing.cpp
-    src/animation/exposure.cpp
-    src/animation/frame_selection.cpp
-    src/animation/fg_register.cpp
+    src/matching.cpp
+    src/bundle_adjust.cpp
+    src/validation.cpp
+    src/canvas.cpp
+    src/seam.cpp
+    src/compositing.cpp
+    src/exposure.cpp
+    src/frame_selection.cpp
+    src/fg_register.cpp
 )
 
 target_include_directories(animation_impl PUBLIC
@@ -87,5 +87,5 @@ target_link_libraries(animation_impl PUBLIC
 
 if(BUILD_TESTING)
     enable_testing()
-    add_subdirectory(test)
+    add_subdirectory(tests)
 endif()

@@ -21,12 +21,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ....styles import apply_shadow_effect
+from gui.src.styles import apply_shadow_effect
 
 
 class _SeqPanelBuildMixin:
     def _build_seq_panel(self) -> QWidget:
-        from animation.gui.tabs.animation.stencil import SeqBuilderPanel
+        from asp_gui.tabs.stencil import SeqBuilderPanel
 
         panel = SeqBuilderPanel(self)
         root = QVBoxLayout(panel)

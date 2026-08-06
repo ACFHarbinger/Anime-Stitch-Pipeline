@@ -31,7 +31,7 @@ pytestmark = pytest.mark.inspector_ui
 # ---------------------------------------------------------------------------
 
 def _make_grid():
-    from animation.evaluation.ui.panel_grid import PanelGrid
+    from asp_backend.evaluation.ui.panel_grid import PanelGrid
     return PanelGrid()
 
 

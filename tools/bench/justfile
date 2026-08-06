@@ -1,11 +1,8 @@
-# tools/bench — run benchmarks across language modules.
+# tools/bench — run benchmarks.
 
 set shell := ["bash", "-c"]
 
-all: python cpp
+all: backend
 
-python:
-    cd python && uv run pytest benchmark --benchmark-only
-
-cpp:
-    cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build cpp/build --target benchmark -j && ./cpp/build/benchmark/benchmark
+backend:
+    cd backend && uv run pytest benchmark --benchmark-only

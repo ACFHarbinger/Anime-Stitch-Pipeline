@@ -16,7 +16,7 @@ from typing import List, Optional, Tuple
 import cv2
 import numpy as np
 
-from animation.alignment.canvas import _detect_scroll_axis
+from asp_backend.alignment.canvas import _detect_scroll_axis
 from backend.src.constants import LANCZOS_BLEED, MAX_SAFE_GAIN_DEV, RENDERING_FADE_ROWS
 
 from ._animation_repaint import _render_animation_repaint

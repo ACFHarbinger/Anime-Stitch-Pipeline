@@ -1,12 +1,15 @@
-# tools/validation — run every language module's linters/formatters.
+# tools/validation — run every module's linters/formatters.
 
 set shell := ["bash", "-c"]
 
 # Run all linters
-all: python cpp
+all: backend gui base
 
-python:
-    cd python && uv run ruff check . && uv run ruff format --check .
+backend:
+    cd backend && uv run ruff check . && uv run ruff format --check .
 
-cpp:
-    find cpp/src cpp/include cpp/test -name '*.cpp' -o -name '*.hpp' -o -name '*.h' | xargs clang-format --dry-run --Werror
+gui:
+    cd gui && uv run ruff check . && uv run ruff format --check .
+
+base:
+    find base/src base/include base/tests -name '*.cpp' -o -name '*.hpp' -o -name '*.h' | xargs clang-format --dry-run --Werror

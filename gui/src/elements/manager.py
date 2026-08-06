@@ -18,7 +18,7 @@ from PySide6.QtCore import QThread, QTimer
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QListWidgetItem, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget
 
-from ....helpers.animation import (
+from ..helpers import (
     AdjustWorker,
     AnimClusterWorker,
     CanvasWorker,

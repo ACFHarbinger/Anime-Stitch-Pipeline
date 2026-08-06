@@ -28,12 +28,12 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from .....constants import (
+from gui.src.constants import (
     CONF_HIGH,
     CONF_LOW,
     CONF_MED,
 )
-from .....styles import apply_shadow_effect
+from gui.src.styles import apply_shadow_effect
 
 
 def _conf_color(c: float) -> QColor:

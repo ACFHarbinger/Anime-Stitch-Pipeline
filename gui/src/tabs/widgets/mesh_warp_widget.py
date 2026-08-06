@@ -31,7 +31,7 @@ from PySide6.QtWidgets import (
 )
 from scipy.interpolate import RBFInterpolator
 
-from ....styles import apply_shadow_effect
+from gui.src.styles import apply_shadow_effect
 
 
 def _bgr_to_qimage(bgr: np.ndarray) -> QImage:

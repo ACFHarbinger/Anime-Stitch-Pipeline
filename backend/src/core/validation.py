@@ -19,7 +19,7 @@ from typing import List, NamedTuple, Tuple
 import numpy as np
 
 # --- Relocated Nested Imports ---
-from animation.alignment.canvas import _detect_scroll_axis
+from asp_backend.alignment.canvas import _detect_scroll_axis
 
 try:
     import base as _batch
@@ -187,7 +187,7 @@ def _validate_affines(
     if N < 2:
         return AffineHealth(True, 1.0, 0.0, 0.0, 0.0, "single frame")
 
-    # relocated: from animation.alignment.canvas import _detect_scroll_axis
+    # relocated: from asp_backend.alignment.canvas import _detect_scroll_axis
     scroll_axis = _detect_scroll_axis(affines)
 
     txs = np.array([float(a[0, 2]) for a in affines])

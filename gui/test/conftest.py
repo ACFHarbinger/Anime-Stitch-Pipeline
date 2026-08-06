@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for backend/test/.
+"""Shared pytest fixtures for gui/test/.
 
 Registers this repo's own backend/src and gui/src packages under the same
 asp_backend / asp_gui aliases Image-Toolkit's own bootstrap uses (see

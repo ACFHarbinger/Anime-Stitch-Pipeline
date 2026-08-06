@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
 )
 
 try:
-    from animation.models.pipeline.stitch_trainer import DEFAULT_CONFIG, StitchTrainer
+    from asp_backend.models.pipeline.stitch_trainer import DEFAULT_CONFIG, StitchTrainer
 
     _TRAINER_OK = True
 except ImportError:

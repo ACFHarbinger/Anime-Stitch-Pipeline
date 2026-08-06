@@ -7,14 +7,14 @@ from __future__ import annotations
 
 import os
 
-from animation.ingestion.masking import (
+from asp_backend.ingestion.masking import (
     _compute_fg_masks_grounded_sam2,
     _refine_masks_with_clicks,
 )
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox
 
-from ....components import BatchStitchDialog
+from gui.src.components import BatchStitchDialog
 from .dialog import (
     BoundaryEditorDialog,
     CanvasInspectorDialog,

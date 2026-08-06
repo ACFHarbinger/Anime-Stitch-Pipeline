@@ -20,7 +20,7 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from animation.core.validation import (  # noqa: E402
+from asp_backend.core.validation import (  # noqa: E402
     AffineHealth,  # noqa: F401
     _check_translation_monotonicity,
     _compute_adaptive_min_gap,

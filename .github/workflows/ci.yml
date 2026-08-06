@@ -12,29 +12,58 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-test-python:
+  lint-test-backend:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --group dev
-        working-directory: python
+        working-directory: backend
       - run: uv run ruff check .
-        working-directory: python
+        working-directory: backend
       - run: uv run mypy src
-        working-directory: python
+        working-directory: backend
       - run: uv run pytest test -v --cov=src --cov-report=xml
-        working-directory: python
+        working-directory: backend
       - uses: codecov/codecov-action@v4
         with:
-          files: python/coverage.xml
+          files: backend/coverage.xml
           fail_ci_if_error: false
 
-  build-test-cpp:
+  lint-test-gui:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --group dev
+        working-directory: gui
+      - run: uv run ruff check .
+        working-directory: gui
+      - run: uv run mypy src
+        working-directory: gui
+
+  build-test-base:
+    runs-on: ubuntu-latest
+    steps:
+      # base/'s CMakeLists.txt depends on shared headers from Image-Toolkit's
+      # own base/include/ (see base/CMakeLists.txt's own note) — check that
+      # repo out as the expected parent so a standalone build/test actually
+      # works, instead of vendoring a copy that could drift.
+      - name: Check out Image-Toolkit (parent repo)
+        uses: actions/checkout@v4
+        with:
+          repository: ACFHarbinger/Image-Toolkit
+          path: Image-Toolkit
+          sparse-checkout: |
+            base/include
+          sparse-checkout-cone-mode: false
+      - name: Check out this repo at the expected submodule path
+        uses: actions/checkout@v4
+        with:
+          path: Image-Toolkit/submodules/Anime-Stitch-Pipeline
       - run: |
-          cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-          cmake --build cpp/build --parallel
-      - run: ctest --test-dir cpp/build --output-on-failure
+          cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+          cmake --build base/build --parallel
+        working-directory: Image-Toolkit/submodules/Anime-Stitch-Pipeline
+      - run: ctest --test-dir base/build --output-on-failure
+        working-directory: Image-Toolkit/submodules/Anime-Stitch-Pipeline

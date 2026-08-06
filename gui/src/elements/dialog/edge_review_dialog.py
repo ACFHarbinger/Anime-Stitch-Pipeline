@@ -4,7 +4,7 @@ import math
 from typing import List, Tuple
 
 import cv2
-from animation.core.pipeline import _build_landmark_affine
+from asp_backend.core.pipeline import _build_landmark_affine
 from PySide6.QtCore import Qt
 from PySide6.QtGui import (
     QBrush,

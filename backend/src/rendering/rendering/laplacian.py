@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 import cv2
 import numpy as np
 
-from animation.core.stateless import _laplacian_blend
+from asp_backend.core.stateless import _laplacian_blend
 
 from . import _native
 

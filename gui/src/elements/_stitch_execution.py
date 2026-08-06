@@ -11,7 +11,7 @@ from PySide6.QtCore import Qt, QThreadPool, Slot
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
-from ....helpers.animation import StitchWorker
+from ..helpers import StitchWorker
 from ._thumb_workers import _MetricsTask
 
 

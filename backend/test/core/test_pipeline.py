@@ -12,7 +12,7 @@ Tests for pipeline.py module-level functions:
 import cv2
 import numpy as np
 import pytest
-from animation.core.pipeline import (  # noqa: E402
+from asp_backend.core.pipeline import (  # noqa: E402
     _apply_hires_keyframes,
     _check_edge_graph_connectivity,
     _compute_adaptive_dy_cv_max,
@@ -367,7 +367,7 @@ class TestBuildManualEdge:
     """Tests for _build_manual_edge (§S89 manual edge entry at HITL checkpoint 2)."""
 
     def setup_method(self):
-        from animation.core.pipeline import _build_manual_edge
+        from asp_backend.core.pipeline import _build_manual_edge
 
         self._fn = _build_manual_edge
 

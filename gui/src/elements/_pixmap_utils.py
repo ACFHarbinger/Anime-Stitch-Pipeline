@@ -10,7 +10,7 @@ import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QImage, QPixmap
 
-from ....constants import CONF_HIGH, CONF_LOW, CONF_MED
+from gui.src.constants import CONF_HIGH, CONF_LOW, CONF_MED
 
 
 def _conf_color(c: float) -> QColor:

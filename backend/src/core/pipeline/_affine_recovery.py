@@ -14,8 +14,8 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from animation.alignment.bundle_adjust import _bundle_adjust_affine
-from animation.core.validation import _validate_affines
+from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine
+from asp_backend.core.validation import _validate_affines
 
 from ._edge_filters import _filter_high_conf_edges
 
