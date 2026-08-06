@@ -1,0 +1,23 @@
+# Production overrides for docker-compose.yml.
+#
+# Usage:
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.prod.yml up -d
+
+services:
+  app:
+    restart: always
+    environment:
+      APP_ENV: production
+      DEBUG_MODE: "false"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+
+  db:
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 1G
