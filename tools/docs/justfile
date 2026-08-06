@@ -1,0 +1,12 @@
+# tools/docs — build the documentation site.
+
+set shell := ["bash", "-c"]
+
+# Build MkDocs (which excludes sphinx/conf.py) plus the Sphinx API reference
+build:
+    cd python && uv run --with mkdocs-material --with mkdocstrings[python] mkdocs build --config-file ../docs/mkdocs.yml --strict
+    cd python && uv run --with-requirements ../docs/sphinx/requirements.txt sphinx-build -b html ../docs/sphinx ../site/sphinx-api
+
+# Serve the MkDocs site locally with live reload
+serve:
+    cd python && uv run --with mkdocs-material mkdocs serve --config-file ../docs/mkdocs.yml
