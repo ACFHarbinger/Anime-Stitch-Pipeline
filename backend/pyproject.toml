@@ -31,20 +31,35 @@ dependencies = [
     "transformers>=5.14.1",
     "kornia>=0.8.2",
     "huggingface_hub",
-    "sam-2 @ git+https://github.com/facebookresearch/sam2@2b90b9f5ceec907a1c18123530e92e794ad901a4",
-    # Matcher plugins (core/pipeline/_matcher_selection.py, alignment/matching/)
-    # — lazily imported per-matcher; loosely pinned since upstream doesn't
-    # publish stable release cadences for these research packages.
-    "ptlflow",
-    "romatch",
-    "mamba_ssm",
-    "pycocotools",
     # GUI + video
     "pyside6>=6.10.0",
     "av>=17.0.1",
 ]
 
 [project.optional-dependencies]
+# Matcher plugins (core/pipeline/_matcher_selection.py, alignment/matching/,
+# ingestion/masking.py) — every import site already wraps these in
+# try/except ImportError (see core/pipeline/_probes.py's _ROMA_OK/
+# _SEA_RAFT_OK flags, core/data_serialization.py's coco_mask, masking.py's
+# "§3.14 lazy" SAM-2 imports) and the matching cascade (EfficientLoFTR ->
+# kornia LoFTR -> ALIKED+LightGlue -> template/phase-correlation) already
+# degrades gracefully without them. They were listed as hard dependencies
+# despite that, which is a real problem: mamba_ssm compiles a CUDA
+# extension from source (needs `nvcc` at build time) and unconditionally
+# breaks `uv sync` on any machine without a CUDA toolchain -- including,
+# almost certainly, GitHub's standard `ubuntu-latest` CI runners. Moved
+# here so the base install (and CI) works without a GPU; install this
+# extra explicitly on a CUDA-capable dev machine to exercise
+# mamba_ssm/RoMa/SEA-RAFT/SAM-2-specific matcher paths. Loosely pinned
+# since upstream doesn't publish stable release cadences for these
+# research packages.
+matchers = [
+    "sam-2 @ git+https://github.com/facebookresearch/sam2@2b90b9f5ceec907a1c18123530e92e794ad901a4",
+    "ptlflow",
+    "romatch",
+    "mamba_ssm",
+    "pycocotools",
+]
 # The FiftyOne corpus-triage surface of the ASP evaluation tool
 # (src/animation/evaluation/plugin/). Dev-only and deliberately not a
 # default dependency — pulls ~30 packages plus an embedded MongoDB.

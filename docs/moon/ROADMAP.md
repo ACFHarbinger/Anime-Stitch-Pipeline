@@ -86,7 +86,21 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   help, no guided walkthrough, in either the Stitch tab or
   `HybridStitchPanel`. This is a real feature gap against the stated product
   vision, not a maturity issue on existing code — tracked as a new item,
-  see Phase 6 below.
+  see Phase 6 below. `[DONE 2026-08-06]` (Phase 6.1 + 6.2, both shipped.)
+- **`backend/`'s `uv sync` required a CUDA toolchain (`nvcc`) unconditionally
+  — fixed 2026-08-06, issue #5.** `mamba_ssm` and the other CUDA-only/
+  research matcher plugins (`ptlflow`, `romatch`, `pycocotools`, `sam-2`)
+  were hard dependencies despite every call site already handling their
+  absence gracefully (`core/pipeline/_probes.py`'s `_ROMA_OK`/`_SEA_RAFT_OK`
+  flags, etc.) — moved to an optional `matchers` extra. This was blocking
+  *any* Phase 0–5 work in a non-CUDA environment at the `uv sync` step, before
+  even reaching the ground rules' benchmark requirement. **Does not fully
+  unblock Phase 0–5**: running the actual pipeline/benchmark still needs a
+  real GPU for the ML models themselves, and running `backend/test/` at all
+  (regardless of GPU) surfaces two further pre-existing issues — see the
+  expanded issue #3 (namespace collisions between this repo's and
+  Image-Toolkit's identically-named top-level `backend`/`gui` packages) and
+  issue #6 (6 test files import nonexistent fixture helpers).
 
 ---
 

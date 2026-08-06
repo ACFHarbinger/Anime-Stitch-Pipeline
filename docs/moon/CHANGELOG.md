@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fixed `backend/pyproject.toml` requiring a CUDA toolchain (`nvcc`) just to run `uv sync`: moved `mamba_ssm`/`ptlflow`/`romatch`/`pycocotools`/`sam-2` (already-lazy-imported research matcher plugins) into an optional `matchers` extra. Closes issue #5.
 - Phase 6.1 (Tutorials & Onboarding): `gui/src/tabs/stencil/onboarding_wizard.py::HybridStitchOnboardingWizard` — a first-run, dismissible, re-invocable `QWizard` guided tour over `HybridStitchPanel`, paging through pages that switch the panel's live tool tabs to match. New "?" toolbar button re-invokes it. 10 new tests. Closes issue #1.
 - Phase 6.2 (Tutorials & Onboarding): `docs/tutorials/getting-started-hybridstitch.md` and `docs/tutorials/pipeline-overview.md` — beginner-facing docs-site tutorials for `HybridStitchPanel` and the automated `AnimeStitchPipeline`, wired into `docs/mkdocs.yml` nav and `docs/index.md`. Closes issue #2.
 - Moved `moon/`, `reports/`, and `research/` into `docs/` (`docs/moon/`, `docs/reports/`, `docs/research/`), consolidating all documentation under one directory; extended `docs/mkdocs.yml`'s nav with Roadmap/Changelog/Research/Reports sections at the new locations plus a link back to the parent Image-Toolkit project.
