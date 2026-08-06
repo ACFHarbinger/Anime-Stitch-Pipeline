@@ -23,7 +23,7 @@ passing first) -- a triage aid for a human policy decision per test, not a
 new automatic gate or dispatch rule. No pipeline behavior changes.
 
 Usage:
-  python -m backend.benchmark.triage_fallback_classes [--json PATH] [--out PATH]
+  python3 backend/benchmark/triage_fallback_classes.py [--json PATH] [--out PATH]
 """
 
 import argparse
