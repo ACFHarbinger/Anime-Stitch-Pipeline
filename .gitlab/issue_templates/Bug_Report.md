@@ -1,13 +1,12 @@
-<!-- Thanks for the report. This is a polyglot template — telling us which module is affected speeds up triage a lot. -->
+<!-- Thanks for the report. Telling us which module is affected speeds up triage a lot. -->
 
 ### Affected module
 <!-- Exactly one. -->
-- [ ] Python (`python/`)
-- [ ] TypeScript (`typescript/`)
-- [ ] Kotlin (`kotlin/`)
-- [ ] Rust (`rust/`)
-- [ ] Go (`go/`)
-- [ ] C++ (`cpp/`)
+- [ ] `backend/` (Python pipeline)
+- [ ] `base/` (C++ compute core)
+- [ ] `gui/` (PySide6 desktop UI)
+- [ ] `frontend/` (Tauri, unimplemented scaffold)
+- [ ] `app/` (iOS/Android, unimplemented scaffold)
 - [ ] Build / tooling (just, docker, CI)
 - [ ] Other / unknown
 

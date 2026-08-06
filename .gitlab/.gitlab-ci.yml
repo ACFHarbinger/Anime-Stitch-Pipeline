@@ -1,7 +1,6 @@
 # GitLab CI/CD Pipeline
 # Native-syntax translation of the GitHub Actions workflows under .github/workflows/:
-# ci.yml, benchmark.yml, security.yml, docs.yml. agent_sync.yml is GitHub-Projects-
-# specific (see the note under the "sync" stage below) and has no GitLab job here.
+# ci.yml, benchmark.yml, security.yml, docs.yml.
 
 stages:
   - test
@@ -12,12 +11,12 @@ stages:
 # ==========================================
 # STAGE: TEST (ci.yml)
 # ==========================================
-lint-test-python:
+lint-test-backend:
   stage: test
   image: python:3.12
   script:
     - pip install uv
-    - cd python
+    - cd backend
     - uv sync --group dev
     - uv run ruff check .
     - uv run mypy src
@@ -27,75 +26,32 @@ lint-test-python:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: python/coverage.xml
+        path: backend/coverage.xml
 
-lint-test-typescript:
+lint-test-gui:
   stage: test
-  image: node:22
+  image: python:3.12
   script:
-    - cd typescript
-    - npm ci
-    - npm run lint
-    - npm test
+    - pip install uv
+    - cd gui
+    - uv sync --group dev
+    - uv run ruff check .
+    - uv run mypy src
 
-lint-test-rust:
-  stage: test
-  image: rust:latest
-  script:
-    - rustup component add rustfmt clippy
-    - cd rust
-    - cargo fmt -- --check
-    - cargo clippy --all-targets -- -D warnings
-    - cargo test
-
-lint-test-go:
-  stage: test
-  image: golang:1.22
-  script:
-    - cd go
-    - test -z "$(gofmt -l .)"
-    - go vet ./...
-    - go test ./...
-
-lint-test-kotlin:
-  stage: test
-  image: eclipse-temurin:21-jdk
-  script:
-    - cd kotlin
-    - ./gradlew ktlintCheck test
-
-lint-test-java:
-  stage: test
-  image: maven:3-eclipse-temurin-21
-  script:
-    - cd java
-    - mvn -B test
-
-build-test-cpp:
+build-test-base:
   stage: test
   image: ubuntu:22.04
   before_script:
-    - apt-get update && apt-get install -y cmake g++ make
+    - apt-get update && apt-get install -y cmake g++ make libopencv-dev
   script:
-    - cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-    - cmake --build cpp/build --parallel
-    - ctest --test-dir cpp/build --output-on-failure
+    - cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+    - cmake --build base/build --parallel
+    - ctest --test-dir base/build --output-on-failure
 
 # ==========================================
 # STAGE: SECURITY (security.yml)
 # ==========================================
-security-cargo-audit:
-  stage: security
-  image: rust:latest
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  script:
-    - cargo install cargo-audit --locked
-    - cd rust
-    - cargo audit
-
-security-pip-audit:
+security-pip-audit-backend:
   stage: security
   image: python:3.12
   rules:
@@ -103,19 +59,21 @@ security-pip-audit:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     - pip install uv
-    - cd python
+    - cd backend
     - uv sync --group dev
     - uv run pip-audit
 
-security-npm-audit:
+security-pip-audit-gui:
   stage: security
-  image: node:22
+  image: python:3.12
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - cd typescript
-    - npm audit --audit-level=high
+    - pip install uv
+    - cd gui
+    - uv sync --group dev
+    - uv run pip-audit
 
 # ==========================================
 # STAGE: DOCS (docs.yml)
@@ -128,13 +86,17 @@ pages:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       changes:
         - "docs/**/*"
-        - "python/validation/docs/**/*"
+        - "backend/validation/docs/**/*"
         - "mkdocs.yml"
   script:
+    - apt-get update && apt-get install -y --no-install-recommends nodejs npm
     - pip install uv
     - uv pip install --system mkdocs-material mkdocstrings[python] mkdocs-jupyter
+    - mkdocs build --config-file docs/mkdocs.yml --strict --site-dir site
+    - cd docs/website && npm ci && SITE_BASE=/app/ npm run build && cd ../..
+    - mkdir -p site/app && cp -r docs/website/dist/. site/app/
     # GitLab Pages requires the output directory to be named "public"
-    - mkdocs build --config-file docs/mkdocs.yml --strict --site-dir public
+    - mv site public
   artifacts:
     paths:
       - public
@@ -144,27 +106,14 @@ pages:
 # ==========================================
 benchmark:
   stage: benchmark
-  image: rust:latest
+  image: python:3.12
   rules:
     - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       changes:
-        - "**/benchmark/**/*"
-        - "**/benches/**/*"
+        - "backend/benchmark/**/*"
     - if: '$CI_PIPELINE_SOURCE == "web"'
   script:
-    - cd rust
-    - cargo bench
-    - cd ../python
     - pip install uv
+    - cd backend
     - uv sync --group dev
     - uv run pytest benchmark --benchmark-only
-
-# ==========================================
-# STAGE: SYNC (agent_sync.yml) -- not portable
-# ==========================================
-# agent_sync.yml orchestrates github/scripts/sync_backlog.py, which talks to
-# the GitHub Projects (V2) GraphQL API specifically. GitLab has its own
-# Issue Boards / epics feature with a different, incompatible API -- no
-# drop-in translation exists, and porting the script itself is out of scope
-# for a CI-config mirror. No GitLab job is defined for this; enable a
-# GitLab-native equivalent separately if backlog automation is needed here.
