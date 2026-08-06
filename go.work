@@ -1,0 +1,5 @@
+// Go workspace for Dev-Repo-Template. The Go module lives in ./go.
+// (Repo-root Go env file; the module-level env file is go/go.mod.)
+go 1.22
+
+use ./go
