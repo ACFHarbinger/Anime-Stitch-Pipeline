@@ -1,9 +1,9 @@
 """
-animation — anime panorama stitching package.
+backend — Anime Stitch Pipeline (ASP): anime panorama stitching package.
 
-Top-level orchestrator :class:`AnimeStitchPipeline` lives in ``pipeline.py`` and
-delegates each stage to a sibling module (matching, photometric, masking, ecc,
-rendering, compositing, canvas, bundle_adjust).
+Top-level orchestrator :class:`AnimeStitchPipeline` lives in ``core/pipeline.py``
+and delegates each stage to a sibling module (matching, photometric, masking,
+ecc, rendering, compositing, canvas, bundle_adjust).
 """
 
 # §1.8A: auto-load backend/config/asp_config.toml before any module-level env flags are read.
