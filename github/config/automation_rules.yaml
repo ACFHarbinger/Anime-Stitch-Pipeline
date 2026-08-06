@@ -11,18 +11,19 @@
 version: 1
 
 project:
-  # GitHub Project (V2) number as shown in the project URL, e.g.
-  # https://github.com/users/<owner>/projects/<number>
-  # TODO (template adoption): update owner/number for your project's board.
-  number: 16
+  # GitHub Project (V2) number as shown in the project URL:
+  # https://github.com/users/ACFHarbinger/projects/12 ("Image-Toolkit" —
+  # the shared org-wide board this repo's issues are tracked on, alongside
+  # Image-Toolkit's and Cel-Shaded-Generator's own).
+  number: 12
   owner: "ACFHarbinger"
   owner_type: "user"        # "user" | "org"
 
 sync:
   # Files the agent is allowed to read as its source of truth for tickets.
   source_documents:
-    - "moon/ROADMAP.md"
-    - "moon/CHANGELOG.md"
+    - "docs/moon/ROADMAP.md"
+    - "docs/moon/CHANGELOG.md"
   # Directional policy: what happens when the doc and the board disagree.
   conflict_resolution:
     # "doc_wins": overwrite board state from markdown
