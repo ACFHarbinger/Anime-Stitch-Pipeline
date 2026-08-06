@@ -10,6 +10,11 @@ const router = createRouter({
   },
   routes: [
     {
+      path: "/submodules/:slug",
+      name: "submodule",
+      component: () => import("./views/SubmodulePage.vue"),
+    },
+    {
       path: "/:pathMatch(.*)*",
       name: "doc",
       component: () => import("./views/DocPage.vue"),

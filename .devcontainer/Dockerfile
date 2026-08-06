@@ -29,6 +29,6 @@ RUN useradd -m -s /bin/bash vscode
 USER vscode
 WORKDIR /app
 
-ENV PATH="/app/python/.venv/bin:$PATH"
+ENV PATH="/app/backend/.venv/bin:$PATH"
 
 CMD ["/bin/bash"]

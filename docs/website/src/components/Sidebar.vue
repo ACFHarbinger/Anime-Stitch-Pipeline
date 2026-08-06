@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { navTree } from "../nav.generated";
+import { submoduleSites } from "../submodules";
 import SidebarSection from "./SidebarSection.vue";
 
 defineProps<{ open: boolean }>();
@@ -10,6 +11,18 @@ const emit = defineEmits<{ close: [] }>();
   <div v-if="open" class="sidebar-scrim" @click="emit('close')" />
   <nav class="sidebar" :class="{ open }">
     <SidebarSection v-for="(node, i) in navTree" :key="i" :node="node" :depth="0" />
+
+    <template v-if="submoduleSites.length">
+      <div class="related-heading">Related Projects</div>
+      <router-link
+        v-for="s in submoduleSites"
+        :key="s.slug"
+        class="related-link"
+        :to="'/submodules/' + s.slug"
+      >
+        {{ s.title }}
+      </router-link>
+    </template>
   </nav>
 </template>
 
@@ -20,6 +33,31 @@ const emit = defineEmits<{ close: [] }>();
   gap: 0.125rem;
   padding: 1.25rem 0.75rem 3rem;
   overflow-y: auto;
+}
+
+.related-heading {
+  margin-top: 1.25rem;
+  padding: 0.4rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--text);
+  border-top: 1px solid var(--border);
+  padding-top: 1.25rem;
+}
+.related-link {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  border-radius: 6px;
+}
+.related-link:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+}
+.related-link.router-link-active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
 }
 
 .sidebar-scrim {
