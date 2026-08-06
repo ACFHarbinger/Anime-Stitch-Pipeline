@@ -819,7 +819,14 @@ Candidate approaches (not mutually exclusive, roughly cheapest-first):
    direct.
 2. **Content-first tutorials** on the docs site (`docs/website/` — already
    functional) — written/video walkthroughs, cheaper to iterate than in-app
-   UI but doesn't meet users inside the tool.
+   UI but doesn't meet users inside the tool. `[DONE 2026-08-06, issue #2]`
+   `docs/tutorials/getting-started-hybridstitch.md` (a tab-by-tab walkthrough
+   of `HybridStitchPanel`'s actual UI — sequence loading, control points,
+   color correct, seam painter, mesh warp, render, and handing frames to the
+   automated Stitch tab) and `docs/tutorials/pipeline-overview.md` (a
+   beginner distillation of the 13-stage `AnimeStitchPipeline`, when to use
+   it vs. HybridStitch), wired into `docs/mkdocs.yml`'s nav and linked from
+   `docs/index.md`.
 3. **Bundled sample projects** — 2–3 example frame sequences shipped with a
    guided "try HybridStitch on this" mode; teaches by doing.
 4. **Assisted-use suggestions** — surface `gui/src/elements/_stats_recommendations.py`'s
