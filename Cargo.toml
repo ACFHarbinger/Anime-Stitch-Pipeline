@@ -1,0 +1,10 @@
+# Root Cargo workspace — ties together the Rust module. The actual crate
+# lives in rust/ (see rust/Cargo.toml).
+[workspace]
+resolver = "2"
+members = [
+    "rust",
+]
+
+[profile.release]
+debug = true

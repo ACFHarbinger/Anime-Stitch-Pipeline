@@ -1,0 +1,10 @@
+# Plugin registry for dev/src/plugins/ (see moon/roadmaps/developer_tools.md D8).
+# Not yet consumed by any code — dev/src/plugins/ has no registry loader yet.
+# This file documents the intended shape so D8 has a config format to target.
+
+plugins: []
+# Example shape once D8 lands:
+# plugins:
+#   - name: "image-diff-panel"
+#     module: "plugins.image_diff"
+#     enabled: false
