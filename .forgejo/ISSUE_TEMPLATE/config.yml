@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: 📖 Documentation
-    url: https://github.com/ACFHarbinger/Dev-Repo-Template/tree/main/docs
+    url: https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/tree/main/docs
     about: Architecture, development, testing, and troubleshooting guides.
   - name: 🗺️ Roadmap
-    url: https://github.com/ACFHarbinger/Dev-Repo-Template/tree/main/moon
+    url: https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/tree/main/moon
     about: Master roadmap and changelog.

@@ -1,4 +1,4 @@
-# Dev-Repo-Template Documentation
+# Anime-Stitch-Pipeline Documentation
 
 Welcome to the documentation portal for this repository. This site is built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/); the Python API reference is generated separately with [Sphinx](sphinx/index.rst) via `autoapi`.
 

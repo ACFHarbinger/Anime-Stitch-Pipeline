@@ -1,10 +1,10 @@
-# Contributing to Dev-Repo-Template
+# Contributing to Anime-Stitch-Pipeline
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Rust](https://img.shields.io/badge/Rust-1.80%2B-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![CI](https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/Dev-Repo-Template/actions/workflows/ci.yml)
+[![CI](https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/actions/workflows/ci.yml)
 
 > **Version**: 1.0
 > **Last Updated**: 2026-07-30

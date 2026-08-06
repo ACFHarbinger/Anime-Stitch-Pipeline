@@ -13,10 +13,10 @@
 
 </br>
 
-<a href="https://github.com/ACFHarbinger/Dev-Repo-Template/releases"><img alt="Release" src="https://img.shields.io/github/v/release/ACFHarbinger/Dev-Repo-Template?include_prereleases&logo=github&color=blue"></a>
+<a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/releases"><img alt="Release" src="https://img.shields.io/github/v/release/ACFHarbinger/Anime-Stitch-Pipeline?include_prereleases&logo=github&color=blue"></a>
 <a href="LICENSE.md"><img alt="License" src="https://img.shields.io/badge/License-AGPL_v3-blue.svg"></a>
-<a href="https://github.com/ACFHarbinger/Dev-Repo-Template/issues"><img alt="Open Issues" src="https://img.shields.io/github/issues/ACFHarbinger/Dev-Repo-Template?color=yellow"></a>
-<a href="https://github.com/ACFHarbinger/Dev-Repo-Template/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/ACFHarbinger/Dev-Repo-Template?color=blueviolet"></a>
+<a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/issues"><img alt="Open Issues" src="https://img.shields.io/github/issues/ACFHarbinger/Anime-Stitch-Pipeline?color=yellow"></a>
+<a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline/commits/main"><img alt="Last Commit" src="https://img.shields.io/github/last-commit/ACFHarbinger/Anime-Stitch-Pipeline?color=blueviolet"></a>
 
 </br>
 
@@ -59,7 +59,7 @@
 
 ## About
 
-`Dev-Repo-Template` is a GitHub template repository. It ships no product code of its own — instead, it standardizes the scaffolding that every new polyglot project in this org starts from: CI/CD pipelines, documentation tooling, containerized dev environments, pre-commit hooks, LLM coding-agent instructions, and a minimal skeleton for each supported language module (Python, TypeScript, Kotlin, Java, Rust, Go, C++).
+`Anime-Stitch-Pipeline` is a GitHub template repository. It ships no product code of its own — instead, it standardizes the scaffolding that every new polyglot project in this org starts from: CI/CD pipelines, documentation tooling, containerized dev environments, pre-commit hooks, LLM coding-agent instructions, and a minimal skeleton for each supported language module (Python, TypeScript, Kotlin, Java, Rust, Go, C++).
 
 Use **"Use this template"** on GitHub to create a new repository, then delete or replace whichever language modules you don't need.
 

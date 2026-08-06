@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema#",
-  "description": "Canonical label taxonomy for Dev-Repo-Template. Consumed by sync_backlog.py to validate/create labels and by agent_tools.py to route tickets to Project V2 fields. TODO (template adoption): rename `component:*` entries to match your project's actual modules once this template seeds a real repo.",
+  "description": "Canonical label taxonomy for Anime-Stitch-Pipeline. Consumed by sync_backlog.py to validate/create labels and by agent_tools.py to route tickets to Project V2 fields. TODO (template adoption): rename `component:*` entries to match your project's actual modules once this template seeds a real repo.",
   "components": [
     { "name": "component:python",       "color": "3776AB", "description": "python/ module" },
     { "name": "component:typescript",   "color": "3178C6", "description": "typescript/ module" },

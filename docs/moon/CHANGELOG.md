@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > session numbers (e.g. "S214", "S216") as being documented "in
 > `docs/moon/CHANGELOG.md`". That detailed, session-by-session history
 > (~S1–S266+) was kept in the original standalone `Anime-Stitch-Pipeline`
-> repository before it was imported into this `Dev-Repo-Template`-based
-> layout; it was never migrated into this file, which otherwise only
-> contains this template's own scaffolding history. Those roadmap citations
+> repository before it was imported into this repo's current
+> template-generated layout; it was never migrated into this file, which
+> otherwise only contains that template's own scaffolding history. Those
+> roadmap citations
 > are dead pending an explicit import of that history — treat any
 > `docs/moon/CHANGELOG.md SNNN` reference in the roadmap as pointing at
 > content that does not currently exist in this repo, not as a citation you

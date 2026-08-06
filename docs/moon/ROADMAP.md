@@ -62,8 +62,8 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   explicitly-labeled skeletons that (per their own README) can't even run the
   pipeline on-device without a remote API that doesn't exist and isn't
   planned. Zero present value, real maintenance/CI/Dependabot surface;
-  trivially re-scaffolded from `Dev-Repo-Template` later if a real plan
-  emerges.
+  trivially re-scaffolded from the upstream repo template later if a real
+  plan emerges.
 - **`gui/qml/` — deleted.** A second, undecided UI paradigm (QML) duplicating
   panels that already exist and work as PySide6 widgets (the Stitch tab,
   `HybridStitchPanel`). PySide6 Widgets is canonical; there is now only one

@@ -1,6 +1,6 @@
 # Example runtime configuration.
 app:
-  name: dev-repo-template
+  name: anime-stitch-pipeline
   log_level: INFO
 
 greeting:
