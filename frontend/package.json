@@ -1,0 +1,23 @@
+{
+  "name": "anime-stitch-pipeline-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ASP cross-platform desktop UI (Tauri) — scaffold, not yet implemented.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.9.1",
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.8",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.5"
+  }
+}
