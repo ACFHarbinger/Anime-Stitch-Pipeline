@@ -1,0 +1,74 @@
+// codegraph.proto — the ONLY contract between dev/src/input/<language> and
+// dev/src/core. Every language-specific parser emits a CodeGraph (or streams
+// ParseResponse messages); core never imports language-specific code.
+//
+// See moon/roadmaps/developer_tools.md D1. Generate bindings with, e.g.:
+//   protoc --python_out=. --pyi_out=. dev/src/input/protobuf/codegraph.proto
+//
+// Until per-language codegen is wired up (tracked in D9), dev/src/core/model.py
+// hand-mirrors this schema as Python dataclasses with a JSON encoding that
+// matches proto3's canonical JSON mapping field-for-field, so swapping in
+// generated bindings later is a drop-in replacement, not a rewrite.
+
+syntax = "proto3";
+
+package devassistant.codegraph.v1;
+
+// A single source-code entity: a module/file, class, function, or package.
+message Node {
+  string id = 1;              // stable, language-qualified id, e.g. "python:python/src/app/main.py"
+  string language = 2;        // "python" | "typescript" | "kotlin" | "java" | "rust" | "go" | "cpp"
+  string kind = 3;            // "module" | "class" | "function" | "package"
+  string qualified_name = 4;  // e.g. "app.main.greet"
+  string file_path = 5;       // repo-relative path
+  string layer = 6;           // resolved layer label (e.g. "logic", "test"), set by core, empty from parsers
+}
+
+// A directed relationship between two nodes.
+message Edge {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    IMPORT = 1;
+    CALL = 2;
+    INHERITANCE = 3;
+    DATAFLOW = 4;
+  }
+  string source_id = 1;
+  string target_id = 2;
+  Kind kind = 3;
+}
+
+// A problem found while parsing or analyzing — never fatal to the whole run.
+message Diagnostic {
+  enum Severity {
+    SEVERITY_UNSPECIFIED = 0;
+    INFO = 1;
+    WARNING = 2;
+    ERROR = 3;
+  }
+  Severity severity = 1;
+  string message = 2;
+  string file_path = 3;
+  int32 line = 4;
+}
+
+// The full graph contributed by one parser run (typically one language).
+message CodeGraph {
+  repeated Node nodes = 1;
+  repeated Edge edges = 2;
+  repeated Diagnostic diagnostics = 3;
+  string source_language = 4;
+}
+
+// Request sent to a language-specific parser subprocess.
+message ParseRequest {
+  string root_path = 1;       // repo-relative root to scan, e.g. "python/"
+  repeated string exclude_globs = 2;
+}
+
+// Response streamed/returned by a language-specific parser subprocess.
+message ParseResponse {
+  CodeGraph graph = 1;
+  bool ok = 2;
+  string error = 3;
+}

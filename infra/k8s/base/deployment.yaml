@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dev-repo-template
+  labels:
+    app: dev-repo-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dev-repo-template
+  template:
+    metadata:
+      labels:
+        app: dev-repo-template
+    spec:
+      containers:
+        - name: app
+          # TODO: point at your real registry once infra/docker/Dockerfile is published there.
+          image: dev-repo-template:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: dev-repo-template-config
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

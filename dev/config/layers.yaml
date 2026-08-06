@@ -1,0 +1,17 @@
+# Layer definitions + forbidden cross-layer edges for dev/src/core/layers.py.
+#
+# `prefix` is matched against a node's `id` or `qualified_name`, longest
+# match wins. TODO (template adoption): replace with your real module
+# layering once dev/ is analyzing an actual project.
+
+layers:
+  - prefix: "python:python.test"
+    label: "test"
+  - prefix: "python:python.src"
+    label: "logic"
+  - prefix: "python:python.tools"
+    label: "script"
+
+# Pairs of (from_layer, to_layer) that must never appear as an edge.
+forbidden_directions:
+  - ["logic", "test"]
