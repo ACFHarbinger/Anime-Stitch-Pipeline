@@ -60,3 +60,15 @@ nav:
   - Troubleshooting: TROUBLESHOOTING.md
   - Glossary: GLOSSARY.md
   - Architecture Decisions: adr/
+  - Roadmap:
+      - Master Roadmap: moon/ROADMAP.md
+      - Python: moon/roadmaps/python.md
+      - C++: moon/roadmaps/cpp.md
+  - Changelog: moon/CHANGELOG.md
+  - Research:
+      - ASP Comprehensive Research: research/ASP_Comprehensive_Research_Report.md
+      - Image Stitching Research: research/Image_Stitching_Research.md
+  - Reports:
+      - ASP Critical Evaluation: reports/ASP_Critical_Evaluation_2026-07-08.md
+      - Image Stitching Report: reports/image_stitching_report.md
+  - Image-Toolkit (parent project): https://github.com/ACFHarbinger/Image-Toolkit
