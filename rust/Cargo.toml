@@ -1,0 +1,15 @@
+[package]
+name = "dev-repo-template-rust"
+version = "0.1.0"
+edition = "2021"
+license = "AGPL-3.0-only"
+description = "Rust module template for Dev-Repo-Template."
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.8"
+
+[[bench]]
+name = "greet_bench"
+harness = false

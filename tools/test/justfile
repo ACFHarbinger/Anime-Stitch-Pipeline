@@ -1,0 +1,24 @@
+# tools/test — run every language module's test suite.
+
+set shell := ["bash", "-c"]
+
+# Run all test suites
+all: python typescript kotlin rust go cpp
+
+python:
+    cd python && uv run pytest test -v
+
+typescript:
+    cd typescript && npm test
+
+kotlin:
+    cd kotlin && ./gradlew test
+
+rust:
+    cd rust && cargo test
+
+go:
+    cd go && go test ./...
+
+cpp:
+    cmake -S cpp -B cpp/build -DBUILD_TESTING=ON && cmake --build cpp/build -j && ctest --test-dir cpp/build --output-on-failure
