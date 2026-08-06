@@ -100,7 +100,11 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   (regardless of GPU) surfaces two further pre-existing issues — see the
   expanded issue #3 (namespace collisions between this repo's and
   Image-Toolkit's identically-named top-level `backend`/`gui` packages) and
-  issue #6 (6 test files import nonexistent fixture helpers).
+  issue #6 (6 test files import nonexistent fixture helpers). It also
+  revealed that `backend/`'s lint/type checks have had **no CI enforcement
+  at all** for as long as the `uv sync` bug existed: 2252 ruff errors + 345
+  mypy errors, invisible until `uv sync` could actually complete — issue #7,
+  needs a dedicated human-triaged session, not attempted here.
 
 ---
 
