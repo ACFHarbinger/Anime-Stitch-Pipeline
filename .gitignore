@@ -427,6 +427,7 @@ env/README.md
 /**/temp/
 /**/mods/
 dump/
+/dump
 CMakeFiles/
 models/wd14/
 outputs/**/*.log

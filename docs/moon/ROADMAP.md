@@ -42,6 +42,22 @@ numbers): `seam_vis_gate` 27, `composite_gate_sb` 26, `composite_gate_sc` 1,
 holds at full scale, not just the earlier 18-test sample). This run also
 serves as Phase 2.6's full-corpus host-freeze-fix confirmation (issue #25).
 
+**5-test verify checkpoint (2026-08-07, `anime_stitch_20260807_002510.json`)
+— first real GPU run since issue #5/#9's packaging fixes (RTX 3090 Ti,
+real corpus at `dump/`), a no-op regression check rather than a measured
+change:** 0 asp_better / 3 comparable / 2 simple_better on the standard
+04/08/09/27/57 subset; GT-SSIM 0.7324 vs 0.7423, aligned-SSIM close behind.
+Lands right where the post-trim baseline (§ above) predicts — confirms this
+session's packaging/import-path/justfile work (issues #3 partial, #5, #6,
+#8, #9) changed nothing about actual pipeline behavior, only what's
+runnable and where. All 5 datasets processed cleanly end-to-end on GPU, no
+`_resource_danger` triggers, no crashes. **This is not a Phase-0.1 human
+coherence rating** — that still requires a human looking at the images
+(`just bench::asp-benchmark-assess`, now verified runnable) — but it does
+confirm the full toolchain (GPU, corpus, benchmark harness, inspector
+entry point) is genuinely working end-to-end for the first time this
+session, unblocking real Phase-0/2 work going forward.
+
 ---
 
 ## §0 — Product Scope (2026-08-06)
