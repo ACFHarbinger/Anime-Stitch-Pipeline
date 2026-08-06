@@ -59,6 +59,9 @@ nav:
   - Benchmarks: BENCHMARKS.md
   - Troubleshooting: TROUBLESHOOTING.md
   - Glossary: GLOSSARY.md
+  - Tutorials:
+      - Getting Started with HybridStitch: tutorials/getting-started-hybridstitch.md
+      - ASP Pipeline Overview: tutorials/pipeline-overview.md
   - Architecture Decisions: adr/
   - Roadmap: moon/ROADMAP.md
   - Changelog: moon/CHANGELOG.md
