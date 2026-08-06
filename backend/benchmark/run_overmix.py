@@ -22,9 +22,9 @@ For each dataset directory this writes:
                                      write-up).
 
 Usage:
-  python -m backend.benchmark.run_overmix --tests asp_test04 asp_test08
-  python -m backend.benchmark.run_overmix --tests asp_test04 --full
-  python -m backend.benchmark.run_overmix --first 20
+  python3 backend/benchmark/run_overmix.py --tests asp_test04 asp_test08
+  python3 backend/benchmark/run_overmix.py --tests asp_test04 --full
+  python3 backend/benchmark/run_overmix.py --first 20
 """
 
 import argparse
@@ -32,8 +32,38 @@ import glob
 import json
 import os
 import subprocess
+import sys
 import time
+from pathlib import Path
 from typing import Dict, List, Optional
+
+
+def _load_package(alias: str, src_dir: Path) -> None:
+    """Register ``src_dir`` under ``alias`` in ``sys.modules``, the same
+    collision-avoiding pattern ``backend/test/conftest.py`` uses for
+    ``asp_backend`` (see issue #3: this repo's and Image-Toolkit's
+    top-level ``backend`` packages share a name, so a raw absolute
+    ``backend.X`` import resolves inconsistently depending on which repo's
+    package Python's import system finds first — this script needs to be
+    run by file path (``python backend/benchmark/run_overmix.py``), not
+    ``-m backend.benchmark.run_overmix``, for the same reason). A no-op
+    when the alias is already registered (e.g. by Image-Toolkit's own
+    bootstrap)."""
+    import importlib.util
+
+    if alias in sys.modules or not src_dir.is_dir():
+        return
+    spec = importlib.util.spec_from_file_location(
+        alias, src_dir / "__init__.py", submodule_search_locations=[str(src_dir)]
+    )
+    if spec is None or spec.loader is None:
+        return
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[alias] = module
+    spec.loader.exec_module(module)
+
+
+_load_package("asp_backend", Path(__file__).resolve().parents[1] / "src")
 
 from asp_backend.ingestion.frame_selection import smart_select_frames
 
