@@ -26,6 +26,18 @@ jobs:
       - uses: astral-sh/setup-uv@v5
       - run: uv pip install --system mkdocs-material mkdocstrings[python] mkdocs-jupyter
       - run: mkdocs build --config-file docs/mkdocs.yml --strict
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: docs/website/package-lock.json
+      - run: npm ci
+        working-directory: docs/website
+      - run: npm run build
+        working-directory: docs/website
+        env:
+          SITE_BASE: /${{ github.event.repository.name }}/app/
+      - run: mkdir -p site/app && cp -r docs/website/dist/. site/app/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
