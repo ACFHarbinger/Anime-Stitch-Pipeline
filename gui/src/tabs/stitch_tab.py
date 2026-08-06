@@ -1,3 +1,3 @@
-from asp_gui.elements.stitch_tab import StitchTab
+from asp_gui.elements import StitchTab
 
 __all__ = ["StitchTab"]

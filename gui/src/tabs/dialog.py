@@ -1,4 +1,4 @@
-from asp_gui.elements.stitch_tab.dialog import (
+from asp_gui.elements.dialog import (
     BoundaryEditorDialog,
     CanvasInspectorDialog,
     CanvasLayoutInspectorDialog,
