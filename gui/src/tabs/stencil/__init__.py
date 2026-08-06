@@ -1,5 +1,10 @@
 from .control_point_editor import ControlPointEditor
 from .hybrid_stitch_panel import RealHybridStitchPanel
+from .onboarding_wizard import (
+    HybridStitchOnboardingWizard,
+    hybrid_stitch_onboarding_seen,
+    mark_hybrid_stitch_onboarding_seen,
+)
 from .panels import (
     AdjustPanel,
     AnimClustersPanel,
@@ -26,4 +31,7 @@ __all__ = [
     "SeqBuilderPanel",
     "HybridStitchPanel",
     "AnimClustersPanel",
+    "HybridStitchOnboardingWizard",
+    "hybrid_stitch_onboarding_seen",
+    "mark_hybrid_stitch_onboarding_seen",
 ]
