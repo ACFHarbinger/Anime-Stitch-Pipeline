@@ -41,12 +41,18 @@ jobs:
         working-directory: gui
       - run: uv run mypy src
         working-directory: gui
-      # continue-on-error: gui/test/conftest.py currently fails to import
-      # (backend/src's absolute `from backend.src... import` requires the
-      # repo root on sys.path, which gui's standalone `uv sync` doesn't
-      # provide — a pre-existing test-harness wiring gap, not something
-      # introduced here). Non-blocking until that's fixed so this step adds
-      # visibility without blocking merges; see docs/TESTING.md.
+      # continue-on-error: gui/test/conftest.py's missing `q_app` fixture
+      # was fixed 2026-08-07 (all 50 tests now pass when run with
+      # Image-Toolkit's shared venv on PYTHONPATH), but this CI step's
+      # standalone `uv sync`-only environment still fails at collection:
+      # backend/src's absolute `from backend.src... import` needs
+      # Image-Toolkit's own backend.src.constants, which requires
+      # Image-Toolkit's repo root on sys.path -- gui's standalone env has
+      # no way to provide that without checking out the parent repo
+      # (see build-test-base below for the existing pattern) or reducing
+      # the coupling. That's the real remaining blocker; see issue #3 and
+      # docs/TESTING.md. Non-blocking until #3's cross-repo question is
+      # resolved, so this step adds visibility without blocking merges.
       - run: uv run pytest test -v
         working-directory: gui
         env:
