@@ -6,6 +6,7 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 from asp_backend.ingestion.masking import (
     _compute_fg_masks_grounded_sam2,
@@ -13,7 +14,7 @@ from asp_backend.ingestion.masking import (
 )
 from gui.src.components import BatchStitchDialog
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox, QWidget
 
 from .dialog import (
     BoundaryEditorDialog,
@@ -32,8 +33,18 @@ from .dialog import (
     parse_edge_json,
 )
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _StitchHitlReviewMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _StitchHitlReviewMixin(_Base):
     @Slot(object)
     def _on_hitl_review_video(self, data: dict):
         """Checkpoint 0 pause: review video-extracted frames before pipeline starts (S84)."""

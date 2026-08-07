@@ -5,11 +5,23 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMessageBox, QWidget
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _HybridPanelMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _HybridPanelMixin(_Base):
     def _build_hybrid_panel(self) -> QWidget:
         from asp_gui.tabs.stencil import HybridStitchPanel
 

@@ -26,6 +26,7 @@ import os as _os
 import time as _time
 import warnings
 from collections.abc import Callable
+from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
@@ -39,6 +40,9 @@ from asp_backend.hitl.hitl_session import save_session as _save_session_impl
 from asp_backend.rendering.compositing import _compute_initial_boundaries
 from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
 from PIL import Image as _Image
+
+if TYPE_CHECKING:
+    from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
 
 _STAGE_LABELS = [
     "Loading and trimming frames",  # 1
@@ -307,7 +311,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
         if torch.cuda.is_available() and self._birefnet:
             with contextlib.suppress(Exception):
                 BiRefNetWrapper.purge_all_models()
-            self._birefnet = None
+            self._birefnet: BiRefNetWrapper | None = None
             torch.cuda.empty_cache()
 
         # HITL checkpoint 1 — frame selection review
@@ -317,7 +321,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
             _sc = min(1.0, 256 / max(_fh, _fw, 1))
             _thumbs.append(
                 # pyrefly: ignore [no-matching-overload]
-                cv2.resize(
+                cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                     _f,
                     (max(1, int(_fw * _sc)), max(1, int(_fh * _sc))),
                     cv2.INTER_AREA,
@@ -327,12 +331,12 @@ class _ProgressPipeline(AnimeStitchPipeline):
         for _i in range(1, N):
             _a = (
                 # pyrefly: ignore [no-matching-overload]
-                cv2.resize(frames[_i - 1], (64, 64), cv2.INTER_AREA).astype(np.float32)
+                cv2.resize(frames[_i - 1], (64, 64), cv2.INTER_AREA).astype(np.float32)  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                 / 255.0
             )
             _b = (
                 # pyrefly: ignore [no-matching-overload]
-                cv2.resize(frames[_i], (64, 64), cv2.INTER_AREA).astype(np.float32)
+                cv2.resize(frames[_i], (64, 64), cv2.INTER_AREA).astype(np.float32)  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                 / 255.0
             )
             _diffs.append(float(np.mean(np.abs(_a - _b))))
@@ -425,7 +429,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
             if self._loftr is not None:
                 with contextlib.suppress(Exception):
                     self._loftr.offload()
-                self._loftr = None
+                self._loftr: LoFTRWrapper | None = None
             torch.cuda.empty_cache()
             gc.collect()
         _trace["edges_found"] = len(edges)
@@ -529,7 +533,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
             _sc = min(1.0, 160 / max(_fh, _fw, 1))
             _c_thumbs.append(
                 # pyrefly: ignore [no-matching-overload]
-                cv2.resize(
+                cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                     _f,
                     (max(1, int(_fw * _sc)), max(1, int(_fh * _sc))),
                     cv2.INTER_AREA,
@@ -580,7 +584,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
         # HITL checkpoint 4 — render review (coverage heatmap + preview)
         _prev_sc = min(1.0, 600 / max(canvas_h, 1))
         # pyrefly: ignore [no-matching-overload]
-        _canvas_prev = cv2.resize(
+        _canvas_prev = cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
             canvas,
             (max(1, int(canvas_w * _prev_sc)), max(1, int(canvas_h * _prev_sc))),
             cv2.INTER_AREA,
@@ -619,7 +623,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
                 _init_bnd = _compute_initial_boundaries(affines, frames)
                 _prev_sc = min(1.0, 600 / max(canvas_h, 1))
                 # pyrefly: ignore [no-matching-overload]
-                _bnd_prev = cv2.resize(
+                _bnd_prev = cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                     canvas,
                     (
                         max(1, int(canvas_w * _prev_sc)),
@@ -665,7 +669,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
             )
             _prev_sc46 = min(1.0, 600 / max(canvas_h, 1))
             # pyrefly: ignore [no-matching-overload]
-            _diag_prev = cv2.resize(
+            _diag_prev = cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                 canvas,
                 (
                     max(1, int(canvas_w * _prev_sc46)),
@@ -731,7 +735,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
                 _cp45_iter += 1
                 _prev_sc45 = min(1.0, 600 / max(canvas_h, 1))
                 # pyrefly: ignore [no-matching-overload]
-                _comp_prev = cv2.resize(
+                _comp_prev = cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                     canvas,
                     (
                         max(1, int(canvas_w * _prev_sc45)),
@@ -784,7 +788,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
         # HITL checkpoint 5 — final output RLHF feedback (S87)
         _prev_sc5 = min(1.0, 600 / max(canvas_h, 1))
         # pyrefly: ignore [no-matching-overload]
-        _out_prev = cv2.resize(
+        _out_prev = cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
             canvas,
             (max(1, int(canvas_w * _prev_sc5)), max(1, int(canvas_h * _prev_sc5))),
             cv2.INTER_AREA,

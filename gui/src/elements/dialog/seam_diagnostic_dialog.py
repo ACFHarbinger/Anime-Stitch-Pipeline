@@ -350,7 +350,7 @@ class _SeamCard(QFrame):
         row.addWidget(self._cb_blend)
 
         # ── §2.4C: seam zone crop thumbnail ───────────────────────────────
-        if has_crop:
+        if has_crop and crop is not None:
             pix = self._make_crop_pixmap(crop, max_width=300, max_height=64)
             crop_lbl = QLabel()
             crop_lbl.setPixmap(pix)
@@ -388,7 +388,7 @@ class _SeamCard(QFrame):
         scale = min(max_width / max(w, 1), max_height / max(h, 1), 1.0)
         if scale < 1.0:
             # pyrefly: ignore [no-matching-overload]
-            arr = cv2.resize(
+            arr = cv2.resize(  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime
                 arr, (max(1, int(w * scale)), max(1, int(h * scale))), cv2.INTER_AREA
             )
             h, w = arr.shape[:2]
@@ -654,7 +654,7 @@ class SeamDiagnosticDialog(QDialog):
         h, w = arr.shape[:2]
         if w > max_width:
             scale = max_width / w
-            arr = cv2.resize(arr, (max_width, max(1, int(h * scale))), cv2.INTER_AREA) # pyrefly: ignore [no-matching-overload]
+            arr = cv2.resize(arr, (max_width, max(1, int(h * scale))), cv2.INTER_AREA)  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime  # pyrefly: ignore [no-matching-overload]
             h, w = arr.shape[:2]
         rgb = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
         qimg = QImage(rgb.data, w, h, w * 3, QImage.Format.Format_RGB888).copy()

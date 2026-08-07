@@ -189,7 +189,7 @@ class _MeshCanvas(QGraphicsView):
             return map_x, map_y
 
         except ImportError:
-            tps = cv2.createThinPlateSplineShapeTransformer()  # pyrefly: ignore[missing-attribute]
+            tps = cv2.createThinPlateSplineShapeTransformer()  # type: ignore[attr-defined]  # opencv-contrib runtime attr missing from cv2 stubs  # pyrefly: ignore[missing-attribute]
             tps.estimateTransformation(
                 dst.reshape(1, -1, 2),
                 src.reshape(1, -1, 2),

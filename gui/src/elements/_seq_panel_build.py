@@ -5,6 +5,8 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
@@ -22,8 +24,18 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _SeqPanelBuildMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _SeqPanelBuildMixin(_Base):
     def _build_seq_panel(self) -> QWidget:
         from asp_gui.tabs.stencil import SeqBuilderPanel
 

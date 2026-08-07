@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+from typing import TYPE_CHECKING
 
 from gui.src.constants import ANIM_CLUSTER_COLORS
 from PySide6.QtCore import QSize, Qt, QThreadPool, Slot
@@ -32,8 +33,18 @@ from PySide6.QtWidgets import (
 from ..helpers import AnimClusterWorker
 from ._thumb_workers import _ThumbTask
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _AnimClustersPanelMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _AnimClustersPanelMixin(_Base):
     def _build_anim_clusters_panel(self) -> QWidget:
         from asp_gui.tabs.stencil import AnimClustersPanel
 
@@ -241,7 +252,7 @@ class _AnimClustersPanelMixin:
 
         if self._anim_cluster_worker is not None:
             self._anim_cluster_worker.cancel()
-            self._anim_cluster_worker = None
+            self._anim_cluster_worker: AnimClusterWorker | None = None
 
         self._anim_table.setRowCount(0)
         self._anim_item_map.clear()

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+from typing import TYPE_CHECKING
 
 import numpy as np
 from PySide6.QtCore import QSize, Qt, QThreadPool, Slot
@@ -32,8 +33,18 @@ from PySide6.QtWidgets import (
 from ..helpers import StatsWorker
 from ._thumb_workers import _ThumbTask
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _StatsPanelMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _StatsPanelMixin(_Base):
     def _build_stats_panel(self) -> QWidget:
         from asp_gui.tabs.stencil import StatsPanel
 
@@ -286,7 +297,7 @@ class _StatsPanelMixin:
         # Cancel any running worker
         if self._stats_worker is not None:
             self._stats_worker.cancel()
-            self._stats_worker = None
+            self._stats_worker: StatsWorker | None = None
 
         self._stats_ind_rows: list[dict] = []
         self._stats_ind_table.setRowCount(0)

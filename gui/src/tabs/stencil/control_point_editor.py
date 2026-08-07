@@ -552,7 +552,7 @@ class ControlPointEditor(QWidget):
         a_s, sa = _scale(bgr_a)
         b_s, sb = _scale(bgr_b)
 
-        orb = cv2.ORB_create(nfeatures=1000)  # pyrefly: ignore[missing-attribute]
+        orb = cv2.ORB_create(nfeatures=1000)  # type: ignore[attr-defined]  # runtime attr missing from cv2 stubs  # pyrefly: ignore[missing-attribute]
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
         ka, da = orb.detectAndCompute(cv2.cvtColor(a_s, cv2.COLOR_BGR2GRAY), None)
         kb, db = orb.detectAndCompute(cv2.cvtColor(b_s, cv2.COLOR_BGR2GRAY), None)

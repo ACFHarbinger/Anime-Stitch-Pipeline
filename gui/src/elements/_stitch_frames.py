@@ -6,20 +6,31 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
 from asp_backend import AnimeStitchPipeline
 from PySide6.QtCore import Qt, QThreadPool, QTimer, Slot
 from PySide6.QtGui import QIcon, QImage, QPixmap
-from PySide6.QtWidgets import QDialog, QListWidgetItem, QMessageBox
+from PySide6.QtWidgets import QDialog, QListWidgetItem, QMessageBox, QWidget
 
 from ..helpers import MaskPreviewWorker, MatchWorker
 from ._thumb_workers import _ThumbTask
 from ._thumbnail_file_picker import _ThumbnailFilePicker
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _StitchFramesMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _StitchFramesMixin(_Base):
     def _make_frame_item(self, path: str) -> QListWidgetItem:
         """Create a QListWidgetItem for the stitch frame list and enqueue thumb load."""
         item = QListWidgetItem(os.path.basename(path))

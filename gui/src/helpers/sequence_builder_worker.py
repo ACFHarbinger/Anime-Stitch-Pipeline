@@ -159,8 +159,8 @@ class SequenceBuilderWorker(QRunnable):
                 fitness_cache[key] = zero
                 return zero
 
-            src_pts = np.float32([kp_r[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-            dst_pts = np.float32([kp_c[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+            src_pts = np.float32([kp_r[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)  # type: ignore[arg-type]  # numpy stubs only type np.float32() as a scalar ctor; array_like works at runtime
+            dst_pts = np.float32([kp_c[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)  # type: ignore[arg-type]  # numpy stubs only type np.float32() as a scalar ctor; array_like works at runtime
             M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
             if M is None or mask is None:
                 fitness_cache[key] = zero

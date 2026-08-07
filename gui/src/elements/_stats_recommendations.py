@@ -10,12 +10,25 @@ pre-existing complexity, not introduced by this split).
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from PySide6.QtCore import Slot
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QWidget
+
+if TYPE_CHECKING:
+    from ..helpers import StatsWorker
+    from ._stitch_tab_protocol import _StitchTabHost
+
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
 
 
-class _StatsRecommendationsMixin:
+class _StatsRecommendationsMixin(_Base):
     # ------------------------------------------------------------------
     @staticmethod
     def _stats_build_recommendations(  # noqa: C901
@@ -455,7 +468,7 @@ class _StatsRecommendationsMixin:
         self._stats_progress.hide()
         self._stats_status.setText("Error.")
         self._stats_run_btn.setEnabled(True)
-        self._stats_worker = None
+        self._stats_worker: StatsWorker | None = None
         QMessageBox.critical(self, "Statistics Error", msg)
 
 
