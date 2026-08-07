@@ -277,6 +277,23 @@ convention, not accidental strictness) — wrapped only the 11 clearly-safe
 function-signature occurrences, left the remaining 249 as a judgment call
 not worth forcing. Full test suite identical before/after both changes.
 
+**Issue #7, mypy: DONE, 2026-08-07 — `uv run mypy src` reports 0 errors
+(98 source files clean).** The final 24: 17 were `has-type` errors, root-
+caused (not guessed) by reproducing them with the `_PipelineHost` Protocol
+removed entirely (identical errors — ruling out the Protocol as the
+cause) and finding the real issue: mixin methods both read and reassign
+attributes like `self._loftr` to differing types across branches with no
+local class-body declaration, so mypy inferred from those in-method
+assignments instead of deferring to the inherited Protocol type. Fixed
+with explicit `TYPE_CHECKING`-only re-declarations on each mixin,
+mirroring `_pipeline_protocol.py`. Remaining 7 were the same
+Optional-narrowing/stub-gap pattern as everything else in this cleanup.
+Full test suite identical before/after (911/1/3). **Total mypy arc this
+session: 137 -> 0.** Ruff: 2264 -> 249 (all remaining are the deliberately
+-not-forced E501 line-length judgment call above) — issue #7 is
+effectively complete; only the 249 E501 lines remain as an explicit,
+reasoned non-action, not unfinished work.
+
 ---
 
 ## Ground Rules (carried from the critical evaluation — non-negotiable)
