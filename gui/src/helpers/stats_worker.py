@@ -232,11 +232,11 @@ class StatsWorker(QRunnable):
                 good = [m for m, n in matches if m.distance < 0.75 * n.distance]
                 if len(good) >= 4:
                     # pyrefly: ignore [bad-argument-type]
-                    src_pts = np.float32([kp_a[m.queryIdx].pt for m in good]).reshape(
+                    src_pts = np.float32([kp_a[m.queryIdx].pt for m in good]).reshape(  # type: ignore[arg-type]  # numpy stubs only type np.float32() as a scalar ctor; array_like works at runtime
                         -1, 1, 2
                     )
                     # pyrefly: ignore [bad-argument-type]
-                    dst_pts = np.float32([kp_b[m.trainIdx].pt for m in good]).reshape(
+                    dst_pts = np.float32([kp_b[m.trainIdx].pt for m in good]).reshape(  # type: ignore[arg-type]  # numpy stubs only type np.float32() as a scalar ctor; array_like works at runtime
                         -1, 1, 2
                     )
                     _, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)

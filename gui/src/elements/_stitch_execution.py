@@ -6,16 +6,27 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt, QThreadPool, Slot
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QFileDialog, QMessageBox
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 from ..helpers import StitchWorker
 from ._thumb_workers import _MetricsTask
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _StitchExecutionMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _StitchExecutionMixin(_Base):
     def _browse_checkpoint(self):
         p, _ = QFileDialog.getOpenFileName(
             self,
@@ -235,8 +246,8 @@ class _StitchExecutionMixin:
 
     def _show_stitch_result(self, output_path: str) -> None:
         """Load result + first-frame thumbnails, show preview group, start metrics."""
-        self._result_pix = QPixmap(output_path)
-        self._before_pix = None
+        self._result_pix: QPixmap | None = QPixmap(output_path)
+        self._before_pix: QPixmap | None = None
         if self._frame_paths:
             pm = QPixmap(self._frame_paths[0])
             if not pm.isNull():

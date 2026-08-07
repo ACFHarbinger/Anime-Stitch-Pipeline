@@ -14,6 +14,8 @@ Usage
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import cv2
 import numpy as np
 from gui.src.constants.elements import _COLORS, _MARKER_R, _THUMB_H, _THUMB_W
@@ -44,7 +46,7 @@ def _bgr_to_pixmap(arr: np.ndarray, max_w: int = _THUMB_W, max_h: int = _THUMB_H
     h, w = arr.shape[:2]
     scale = min(max_w / max(1, w), max_h / max(1, h), 1.0)
     if scale < 1.0:
-        arr = cv2.resize(arr, (max(1, int(w * scale)), max(1, int(h * scale))), cv2.INTER_AREA) # pyrefly: ignore [no-matching-overload]
+        arr = cv2.resize(arr, (max(1, int(w * scale)), max(1, int(h * scale))), cv2.INTER_AREA)  # type: ignore[call-overload]  # cv2 stubs mis-order dst/interpolation; works at runtime  # pyrefly: ignore [no-matching-overload]
     h, w = arr.shape[:2]
     rgb = cv2.cvtColor(arr, cv2.COLOR_BGR2RGB)
     qimg = QImage(rgb.data, w, h, rgb.strides[0], QImage.Format.Format_RGB888)
@@ -74,7 +76,8 @@ class _FrameView(QWidget):
         self._scale_x = frame_bgr.shape[1] / max(1, self._pixmap.width())
         self._scale_y = frame_bgr.shape[0] / max(1, self._pixmap.height())
         self._markers: list[tuple[float, float]] = []  # image-space coords
-        self._click_cb = None  # set by parent after construction
+        # set by parent after construction
+        self._click_cb: Callable[[float, float], None] | None = None
 
         self._scene = _ClickableScene(self._on_click)
         self._pix_item = QGraphicsPixmapItem(self._pixmap)

@@ -7,16 +7,27 @@ from __future__ import annotations
 
 import os
 import pathlib
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt, QThreadPool, Slot
 from PySide6.QtGui import QColor, QIcon, QImage, QPixmap
-from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem
+from PySide6.QtWidgets import QFileDialog, QMessageBox, QTableWidgetItem, QWidget
 
 from ..helpers import SequenceBuilderWorker
 from ._thumb_workers import _ThumbTask
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _SeqPanelHandlersMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _SeqPanelHandlersMixin(_Base):
     @Slot()
     def _seq_browse_anchor(self):
         start = self._seq_dir_path or os.path.dirname(self._seq_anchor_path) or ""

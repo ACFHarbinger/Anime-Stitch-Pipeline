@@ -210,9 +210,9 @@ class RenderPanel(QWidget):
             corners = np.array([[0, 0], [fw, 0], [fw, fh], [0, fh]], dtype=np.float32)
             warped_c = corners + M[:, 2]
             all_pts.append(warped_c)
-        all_pts = np.vstack(all_pts)
-        min_xy = all_pts.min(axis=0)
-        max_xy = all_pts.max(axis=0)
+        all_pts_arr = np.vstack(all_pts)
+        min_xy = all_pts_arr.min(axis=0)
+        max_xy = all_pts_arr.max(axis=0)
         T = -min_xy
         cw = int(np.ceil(max_xy[0] - min_xy[0]))
         ch = int(np.ceil(max_xy[1] - min_xy[1]))

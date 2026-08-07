@@ -118,14 +118,14 @@ class _PaintCanvas(QLabel):
 
     def has_paint(self) -> bool:
         img = self._overlay.toImage().convertToFormat(QImage.Format.Format_ARGB32)
-        buf = img.bits().tobytes() # pyrefly: ignore [missing-attribute]
+        buf = img.bits().tobytes()  # type: ignore[union-attr]  # QImage.bits() is a buffer-like object with .tobytes() at runtime; PySide6 stubs under-type it  # pyrefly: ignore [missing-attribute]
         arr = np.frombuffer(buf, dtype=np.uint8).reshape(img.height(), img.width(), 4)
         return bool(arr[:, :, 3].any())
 
     def paint_mask_preview(self) -> np.ndarray:
         """Return uint8 (H, W) mask at preview resolution (alpha channel of overlay)."""
         img = self._overlay.toImage().convertToFormat(QImage.Format.Format_ARGB32)
-        buf = img.bits().tobytes() # pyrefly: ignore [missing-attribute]
+        buf = img.bits().tobytes()  # type: ignore[union-attr]  # QImage.bits() is a buffer-like object with .tobytes() at runtime; PySide6 stubs under-type it  # pyrefly: ignore [missing-attribute]
         arr = np.frombuffer(buf, dtype=np.uint8).reshape(img.height(), img.width(), 4)
         return arr[:, :, 3].copy()
 

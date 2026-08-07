@@ -14,6 +14,8 @@ exception rather than forcing an unsafe split.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from gui.src.styles import apply_shadow_effect
 from gui.src.windows.settings.splitter_persistence import persist_splitter
 from PySide6.QtCore import QSize, Qt
@@ -42,8 +44,18 @@ from PySide6.QtWidgets import (
 from ..helpers import StitchWorker
 from ._match_editor import _MatchScene, _MatchView
 
+if TYPE_CHECKING:
+    from ._stitch_tab_protocol import _StitchTabHost
 
-class _StitchPanelBuildMixin:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # StitchTab.__init__ / sibling mixins (see _stitch_tab_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    class _Base(_StitchTabHost, QWidget): ...
+else:
+    _Base = object
+
+
+class _StitchPanelBuildMixin(_Base):
     def _build_stitch_panel(self) -> QWidget:
         from asp_gui.tabs.stencil import StitchPanel
 
