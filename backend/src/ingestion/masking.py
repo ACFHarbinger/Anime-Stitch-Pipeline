@@ -9,7 +9,7 @@ import os
 import shutil
 import tempfile
 import warnings
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 import cv2
 import numpy as np
@@ -23,10 +23,10 @@ from backend.src.constants import FOREGROUND_DILATION, FOREGROUND_EROSION
 
 
 def _compute_fg_masks(
-    frames: List[np.ndarray],
+    frames: list[np.ndarray],
     birefnet_wrapper,
     use_birefnet: bool = True,
-) -> List[Optional[np.ndarray]]:
+) -> list[np.ndarray | None]:
     """Returns list of background masks (255 = safe background, 0 = character)."""
     if not use_birefnet or birefnet_wrapper is None:
         return [None] * len(frames)
@@ -34,7 +34,7 @@ def _compute_fg_masks(
     # Detect which API version is loaded
     has_new_api = hasattr(birefnet_wrapper, "get_background_mask")
 
-    masks: List[Optional[np.ndarray]] = []
+    masks: list[np.ndarray | None] = []
     for i, img in enumerate(frames):
         try:
             if has_new_api:
@@ -72,10 +72,10 @@ def _compute_fg_masks(
 
 
 def _compute_fg_masks_sam2(  # noqa: C901
-    frames: List[np.ndarray],
+    frames: list[np.ndarray],
     birefnet_wrapper,
     use_birefnet: bool = True,
-) -> List[Optional[np.ndarray]]:
+) -> list[np.ndarray | None]:
     """
     SAM-2 video masking (§5.2) — temporally consistent foreground masks.
 
@@ -135,7 +135,7 @@ def _compute_fg_masks_sam2(  # noqa: C901
                 inference_state=_state, frame_idx=0, obj_id=1, box=_bbox
             )
 
-            masks_out: List[Optional[np.ndarray]] = [None] * len(frames)
+            masks_out: list[np.ndarray | None] = [None] * len(frames)
             for _idx, _obj_ids, _logits in predictor.propagate_in_video(_state):
                 if 1 in _obj_ids:
                     _li = list(_obj_ids).index(1)
@@ -178,14 +178,14 @@ def _compute_fg_masks_sam2(  # noqa: C901
 
 
 def _compute_fg_masks_grounded_sam2(
-    frames: List[np.ndarray],
+    frames: list[np.ndarray],
     text_prompt: str,
     birefnet_wrapper,
     *,
     use_birefnet: bool = True,
     box_threshold: float = 0.35,
     text_threshold: float = 0.25,
-) -> List[Optional[np.ndarray]]:
+) -> list[np.ndarray | None]:
     """
     Grounded SAM-2 masking — Issue 10A1.
 
@@ -263,7 +263,7 @@ def _compute_fg_masks_grounded_sam2(
                 inference_state=_state, frame_idx=0, obj_id=1, box=_bbox_input
             )
 
-            masks_out: List[Optional[np.ndarray]] = [None] * len(frames)
+            masks_out: list[np.ndarray | None] = [None] * len(frames)
             for _idx, _obj_ids, _logits in predictor.propagate_in_video(_state):
                 if 1 in _obj_ids:
                     _li = list(_obj_ids).index(1)
@@ -315,10 +315,10 @@ def _compute_fg_masks_grounded_sam2(
 
 
 def _compute_fg_masks_sam2_stateful(  # noqa: C901
-    frames: List[np.ndarray],
+    frames: list[np.ndarray],
     birefnet_wrapper,
     use_birefnet: bool = True,
-) -> Tuple[List[Optional[np.ndarray]], Any, Any, Optional[str], int, int]:
+) -> tuple[list[np.ndarray | None], Any, Any, str | None, int, int]:
     """
     SAM-2 video masking that keeps the predictor + inference_state alive — Issue 10A2 S83.
 
@@ -362,7 +362,7 @@ def _compute_fg_masks_sam2_stateful(  # noqa: C901
         dtype=np.float32,
     )
 
-    _tmp: Optional[str] = None
+    _tmp: str | None = None
     try:
         from sam2.build_sam import build_sam2_video_predictor  # type: ignore  # §3.14 lazy
 
@@ -383,13 +383,23 @@ def _compute_fg_masks_sam2_stateful(  # noqa: C901
             inference_state=_state, frame_idx=0, obj_id=1, box=_bbox
         )
 
-        masks_out: List[Optional[np.ndarray]] = [None] * len(frames)
+        masks_out: list[np.ndarray | None] = [None] * len(frames)
         for _idx, _obj_ids, _logits in predictor.propagate_in_video(_state):
             if 1 in _obj_ids:
                 _li = list(_obj_ids).index(1)
                 _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
-                if _prob.shape != (_H, _W):
-                    _prob = cv2.resize(_prob, (_W, _H), cv2.INTER_LINEAR)
+                # Resize against *this* frame's own shape, not the shared
+                # (_H, _W) reference taken from frames[0] -- _normalise_widths
+                # only normalises width, so per-frame heights can differ by
+                # a few px (real capture aspect-ratio variation), and a mask
+                # sized to frames[0] silently mismatches frames[_idx] when
+                # they differ (issue #11: crashed downstream as a boolean-
+                # index/frame-size mismatch, not inside this function itself).
+                _frame_h, _frame_w = frames[_idx].shape[:2]
+                if _prob.shape != (_frame_h, _frame_w):
+                    _prob = cv2.resize(
+                        _prob, (_frame_w, _frame_h), interpolation=cv2.INTER_LINEAR
+                    )
                 _fg_i = (_prob > 0.5).astype(np.uint8) * 255
                 if FOREGROUND_DILATION > 0:
                     _k = cv2.getStructuringElement(
@@ -428,7 +438,7 @@ def _compute_fg_masks_sam2_stateful(  # noqa: C901
 def _cleanup_sam2_state(
     predictor: Any,
     inference_state: Any,
-    tmp_dir: Optional[str],
+    tmp_dir: str | None,
 ) -> None:
     """
     Release a live SAM-2 predictor state returned by ``_compute_fg_masks_sam2_stateful``.
@@ -455,12 +465,12 @@ def _refine_masks_with_clicks(
     predictor,
     inference_state,
     *,
-    pos_clicks: List[tuple],
-    neg_clicks: List[tuple],
+    pos_clicks: list[tuple],
+    neg_clicks: list[tuple],
     frame_idx: int,
     frame_h: int,
     frame_w: int,
-) -> List[Optional[np.ndarray]]:
+) -> list[np.ndarray | None]:
     """
     Refine SAM-2 masks using positive and negative point prompts — Issue 10A2.
 
@@ -488,8 +498,8 @@ def _refine_masks_with_clicks(
         return []
 
     try:
-        all_pts: List[List[float]] = []
-        all_labels: List[int] = []
+        all_pts: list[list[float]] = []
+        all_labels: list[int] = []
         for px, py in pos_clicks:
             all_pts.append([float(px), float(py)])
             all_labels.append(1)
@@ -511,7 +521,7 @@ def _refine_masks_with_clicks(
         n_frames = inference_state.get("num_frames", 0) or len(
             inference_state.get("images", [])
         )
-        masks_out: List[Optional[np.ndarray]] = [None] * n_frames
+        masks_out: list[np.ndarray | None] = [None] * n_frames
         for _idx, _obj_ids, _logits in predictor.propagate_in_video(inference_state):
             if 1 in _obj_ids:
                 _li = list(_obj_ids).index(1)
