@@ -320,7 +320,23 @@ resolved 442; 19 non-auto-fixable E501 remained, 14 manually wrapped
 (function signatures, boolean/ternary expressions, constructor calls), 5
 left as string-literal tooltips/docstrings/log messages where wrapping
 would hurt readability. 51 files touched. Test suite (50/50) identical
-before/after. mypy (215 errors) still open.
+before/after.
+
+**mypy: done, 215 -> 0 (2026-08-07) — issue #14 complete, same as #7.**
+159 of 215 were the identical mixin-composition problem `_pipeline_
+protocol.py` solved in `backend/`: `StitchTab` composes 11 sub-tab mixins,
+each invisible to mypy in isolation. New
+`gui/src/elements/_stitch_tab_protocol.py` (`_StitchTabHost` Protocol,
+same `TYPE_CHECKING`-only pattern) wired into all 11. A `has-type` cluster
+(`_progress_pipeline.py`, a subclass of `AnimeStitchPipeline`) got the
+same root-cause fix as `backend/`'s equivalent: mypy infers an attribute's
+type from its first *annotated-method* assignment, ignoring an inherited
+Protocol declaration unless that assignment has its own explicit
+annotation — added `self.x: T | None = ...` at each site. Remainder:
+narrow `# type: ignore[code]` for genuine cv2/PySide6 stub gaps, plus
+mechanical local-bind fixes. Test suite 50/50 unchanged. `gui/` now
+matches `backend/`: both fully clean on mypy, both effectively clean on
+ruff (only reasoned E501 non-actions remain).
 
 ---
 
