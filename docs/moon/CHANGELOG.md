@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Phase 0.3**: Added `backend/benchmark/merge_overmix.py` to merge Overmix's per-test artifacts (stitch images, variant logs) into a consolidated benchmark JSON and Markdown report without requiring a full pipeline re-run (Issue #352).
 - **Phase 6.3**: Bundled synthetic sample projects (`test_scroll_gradient`, `test_scroll_pattern`) for the HybridStitch onboarding wizard. Provides non-explicit, simple test sequences to learn the tool (Issue #17).
 
 ### Added
@@ -81,4 +82,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] — 2026-08-07
 
 ### Added
+- **Phase 0.3**: Added `backend/benchmark/merge_overmix.py` to merge Overmix's per-test artifacts (stitch images, variant logs) into a consolidated benchmark JSON and Markdown report without requiring a full pipeline re-run (Issue #352).
 - **Phase 6.3**: Bundled synthetic sample projects (`test_scroll_gradient`, `test_scroll_pattern`) for the HybridStitch onboarding wizard. Provides non-explicit, simple test sequences to learn the tool (Issue #17).
