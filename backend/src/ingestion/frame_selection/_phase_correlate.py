@@ -72,10 +72,10 @@ def _pairwise_phase_correlate(
             frame_mads.append(float(np.sum(np.abs(b - a) * _fg) / max(_fg.sum(), 1.0)))
         elif otsu_bg_corr:
             # §1A: per-pair Otsu bg mask — faster than BiRefNet, per-frame accurate.
-            _m = _otsu_bg_mask_pair(a, b)
-            if _m is not None and _m.shape == a.shape:
-                (dx_t, dy_t), response = cv2.phaseCorrelate(a * _m, b * _m)
-                _fg = 1.0 - _m
+            _m_otsu = _otsu_bg_mask_pair(a, b)
+            if _m_otsu is not None and _m_otsu.shape == a.shape:
+                (dx_t, dy_t), response = cv2.phaseCorrelate(a * _m_otsu, b * _m_otsu)
+                _fg = 1.0 - _m_otsu
                 frame_mads.append(
                     float(np.sum(np.abs(b - a) * _fg) / max(_fg.sum(), 1.0))
                 )

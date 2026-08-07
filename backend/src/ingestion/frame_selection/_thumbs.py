@@ -64,7 +64,7 @@ def _otsu_bg_mask_pair(
         thr, _ = cv2.threshold(u8, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
         # pixels > Otsu threshold are "light" — typically background in anime
         bg_u8 = (u8 > thr).astype(np.uint8) * 255
-        bg_u8 = cv2.erode(bg_u8, erode_k)
+        bg_u8 = cv2.erode(bg_u8, erode_k).astype(np.uint8)
         masks.append(bg_u8.astype(np.float32) / 255.0)
     combined = np.minimum(masks[0], masks[1])
     if float(combined.mean()) < min_bg_frac:

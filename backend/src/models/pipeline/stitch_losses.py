@@ -60,7 +60,7 @@ def warp_with_params(
     row1 = torch.stack([sin_t, cos_t, 2.0 * dy], dim=1)
     theta_mat = torch.stack([row0, row1], dim=1)  # (B, 2, 3)
 
-    grid = F.affine_grid(theta_mat, frame.shape, align_corners=False)
+    grid = F.affine_grid(theta_mat, list(frame.shape), align_corners=False)
     warped = F.grid_sample(
         frame, grid, mode="bilinear", padding_mode="zeros", align_corners=False
     )

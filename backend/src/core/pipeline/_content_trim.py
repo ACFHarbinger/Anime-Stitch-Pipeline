@@ -60,10 +60,11 @@ def _trim_content_crop(
             # is protected from trimming.
             _union_fg = np.zeros((canvas_h, canvas_w), dtype=bool)
             for _idx_trim in range(N):
-                if bg_masks[_idx_trim] is None:
+                _bg_mask_trim = bg_masks[_idx_trim]
+                if _bg_mask_trim is None:
                     continue
                 _wfg = cv2.warpAffine(
-                    (bg_masks[_idx_trim] < 127).astype(np.uint8),
+                    (_bg_mask_trim < 127).astype(np.uint8),
                     affines[_idx_trim],
                     (canvas_w, canvas_h),
                     flags=cv2.INTER_NEAREST,

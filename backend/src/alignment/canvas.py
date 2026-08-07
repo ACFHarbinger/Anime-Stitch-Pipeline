@@ -208,9 +208,9 @@ def _scan_stitch_fallback(
     logger.info("[Stitch] FALLBACK: using OpenCV SCANS mode.")
     cv2.ocl.setUseOpenCL(False)
     try:
-        stitcher = cv2.Stitcher_create(mode=1)
+        stitcher = cv2.Stitcher_create(mode=1)  # type: ignore[attr-defined] # cv2-stub gap
     except AttributeError:
-        stitcher = cv2.createStitcher(True)
+        stitcher = cv2.createStitcher(True)  # type: ignore[attr-defined] # cv2-stub gap
     stitcher.setRegistrationResol(0.8)
     status, pano = stitcher.stitch(frames)
     if status != cv2.Stitcher_OK:
@@ -266,9 +266,9 @@ def _panorama_stitch_fallback(
         # Python fallback path
         cv2.ocl.setUseOpenCL(False)
         try:
-            stitcher = cv2.Stitcher_create(mode=0)
+            stitcher = cv2.Stitcher_create(mode=0)  # type: ignore[attr-defined] # cv2-stub gap
         except AttributeError:
-            stitcher = cv2.createStitcher(False)
+            stitcher = cv2.createStitcher(False)  # type: ignore[attr-defined] # cv2-stub gap
         stitcher.setRegistrationResol(0.8)
         status, pano = stitcher.stitch(frames)
         if status != cv2.Stitcher_OK:
@@ -320,7 +320,7 @@ def find_optimal_sequence(  # noqa: C901
         are pruned for redundancy or insufficient overlap.
     """
     # 1. Feature Extraction (SIFT)
-    sift = cv2.SIFT_create(nfeatures=1200)
+    sift = cv2.SIFT_create(nfeatures=1200)  # type: ignore[attr-defined] # cv2-stub gap
 
     def get_feats(p):
         img = cv2.imread(p, cv2.IMREAD_GRAYSCALE)

@@ -107,13 +107,14 @@ def _ecc_refine(
                             ECC_MAX_ITER, ECC_EPS,
                         )
                     else:
-                        _, M_s = cv2.findTransformECC(
+                        _, _M_s_raw = cv2.findTransformECC(
                             r_s, s_s, M_s,
                             cv2.MOTION_TRANSLATION,
                             criteria,
-                            ecc_m_s,
+                            ecc_m_s,  # type: ignore[arg-type] # cv2-stub gap: inputMask=None is valid (no mask)
                             gaussFiltSize=5,
                         )
+                        M_s = _M_s_raw.astype(np.float32)
                     M_s[0, 2] *= scale
                     M_s[1, 2] *= scale
                     M_cur = M_s

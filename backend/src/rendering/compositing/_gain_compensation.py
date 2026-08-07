@@ -190,13 +190,15 @@ def _joint_gain_solve(
 
     overlaps: list[tuple[int, int, float, float, int]] = []
     for i in range(N):
-        if warped_bg[i] is None:
+        bg_i = warped_bg[i]
+        if bg_i is None:
             continue
         has_i = warped_frames[i].max(axis=2) > 10
         for j in range(i + 1, N):
-            if warped_bg[j] is None:
+            bg_j = warped_bg[j]
+            if bg_j is None:
                 continue
-            shared = warped_bg[i] & warped_bg[j]
+            shared = bg_i & bg_j
             if not shared.any():
                 continue
             has_j = warped_frames[j].max(axis=2) > 10

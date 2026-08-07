@@ -134,6 +134,7 @@ class JamMaWrapper(ModelWrapper):
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Run JamMa matching, returns (pts1, pts2, conf) in original px coords."""
         self.load()
+        assert self._model is not None  # self.load() above always sets it
 
         h0, w0 = img_i.shape[:2]
         h1, w1 = img_j.shape[:2]

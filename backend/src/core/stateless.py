@@ -90,9 +90,9 @@ def _laplacian_blend(
     gb = [b.astype(np.float32)]
     gm = [mask]
     for _ in range(bands - 1):
-        ga.append(cv2.pyrDown(ga[-1]))
-        gb.append(cv2.pyrDown(gb[-1]))
-        gm.append(cv2.pyrDown(gm[-1]))
+        ga.append(cv2.pyrDown(ga[-1]).astype(np.float32))
+        gb.append(cv2.pyrDown(gb[-1]).astype(np.float32))
+        gm.append(cv2.pyrDown(gm[-1]).astype(np.float32))
 
     la = [ga[-1]]
     lb = [gb[-1]]
@@ -104,7 +104,7 @@ def _laplacian_blend(
     for k in range(bands):
         m = gm[bands - 1 - k]
         if m.shape[:2] != la[k].shape[:2]:
-            m = cv2.resize(m, (la[k].shape[1], la[k].shape[0]))
+            m = cv2.resize(m, (la[k].shape[1], la[k].shape[0])).astype(np.float32)
         if m.ndim == 2:
             m = m[:, :, np.newaxis]
         blended.append(la[k] * m + lb[k] * (1.0 - m))

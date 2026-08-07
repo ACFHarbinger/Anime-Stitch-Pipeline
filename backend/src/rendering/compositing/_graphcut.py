@@ -139,8 +139,9 @@ def _execute_graphcut_composite(
         src = warped_norm[i]
         has_content = src.max(axis=2) > 0
         _apply_gc = own & has_content
-        if warped_bg[i] is not None:
-            _apply_gc = _apply_gc & (~warped_bg[i])
+        _bg_i = warped_bg[i]
+        if _bg_i is not None:
+            _apply_gc = _apply_gc & (~_bg_i)
         result[_apply_gc] = src[_apply_gc]
 
     _gc_black = result.max(axis=2) == 0

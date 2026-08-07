@@ -65,7 +65,7 @@ def _prepare_seam_jobs(
     seam_path_cache: dict | None,
     seam_overrides: dict | None,
     _eff_exclusion: list[np.ndarray] | None,
-    _seam_cost_flags: dict,
+    _seam_cost_flags: tuple,
     result: np.ndarray,
     H: int,
     W: int,
@@ -86,8 +86,10 @@ def _prepare_seam_jobs(
             continue
         _fa_z = warped_norm[_fi_a][_y0:_y1].copy()
         _fb_z = warped_norm[_fi_b][_y0:_y1].copy()
-        _bg_a_z = warped_bg[_fi_a][_y0:_y1] if warped_bg[_fi_a] is not None else None
-        _bg_b_z = warped_bg[_fi_b][_y0:_y1] if warped_bg[_fi_b] is not None else None
+        _bg_a = warped_bg[_fi_a]
+        _bg_b = warped_bg[_fi_b]
+        _bg_a_z = _bg_a[_y0:_y1] if _bg_a is not None else None
+        _bg_b_z = _bg_b[_y0:_y1] if _bg_b is not None else None
         _em_zone = [
             em[_y0:_y1]
             for em in (_eff_exclusion or [])
@@ -136,10 +138,10 @@ def _precompute_seam_paths(
                 pass
         return _k, np.full(_W, _zh // 2, dtype=np.int32)
 
-    _eff_exclusion = list(exclusion_masks or [])
+    _eff_exclusion_list: list[np.ndarray] = list(exclusion_masks or [])
     if paint_mask is not None and paint_mask.shape[0] == H and paint_mask.shape[1] == W:
-        _eff_exclusion.append(paint_mask)
-    _eff_exclusion = _eff_exclusion or None
+        _eff_exclusion_list.append(paint_mask)
+    _eff_exclusion: list[np.ndarray] | None = _eff_exclusion_list or None
 
     _seam_cost_flags = _get_seam_cost_flags()
     _precomp_paths: dict = {}

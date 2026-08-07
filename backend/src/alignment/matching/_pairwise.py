@@ -202,7 +202,7 @@ def _match_pair(  # noqa: C901
         M_pc, c_pc = _phase_correlate(
             match_img_i, match_img_j, match_m_i, match_m_j, use_mask=True
         )
-        if _is_valid(M_pc) and c_pc > 0.25:
+        if M_pc is not None and _is_valid(M_pc) and c_pc > 0.25:
             M, mean_conf = M_pc, c_pc
             logger.debug(
                 f"[Stitch]   {i}→{j}: PhaseCorr(masked) dx={M[0, 2]:.1f} dy={M[1, 2]:.1f} conf={mean_conf:.3f}"
@@ -213,7 +213,7 @@ def _match_pair(  # noqa: C901
         M_pc2, c_pc2 = _phase_correlate(
             match_img_i, match_img_j, None, None, use_mask=False
         )
-        if _is_valid(M_pc2) and c_pc2 > 0.15:
+        if M_pc2 is not None and _is_valid(M_pc2) and c_pc2 > 0.15:
             M, mean_conf = M_pc2, c_pc2
             logger.debug(
                 f"[Stitch]   {i}→{j}: PhaseCorr(unmasked) dx={M[0, 2]:.1f} dy={M[1, 2]:.1f} conf={mean_conf:.3f}"

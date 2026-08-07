@@ -30,8 +30,9 @@ def _initial_hard_partition_fill(
         y_end = H if k == N - 1 else int(boundaries[k])
         src = warped_norm[fi][y_start:y_end]
         has_content = src.max(axis=2) > 0
-        if warped_bg[fi] is not None:
-            is_fg = ~warped_bg[fi][y_start:y_end]
+        _bg_fi = warped_bg[fi]
+        if _bg_fi is not None:
+            is_fg = ~_bg_fi[y_start:y_end]
             replace = has_content & is_fg
         else:
             replace = has_content
@@ -162,8 +163,10 @@ def _process_single_seam(
 
     fa_zone = warped_norm[fi_a][y0_f:y1_f]
     fb_zone = warped_norm[fi_b][y0_f:y1_f]
-    bg_a_zone = warped_bg[fi_a][y0_f:y1_f] if warped_bg[fi_a] is not None else None
-    bg_b_zone = warped_bg[fi_b][y0_f:y1_f] if warped_bg[fi_b] is not None else None
+    _bg_a = warped_bg[fi_a]
+    _bg_b = warped_bg[fi_b]
+    bg_a_zone = _bg_a[y0_f:y1_f] if _bg_a is not None else None
+    bg_b_zone = _bg_b[y0_f:y1_f] if _bg_b is not None else None
 
     path_local, sem_cost = _get_or_compute_path_local(
         k, y0_f, y1_f, zone_h, W, fa_zone, fb_zone, bg_a_zone, bg_b_zone, result[y0_f:y1_f],
