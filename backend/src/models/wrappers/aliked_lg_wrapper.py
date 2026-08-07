@@ -51,7 +51,8 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
     def __init__(self, device: str | None = None):
         if not _KORNIA_OK:
             raise ImportError("kornia >= 0.8 is required for ALIKEDLightGlueWrapper.")
-        self._matcher = None  # set before super().__init__ so loaded property is safe
+        # set before super().__init__ so loaded property is safe
+        self._matcher: KF.LightGlueMatcher | None = None
         super().__init__(device)
 
     @classmethod
@@ -126,6 +127,9 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
             # but the recommended high-level usage is via LocalFeatureMatcher.
             # Fallback: use the underlying KF.LightGlue via detect-then-match.
             matcher = self._matcher
+            # @lazy_load guarantees self.load() ran (and thus self._matcher is
+            # set) before this method body executes.
+            assert matcher is not None
             # kornia's LightGlueMatcher wraps a LocalFeatureMatcher internally.
             # Access it to run the full detect+match pipeline.
             if hasattr(matcher, "matcher") and hasattr(matcher.matcher, "forward"):

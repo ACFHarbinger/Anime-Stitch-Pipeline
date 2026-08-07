@@ -119,6 +119,9 @@ class RoMaWrapper(ModelWrapper):
 
         pil_i = Image.fromarray(cv2.cvtColor(img_i_rs, cv2.COLOR_BGR2RGB))
         pil_j = Image.fromarray(cv2.cvtColor(img_j_rs, cv2.COLOR_BGR2RGB))
+        # @lazy_load guarantees self.load() ran (and thus self._model is set)
+        # before this method body executes; mypy can't see through the decorator.
+        assert self._model is not None
         try:
             with torch.no_grad():
                 warp, certainty = self._model.match(pil_i, pil_j, device=self.device)
