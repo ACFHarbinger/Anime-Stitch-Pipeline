@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Phase 0.5**: Ran full 97-corpus benchmark for Hugin using run_hugin.py. Fixed missing constants via PYTHONPATH and parallelized the script for faster processing (Issue #18).
 - **Phase 6.3**: Bundled synthetic sample projects (`test_scroll_gradient`, `test_scroll_pattern`) for the HybridStitch onboarding wizard. Provides non-explicit, simple test sequences to learn the tool (Issue #17).
 - **Phase 4**: Added quantitative (non-visual) seam-photometric diagnosis tooling via `backend/benchmark/diagnose_seams.py` to analyze borderline seam_vis_gate/composite_gate_sb fallbacks without rendering adult content (Issue #16).
+- **Phase 0.4(d)**: Implemented SI-FID as a reference-free metric in `backend/benchmark/evaluation/si_fid.py` and integrated it into `bench_anime_stitch.py` for non-GT test evaluation.
 - **Bug Fix**: Fixed `_refine_masks_with_clicks` dimension mismatch in `backend/src/ingestion/masking.py` by threading per-frame shapes through the live SAM-2 predictor state across the HITL dialog boundary (Issue #15).
 - **Bug Fix**: Decoupled `gui/` tests from Image-Toolkit by making `AppSettings` import optional in `_thumbnail_file_picker.py` and removing `continue-on-error` from `lint-test-gui` (Issue #3).
 

@@ -660,9 +660,7 @@ shift by small, principled amounts (test04 +0.025, others <0.003) and no
 GT-based verdict flips on this sample — a stabilizing correction, not a
 destabilizing one.
 (a) remains open — needs the Phase 0.1 rating tool's actual rating pass (a
-human task) before anything can be calibrated against it. Optional (d):
-SI-FID as a reference-free signal for non-GT tests — still unbuilt, only
-worth it if (a)+(c) leave those tests hard to rank.
+human task) before anything can be calibrated against it. (d) SI-FID as a reference-free signal for non-GT tests  `[DONE 2026-08-07 — SI-FID implementation integrated for non-GT test evaluation]`
 
 ### 0.5 Optional second reference: Hugin  `[DONE 2026-08-07 — full 97-corpus run complete]`
 - **Done**: system `hugin-tools`/`enblend`/`enfuse` (apt) as the CLI
