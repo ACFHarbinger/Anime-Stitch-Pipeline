@@ -315,6 +315,12 @@ running (and failing) this whole time — same debt class as issue #7, just
 never separately tracked. 447 ruff errors (365 auto-fixable, same
 categories as `backend/`'s pre-cleanup state) + 215 mypy errors in 22
 files. Applying the same safe-autofix + verified-triage treatment now.
+**Ruff: done, 447 -> 5 (2026-08-07).** Auto-fix pass (`ruff check . --fix`)
+resolved 442; 19 non-auto-fixable E501 remained, 14 manually wrapped
+(function signatures, boolean/ternary expressions, constructor calls), 5
+left as string-literal tooltips/docstrings/log messages where wrapping
+would hurt readability. 51 files touched. Test suite (50/50) identical
+before/after. mypy (215 errors) still open.
 
 ---
 
