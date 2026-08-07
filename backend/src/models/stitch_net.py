@@ -38,6 +38,7 @@ Output units
 from __future__ import annotations
 
 import math
+from typing import cast
 
 import torch
 import torch.nn as nn
@@ -183,8 +184,12 @@ class _AffineHead(nn.Module):
             nn.Linear(hidden // 2, 4),
         )
         # Initialise final layer to zero → network starts from identity transform
-        nn.init.zeros_(self.mlp[-1].weight)
-        nn.init.zeros_(self.mlp[-1].bias)
+        # nn.Sequential.__getitem__ is typed to return the generic Module base,
+        # so mypy sees .weight/.bias as Tensor | Module even though the last
+        # layer is always the nn.Linear constructed just above.
+        _final_linear = cast(nn.Linear, self.mlp[-1])
+        nn.init.zeros_(_final_linear.weight)
+        nn.init.zeros_(_final_linear.bias)
 
     def forward(self, feat: torch.Tensor) -> torch.Tensor:
         raw = self.mlp(feat)  # (B, 4)
