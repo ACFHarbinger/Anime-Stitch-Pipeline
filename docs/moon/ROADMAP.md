@@ -188,6 +188,26 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   import-order, 6 unused-import, 1 ambiguous-name — needs real judgment
   calls, several import-order ones are almost certainly intentional). The
   345 mypy errors remain untouched, still need a dedicated pass.
+  `[Issue #7, mypy triage, 2026-08-07]` Note: the 345 figure above predates
+  the `backend/src/evaluation` -> `backend/benchmark/evaluation` move
+  (issue #8), which removed a large error-heavy directory from `src`
+  entirely — the real current count going into this pass was 137. Fixed 21
+  (verified-safe type-annotation corrections only, no logic changes; full
+  test suite identical before/after: 908/1/3). Remaining 116 triaged into:
+  ~83 needing case-by-case judgment (mostly a mechanical "mypy can't
+  narrow through a subscript" pattern, not real bugs, plus cv2 stub
+  imprecision) and 33 needing an architectural call (28 mixin-composition
+  attribute errors in `core/pipeline/`, 5 `cv2.Stitcher_create`-family stub
+  gaps). **One real bug found in the process, not a type-checker
+  false-positive** — filed as issue #12: `_pass2_pose_refine`'s internal
+  `_pose_dist` helper always gets `None` DINOv2 features from a
+  wrong-argument-type call, silently falling back to a cruder heuristic.
+  Traced further (2026-08-07): narrower than it first looked — the
+  function's *primary* scoring path uses a correctly-computed parameter
+  and is confirmed working via a real `ASP_POSE_WINDOW_PX=80` benchmark
+  run (`[SmartSelect] DINOv2 features loaded successfully` in the log);
+  only the secondary `_pose_dist` helper is affected. Low urgency, not
+  fixed.
 
 ---
 
