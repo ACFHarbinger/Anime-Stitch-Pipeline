@@ -43,12 +43,15 @@ def _hold_block_average(
             out_paths.append(paths[indices[0]])
             continue
 
-        full_frames = [cv2.imread(paths[i]) for i in indices]
-        if any(f is None for f in full_frames):
+        raw_frames = [cv2.imread(paths[i]) for i in indices]
+        if any(f is None for f in raw_frames):
             mid = indices[len(indices) // 2]
             out_thumbs.append(thumbs[mid])
             out_paths.append(paths[mid])
             continue
+        # mypy can't narrow Optional through the `any()` guard above -- rebind
+        # to a list typed as non-Optional now that every element is known set.
+        full_frames: list[np.ndarray] = [f for f in raw_frames if f is not None]
 
         ref = full_frames[0].astype(np.float32)
         ref_gray = cv2.cvtColor(full_frames[0], cv2.COLOR_BGR2GRAY).astype(np.float32)
@@ -71,7 +74,7 @@ def _hold_block_average(
                     warp,
                     (ref.shape[1], ref.shape[0]),
                     flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP,
-                )
+                ).astype(np.float32)
                 stack.append(aligned)
             except cv2.error:
                 stack.append(f.astype(np.float32))
