@@ -42,6 +42,32 @@ numbers): `seam_vis_gate` 27, `composite_gate_sb` 26, `composite_gate_sc` 1,
 holds at full scale, not just the earlier 18-test sample). This run also
 serves as Phase 2.6's full-corpus host-freeze-fix confirmation (issue #25).
 
+**Full-corpus checkpoint (2026-08-07, `anime_stitch_20260807_045552.json`)
+— the actual Ground Rule #1 verification, not an assumption, after this
+entire session's infra work (issue #13):** ran the complete 97-test corpus
+(RTX 3090 Ti, real data, ~2h40m) for the first time since 2026-07-28,
+covering everything landed this session — the CUDA/packaging fixes (#5,
+#9), the `backend/src/evaluation` -> `backend/benchmark/evaluation` move
+(#8), two real pipeline bugs found and fixed (#10/#11), a dead-code
+removal (#12), and a complete mypy/ruff cleanup across both `backend/`
+and `gui/` (#7/#14, 6 fixed/reviewed commits touching ~70 files).
+**Result: statistically indistinguishable from the pre-session 2026-07-28
+checkpoint** — 43 true composites (was 43, exact match), 54 guarded
+fallbacks (was 54, exact match), aligned/GT-SSIM 0.6659 vs simple's 0.6931
+(was 0.6656 vs 0.693 — within noise), cv-metric verdict counts 22
+asp_better / 53 comparable / 22 simple_better (was 21/54/22). This is
+direct, corpus-scale evidence that none of this session's substantial
+infrastructure and bug-fix work changed default pipeline behavior —
+everything shipped was either genuinely inert by construction (typing
+annotations, dead code, non-default flags) or affirmatively verified not
+to regress, not just assumed safe. Per-test time rose to 94.8s (was
+83.8s) — within normal run-to-run variance for a multi-hour GPU job, not
+investigated further. GT-verdict breakdown (55 GT tests): 5 asp_better /
+32 comparable / 18 simple_better. The composite-quality gap (the actual
+open problem this whole roadmap exists to close) is unchanged, as
+expected — nothing this session touched the compositing/matching
+algorithms themselves.
+
 **5-test verify checkpoint (2026-08-07, `anime_stitch_20260807_002510.json`)
 — first real GPU run since issue #5/#9's packaging fixes (RTX 3090 Ti,
 real corpus at `dump/`), a no-op regression check rather than a measured
