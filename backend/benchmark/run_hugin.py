@@ -336,11 +336,13 @@ def main():
 
     print(f"Processing {len(datasets)} dataset(s) with the Hugin toolchain…")
     results = []
-    for d in datasets:
-        r = process_dataset(d, run_full=args.full)
-        if r is not None:
-            results.append(r)
-
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
+        futures = {executor.submit(process_dataset, d, args.full): d for d in datasets}
+        for future in concurrent.futures.as_completed(futures):
+            r = future.result()
+            if r is not None:
+                results.append(r)
     n_ok = sum(1 for r in results if r.get("smart", {}).get("ok"))
     print(f"\nDone. {n_ok}/{len(results)} smart-variant stitches succeeded.")
 
