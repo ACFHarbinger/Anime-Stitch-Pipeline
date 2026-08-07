@@ -7,8 +7,12 @@ from __future__ import annotations
 
 import os
 
-from gui.src.windows.settings.app_settings import AppSettings
-from gui.src.windows.settings.splitter_persistence import persist_splitter
+try:
+    from gui.src.windows.settings.app_settings import AppSettings
+    from gui.src.windows.settings.splitter_persistence import persist_splitter
+except ImportError:
+    AppSettings = None
+    persist_splitter = None
 from PySide6.QtCore import QSize, Qt, QThreadPool, Slot
 from PySide6.QtGui import (
     QAction,
@@ -121,7 +125,8 @@ class _ThumbnailFilePicker(QDialog):
         splitter.setSizes([150, 800])
         splitter.setStretchFactor(1, 1)
 
-        persist_splitter(splitter, "ThumbnailFilePicker/sidebar")
+        if persist_splitter:
+            persist_splitter(splitter, "ThumbnailFilePicker/sidebar")
         layout.addWidget(splitter)
 
         # Status + icon-size slider + buttons
@@ -159,7 +164,7 @@ class _ThumbnailFilePicker(QDialog):
             ("Downloads", os.path.join(home, "Downloads")),
             ("Documents", os.path.join(home, "Documents")),
         ]
-        favs = AppSettings.favourite_directories()
+        favs = AppSettings.favourite_directories() if AppSettings else []
         norm_std = {os.path.normpath(p) for _, p in bookmarks if p}
         for fav_path in favs:
             if fav_path and os.path.isdir(fav_path):
@@ -175,7 +180,7 @@ class _ThumbnailFilePicker(QDialog):
                 self._sidebar.addItem(item)
 
     def _apply_menu_style(self, menu: QMenu):
-        is_dark = AppSettings.get("preferences/theme", "dark") == "dark"
+        is_dark = (AppSettings.get("preferences/theme", "dark") == "dark") if AppSettings else True
         if is_dark:
             menu.setStyleSheet("""
                 QMenu {
@@ -229,7 +234,7 @@ class _ThumbnailFilePicker(QDialog):
         if not path or not os.path.isdir(path):
             return
 
-        favs = AppSettings.favourite_directories()
+        favs = AppSettings.favourite_directories() if AppSettings else []
         norm_path = os.path.normpath(path)
         norm_favs = [os.path.normpath(f) for f in favs]
         is_fav = norm_path in norm_favs
@@ -247,13 +252,15 @@ class _ThumbnailFilePicker(QDialog):
         if act == fav_act:
             if is_fav:
                 new_favs = [f for f in favs if os.path.normpath(f) != norm_path]
-                AppSettings.set_favourite_directories(new_favs)
+                if AppSettings:
+                    AppSettings.set_favourite_directories(new_favs)
                 QMessageBox.information(
                     self, "Favourite Removed", f"Removed from favourites:\n{path}"
                 )
             else:
                 favs.append(path)
-                AppSettings.set_favourite_directories(favs)
+                if AppSettings:
+                    AppSettings.set_favourite_directories(favs)
                 QMessageBox.information(
                     self, "Favourite Added", f"Added to favourites:\n{path}"
                 )
@@ -269,7 +276,7 @@ class _ThumbnailFilePicker(QDialog):
         if not path or not os.path.isdir(path):
             return
 
-        favs = AppSettings.favourite_directories()
+        favs = AppSettings.favourite_directories() if AppSettings else []
         norm_path = os.path.normpath(path)
         norm_favs = [os.path.normpath(f) for f in favs]
         is_fav = norm_path in norm_favs
@@ -287,13 +294,15 @@ class _ThumbnailFilePicker(QDialog):
         if act == fav_act:
             if is_fav:
                 new_favs = [f for f in favs if os.path.normpath(f) != norm_path]
-                AppSettings.set_favourite_directories(new_favs)
+                if AppSettings:
+                    AppSettings.set_favourite_directories(new_favs)
                 QMessageBox.information(
                     self, "Favourite Removed", f"Removed from favourites:\n{path}"
                 )
             else:
                 favs.append(path)
-                AppSettings.set_favourite_directories(favs)
+                if AppSettings:
+                    AppSettings.set_favourite_directories(favs)
                 QMessageBox.information(
                     self, "Favourite Added", f"Added to favourites:\n{path}"
                 )
