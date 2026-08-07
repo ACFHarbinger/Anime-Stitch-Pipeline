@@ -229,11 +229,18 @@ std::vector<cv::Mat> normalize_warped_frames_impl(const std::vector<cv::Mat>& fr
             continue;
         }
         float gain = std::clamp(smooth_lums[i] / lums[i], 1.0f / gain_clamp, gain_clamp);
-        cv::Mat f_f32;
-        frames[i].convertTo(f_f32, CV_32F);
-        f_f32 *= gain;
-        cv::Mat out;
-        f_f32.convertTo(out, CV_8UC3);
+        cv::Mat f_hsv, f_hsv_f32;
+        cv::cvtColor(frames[i], f_hsv, cv::COLOR_BGR2HSV);
+        f_hsv.convertTo(f_hsv_f32, CV_32F);
+        
+        std::vector<cv::Mat> channels(3);
+        cv::split(f_hsv_f32, channels);
+        channels[2] *= gain;
+        cv::merge(channels, f_hsv_f32);
+        
+        cv::Mat f_hsv_8u, out;
+        f_hsv_f32.convertTo(f_hsv_8u, CV_8UC3);
+        cv::cvtColor(f_hsv_8u, out, cv::COLOR_HSV2BGR);
         result[i] = out;
     }
     return result;

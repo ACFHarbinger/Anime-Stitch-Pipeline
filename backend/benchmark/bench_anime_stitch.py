@@ -1433,9 +1433,9 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
             )
             applied_gains[i] = gain
             if abs(gain - 1.0) > 0.01:
-                frames[i] = np.clip(frames[i].astype(np.float32) * gain, 0, 255).astype(
-                    np.uint8
-                )
+                hsv = cv2.cvtColor(frames[i], cv2.COLOR_BGR2HSV).astype(np.float32)
+                hsv[:, :, 2] = np.clip(hsv[:, :, 2] * gain, 0, 255)
+                frames[i] = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
 
     # Save stage 3 corrected frames
     for i, f in enumerate(frames):
