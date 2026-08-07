@@ -6,6 +6,8 @@ as thin wrappers so external callers (tests, helpers) still work.
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from asp_backend.alignment.canvas import (
     _compute_canvas,
@@ -45,10 +47,19 @@ from asp_backend.rendering.rendering import (
     _render_median,
 )
 
+from ._pipeline_protocol import _PipelineHost
 from ._probes import _USE_SAM2, BaSiCWrapper, Image
 
+if TYPE_CHECKING:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # AnimeStitchPipeline.__init__ / sibling mixins (see _pipeline_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    _Base = _PipelineHost
+else:
+    _Base = object
 
-class _ThinWrappersMixin:
+
+class _ThinWrappersMixin(_Base):
     """Delegate methods preserved for external callers (tests, helpers)."""
 
     def _load_frames(self, paths: list[str]) -> list[np.ndarray]:
