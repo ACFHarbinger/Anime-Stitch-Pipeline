@@ -23,7 +23,6 @@ import ast
 import os
 import sys
 from collections import defaultdict
-from typing import Dict, List
 
 try:
     from rich import box
@@ -37,20 +36,20 @@ except ImportError:
 
 console = Console()
 
-_KIND_STYLE: Dict[str, str] = {
+_KIND_STYLE: dict[str, str] = {
     "Module": "blue",
     "Class": "yellow",
     "Function": "green",
 }
 
-_KIND_DESC: Dict[str, str] = {
+_KIND_DESC: dict[str, str] = {
     "Module": "Module is missing a top-level docstring",
     "Class": "Class is missing a class-level docstring",
     "Function": "Function/method is missing a docstring",
 }
 
 
-def check_path(path: str) -> List[dict]:
+def check_path(path: str) -> list[dict]:
     """Check a single .py file and return a list of violation dicts.
 
     Args:
@@ -63,14 +62,14 @@ def check_path(path: str) -> List[dict]:
         return []
 
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             source = fh.read()
         tree = ast.parse(source)
     except SyntaxError as exc:
         console.print(f"[bold red]Syntax error in {path}: {exc}[/bold red]")
         return []
 
-    violations: List[dict] = []
+    violations: list[dict] = []
 
     def _add(line: int, kind: str, name: str) -> None:
         violations.append(
@@ -98,7 +97,7 @@ def check_path(path: str) -> List[dict]:
     return violations
 
 
-def check_docstrings_recursive(directory: str) -> List[dict]:
+def check_docstrings_recursive(directory: str) -> list[dict]:
     """Recursively collect violations from all .py files under *directory*.
 
     Args:
@@ -107,14 +106,14 @@ def check_docstrings_recursive(directory: str) -> List[dict]:
     Returns:
         List[dict]: Aggregated violation list from all files.
     """
-    results: List[dict] = []
+    results: list[dict] = []
     for root, _dirs, files in os.walk(directory):
         for fname in files:
             results.extend(check_path(os.path.join(root, fname)))
     return results
 
 
-def display_results(violations: List[dict]) -> None:
+def display_results(violations: list[dict]) -> None:
     """Render the violation report as a Rich table grouped by file.
 
     Args:
@@ -131,7 +130,7 @@ def display_results(violations: List[dict]) -> None:
         return
 
     # Group by file path for section breaks
-    by_file: Dict[str, List[dict]] = defaultdict(list)
+    by_file: dict[str, list[dict]] = defaultdict(list)
     for v in violations:
         by_file[v["path"]].append(v)
 
@@ -169,7 +168,7 @@ def display_results(violations: List[dict]) -> None:
     console.print(table)
 
     # Summary footer
-    kind_counts: Dict[str, int] = defaultdict(int)
+    kind_counts: dict[str, int] = defaultdict(int)
     for v in violations:
         kind_counts[v["type"]] += 1
 
@@ -185,7 +184,7 @@ if __name__ == "__main__":
         console.print("[bold red]Usage:[/bold red] python check_docstrings.py <path1> [path2 ...]")
         sys.exit(1)
 
-    all_violations: List[dict] = []
+    all_violations: list[dict] = []
 
     with console.status("[bold green]Scanning files...[/bold green]"):
         for arg in sys.argv[1:]:

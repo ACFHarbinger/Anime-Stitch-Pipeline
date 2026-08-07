@@ -34,7 +34,6 @@ import os
 import re
 import sys
 from collections import defaultdict
-from typing import Dict, List, Optional, Union
 
 try:
     from rich import box
@@ -48,7 +47,7 @@ except ImportError:
 
 console = Console()
 
-SECTION_ALIASES: Dict[str, str] = {
+SECTION_ALIASES: dict[str, str] = {
     "ARGS": "Args",
     "ARGUMENTS": "Args",
     "PARAMETERS": "Args",
@@ -68,7 +67,7 @@ SECTION_ALIASES: Dict[str, str] = {
     "TODO": "Todo",
 }
 
-_CONTEXT_LABEL: Dict[str, str] = {
+_CONTEXT_LABEL: dict[str, str] = {
     "Module": "Module",
     "ClassDef": "Class",
     "FunctionDef": "Func",
@@ -76,7 +75,7 @@ _CONTEXT_LABEL: Dict[str, str] = {
     "Error": "ERROR",
 }
 
-_CONTEXT_STYLE: Dict[str, str] = {
+_CONTEXT_STYLE: dict[str, str] = {
     "Module": "blue",
     "Class": "yellow",
     "Func": "green",
@@ -104,8 +103,8 @@ class GoogleStyleValidator(ast.NodeVisitor):
             filepath (str): Path to the Python source file.
         """
         self.filepath = filepath
-        self.violations: List[dict] = []
-        self.current_class: Optional[str] = None
+        self.violations: list[dict] = []
+        self.current_class: str | None = None
 
     def _add(self, node: ast.AST, message: str) -> None:
         """Record a violation against *node* with the given *message*.
@@ -123,7 +122,7 @@ class GoogleStyleValidator(ast.NodeVisitor):
             }
         )
 
-    def _parse_sections(self, docstring: str) -> Dict[str, str]:
+    def _parse_sections(self, docstring: str) -> dict[str, str]:
         """Extract named sections from a Google-style *docstring*.
 
         Args:
@@ -135,7 +134,7 @@ class GoogleStyleValidator(ast.NodeVisitor):
         if not docstring:
             return {}
 
-        sections: Dict[str, str] = {}
+        sections: dict[str, str] = {}
         pattern = re.compile(
             r"^\s*(" + "|".join(set(SECTION_ALIASES.keys())) + r"):\s*$",
             re.MULTILINE | re.IGNORECASE,
@@ -148,7 +147,7 @@ class GoogleStyleValidator(ast.NodeVisitor):
             sections[key] = docstring[start:end]
         return sections
 
-    def _check_args(self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], sections: Dict[str, str]) -> None:
+    def _check_args(self, node: ast.FunctionDef | ast.AsyncFunctionDef, sections: dict[str, str]) -> None:
         """Verify that every non-self parameter is documented in the Args section.
 
         Args:
@@ -174,7 +173,7 @@ class GoogleStyleValidator(ast.NodeVisitor):
             self._add(node, f"Undocumented argument(s): {', '.join(missing)}")
 
     def _check_returns_yields(
-        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], sections: Dict[str, str]
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef, sections: dict[str, str]
     ) -> None:
         """Check that Returns/Yields sections are present when the function uses them.
 
@@ -252,7 +251,7 @@ class GoogleStyleValidator(ast.NodeVisitor):
         """
         self._validate_function(node)
 
-    def _validate_function(self, node: "Union[ast.FunctionDef, ast.AsyncFunctionDef]") -> None:
+    def _validate_function(self, node: "ast.FunctionDef | ast.AsyncFunctionDef") -> None:
         """Core function validation: docstring presence, Args, Returns/Yields.
 
         Args:
@@ -267,7 +266,7 @@ class GoogleStyleValidator(ast.NodeVisitor):
         self._check_returns_yields(node, sections)
 
 
-def analyze_file(filepath: str) -> List[dict]:
+def analyze_file(filepath: str) -> list[dict]:
     """Parse *filepath* and return all Google-style violations found.
 
     Args:
@@ -277,7 +276,7 @@ def analyze_file(filepath: str) -> List[dict]:
         List[dict]: Violations with keys ``line``, ``context``, ``name``, ``message``.
     """
     try:
-        with open(filepath, "r", encoding="utf-8") as fh:
+        with open(filepath, encoding="utf-8") as fh:
             source = fh.read()
         tree = ast.parse(source)
         validator = GoogleStyleValidator(filepath)
@@ -289,7 +288,7 @@ def analyze_file(filepath: str) -> List[dict]:
         return [{"line": 0, "context": "Error", "name": "File", "message": str(exc)}]
 
 
-def display_report(all_violations: List[dict]) -> None:
+def display_report(all_violations: list[dict]) -> None:
     """Render the consolidated violation report as a Rich table.
 
     Violations are grouped by file and sorted by line number within each file.
@@ -310,7 +309,7 @@ def display_report(all_violations: List[dict]) -> None:
         sys.exit(0)
 
     # Group by file
-    by_file: Dict[str, List[dict]] = defaultdict(list)
+    by_file: dict[str, list[dict]] = defaultdict(list)
     for v in all_violations:
         by_file[v["filepath"]].append(v)
 
@@ -342,7 +341,7 @@ def display_report(all_violations: List[dict]) -> None:
     console.print(table)
 
     # Summary by context type
-    counts: Dict[str, int] = defaultdict(int)
+    counts: dict[str, int] = defaultdict(int)
     for v in all_violations:
         label = _CONTEXT_LABEL.get(v["context"], v["context"])
         counts[label] += 1
@@ -384,9 +383,9 @@ def main() -> None:
     )
     console.print()
 
-    all_violations: List[dict] = []
+    all_violations: list[dict] = []
 
-    targets: List[tuple] = []
+    targets: list[tuple] = []
     if os.path.isfile(args.path):
         targets.append((os.path.dirname(args.path), [], [os.path.basename(args.path)]))
     else:

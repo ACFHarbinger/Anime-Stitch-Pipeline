@@ -11,7 +11,6 @@ pose) candidates.
 from __future__ import annotations
 
 import os
-from typing import List
 
 import cv2
 import numpy as np
@@ -72,9 +71,9 @@ except ValueError:
 
 
 def _detect_hold_blocks(
-    thumbs: List[np.ndarray],
+    thumbs: list[np.ndarray],
     hold_threshold: float = 0.025,
-) -> List[int]:
+) -> list[int]:
     """
     Detect animation "on twos / on threes" hold blocks and return the index of
     the first frame of each block.
@@ -132,7 +131,7 @@ def _detect_hold_blocks(
         except Exception:
             pass
 
-    blocks: List[int] = [0]
+    blocks: list[int] = [0]
     for i in range(1, N):
         h = min(thumbs[i].shape[0], thumbs[i - 1].shape[0])
         w = min(thumbs[i].shape[1], thumbs[i - 1].shape[1])
@@ -183,9 +182,9 @@ def _compute_dhash(
 
 
 def _detect_hold_blocks_dhash(
-    thumbs: List[np.ndarray],
+    thumbs: list[np.ndarray],
     distance_threshold: int = 4,
-) -> List[int]:
+) -> list[int]:
     """§3.4A: dHash-based animation hold detection.
 
     More robust to MPEG compression noise than the MAD detector
@@ -226,7 +225,7 @@ def _detect_hold_blocks_dhash(
             pass
 
     hashes = [_compute_dhash(t) for t in thumbs]
-    blocks: List[int] = [0]
+    blocks: list[int] = [0]
     for i in range(1, N):
         dist = int(np.sum(hashes[i] != hashes[i - 1]))
         if dist > distance_threshold:
@@ -235,9 +234,9 @@ def _detect_hold_blocks_dhash(
 
 
 def _drop_exact_dhash_duplicates(
-    thumbs: List[np.ndarray],
-    paths: List[str],
-) -> "tuple[List[np.ndarray], List[str], int]":
+    thumbs: list[np.ndarray],
+    paths: list[str],
+) -> tuple[list[np.ndarray], list[str], int]:
     """§1.64: Drop consecutive frames that are pixel-identical at dHash scale (S129).
 
     Uses ``_compute_dhash`` (INTER_AREA resize, 64-bit hash) to detect
@@ -280,10 +279,10 @@ def _drop_exact_dhash_duplicates(
 
 
 def _refine_hold_ids_by_response(
-    hold_ids: List[int],
-    responses: List[float],
+    hold_ids: list[int],
+    responses: list[float],
     high_response_threshold: float = 0.85,
-) -> "tuple[List[int], int]":
+) -> tuple[list[int], int]:
     """§1.11C — Post-hoc hold refinement using phase-correlation response.
 
     After phaseCorrelate runs for all cross-hold pairs, any pair whose response
@@ -324,7 +323,7 @@ def _refine_hold_ids_by_response(
     # Renumber consecutively preserving first-occurrence order
     seen: dict = {}
     counter = 0
-    result: List[int] = []
+    result: list[int] = []
     for h in ids:
         if h not in seen:
             seen[h] = counter

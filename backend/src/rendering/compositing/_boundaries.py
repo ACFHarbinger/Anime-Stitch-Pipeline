@@ -3,11 +3,8 @@ warped frames."""
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import cv2
 import numpy as np
-
 from backend.src.constants import (
     FEATHER_MAX,
     FEATHER_MIN,
@@ -38,14 +35,14 @@ def _gain_to_min_feather(gain_diff: float) -> int:
 
 
 def _find_optimal_boundaries(
-    warped_list: List[np.ndarray],
+    warped_list: list[np.ndarray],
     order: np.ndarray,
     initial_boundaries: np.ndarray,
     H: int,
     W: int,
-    bg_masks: Optional[List[Optional[np.ndarray]]] = None,
-    affines: Optional[List[np.ndarray]] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+    bg_masks: list[np.ndarray | None] | None = None,
+    affines: list[np.ndarray] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Move each boundary to the y-position (within ±SEARCH_RANGE of the midpoint)
     where the two adjacent warped frames are most photometrically similar.
@@ -97,7 +94,7 @@ def _find_optimal_boundaries(
         if float(np.ptp(_txs)) < 5.0:
             _effective_range = 100
 
-    warped_bgs: List[Optional[np.ndarray]] = [None] * (max(order) + 1)
+    warped_bgs: list[np.ndarray | None] = [None] * (max(order) + 1)
     if bg_masks is not None and affines is not None:
         for i in range(len(order)):
             fi = int(order[i])
@@ -190,8 +187,8 @@ def _find_optimal_boundaries(
 
 
 def _compute_initial_boundaries(
-    affines: List[np.ndarray],
-    frames: List[np.ndarray],
+    affines: list[np.ndarray],
+    frames: list[np.ndarray],
 ) -> np.ndarray:
     """Return midpoint y-coordinates between adjacent frame strip centres.
 

@@ -21,7 +21,6 @@ can't author scores must not be able to destroy them.
 from __future__ import annotations
 
 import dataclasses
-from typing import Dict, List, Optional, Set
 
 from ..constants.schema import DEFECT_KEYS
 from ..other.schema import RatingEntry, load_evaluations, save_evaluations
@@ -37,7 +36,7 @@ class SyncReport:
     defects_added: int
     defects_removed: int
     skipped_changed: int
-    unknown_tags: List[str]
+    unknown_tags: list[str]
 
     def summary(self) -> str:
         parts = [
@@ -51,7 +50,7 @@ class SyncReport:
         return "; ".join(parts)
 
 
-def _group_tags(dataset) -> Dict[str, Set[str]]:
+def _group_tags(dataset) -> dict[str, set[str]]:
     """Union of every slice's tags, keyed by test name.
 
     Tags are per-sample in FiftyOne, and a user tagging in the App tags whatever
@@ -59,7 +58,7 @@ def _group_tags(dataset) -> Dict[str, Set[str]]:
     right reading — and it means tagging from any slice works.
     """
     view = dataset.select_group_slices(_allow_mixed=True)
-    tags: Dict[str, Set[str]] = {}
+    tags: dict[str, set[str]] = {}
     for name, sample_tags in zip(*_iter_values(view, ("dataset_name", "tags")), strict=False):
         if not name:
             continue
@@ -73,7 +72,7 @@ def _iter_values(view, fields):
 
 def pull(
     evaluations_path: str,
-    dataset_name: Optional[str] = None,
+    dataset_name: str | None = None,
     dry_run: bool = False,
 ) -> SyncReport:
     """Fold App-side tagging back into the evaluations file."""
@@ -87,7 +86,7 @@ def pull(
     tags_by_test = _group_tags(dataset)
 
     touched = added = removed = skip_changed = 0
-    unknown: List[str] = []
+    unknown: list[str] = []
     for name, tags in tags_by_test.items():
         tagged_defects = set()
         for tag in tags:
@@ -127,7 +126,7 @@ def pull(
 
 def push(
     evaluations_path: str,
-    dataset_name: Optional[str] = None,
+    dataset_name: str | None = None,
 ) -> int:
     """Refresh the dataset's human fields, tags and defect regions from the JSON.
 
@@ -187,7 +186,7 @@ def push(
     return updated
 
 
-def _metrics_stub(sample) -> Dict:
+def _metrics_stub(sample) -> dict:
     """Reconstruct just enough of a benchmark entry for ``sample_tags`` to
     recompute the verdict/fallback/GT tags from fields already on the sample —
     avoids re-reading the results JSON during a push."""

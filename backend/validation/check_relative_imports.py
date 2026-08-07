@@ -27,7 +27,6 @@ import os
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 try:
     from rich.console import Console
@@ -63,7 +62,7 @@ def format_relative_import(node: ast.ImportFrom) -> str:
     return f"from {dots}{module} import {names}"
 
 
-def analyze_file(filepath: Path) -> List[Tuple[int, int, str]]:
+def analyze_file(filepath: Path) -> list[tuple[int, int, str]]:
     """
     Return all relative imports in filepath as (lineno, level, formatted_import).
 
@@ -79,7 +78,7 @@ def analyze_file(filepath: Path) -> List[Tuple[int, int, str]]:
     except (SyntaxError, UnicodeDecodeError):
         return []
 
-    results: List[Tuple[int, int, str]] = []
+    results: list[tuple[int, int, str]] = []
     for node in ast.walk(tree):
         if isinstance(node, ast.ImportFrom) and (node.level or 0) >= 1:
             results.append((node.lineno, node.level or 0, format_relative_import(node)))
@@ -87,7 +86,7 @@ def analyze_file(filepath: Path) -> List[Tuple[int, int, str]]:
     return sorted(results, key=lambda x: x[0])
 
 
-def print_stats_table(all_results: Dict[str, List[Tuple[int, int, str]]], target_root: Path) -> None:
+def print_stats_table(all_results: dict[str, list[tuple[int, int, str]]], target_root: Path) -> None:
     """
     Print a Rich table summarising relative import counts per top-level package.
 
@@ -101,8 +100,8 @@ def print_stats_table(all_results: Dict[str, List[Tuple[int, int, str]]], target
     if not RICH_AVAILABLE:
         return
 
-    pkg_counts: Dict[str, int] = defaultdict(int)
-    level_totals: Dict[int, int] = defaultdict(int)
+    pkg_counts: dict[str, int] = defaultdict(int)
+    level_totals: dict[int, int] = defaultdict(int)
 
     for filepath_str, results in all_results.items():
         rel = os.path.relpath(filepath_str, str(target_root))
@@ -186,14 +185,14 @@ def main() -> None:
         sys.exit(1)
 
     effective_min_level = max(args.min_level, 2) if args.exclude_same_package else args.min_level
-    exclude: Set[str] = set(args.exclude) | SKIP_DIRS
+    exclude: set[str] = set(args.exclude) | SKIP_DIRS
     label = f"min-level={effective_min_level}" + (" [same-package excluded]" if args.exclude_same_package else "")
     print(f"Scanning '{target_root}'  ({label})...")
     print("=" * 60)
 
     files_found = 0
     total_imports = 0
-    all_results: Dict[str, List[Tuple[int, int, str]]] = {}
+    all_results: dict[str, list[tuple[int, int, str]]] = {}
 
     for root, dirs, files in os.walk(target_root):
         dirs[:] = [d for d in dirs if d not in exclude]

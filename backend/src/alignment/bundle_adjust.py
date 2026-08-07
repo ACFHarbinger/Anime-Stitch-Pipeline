@@ -16,12 +16,10 @@ from __future__ import annotations
 
 import os
 from collections import deque
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-from scipy.optimize import least_squares
-
 from backend.src.constants import DY_ABS_THRESH, DY_RATIO_THRESH, GNC_C_PX, GNC_MU_ANNEAL
+from scipy.optimize import least_squares
 
 try:
     import base as batch
@@ -74,11 +72,11 @@ def _gnc_weights_geman_mcclure(
 
 
 def _build_spanning_tree_python(
-    sorted_edges: List[Dict],
+    sorted_edges: list[dict],
     num_frames: int,
-) -> Dict[int, List[Tuple[int, float, float]]]:
+) -> dict[int, list[tuple[int, float, float]]]:
     """Helper to build a maximum-weight spanning tree."""
-    parent: List[int] = list(range(num_frames))
+    parent: list[int] = list(range(num_frames))
 
     def _find(x: int) -> int:
         root = x
@@ -88,7 +86,7 @@ def _build_spanning_tree_python(
             parent[x], x = root, parent[x]
         return root
 
-    tree_adj: Dict[int, List[Tuple[int, float, float]]] = {
+    tree_adj: dict[int, list[tuple[int, float, float]]] = {
         f: [] for f in range(num_frames)
     }
     n_tree_edges = 0
@@ -110,12 +108,12 @@ def _build_spanning_tree_python(
 
 
 def _bfs_reference_translations(
-    tree_adj: Dict[int, List[Tuple[int, float, float]]],
+    tree_adj: dict[int, list[tuple[int, float, float]]],
     num_frames: int,
-) -> Tuple[List[Optional[float]], List[Optional[float]]]:
+) -> tuple[list[float | None], list[float | None]]:
     """Helper to run BFS from frame 0 and compute reference translations."""
-    tx_ref: List[Optional[float]] = [None] * num_frames
-    ty_ref: List[Optional[float]] = [None] * num_frames
+    tx_ref: list[float | None] = [None] * num_frames
+    ty_ref: list[float | None] = [None] * num_frames
     tx_ref[0] = 0.0
     ty_ref[0] = 0.0
     queue: deque = deque([0])
@@ -130,10 +128,10 @@ def _bfs_reference_translations(
 
 
 def _spanning_tree_inlier_filter(
-    edges: List[Dict],
+    edges: list[dict],
     num_frames: int,
     inlier_threshold: float = _ST_INLIER_THRESHOLD,
-) -> List[Dict]:
+) -> list[dict]:
     """§1.1B: Consensus pre-filter via maximum-weight spanning tree.
 
     Builds a spanning tree from the highest-weight edges (most reliable
@@ -157,7 +155,7 @@ def _spanning_tree_inlier_filter(
         # Convert to C++ edge format (dx/dy from M if present), keep original Python dicts for return.
         cpp_edges = []
         for e in edges:
-            ce: Dict = {"i": int(e["i"]), "j": int(e["j"]),
+            ce: dict = {"i": int(e["i"]), "j": int(e["j"]),
                         "dx": float(e["M"][0, 2]) if "M" in e else float(e.get("dx", 0.0)),
                         "dy": float(e["M"][1, 2]) if "M" in e else float(e.get("dy", 0.0)),
                         "weight": float(e.get("weight", 1.0))}
@@ -184,7 +182,7 @@ def _spanning_tree_inlier_filter(
         return edges
 
     # ── Step 3: evaluate every edge against the reference ───────────────────
-    inlier_edges: List[Dict] = []
+    inlier_edges: list[dict] = []
     for e in edges:
         i, j = int(e["i"]), int(e["j"])
         pred_dx = tx_ref[j] - tx_ref[i]  # type: ignore[operator]
@@ -206,10 +204,10 @@ def _spanning_tree_inlier_filter(
 
 def _residuals(
     x: np.ndarray,
-    edges: List[Dict],
+    edges: list[dict],
     use_affine: bool,
     num_frames: int,
-    _gnc_ws: List[float],
+    _gnc_ws: list[float],
 ) -> np.ndarray:
     res = []
     for idx, e in enumerate(edges):
@@ -275,9 +273,9 @@ def _residuals(
     return np.array(res, np.float64)
 
 
-def _extract_affines(x: np.ndarray, num_frames: int, use_affine: bool) -> List[np.ndarray]:
+def _extract_affines(x: np.ndarray, num_frames: int, use_affine: bool) -> list[np.ndarray]:
     """Build affine matrices from the flat parameter vector."""
-    mats: List[np.ndarray] = []
+    mats: list[np.ndarray] = []
     for f in range(num_frames):
         if use_affine:
             a, b, tx, ty = x[f * 4 : f * 4 + 4]
@@ -290,7 +288,7 @@ def _extract_affines(x: np.ndarray, num_frames: int, use_affine: bool) -> List[n
     return mats
 
 
-def _init_guess_x0(num_frames: int, use_affine: bool, edges: List[Dict]) -> np.ndarray:
+def _init_guess_x0(num_frames: int, use_affine: bool, edges: list[dict]) -> np.ndarray:
     dof = 4 if use_affine else 2
     x0 = np.zeros(num_frames * dof, np.float64)
 
@@ -317,18 +315,18 @@ def _init_guess_x0(num_frames: int, use_affine: bool, edges: List[Dict]) -> np.n
 
 def _solve_gnc(
     x0: np.ndarray,
-    edges: List[Dict],
+    edges: list[dict],
     num_frames: int,
     use_affine: bool,
     iterations: int,
-    _gnc_ws: List[float],
+    _gnc_ws: list[float],
 ) -> np.ndarray:
     stride = 4 if use_affine else 2
     tx_off = 2 if use_affine else 0
     ty_off = 3 if use_affine else 1
     c_sq = _GNC_C_PX ** 2
     x_cur = x0.copy()
-    mu: Optional[float] = None
+    mu: float | None = None
 
     for _outer in range(_GNC_OUTER):
         # Per-edge squared translation disagreement
@@ -376,11 +374,11 @@ def _solve_gnc(
 
 def _solve_cauchy(
     x0: np.ndarray,
-    edges: List[Dict],
+    edges: list[dict],
     num_frames: int,
     use_affine: bool,
     iterations: int,
-    _gnc_ws: List[float],
+    _gnc_ws: list[float],
 ) -> np.ndarray:
     result = least_squares(
         _residuals,
@@ -416,11 +414,11 @@ def _solve_cauchy(
 
 
 def _bundle_adjust_affine(
-    edges: List[Dict],
+    edges: list[dict],
     num_frames: int,
     iterations: int = 200,
     use_affine: bool = True,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Global Levenberg-Marquardt bundle adjustment for Affine (6-DOF) or Translation (2-DOF)."""
     if BATCH_AVAILABLE and not use_affine:
         cpp_edges = []
@@ -459,7 +457,7 @@ def _bundle_adjust_affine(
 
     # ── Outlier rejection ───────────────────────────────────────────────────
     if len(edges) >= 3:
-        edge_residuals: List[float] = []
+        edge_residuals: list[float] = []
         for e in edges:
             ei, ej = e["i"], e["j"]
             pred_dx = float(out[ej][0, 2]) - float(out[ei][0, 2])
@@ -475,7 +473,7 @@ def _bundle_adjust_affine(
         edge_dy_vals = [abs(float(e["M"][1, 2])) for e in edges]
         med_dy = float(np.median(edge_dy_vals))
 
-        clean_mask: List[bool] = []
+        clean_mask: list[bool] = []
         for idx, e in enumerate(edges):
             if edge_residuals[idx] > res_threshold:
                 clean_mask.append(False)
@@ -516,8 +514,8 @@ def _bundle_adjust_affine(
 
 
 def _compute_adaptive_f_scale(
-    edges: List[Dict],
-    affines: List[np.ndarray],
+    edges: list[dict],
+    affines: list[np.ndarray],
     floor: float = 5.0,
 ) -> float:
     """Derive a data-driven Cauchy loss scale from post-solve edge residuals.
@@ -557,7 +555,7 @@ def _compute_adaptive_f_scale(
                 "frame_idx": f,
             })
         return batch.bundle_adjust.compute_adaptive_f_scale(cpp_edges, affines_dicts, floor)
-    res_mags: List[float] = []
+    res_mags: list[float] = []
     for e in edges:
         ei, ej = e["i"], e["j"]
         if ei >= len(affines) or ej >= len(affines):

@@ -26,7 +26,6 @@ import dataclasses
 import datetime
 import json
 import os
-from typing import Dict, List, Optional
 
 from ..constants.schema import (
     DIM_COHERENCE,
@@ -40,7 +39,7 @@ from ..constants.schema import (
 )
 
 
-def _clamp_score(value: Optional[int]) -> Optional[int]:
+def _clamp_score(value: int | None) -> int | None:
     """Coerce anything read off disk into a valid score or ``None`` — a
     hand-edited or truncated file must not crash the tool on load."""
     if value is None:
@@ -65,13 +64,13 @@ class BoundingBox:
     h: float
     label: str = ""
     defect: str = ""  # a constants.schema.DEFECT_KEYS member, or "" if untagged
-    severity: Optional[int] = None  # 1-3, see constants.schema.SEVERITY_LABELS
+    severity: int | None = None  # 1-3, see constants.schema.SEVERITY_LABELS
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return dataclasses.asdict(self)
 
     @staticmethod
-    def from_dict(d: Dict) -> "BoundingBox":
+    def from_dict(d: dict) -> BoundingBox:
         return BoundingBox(
             image=d["image"], x=d["x"], y=d["y"], w=d["w"], h=d["h"],
             label=d.get("label", ""),
@@ -105,17 +104,17 @@ class Edge:
     ground truth." Each endpoint is independently a point or a region.
     """
 
-    points: List[EdgePoint]
+    points: list[EdgePoint]
     label: str = ""
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "points": [dataclasses.asdict(p) for p in self.points],
             "label": self.label,
         }
 
     @staticmethod
-    def from_dict(d: Dict) -> "Edge":
+    def from_dict(d: dict) -> Edge:
         # Pre-2026-07-30 shape: exactly two endpoints, {"a": ..., "b": ...}.
         # EdgePoint(**d["a"]) works unchanged since w/h default to 0.0.
         points = [EdgePoint(**p) for p in d["points"]] if "points" in d else [EdgePoint(**d["a"]), EdgePoint(**d["b"])]
@@ -125,27 +124,27 @@ class Edge:
 @dataclasses.dataclass
 class RatingEntry:
     # -- the original, bench-facing fields (never rename or retype these) ---
-    asp: Optional[int] = None
-    simple: Optional[int] = None
+    asp: int | None = None
+    simple: int | None = None
     notes: str = ""
-    bboxes: List[BoundingBox] = dataclasses.field(default_factory=list)
-    edges: List[Edge] = dataclasses.field(default_factory=list)
+    bboxes: list[BoundingBox] = dataclasses.field(default_factory=list)
+    edges: list[Edge] = dataclasses.field(default_factory=list)
 
     # -- additive fields ----------------------------------------------------
     # {image_key: {dimension_key: 0-4}}. The "coherence" dimension of "asp"
     # and "simple" mirrors the two fields above; keeping both is deliberate
     # redundancy so the file stays readable by the old consumer.
-    dimensions: Dict[str, Dict[str, Optional[int]]] = dataclasses.field(default_factory=dict)
-    preference: Optional[str] = None  # constants.schema.PREFERENCE_KEYS
-    confidence: Optional[int] = None  # 1-3
-    defects: List[str] = dataclasses.field(default_factory=list)  # DEFECT_KEYS
+    dimensions: dict[str, dict[str, int | None]] = dataclasses.field(default_factory=dict)
+    preference: str | None = None  # constants.schema.PREFERENCE_KEYS
+    confidence: int | None = None  # 1-3
+    defects: list[str] = dataclasses.field(default_factory=list)  # DEFECT_KEYS
     reviewed: bool = False
     skipped: bool = False
     updated_at: str = ""
 
     # -- score accessors ----------------------------------------------------
 
-    def score(self, image: str, dimension: str = DIM_COHERENCE) -> Optional[int]:
+    def score(self, image: str, dimension: str = DIM_COHERENCE) -> int | None:
         if dimension == DIM_COHERENCE and image in PRIMARY_KEYS:
             # The top-level field is authoritative for the two primary
             # images so a legacy file (no `dimensions` block at all) still
@@ -153,7 +152,7 @@ class RatingEntry:
             return self.asp if image == IMAGE_ASP else self.simple
         return self.dimensions.get(image, {}).get(dimension)
 
-    def set_score(self, image: str, dimension: str, value: Optional[int]) -> None:
+    def set_score(self, image: str, dimension: str, value: int | None) -> None:
         self.dimensions.setdefault(image, {})[dimension] = value
         if dimension == DIM_COHERENCE:
             if image == IMAGE_ASP:
@@ -174,7 +173,7 @@ class RatingEntry:
 
     # -- serialization ------------------------------------------------------
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         doc = {
             "asp": self.asp,
             "simple": self.simple,
@@ -207,10 +206,10 @@ class RatingEntry:
         return doc
 
     @staticmethod
-    def from_dict(d: Dict) -> "RatingEntry":
+    def from_dict(d: dict) -> RatingEntry:
         asp = _clamp_score(d.get("asp"))
         simple = _clamp_score(d.get("simple"))
-        dimensions: Dict[str, Dict[str, Optional[int]]] = {}
+        dimensions: dict[str, dict[str, int | None]] = {}
         for image, dims in (d.get("dimensions") or {}).items():
             if image not in SCORABLE_KEYS or not isinstance(dims, dict):
                 continue
@@ -246,7 +245,7 @@ class RatingEntry:
         return entry
 
 
-def load_evaluations(path: str) -> Dict[str, RatingEntry]:
+def load_evaluations(path: str) -> dict[str, RatingEntry]:
     if not os.path.exists(path):
         return {}
     with open(path) as fh:
@@ -254,7 +253,7 @@ def load_evaluations(path: str) -> Dict[str, RatingEntry]:
     return {name: RatingEntry.from_dict(entry) for name, entry in raw.items()}
 
 
-def save_evaluations(path: str, evaluations: Dict[str, RatingEntry]) -> None:
+def save_evaluations(path: str, evaluations: dict[str, RatingEntry]) -> None:
     doc = {name: entry.to_dict() for name, entry in evaluations.items()}
     tmp_path = f"{path}.tmp"
     with open(tmp_path, "w") as fh:
@@ -262,7 +261,7 @@ def save_evaluations(path: str, evaluations: Dict[str, RatingEntry]) -> None:
     os.replace(tmp_path, path)  # atomic — a mid-write crash never corrupts the real file
 
 
-def rated_names(evaluations: Dict[str, RatingEntry]) -> List[str]:
+def rated_names(evaluations: dict[str, RatingEntry]) -> list[str]:
     """Names carrying a real judgment, in file order — the queue filter the
     old tool got wrong by testing dict membership instead."""
     return [name for name, entry in evaluations.items() if entry.is_rated()]

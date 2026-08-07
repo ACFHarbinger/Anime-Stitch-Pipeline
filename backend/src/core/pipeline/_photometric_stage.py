@@ -11,17 +11,15 @@ benchmark-sensitive method -- see run_stage.py's module docstring).
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
 
 
 def _apply_background_photometric_normalization(
-    frames: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     N: int,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """Normalise per-frame ambient lighting using background-pixel statistics.
 
     Stage 4.5: computes each frame's mean background color (bg_mask > 127)
@@ -39,7 +37,7 @@ def _apply_background_photometric_normalization(
     Returns the corrected frame list (frames may also be mutated in place,
     matching the pre-split behaviour).
     """
-    bg_frame_means: List[Optional[np.ndarray]] = []
+    bg_frame_means: list[np.ndarray | None] = []
     for _i, (_frame, _mask) in enumerate(zip(frames, bg_masks, strict=False)):
         if _mask is not None:
             _bg_px = _frame[_mask > 127].astype(np.float32)

@@ -3,10 +3,7 @@ and ``run()``'s affine-validation retry chain."""
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 import numpy as np
-
 from backend.src.constants import (
     ADAPTIVE_MIN_DISP_FRAC,
     HIGH_CONF_EDGE_THRESH,
@@ -15,9 +12,9 @@ from backend.src.constants import (
 
 
 def _reject_static_edges(
-    edges: List[Dict],
+    edges: list[dict],
     min_disp_px: float = STATIC_EDGE_MIN_DISP_PX,
-) -> List[Dict]:
+) -> list[dict]:
     """§1.2A — Drop edges where |dx| < min_disp_px AND |dy| < min_disp_px.
 
     Rejects near-zero-2D-displacement matches for ALL edges (adjacent and
@@ -36,7 +33,7 @@ def _reject_static_edges(
     ]
 
 
-def _compute_adaptive_min_disp(edges: List[Dict]) -> float:
+def _compute_adaptive_min_disp(edges: list[dict]) -> float:
     """§1.2C — Content-adaptive minimum displacement threshold.
 
     Estimates the expected inter-frame step from the median of adjacent-edge
@@ -61,9 +58,9 @@ def _compute_adaptive_min_disp(edges: List[Dict]) -> float:
 
 
 def _filter_high_conf_edges(
-    edges: List[Dict],
+    edges: list[dict],
     min_weight: float = HIGH_CONF_EDGE_THRESH,
-) -> List[Dict]:
+) -> list[dict]:
     """§2.9C — Keep only edges whose match weight meets the high-confidence floor.
 
     LoFTR edges typically have ``weight`` in [0.7, 0.95]; template-match and
@@ -80,7 +77,7 @@ def _filter_high_conf_edges(
 
 
 def _check_edge_graph_connectivity(
-    edges: List[Dict],
+    edges: list[dict],
     n_frames: int,
 ) -> bool:
     """§1.15: Return True iff all frames 0..n_frames-1 are in one connected component.

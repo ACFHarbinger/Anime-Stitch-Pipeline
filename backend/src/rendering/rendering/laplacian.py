@@ -3,11 +3,9 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
-
 from asp_backend.core.stateless import _laplacian_blend
 
 from . import _native
@@ -16,20 +14,20 @@ logger = logging.getLogger(__name__)
 
 
 def _render_laplacian(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     H: int,
     W: int,
-) -> Tuple[np.ndarray, np.ndarray, List[np.ndarray], List[np.ndarray]]:
+) -> tuple[np.ndarray, np.ndarray, list[np.ndarray], list[np.ndarray]]:
     """
     Perfect Seamless Blender: Sequential Laplacian with Optimal Seams.
     """
     N = len(frames)
 
     # Phase 5f: C++ parallel warpAffine for the laplacian renderer warp step.
-    warped_list: List[np.ndarray] = []
-    mask_list: List[np.ndarray] = []
+    warped_list: list[np.ndarray] = []
+    mask_list: list[np.ndarray] = []
     if _native._BATCH_RENDER:
         try:
             affines_f32 = [np.ascontiguousarray(a, dtype=np.float32) for a in affines]

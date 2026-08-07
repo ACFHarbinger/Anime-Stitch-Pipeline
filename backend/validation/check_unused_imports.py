@@ -16,7 +16,6 @@ import ast
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 try:
     from rich.console import Console
@@ -50,7 +49,7 @@ class UsageVisitor(ast.NodeVisitor):
         Returns:
             None
         """
-        self.used_names: Set[str] = set()
+        self.used_names: set[str] = set()
 
     def visit_Name(self, node: ast.Name):
         """
@@ -88,7 +87,7 @@ class UsageVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def get_factory_line_ranges(tree: ast.AST) -> List[Tuple[int, int]]:
+def get_factory_line_ranges(tree: ast.AST) -> list[tuple[int, int]]:
     """
     Identifies the start and end lines of all classes containing 'Factory'.
 
@@ -111,7 +110,7 @@ def get_factory_line_ranges(tree: ast.AST) -> List[Tuple[int, int]]:
     return ranges
 
 
-def analyze_file(filepath: Path, ignore_factories: bool = False) -> List[Tuple[int, str]]:  # noqa: C901
+def analyze_file(filepath: Path, ignore_factories: bool = False) -> list[tuple[int, str]]:  # noqa: C901
     """
     Return all unused imports in filepath as (lineno, name).
 
@@ -130,10 +129,10 @@ def analyze_file(filepath: Path, ignore_factories: bool = False) -> List[Tuple[i
 
     # 1. Collect all imports
     # name -> (lineno, node)
-    imports: Dict[str, int] = {}
+    imports: dict[str, int] = {}
 
     # Track __all__ to consider those names "used"
-    defined_in_all: Set[str] = set()
+    defined_in_all: set[str] = set()
 
     factory_ranges = get_factory_line_ranges(tree) if ignore_factories else []
 
@@ -230,7 +229,7 @@ def main() -> None:  # noqa: C901
         print(f"{RED}Error: Target path '{target_path}' does not exist.{RESET}")
         sys.exit(1)
 
-    all_unused: Dict[str, List[Tuple[int, str]]] = {}
+    all_unused: dict[str, list[tuple[int, str]]] = {}
     files_analyzed = 0
 
     if target_path.is_file():

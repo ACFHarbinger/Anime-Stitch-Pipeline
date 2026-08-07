@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
 
@@ -12,7 +10,7 @@ from ._native import BATCH_AVAILABLE, batch
 
 def _apply_exclusion_masks(
     cost: np.ndarray,
-    exclusion_masks: Optional[List[np.ndarray]],
+    exclusion_masks: list[np.ndarray] | None,
     zone_h: int,
     zone_w: int,
 ) -> np.ndarray:
@@ -31,11 +29,11 @@ def _apply_exclusion_masks(
 
 def _build_seam_cost_map(
     canvas_zone: np.ndarray,
-    bg_mask_a: Optional[np.ndarray],
-    bg_mask_b: Optional[np.ndarray],
+    bg_mask_a: np.ndarray | None,
+    bg_mask_b: np.ndarray | None,
     dilate_px: int = 15,
-    barrier_cost: Optional[float] = None,
-    exclusion_masks: Optional[List[np.ndarray]] = None,
+    barrier_cost: float | None = None,
+    exclusion_masks: list[np.ndarray] | None = None,
 ) -> np.ndarray:
     if (
         BATCH_AVAILABLE
@@ -154,8 +152,8 @@ def _soft_seam_weight(
     W: int,
     sigma: float = 15.0,
     diffuse_sigma: float = 20.0,
-    bg_mask_a: Optional[np.ndarray] = None,
-    bg_mask_b: Optional[np.ndarray] = None,
+    bg_mask_a: np.ndarray | None = None,
+    bg_mask_b: np.ndarray | None = None,
 ) -> np.ndarray:
     """
     P2.5 / S17+S20 — Spatially-adaptive seam blend weight (DSFN technique).

@@ -32,12 +32,12 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from backend.benchmark.managers import BenchmarkManager, measure_memory  # noqa: E402
 from asp_backend.rendering.compositing import (  # noqa: E402
     _build_seam_cost_map,
     _seam_cut,
     _soft_seam_weight,
 )
+from backend.benchmark.managers import BenchmarkManager, measure_memory  # noqa: E402
 
 
 def _make_zone(h: int, w: int, base: int, noise: int = 10, seed: int = 42) -> np.ndarray:

@@ -14,8 +14,6 @@ against human judgment, which needs the human to have seen both.
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
@@ -45,7 +43,7 @@ _VERDICT_COLORS = {
 }
 
 
-def _metric_table(rows: List[mv.MetricRow], keys: List[str]) -> QTableWidget:
+def _metric_table(rows: list[mv.MetricRow], keys: list[str]) -> QTableWidget:
     table = QTableWidget(len(rows), len(keys) + 1)
     table.setHorizontalHeaderLabels(["Metric"] + [COMPARATOR_TITLES.get(k, k) for k in keys])
     table.verticalHeader().setVisible(False)
@@ -99,7 +97,7 @@ class MetricsPanel(QWidget):
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.addWidget(scroll)
-        self._sections: List[QWidget] = []
+        self._sections: list[QWidget] = []
 
     def _reset(self) -> None:
         for section in self._sections:
@@ -110,7 +108,7 @@ class MetricsPanel(QWidget):
         self._layout.addWidget(widget)
         self._sections.append(widget)
 
-    def set_metrics(self, entry: Dict, run_label: str = "") -> None:
+    def set_metrics(self, entry: dict, run_label: str = "") -> None:
         self._reset()
         if not entry:
             self._add_section(subtle(
@@ -161,7 +159,7 @@ class MetricsPanel(QWidget):
 
         self._layout.addStretch(1)
 
-    def _facts_box(self, entry: Dict, run_label: str) -> QGroupBox:
+    def _facts_box(self, entry: dict, run_label: str) -> QGroupBox:
         box = QGroupBox(f"Benchmark result{f' — {run_label}' if run_label else ''}")
         grid = QGridLayout(box)
         grid.setContentsMargins(6, 4, 6, 6)

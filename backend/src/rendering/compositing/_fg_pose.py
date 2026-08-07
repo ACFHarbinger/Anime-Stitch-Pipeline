@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import numpy as np
-
 from asp_backend.alignment.fg_register import register_foreground_at_seam
 
 from ._boundaries import _dominant_frame_in_band
@@ -115,7 +112,7 @@ def _check_preemptive_escalations(
     seam_single_pose: dict,
     seam_post_diffs: dict,
     H: int,
-    phase_ids: Optional[List[int]] = None,
+    phase_ids: list[int] | None = None,
 ) -> bool:
     # §2.4A: User seam override — force single-pose for this seam.
     _ov_k = (seam_overrides or {}).get(k, {})
@@ -166,7 +163,7 @@ def _apply_foreground_registration(
     alpha_a: float,
     alpha_b: float,
     ref_fi: int,
-    _flow_ov: Optional[np.ndarray],
+    _flow_ov: np.ndarray | None,
     H: int,
 ) -> None:
     adj_a, adj_b, info = register_foreground_at_seam(
@@ -227,7 +224,7 @@ def _register_foreground_poses(
     H: int,
     W: int,
     N: int,
-    phase_ids: Optional[List[int]] = None,
+    phase_ids: list[int] | None = None,
 ) -> tuple:
     seam_single_pose = {}
     seam_post_diffs = {}  # k → post-warp diff score (residual if fallback)

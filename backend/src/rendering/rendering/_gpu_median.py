@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Optional
 
 import numpy as np
 
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 # or if torch raises an exception.  Worth enabling on RTX 3090 Ti.
 # Enable: ASP_GPU_MEDIAN=1.
 _GPU_MEDIAN: bool = os.environ.get("ASP_GPU_MEDIAN", "0") != "0"
-_cuda_available: Optional[bool] = None  # lazily initialised on first call
+_cuda_available: bool | None = None  # lazily initialised on first call
 
 
 def _gpu_nanmedian(arr: np.ndarray) -> np.ndarray:

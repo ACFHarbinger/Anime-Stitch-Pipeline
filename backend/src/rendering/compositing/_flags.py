@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import concurrent.futures as _cf
 import os
-from typing import Optional
 
 from ._native import BATCH_AVAILABLE
 
@@ -14,10 +13,10 @@ from ._native import BATCH_AVAILABLE
 # _composite_foreground call (311 tests × up to 4 workers) causes ~1 200
 # pthread_create/join cycles that stall the Linux CFS scheduler.  One shared
 # pool, created once on first use, eliminates all thread lifecycle overhead.
-_SEAM_POOL: Optional["_cf.ThreadPoolExecutor"] = None
+_SEAM_POOL: _cf.ThreadPoolExecutor | None = None
 
 
-def _get_seam_pool() -> "_cf.ThreadPoolExecutor":
+def _get_seam_pool() -> _cf.ThreadPoolExecutor:
     global _SEAM_POOL
     if _SEAM_POOL is None:
         _SEAM_POOL = _cf.ThreadPoolExecutor(max_workers=4)

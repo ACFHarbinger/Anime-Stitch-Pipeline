@@ -26,7 +26,7 @@ try to paint a million labels.
 
 from __future__ import annotations
 
-from typing import Iterable, List, Optional, Tuple
+from collections.abc import Iterable
 
 import cv2
 import numpy as np
@@ -42,7 +42,13 @@ from PySide6.QtGui import (
     QTransform,
     QWheelEvent,
 )
-from PySide6.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem, QGraphicsScene, QGraphicsView, QSizePolicy
+from PySide6.QtWidgets import (
+    QGraphicsPixmapItem,
+    QGraphicsRectItem,
+    QGraphicsScene,
+    QGraphicsView,
+    QSizePolicy,
+)
 
 from ..constants.user_interface import (
     COL_BBOX,
@@ -107,24 +113,24 @@ class ImagePanel(QGraphicsView):
         self.setMinimumSize(100, 100)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
 
-        self._pixmap_item: Optional[QGraphicsPixmapItem] = None
-        self._image_bgr: Optional[np.ndarray] = None
+        self._pixmap_item: QGraphicsPixmapItem | None = None
+        self._image_bgr: np.ndarray | None = None
         self._fit_scale = 1.0
         self._zoom = 1.0  # multiple of the fitted view, not of native pixels
         self._mode = MODE_NAVIGATE
         self._display_mode = DISPLAY_RAW
-        self._rubber_origin: Optional[QPointF] = None
-        self._rubber_item: Optional[QGraphicsRectItem] = None
-        self._link_origin: Optional[QPointF] = None
-        self._link_rubber: Optional[QGraphicsRectItem] = None
-        self._overlay_items: List[QGraphicsRectItem] = []
+        self._rubber_origin: QPointF | None = None
+        self._rubber_item: QGraphicsRectItem | None = None
+        self._link_origin: QPointF | None = None
+        self._link_rubber: QGraphicsRectItem | None = None
+        self._overlay_items: list[QGraphicsRectItem] = []
         self._syncing = False
-        self._pinned: Optional[Tuple[int, int]] = None
-        self._hover_view_pos: Optional[QPoint] = None
+        self._pinned: tuple[int, int] | None = None
+        self._hover_view_pos: QPoint | None = None
 
     # -- image loading -------------------------------------------------------
 
-    def set_image(self, img: Optional[np.ndarray]) -> None:
+    def set_image(self, img: np.ndarray | None) -> None:
         self._image_bgr = img
         self._scene.clear()
         self._pixmap_item = None
@@ -142,13 +148,13 @@ class ImagePanel(QGraphicsView):
     def has_image(self) -> bool:
         return self._pixmap_item is not None
 
-    def image_size(self) -> Optional[Tuple[int, int]]:
+    def image_size(self) -> tuple[int, int] | None:
         if self._image_bgr is None:
             return None
         h, w = self._image_bgr.shape[:2]
         return w, h
 
-    def current_image(self) -> Optional[np.ndarray]:
+    def current_image(self) -> np.ndarray | None:
         return self._image_bgr
 
     # -- zoom / pan ----------------------------------------------------------
@@ -197,7 +203,7 @@ class ImagePanel(QGraphicsView):
             scale < PIXEL_GRID_ZOOM_THRESHOLD,
         )
 
-    def set_zoom(self, factor: float, anchor: Optional[QPointF] = None, emit: bool = True) -> None:
+    def set_zoom(self, factor: float, anchor: QPointF | None = None, emit: bool = True) -> None:
         if not self.has_image():
             return
         factor = max(ZOOM_MIN, min(ZOOM_MAX, factor))
@@ -214,7 +220,7 @@ class ImagePanel(QGraphicsView):
         if emit:
             self._emit_view_changed()
 
-    def center_norm(self) -> Tuple[float, float]:
+    def center_norm(self) -> tuple[float, float]:
         size = self.image_size()
         if size is None:
             return 0.5, 0.5
@@ -452,7 +458,7 @@ class ImagePanel(QGraphicsView):
             self._scene.removeItem(item)
         self._overlay_items = []
 
-    def scene_point_to_view(self, x_norm: float, y_norm: float) -> Optional[QPointF]:
+    def scene_point_to_view(self, x_norm: float, y_norm: float) -> QPointF | None:
         size = self.image_size()
         if size is None:
             return None
@@ -461,7 +467,7 @@ class ImagePanel(QGraphicsView):
 
     # -- pixel inspection ----------------------------------------------------
 
-    def pixel_at(self, view_pos) -> Optional[Tuple[int, int, Tuple[int, int, int]]]:
+    def pixel_at(self, view_pos) -> tuple[int, int, tuple[int, int, int]] | None:
         if self._image_bgr is None:
             return None
         scene_pt = self.mapToScene(view_pos)
@@ -490,7 +496,7 @@ class ImagePanel(QGraphicsView):
 
     def pixel_region(
         self, x_norm: float, y_norm: float, w_norm: float, h_norm: float
-    ) -> Optional[np.ndarray]:
+    ) -> np.ndarray | None:
         """BGR crop for a normalized bbox — feeds the numeric pixel dump and
         every comparison/visualization tool's "selected region" input."""
         if self._image_bgr is None:
@@ -502,7 +508,7 @@ class ImagePanel(QGraphicsView):
             return None
         return self._image_bgr[y0:y1, x0:x1].copy()
 
-    def visible_region_norm(self) -> Optional[Tuple[float, float, float, float]]:
+    def visible_region_norm(self) -> tuple[float, float, float, float] | None:
         """The currently visible part of the image as a normalized rect — lets
         a tool act on "what I'm looking at" without drawing a box."""
         size = self.image_size()

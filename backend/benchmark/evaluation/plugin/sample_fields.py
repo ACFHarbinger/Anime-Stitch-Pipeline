@@ -14,8 +14,6 @@ tool made impossible by showing one test at a time with no metrics at all.
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 from ..constants.schema import (
     DIMENSION_KEYS,
     IMAGE_ASP,
@@ -43,7 +41,7 @@ _PER_IMAGE_METRICS = (
 _GT_METRICS = ("ssim_vs_gt", "aligned_ssim_vs_gt", "psnr_vs_gt")
 
 
-def _num(value) -> Optional[float]:
+def _num(value) -> float | None:
     if value is None or isinstance(value, bool):
         return None
     try:
@@ -52,7 +50,7 @@ def _num(value) -> Optional[float]:
         return None
 
 
-def run_fields(entry: Dict) -> Dict:
+def run_fields(entry: dict) -> dict:
     """Fields shared by every comparator of one test."""
     comparison = entry.get("comparison") or {}
     gt = entry.get("ground_truth") or {}
@@ -101,7 +99,7 @@ def run_fields(entry: Dict) -> Dict:
     }
 
 
-def human_fields(evaluation: Optional[RatingEntry]) -> Dict:
+def human_fields(evaluation: RatingEntry | None) -> dict:
     """Human judgment as flat fields, prefixed so they group together in the
     sidebar and can never collide with a metric name."""
     if evaluation is None:
@@ -136,7 +134,7 @@ def human_fields(evaluation: Optional[RatingEntry]) -> Dict:
     return fields
 
 
-def disagreement(entry: Dict, evaluation: Optional[RatingEntry]) -> Optional[bool]:
+def disagreement(entry: dict, evaluation: RatingEntry | None) -> bool | None:
     """Whether the human's preference contradicts the recorded verdict.
 
     This is the single most valuable derived field on the triage surface: §0.2's
@@ -158,10 +156,10 @@ def disagreement(entry: Dict, evaluation: Optional[RatingEntry]) -> Optional[boo
     return human != verdict
 
 
-def sample_tags(entry: Dict, evaluation: Optional[RatingEntry]) -> List[str]:
+def sample_tags(entry: dict, evaluation: RatingEntry | None) -> list[str]:
     """Tags are FiftyOne's fastest filter, so the handful of facts a triage pass
     slices on most go here as well as into fields."""
-    tags: List[str] = []
+    tags: list[str] = []
     comparison = entry.get("comparison") or {}
     if comparison.get("verdict"):
         tags.append(f"verdict:{comparison['verdict']}")
@@ -197,7 +195,7 @@ def sample_tags(entry: Dict, evaluation: Optional[RatingEntry]) -> List[str]:
     return tags
 
 
-def image_metric_fields(entry: Dict, image_key: str) -> Dict:
+def image_metric_fields(entry: dict, image_key: str) -> dict:
     """The comparator's own no-reference metrics, plus its GT metrics when it is
     one of the two the pipeline scores against ground truth."""
     block = entry.get(mv.METRICS_BLOCK.get(image_key, ""), {}) or {}
@@ -212,10 +210,10 @@ def image_metric_fields(entry: Dict, image_key: str) -> Dict:
 
 def build_payloads(
     name: str,
-    entry: Dict,
-    paths: Dict[str, str],
-    evaluation: Optional[RatingEntry],
-) -> List[Tuple[str, Dict]]:
+    entry: dict,
+    paths: dict[str, str],
+    evaluation: RatingEntry | None,
+) -> list[tuple[str, dict]]:
     """One ``(comparator_key, fields)`` pair per available comparator image.
 
     ``fields`` carries no ``filepath`` — the caller owns that, since it also
@@ -245,7 +243,7 @@ def build_payloads(
     return payloads
 
 
-def bbox_detections(evaluation: Optional[RatingEntry], image_key: str) -> List[Dict]:
+def bbox_detections(evaluation: RatingEntry | None, image_key: str) -> list[dict]:
     """The user's tagged defect regions for one comparator, in FiftyOne's
     ``[x, y, w, h]`` normalized bounding-box convention — which is already the
     convention ``BoundingBox`` stores, so no conversion is needed.

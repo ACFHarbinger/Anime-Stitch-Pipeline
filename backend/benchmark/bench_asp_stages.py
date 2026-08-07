@@ -41,7 +41,6 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-from backend.benchmark.managers import BenchmarkManager, measure_memory  # noqa: E402
 from asp_backend.alignment import ecc as _ecc_module  # noqa: E402
 from asp_backend.alignment.bundle_adjust import (  # noqa: E402
     _bundle_adjust_affine,
@@ -50,6 +49,7 @@ from asp_backend.alignment.bundle_adjust import (  # noqa: E402
 from asp_backend.alignment.ecc import _ecc_refine  # noqa: E402
 from asp_backend.alignment.matching import _pairwise_match  # noqa: E402
 from asp_backend.rendering.compositing import _composite_foreground  # noqa: E402
+from backend.benchmark.managers import BenchmarkManager, measure_memory  # noqa: E402
 
 try:
     from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper  # type: ignore[import]

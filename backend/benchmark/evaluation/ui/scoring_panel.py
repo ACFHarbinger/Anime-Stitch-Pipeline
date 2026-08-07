@@ -16,8 +16,6 @@ sync, so there's no separate "overall" control to forget to fill in.
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
-
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QButtonGroup,
@@ -70,7 +68,7 @@ class ScoreRow(QWidget):
         layout.addWidget(name)
         self._group = QButtonGroup(self)
         self._group.setExclusive(False)
-        self._buttons: List[QPushButton] = []
+        self._buttons: list[QPushButton] = []
         for value in range(SCORE_MIN, SCORE_MAX + 1):
             btn = QPushButton(str(value))
             btn.setCheckable(True)
@@ -82,7 +80,7 @@ class ScoreRow(QWidget):
             layout.addWidget(btn)
             self._buttons.append(btn)
         layout.addStretch(1)
-        self._score: Optional[int] = None
+        self._score: int | None = None
 
     def _on_clicked(self, value: int) -> None:
         # Clicking the active score clears it, so a mis-hit is one click to
@@ -90,12 +88,12 @@ class ScoreRow(QWidget):
         self.set_score(None if self._score == value else value)
         self.scoreChanged.emit(self.image_key, self.dimension, self._score)
 
-    def set_score(self, score: Optional[int]) -> None:
+    def set_score(self, score: int | None) -> None:
         self._score = score
         for value, btn in enumerate(self._buttons):
             btn.setChecked(value == score)
 
-    def score(self) -> Optional[int]:
+    def score(self) -> int | None:
         return self._score
 
     def refresh_theme(self) -> None:
@@ -120,7 +118,7 @@ class ImageScoreBlock(QGroupBox):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(8, 4, 8, 6)
         layout.setSpacing(2)
-        self.rows: Dict[str, ScoreRow] = {}
+        self.rows: dict[str, ScoreRow] = {}
         for dim_key, dim_label, dim_hint in DIMENSIONS:
             row = ScoreRow(image_key, dim_key, dim_label, dim_hint)
             row.scoreChanged.connect(self.scoreChanged.emit)
@@ -131,7 +129,7 @@ class ImageScoreBlock(QGroupBox):
         for dim_key, row in self.rows.items():
             row.set_score(entry.score(self.image_key, dim_key))
 
-    def set_score(self, dimension: str, score: Optional[int]) -> None:
+    def set_score(self, dimension: str, score: int | None) -> None:
         row = self.rows.get(dimension)
         if row is not None:
             row.set_score(score)
@@ -163,7 +161,7 @@ class ScoringPanel(QWidget):
         super().__init__(parent)
         self._entry = RatingEntry()
         self._loading = False
-        self.blocks: Dict[str, ImageScoreBlock] = {}
+        self.blocks: dict[str, ImageScoreBlock] = {}
 
         self._blocks_host = QWidget()
         self._blocks_layout = QVBoxLayout(self._blocks_host)
@@ -209,7 +207,7 @@ class ScoringPanel(QWidget):
         pref_row.setSpacing(4)
         self._pref_group = QButtonGroup(self)
         self._pref_group.setExclusive(False)
-        self._pref_buttons: Dict[str, QPushButton] = {}
+        self._pref_buttons: dict[str, QPushButton] = {}
         for key, label in PREFERENCES:
             btn = QPushButton(label)
             btn.setCheckable(True)
@@ -224,7 +222,7 @@ class ScoringPanel(QWidget):
         conf_row.addWidget(subtle("Confidence"))
         self._conf_group = QButtonGroup(self)
         self._conf_group.setExclusive(False)
-        self._conf_buttons: Dict[int, QPushButton] = {}
+        self._conf_buttons: dict[int, QPushButton] = {}
         for value, label in sorted(CONFIDENCE_LABELS.items()):
             btn = QPushButton(label)
             btn.setCheckable(True)
@@ -241,7 +239,7 @@ class ScoringPanel(QWidget):
         grid = QGridLayout(box)
         grid.setContentsMargins(8, 4, 8, 6)
         grid.setSpacing(4)
-        self._defect_buttons: Dict[str, QPushButton] = {}
+        self._defect_buttons: dict[str, QPushButton] = {}
         # The last entry ("Other") is deliberately unnumbered — it has no
         # keyboard shortcut (0-9 are all spoken for) and is described in the
         # notes, so it gets the full row width instead of sharing a slot.
@@ -278,7 +276,7 @@ class ScoringPanel(QWidget):
 
     # -- content -------------------------------------------------------------
 
-    def set_comparators(self, keys: List[str]) -> None:
+    def set_comparators(self, keys: list[str]) -> None:
         """Rebuild the score blocks for the comparators this test actually has,
         so a test without an Overmix output shows no dead Overmix rows."""
         for block in self.blocks.values():
@@ -318,11 +316,11 @@ class ScoringPanel(QWidget):
         if not self._loading:
             self.changed.emit()
 
-    def _on_score_changed(self, image_key: str, dimension: str, score: Optional[int]) -> None:
+    def _on_score_changed(self, image_key: str, dimension: str, score: int | None) -> None:
         self._entry.set_score(image_key, dimension, score)
         self._emit_changed()
 
-    def score_focused(self, image_key: str, score: Optional[int], dimension: str = DIM_COHERENCE) -> bool:
+    def score_focused(self, image_key: str, score: int | None, dimension: str = DIM_COHERENCE) -> bool:
         """Set a score from a keypress. Returns False when the target block
         isn't present, so the caller can report why nothing happened."""
         block = self.blocks.get(image_key)
@@ -333,14 +331,14 @@ class ScoringPanel(QWidget):
         self._emit_changed()
         return True
 
-    def set_preference(self, key: Optional[str], toggle: bool = False) -> None:
+    def set_preference(self, key: str | None, toggle: bool = False) -> None:
         if toggle and self._entry.preference == key:
             key = None
         self._entry.preference = key
         self._sync_preference_buttons()
         self._emit_changed()
 
-    def set_confidence(self, value: Optional[int], toggle: bool = False) -> None:
+    def set_confidence(self, value: int | None, toggle: bool = False) -> None:
         if toggle and self._entry.confidence == value:
             value = None
         self._entry.confidence = value
@@ -354,7 +352,7 @@ class ScoringPanel(QWidget):
         self._sync_defect_buttons()
         self._emit_changed()
 
-    def toggle_defect_index(self, index: int) -> Optional[str]:
+    def toggle_defect_index(self, index: int) -> str | None:
         if not (0 <= index < len(DEFECTS)):
             return None
         key = DEFECTS[index][0]
@@ -384,7 +382,7 @@ class ScoringPanel(QWidget):
         for block in self.blocks.values():
             block.refresh_theme()
 
-    def missing_required(self) -> List[str]:
+    def missing_required(self) -> list[str]:
         """Which required scores are still blank. Only the ASP and Simple
         coherence rows are required — those two are what the benchmark's veto
         logic reads, and demanding all 20 sub-scores would make the pass

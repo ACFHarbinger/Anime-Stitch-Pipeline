@@ -20,7 +20,7 @@ import base64
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 try:
     import numpy as np
@@ -50,7 +50,7 @@ def _encode_array(arr: Any) -> dict:
     }
 
 
-def _decode_array(d: dict) -> Optional[Any]:
+def _decode_array(d: dict) -> Any | None:
     """Decode a JSON dict back to a numpy array, or None if it was skipped."""
     if d.get("skipped"):
         return None
@@ -89,7 +89,7 @@ def _from_json(obj: Any) -> Any:
 # ---------------------------------------------------------------------------
 
 
-def save_session(overrides: Dict[str, dict], path: str) -> None:
+def save_session(overrides: dict[str, dict], path: str) -> None:
     """Write accumulated checkpoint overrides to *path* as JSON."""
     payload = {
         "version": 1,
@@ -101,7 +101,7 @@ def save_session(overrides: Dict[str, dict], path: str) -> None:
     p.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def load_session(path: str) -> Dict[str, dict]:
+def load_session(path: str) -> dict[str, dict]:
     """Read a session JSON file and return the checkpoints dict."""
     raw = json.loads(Path(path).read_text(encoding="utf-8"))
     checkpoints = raw.get("checkpoints", {})

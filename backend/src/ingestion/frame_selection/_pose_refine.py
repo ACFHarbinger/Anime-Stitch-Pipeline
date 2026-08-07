@@ -17,7 +17,6 @@ Similarity metric priority:
 from __future__ import annotations
 
 import os
-from typing import List, Optional
 
 import numpy as np
 
@@ -50,21 +49,21 @@ except ValueError:
 
 
 def _pass2_pose_refine(  # noqa: C901
-    selected_v1: List[int],
+    selected_v1: list[int],
     N: int,
-    thumbs: List[np.ndarray],
-    dinov2_features: Optional[np.ndarray],
-    fg_thumb_mask: Optional[np.ndarray],
-    cumpos: List[float],
+    thumbs: list[np.ndarray],
+    dinov2_features: np.ndarray | None,
+    fg_thumb_mask: np.ndarray | None,
+    cumpos: list[float],
     dominant_sign: int,
     min_step_px: float,
-    hold_ids: List[int],
+    hold_ids: list[int],
     hold_threshold: float,
     pw: float,
     phase_aware_select: bool,
     phase_cross_penalty: float,
     verbose: bool,
-) -> List[int]:
+) -> list[int]:
     """Refine ``selected_v1`` (Pass 1's greedy selection) toward pose-consistent
     neighbours. Returns ``selected_v1`` unchanged when Pass 2 is inactive
     (``pw <= 0``) or there are too few interior frames to refine.
@@ -77,7 +76,7 @@ def _pass2_pose_refine(  # noqa: C901
     # up with `candidates`/`s_prev` below. This is a proxy for the real §2.2
     # phase_ids (which run later, on the final selected set) — good enough
     # for a same-vs-different-phase tie-break signal at selection time.
-    _cand_phase_ids: Optional[List[int]] = None
+    _cand_phase_ids: list[int] | None = None
     if phase_aware_select:
         _cand_hashes = [_compute_dhash(t) for t in thumbs]
         _cand_phase_ids = _phase_ids_from_hashes(_cand_hashes)
@@ -88,7 +87,7 @@ def _pass2_pose_refine(  # noqa: C901
             )
 
     # Try to compute DINOv2 features when Pass 2 is active.
-    _dino_feats: Optional[np.ndarray] = _compute_dinov2_features(thumbs)
+    _dino_feats: np.ndarray | None = _compute_dinov2_features(thumbs)
     if _dino_feats is not None and verbose:
         print(f"  [PoseSelect] DINOv2 features: {_dino_feats.shape} loaded.")
     elif verbose:
@@ -100,7 +99,7 @@ def _pass2_pose_refine(  # noqa: C901
             return 1.0 - float(np.dot(_dino_feats[i], _dino_feats[j]))
         return _fg_center_diff(thumbs[i], thumbs[j], fg_thumb_mask)
 
-    refined: List[int] = [selected_v1[0]]
+    refined: list[int] = [selected_v1[0]]
     n_subs = 0
     for k in range(1, len(selected_v1) - 1):
         s_prev = refined[-1]

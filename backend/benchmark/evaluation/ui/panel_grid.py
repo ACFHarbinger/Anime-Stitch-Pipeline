@@ -14,7 +14,7 @@ mirrors pan, which the old "Synchronized zoom" checkbox never did.
 
 from __future__ import annotations
 
-from typing import Callable, Dict, Iterable, List, Optional
+from collections.abc import Callable, Iterable
 
 import numpy as np
 from PySide6.QtCore import QEvent, QObject, Qt, Signal
@@ -132,7 +132,7 @@ class _PanelCell(QWidget):
             self.title_label.setCursor(Qt.CursorShape.OpenHandCursor)
         return False  # never consume — the title label has nothing else to do with these
 
-    def _cell_under_global_pos(self, global_pos) -> Optional["_PanelCell"]:
+    def _cell_under_global_pos(self, global_pos) -> _PanelCell | None:
         grid = self.parentWidget()
         while grid is not None and not isinstance(grid, PanelGrid):
             grid = grid.parentWidget()
@@ -159,19 +159,19 @@ class PanelGrid(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.panels: Dict[str, ImagePanel] = {}
-        self.cells: Dict[str, _PanelCell] = {}
-        self._visible: List[str] = []
-        self._available: List[str] = []
+        self.panels: dict[str, ImagePanel] = {}
+        self.cells: dict[str, _PanelCell] = {}
+        self._visible: list[str] = []
+        self._available: list[str] = []
         # A user preference, not a per-test fact — persists across the whole
         # session as the user navigates the 97-test queue, only ever changed
         # by an explicit drag. Independent of COMPARATOR_KEYS' fixed order so
         # e.g. Ground Truth can be dragged in between two stitcher outputs.
-        self._order: List[str] = list(COMPARATOR_KEYS)
+        self._order: list[str] = list(COMPARATOR_KEYS)
         self._layout_mode = LAYOUT_ROW
         self._locked = True
-        self._focus_key: Optional[str] = None
-        self._images: Dict[str, np.ndarray] = {}
+        self._focus_key: str | None = None
+        self._images: dict[str, np.ndarray] = {}
 
         for key in COMPARATOR_KEYS:
             panel = ImagePanel(key, COMPARATOR_TITLES[key])
@@ -208,7 +208,7 @@ class PanelGrid(QWidget):
 
     # -- content -------------------------------------------------------------
 
-    def set_images(self, images: Dict[str, np.ndarray]) -> None:
+    def set_images(self, images: dict[str, np.ndarray]) -> None:
         """Load a test's comparators. Panels for absent comparators are cleared
         and dropped from the visible set, so a test without ground truth simply
         shows fewer panels rather than an empty box. The user's custom panel
@@ -226,16 +226,16 @@ class PanelGrid(QWidget):
         if self._focus_key not in self._visible:
             self.set_focus(self._visible[0] if self._visible else None)
 
-    def available(self) -> List[str]:
+    def available(self) -> list[str]:
         return list(self._available)
 
-    def visible(self) -> List[str]:
+    def visible(self) -> list[str]:
         return list(self._visible)
 
-    def image(self, key: str) -> Optional[np.ndarray]:
+    def image(self, key: str) -> np.ndarray | None:
         return self._images.get(key)
 
-    def images(self) -> Dict[str, np.ndarray]:
+    def images(self) -> dict[str, np.ndarray]:
         return dict(self._images)
 
     def restore_bboxes(self, bboxes: Iterable[BoundingBox]) -> None:
@@ -251,7 +251,7 @@ class PanelGrid(QWidget):
         self._visible = [k for k in self._order if k in set(keys) and k in available_set]
         self._relayout()
 
-    def order(self) -> List[str]:
+    def order(self) -> list[str]:
         return list(self._order)
 
     def set_order(self, order: Iterable[str]) -> None:
@@ -345,10 +345,10 @@ class PanelGrid(QWidget):
 
     # -- focus ---------------------------------------------------------------
 
-    def focus_key(self) -> Optional[str]:
+    def focus_key(self) -> str | None:
         return self._focus_key
 
-    def set_focus(self, key: Optional[str]) -> None:
+    def set_focus(self, key: str | None) -> None:
         if key is not None and key not in self.panels:
             return
         self._focus_key = key
@@ -364,7 +364,7 @@ class PanelGrid(QWidget):
         index = self._visible.index(self._focus_key) if self._focus_key in self._visible else -1 if step > 0 else 0
         self.set_focus(self._visible[(index + step) % len(self._visible)])
 
-    def focused_panel(self) -> Optional[ImagePanel]:
+    def focused_panel(self) -> ImagePanel | None:
         return self.panels.get(self._focus_key) if self._focus_key else None
 
     def refresh_theme(self) -> None:

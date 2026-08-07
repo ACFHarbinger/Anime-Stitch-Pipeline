@@ -8,7 +8,6 @@ stitch pipeline: near-static triplets, blurry/artifacted frames, low-contrast
 from __future__ import annotations
 
 import os
-from typing import List
 
 import cv2
 import numpy as np
@@ -56,10 +55,10 @@ except ValueError:
 
 
 def _temporal_variance_filter(
-    thumbs: List[np.ndarray],
-    paths: List[str],
+    thumbs: list[np.ndarray],
+    paths: list[str],
     sigma_threshold: float = 1e-3,
-) -> "tuple[List[np.ndarray], List[str], int]":
+) -> tuple[list[np.ndarray], list[str], int]:
     """§1.2D — Drop near-static interior frames using temporal variance across triplets.
 
     For each interior frame *i* (not first or last) compute the mean per-pixel
@@ -132,11 +131,11 @@ def _temporal_variance_filter(
 
 
 def _reject_blurry_frames(
-    thumbs: List[np.ndarray],
-    paths: List[str],
+    thumbs: list[np.ndarray],
+    paths: list[str],
     blur_threshold: float,
     thumb_size: int = 64,
-) -> "tuple[List[np.ndarray], List[str], int]":
+) -> tuple[list[np.ndarray], list[str], int]:
     """§1.2E — Drop interior frames with Laplacian variance below blur_threshold.
 
     Resizes each grayscale float32 thumbnail to ``thumb_size``×``thumb_size``,
@@ -185,10 +184,10 @@ def _reject_blurry_frames(
 
 
 def _reject_low_contrast_frames(
-    thumbs: List[np.ndarray],
-    paths: List[str],
+    thumbs: list[np.ndarray],
+    paths: list[str],
     contrast_threshold: float,
-) -> "tuple[List[np.ndarray], List[str], int]":
+) -> tuple[list[np.ndarray], list[str], int]:
     """§1.46: Drop interior frames with pixel std below *contrast_threshold*.
 
     Measures contrast as the standard deviation of the grayscale thumbnail in
@@ -237,10 +236,10 @@ def _reject_low_contrast_frames(
 
 
 def _near_dup_luma_filter(
-    selected_thumbs: List[np.ndarray],
-    selected_paths: List[str],
+    selected_thumbs: list[np.ndarray],
+    selected_paths: list[str],
     threshold: float = 5.0,
-) -> List[str]:
+) -> list[str]:
     """
     §1.2B: Drop consecutive near-duplicate frames from the selected list.
 
@@ -280,7 +279,7 @@ def _near_dup_luma_filter(
             return t.astype(np.float32)
         return cv2.cvtColor(t, cv2.COLOR_BGR2GRAY).astype(np.float32)
 
-    keep: List[int] = [0]
+    keep: list[int] = [0]
     # Determine threshold scale: float32 [0,1] thumbs need threshold in [0,1];
     # uint8 thumbs compare in [0,255] space directly.
     _is_float_thumb = selected_thumbs[0].dtype != np.uint8

@@ -15,14 +15,13 @@ from __future__ import annotations
 import dataclasses
 import os
 import shutil
-from typing import List, Optional
 
 
 @dataclasses.dataclass
 class Preflight:
     ok: bool
-    problems: List[str]
-    hints: List[str]
+    problems: list[str]
+    hints: list[str]
 
     def message(self) -> str:
         lines = []
@@ -53,8 +52,8 @@ def check(require_db: bool = True) -> Preflight:
     ``require_db=False`` checks only that the package imports, which is enough
     for the payload-mapping code paths that never touch the database.
     """
-    problems: List[str] = []
-    hints: List[str] = []
+    problems: list[str] = []
+    hints: list[str] = []
 
     try:
         import fiftyone  # noqa: F401
@@ -83,7 +82,7 @@ def check(require_db: bool = True) -> Preflight:
     return Preflight(ok=False, problems=problems, hints=hints)
 
 
-def _bundled_mongod() -> Optional[str]:
+def _bundled_mongod() -> str | None:
     try:
         import fiftyone.db as fiftyone_db
     except ImportError:

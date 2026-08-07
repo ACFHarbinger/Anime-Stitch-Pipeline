@@ -20,7 +20,6 @@ attributable to a stage.
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional
 
 import cv2
 from PySide6.QtCore import Qt
@@ -44,9 +43,9 @@ from .theme import subtle
 class ArtifactsTab(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._groups: Dict[str, List[str]] = {}
-        self._plots: List[str] = []
-        self._current: List[str] = []
+        self._groups: dict[str, list[str]] = {}
+        self._plots: list[str] = []
+        self._current: list[str] = []
 
         self._tree = QTreeWidget()
         self._tree.setHeaderHidden(True)
@@ -80,7 +79,7 @@ class ArtifactsTab(QWidget):
         self._preview_host.setLayout(preview)
 
         self._right_host = QWidget()
-        self._right_layout: Optional[QBoxLayout] = None
+        self._right_layout: QBoxLayout | None = None
         self._relayout_right()
 
         outer = QHBoxLayout(self)
@@ -106,7 +105,7 @@ class ArtifactsTab(QWidget):
         self._right_layout = layout
         self._right_host.setLayout(layout)
 
-    def set_assets(self, assets: Optional[TestAssets]) -> None:
+    def set_assets(self, assets: TestAssets | None) -> None:
         self._tree.clear()
         self._panel.set_image(None)
         self._filmstrip.setVisible(False)
@@ -142,7 +141,7 @@ class ArtifactsTab(QWidget):
         else:
             self._caption.setText("Select an artifact.")
 
-    def _on_selected(self, current: Optional[QTreeWidgetItem], _previous) -> None:
+    def _on_selected(self, current: QTreeWidgetItem | None, _previous) -> None:
         if current is None:
             return
         paths = current.data(0, Qt.ItemDataRole.UserRole)

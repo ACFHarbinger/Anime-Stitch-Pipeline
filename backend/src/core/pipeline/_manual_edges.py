@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import cv2
 import numpy as np
 
@@ -14,7 +12,7 @@ def _build_manual_edge(
     dx: float,
     dy: float,
     weight: float = 0.9,
-) -> Dict:
+) -> dict:
     """§S89: Construct a pipeline-compatible edge dict from a user-supplied displacement.
 
     The affine M is a pure translation: [[1, 0, dx], [0, 1, dy]].
@@ -50,9 +48,9 @@ def _build_manual_edge(
 def _build_landmark_affine(
     i: int,
     j: int,
-    landmark_pairs: "List[Tuple[Tuple[float, float], Tuple[float, float]]]",
+    landmark_pairs: list[tuple[tuple[float, float], tuple[float, float]]],
     weight: float = 0.95,
-) -> Dict:
+) -> dict:
     """§2.9A: Build a pipeline edge dict from user-placed landmark point pairs.
 
     Constructs a least-squares affine (or partial-affine / translation) from
@@ -86,7 +84,7 @@ def _build_landmark_affine(
     pts_i = np.array([[p[0][0], p[0][1]] for p in landmark_pairs], dtype=np.float32)
     pts_j = np.array([[p[1][0], p[1][1]] for p in landmark_pairs], dtype=np.float32)
 
-    M: Optional[np.ndarray] = None
+    M: np.ndarray | None = None
     n = len(landmark_pairs)
     if n >= 3:
         M_est, inliers = cv2.estimateAffine2D(pts_i, pts_j, method=cv2.LMEDS)

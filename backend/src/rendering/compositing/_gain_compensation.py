@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import cv2
 import numpy as np
-
 from backend.src.constants import LUMINANCE_WEIGHTS
 
 from ._flags import _JOINT_GAIN_SIGMA_G, _JOINT_GAIN_SIGMA_N
@@ -165,8 +162,8 @@ def _bg_gain_unclamped(
 
 
 def _joint_gain_solve(
-    warped_frames: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
+    warped_frames: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
     sigma_n: float = 10.0,
     sigma_g: float = 0.1,
 ) -> np.ndarray:
@@ -191,7 +188,7 @@ def _joint_gain_solve(
     if N < 2:
         return np.ones(N, dtype=np.float64)
 
-    overlaps: List[Tuple[int, int, float, float, int]] = []
+    overlaps: list[tuple[int, int, float, float, int]] = []
     for i in range(N):
         if warped_bg[i] is None:
             continue
@@ -249,9 +246,9 @@ def _joint_gain_solve(
 
 
 def _apply_joint_gain_solve(
-    warped_frames: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
-) -> List[np.ndarray]:
+    warped_frames: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
+) -> list[np.ndarray]:
     """Solve §3.1's joint gain system and apply each frame's scalar gain to
     its own bg-only pixels (matches _normalize_single_frame's convention —
     foreground/character pixels are never touched by a background exposure
@@ -273,9 +270,9 @@ def _apply_joint_gain_solve(
 
 
 def _equalize_warped_gains(
-    warped_frames: List[np.ndarray],
+    warped_frames: list[np.ndarray],
     block_size: int = 32,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """§4.10: Equalize inter-frame luminance before seam finding.
 
     Sequential pairwise gain compensation: frame 0 is the reference; each
@@ -285,7 +282,7 @@ def _equalize_warped_gains(
     """
     if len(warped_frames) < 2:
         return [f.copy() for f in warped_frames]
-    result: List[np.ndarray] = [warped_frames[0].copy()]
+    result: list[np.ndarray] = [warped_frames[0].copy()]
     for i in range(1, len(warped_frames)):
         prev = result[i - 1]
         curr = warped_frames[i]

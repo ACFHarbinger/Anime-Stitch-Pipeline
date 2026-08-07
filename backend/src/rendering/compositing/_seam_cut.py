@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import cv2
 import numpy as np
-from scipy.ndimage import minimum_filter1d as _min_filt1d
-
 from backend.src.constants import LUMINANCE_WEIGHTS
+from scipy.ndimage import minimum_filter1d as _min_filt1d
 
 from ._native import BATCH_AVAILABLE, batch
 
@@ -17,7 +14,7 @@ def _compute_seam_energy(
     img1: np.ndarray,
     img2: np.ndarray,
     edge_weight: float,
-    sem_cost: Optional[np.ndarray],
+    sem_cost: np.ndarray | None,
     sem_weight: float,
 ) -> np.ndarray:
     diff = cv2.absdiff(img1, img2).astype(np.float32).dot(LUMINANCE_WEIGHTS)
@@ -42,9 +39,9 @@ def _seam_cut_batch(
     img1: np.ndarray,
     img2: np.ndarray,
     edge_weight: float,
-    sem_cost: Optional[np.ndarray],
+    sem_cost: np.ndarray | None,
     sem_weight: float,
-    waypoints: Optional[List[Tuple[int, int]]],
+    waypoints: list[tuple[int, int]] | None,
 ) -> np.ndarray:
     w_list = []
     if waypoints:
@@ -59,9 +56,9 @@ def _seam_cut_batch(
 def _prepare_waypoints(
     W_e: int,
     h_e: int,
-    waypoints: Optional[List[Tuple[int, int]]],
-) -> Tuple[Dict[int, int], np.ndarray]:
-    wp_force: Dict[int, int] = {}
+    waypoints: list[tuple[int, int]] | None,
+) -> tuple[dict[int, int], np.ndarray]:
+    wp_force: dict[int, int] = {}
     wp_inf_mask = np.zeros((W_e, h_e), dtype=bool)
     if waypoints:
         for x_wp, y_wp in waypoints:
@@ -76,9 +73,9 @@ def _seam_cut_python(
     img1: np.ndarray,
     img2: np.ndarray,
     edge_weight: float = 15.0,
-    sem_cost: Optional[np.ndarray] = None,
+    sem_cost: np.ndarray | None = None,
     sem_weight: float = 200.0,
-    waypoints: Optional[List[Tuple[int, int]]] = None,
+    waypoints: list[tuple[int, int]] | None = None,
 ) -> np.ndarray:
     """
     DP seam cut that strongly avoids outlines in *either* frame.
@@ -128,9 +125,9 @@ def _seam_cut(
     img1: np.ndarray,
     img2: np.ndarray,
     edge_weight: float = 15.0,
-    sem_cost: Optional[np.ndarray] = None,
+    sem_cost: np.ndarray | None = None,
     sem_weight: float = 200.0,
-    waypoints: Optional[List[Tuple[int, int]]] = None,
+    waypoints: list[tuple[int, int]] | None = None,
 ) -> np.ndarray:
     """Public seam-cut entry point.  Dispatches to C++ or Python DP backend,
     then re-applies §2.11A waypoint hard-pins so both backends behave

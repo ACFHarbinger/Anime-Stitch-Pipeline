@@ -14,7 +14,7 @@ from __future__ import annotations
 
 # --------------------------------
 import os
-from typing import List, NamedTuple, Tuple
+from typing import NamedTuple
 
 import numpy as np
 
@@ -73,10 +73,10 @@ except ValueError:
 
 
 def _check_translation_monotonicity(
-    affines: List[np.ndarray],
+    affines: list[np.ndarray],
     primary_axis: int = 1,
     min_tau_abs: float = _MONO_TAU_MIN,
-) -> Tuple[bool, float]:
+) -> tuple[bool, float]:
     """§1.12: Verify that frame translations are spatially ordered consistently
     with their temporal (frame-index) order, measured by |Kendall τ|.
 
@@ -140,7 +140,7 @@ class AffineHealth(NamedTuple):
 
 
 def _validate_affines(
-    affines: List[np.ndarray],
+    affines: list[np.ndarray],
     min_step: float = 25.0,
     max_ratio: float = 3.0,
     max_rotation: float = 0.1,
@@ -244,7 +244,7 @@ def _validate_affines(
     return AffineHealth(True, ratio, min_gap, max_rot, max_sc, "ok")
 
 
-def _compute_adaptive_min_gap(affines: List[np.ndarray]) -> float:
+def _compute_adaptive_min_gap(affines: list[np.ndarray]) -> float:
     """§0.5C/§0.7 — Content-adaptive minimum-gap threshold for _validate_affines.
 
     Returns ``max(20.0, canvas_span / (N × 3))`` where ``canvas_span`` is:
@@ -292,8 +292,8 @@ def _compute_adaptive_min_gap(affines: List[np.ndarray]) -> float:
 
 
 def _compute_adaptive_rot_scale(
-    affines: List[np.ndarray],
-) -> Tuple[float, float]:
+    affines: list[np.ndarray],
+) -> tuple[float, float]:
     """§0.5D — Adaptive rotation/scale thresholds for _validate_affines.
 
     Returns ``(max_rotation, max_scale_dev)``.  When rotation (or scale) is

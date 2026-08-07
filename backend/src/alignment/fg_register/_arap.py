@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Optional, Tuple
 
 import cv2
 import numpy as np
@@ -177,8 +176,8 @@ def _arap_regularise(  # noqa: C901
     fg_mask: np.ndarray,
     cell_size: int = 32,
     n_iter: int = 3,
-    image: Optional[np.ndarray] = None,
-    image_offset: Tuple[int, int] = (0, 0),
+    image: np.ndarray | None = None,
+    image_offset: tuple[int, int] = (0, 0),
 ) -> np.ndarray:
     """
     A3 — As-Rigid-As-Possible regularisation of an optical-flow field.
@@ -249,7 +248,7 @@ def _arap_regularise(  # noqa: C901
     # crop for efficiency).  Line coordinates are shifted from image-space to
     # canvas-space via image_offset so they map correctly to the full-canvas
     # cell grid built from ``flow`` (shape H×W).
-    lsd_lines: Optional[list] = None
+    lsd_lines: list | None = None
     if image is not None:
         try:
             lsd = cv2.createLineSegmentDetector()

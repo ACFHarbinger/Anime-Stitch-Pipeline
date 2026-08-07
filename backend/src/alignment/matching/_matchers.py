@@ -7,11 +7,8 @@ chain, from most to least precise.
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 import cv2
 import numpy as np
-
 from asp_backend.core.stateless import _highpass, _luma
 from backend.src.constants import MIN_TEMPLATE_SCORE, PC_CONF_THRESHOLD
 
@@ -19,14 +16,14 @@ from backend.src.constants import MIN_TEMPLATE_SCORE, PC_CONF_THRESHOLD
 def _template_match(
     img_i: np.ndarray,
     img_j: np.ndarray,
-    m_i: Optional[np.ndarray],
-    m_j: Optional[np.ndarray],
+    m_i: np.ndarray | None,
+    m_j: np.ndarray | None,
     H: int,
     slice_h: int = 256,
     max_search_frac: float = 0.8,
     direction_sign: int = 0,
     max_dy_frac: float = 0.70,
-) -> Tuple[Optional[np.ndarray], float]:
+) -> tuple[np.ndarray | None, float]:
     """
     Bidirectional template match: handles both upward and downward pans.
 
@@ -99,10 +96,10 @@ def _template_match(
 def _phase_correlate(
     img_i: np.ndarray,
     img_j: np.ndarray,
-    m_i: Optional[np.ndarray],
-    m_j: Optional[np.ndarray],
+    m_i: np.ndarray | None,
+    m_j: np.ndarray | None,
     use_mask: bool = True,
-) -> Tuple[Optional[np.ndarray], float]:
+) -> tuple[np.ndarray | None, float]:
     """
     Phase correlation on high-pass filtered Y' channels.
 
@@ -138,12 +135,12 @@ def _phase_correlate(
 def _segment_guided_match(
     img_i: np.ndarray,
     img_j: np.ndarray,
-    mask_i: Optional[np.ndarray] = None,
-    mask_j: Optional[np.ndarray] = None,
+    mask_i: np.ndarray | None = None,
+    mask_j: np.ndarray | None = None,
     n_colors: int = 16,
     min_seg_px: int = 400,
     min_segs: int = 6,
-) -> Tuple[Optional[np.ndarray], float]:
+) -> tuple[np.ndarray | None, float]:
     """
     P2.9 — Segment-guided matching (AnimeInterp technique).
 
@@ -159,8 +156,8 @@ def _segment_guided_match(
     h, w = img_i.shape[:2]
 
     def _segment(
-        img: np.ndarray, mask: Optional[np.ndarray]
-    ) -> Tuple[np.ndarray, np.ndarray]:
+        img: np.ndarray, mask: np.ndarray | None
+    ) -> tuple[np.ndarray, np.ndarray]:
         # Downscale for speed (mean-shift is O(N²))
         scale = min(1.0, 320.0 / max(h, w))
         img_s = cv2.resize(
@@ -194,7 +191,7 @@ def _segment_guided_match(
     except Exception:
         return None, 0.0
 
-    def _seg_stats(img: np.ndarray, cc: np.ndarray, mask: Optional[np.ndarray]):
+    def _seg_stats(img: np.ndarray, cc: np.ndarray, mask: np.ndarray | None):
         stats = {}
         for label in np.unique(cc):
             if label == 0:

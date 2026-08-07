@@ -33,7 +33,6 @@ from __future__ import annotations
 import math
 import random
 from pathlib import Path
-from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -49,7 +48,7 @@ def _luma(bgr: np.ndarray) -> np.ndarray:
     y = cv2.cvtColor(bgr, cv2.COLOR_BGR2YCrCb)[..., 0].astype(np.float32)
     return y / 255.0
 
-def _warp(img: np.ndarray, M: np.ndarray, out_hw: Tuple[int, int]) -> np.ndarray:
+def _warp(img: np.ndarray, M: np.ndarray, out_hw: tuple[int, int]) -> np.ndarray:
     H, W = out_hw
     return cv2.warpAffine(
         img, M, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REFLECT_101
@@ -96,7 +95,7 @@ class SyntheticStitchDataset(Dataset):
     def __init__(
         self,
         image_dir: str,
-        patch_hw: Tuple[int, int] = (256, 256),
+        patch_hw: tuple[int, int] = (256, 256),
         max_dx: float = 0.50,
         max_dy: float = 0.50,
         max_angle: float = math.pi / 6,
@@ -123,7 +122,7 @@ class SyntheticStitchDataset(Dataset):
         base = Path(image_dir)
         exts = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
         glob = base.rglob("*") if recursive else base.glob("*")
-        self.paths: List[Path] = [
+        self.paths: list[Path] = [
             p for p in glob if p.is_file() and p.suffix.lower() in exts
         ]
         if not self.paths:
@@ -172,7 +171,7 @@ class SyntheticStitchDataset(Dataset):
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _load(path: Path, min_hw: Tuple[int, int]) -> np.ndarray:
+    def _load(path: Path, min_hw: tuple[int, int]) -> np.ndarray:
         bgr = cv2.imread(str(path))
         if bgr is None:
             return np.ones(min_hw, dtype=np.float32)
@@ -191,7 +190,7 @@ class SyntheticStitchDataset(Dataset):
         img_i: np.ndarray,
         img_j: np.ndarray,
         params: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         pH, pW = self.patch_hw
         dx, dy, theta, log_s = params.tolist()
         s = math.exp(log_s)
@@ -226,7 +225,7 @@ class SyntheticStitchDataset(Dataset):
         self,
         fi: np.ndarray,
         fj: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray]:
         # MPEG noise (independent per patch)
         if random.random() < self.mpeg_noise_prob:
             tgt = random.choice(["i", "j", "both"])

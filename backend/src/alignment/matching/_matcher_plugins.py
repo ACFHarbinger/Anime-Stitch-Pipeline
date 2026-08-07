@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 import numpy as np
 
 from ._matchers import _phase_correlate, _segment_guided_match, _template_match
@@ -20,10 +18,10 @@ class TemplateMatcher(Matcher):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-        m_i: Optional[np.ndarray] = None,
-        m_j: Optional[np.ndarray] = None,
+        m_i: np.ndarray | None = None,
+        m_j: np.ndarray | None = None,
         **kwargs,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         H = img_i.shape[0]
         return _template_match(img_i, img_j, m_i, m_j, H=H, **kwargs)
 
@@ -41,10 +39,10 @@ class PhaseCorrelateMatcher(Matcher):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-        m_i: Optional[np.ndarray] = None,
-        m_j: Optional[np.ndarray] = None,
+        m_i: np.ndarray | None = None,
+        m_j: np.ndarray | None = None,
         **kwargs,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         return _phase_correlate(img_i, img_j, m_i, m_j, **kwargs)
 
     def is_available(self) -> bool:
@@ -61,10 +59,10 @@ class SegmentGuidedMatcher(Matcher):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-        m_i: Optional[np.ndarray] = None,
-        m_j: Optional[np.ndarray] = None,
+        m_i: np.ndarray | None = None,
+        m_j: np.ndarray | None = None,
         **kwargs,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         return _segment_guided_match(img_i, img_j, mask_i=m_i, mask_j=m_j, **kwargs)
 
     def is_available(self) -> bool:

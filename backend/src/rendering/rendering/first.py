@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from typing import List, Tuple
 
 import cv2
 import numpy as np
@@ -14,11 +13,11 @@ logger = logging.getLogger(__name__)
 
 
 def _render_first(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
     H: int,
     W: int,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """Simple first-frame-wins renderer."""
     canvas = np.zeros((H, W, 3), np.uint8)
     mask = np.zeros((H, W), np.uint8)

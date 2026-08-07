@@ -9,8 +9,6 @@ two independent selectors.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import numpy as np
 
 from ..constants.schema import IMAGE_ASP, IMAGE_GROUND_TRUTH, IMAGE_SIMPLE
@@ -60,7 +58,7 @@ class VisualizationTab(ToolTabBase):
     def _cache_key(self, name: str) -> str:
         return f"{name}|{self._source.currentData()}|{self._pair_b.currentData()}"
 
-    def _selected(self) -> Optional[np.ndarray]:
+    def _selected(self) -> np.ndarray | None:
         return self.image(self._source.currentData())
 
     def _single(self, fn):

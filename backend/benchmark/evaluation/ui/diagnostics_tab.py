@@ -10,7 +10,6 @@ metric that moved against its good direction by more than the 3% margin
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional
 
 from PySide6.QtWidgets import QComboBox
 
@@ -23,8 +22,8 @@ class DiagnosticsTab(ToolTabBase):
     def __init__(self, repo_root: str, parent=None):
         super().__init__(parent)
         self._repo_root = repo_root
-        self._name: Optional[str] = None
-        self._runs: List[str] = discovery.results_files(repo_root)
+        self._name: str | None = None
+        self._runs: list[str] = discovery.results_files(repo_root)
 
         self._baseline = QComboBox()
         self._baseline.addItem("none (no regression check)", None)
@@ -38,7 +37,7 @@ class DiagnosticsTab(ToolTabBase):
         for label, builder in dg.DIAGNOSTICS:
             self._add_tool(label, self._make_handler(builder))
 
-    def set_dataset(self, name: Optional[str]) -> None:
+    def set_dataset(self, name: str | None) -> None:
         self._name = name
 
     def _make_handler(self, builder):
@@ -49,7 +48,7 @@ class DiagnosticsTab(ToolTabBase):
 
         return handler
 
-    def _baseline_entry(self) -> Optional[Dict]:
+    def _baseline_entry(self) -> dict | None:
         path = self._baseline.currentData()
         if not path or not self._name:
             return None

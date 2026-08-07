@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import numpy as np
 
 
 def _sample_bg_points(
-    mask: Optional[np.ndarray], H: int, W: int, n: int = 200
+    mask: np.ndarray | None, H: int, W: int, n: int = 200
 ) -> np.ndarray:
     """Sample up to n (x,y) pixel coordinates from the background mask."""
     if mask is None:
@@ -26,11 +24,11 @@ def _sample_bg_points(
 
 
 def _sample_bg_points_grid(
-    mask: Optional[np.ndarray],
+    mask: np.ndarray | None,
     H: int,
     W: int,
     n: int = 50,
-    grid: Tuple[int, int] = (4, 4),
+    grid: tuple[int, int] = (4, 4),
 ) -> np.ndarray:
     """
     Spatially-distributed background point sampler.
@@ -41,7 +39,7 @@ def _sample_bg_points_grid(
     distributed anchor points rather than centre-biased random ones.
     """
     gr, gc = grid
-    pts_list: List[np.ndarray] = []
+    pts_list: list[np.ndarray] = []
     per_cell = max(1, n // (gr * gc))
 
     for r in range(gr):

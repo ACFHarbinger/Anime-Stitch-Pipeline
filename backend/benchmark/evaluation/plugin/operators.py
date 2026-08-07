@@ -29,13 +29,12 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-from typing import Dict, Optional
 
 import fiftyone.operators as foo
 import fiftyone.operators.types as types
 
 
-def _repo_root() -> Optional[str]:
+def _repo_root() -> str | None:
     directory = os.path.dirname(os.path.abspath(__file__))
     while directory != os.path.dirname(directory):
         if os.path.exists(os.path.join(directory, "pyproject.toml")):
@@ -66,7 +65,7 @@ from asp_backend_evaluation.other.metrics_view import (  # noqa: E402
 )
 
 
-def _selected_test(ctx) -> Optional[str]:
+def _selected_test(ctx) -> str | None:
     """The dataset_name of whatever the user has selected or is viewing."""
     if getattr(ctx, "current_sample", None):
         try:
@@ -87,7 +86,7 @@ def _selected_test(ctx) -> Optional[str]:
         return None
 
 
-def _entry_for(ctx, name: str) -> Dict:
+def _entry_for(ctx, name: str) -> dict:
     """The benchmark fields for one test, read back off the samples rather than
     re-reading the results JSON — the App may be pointed at a dataset built from
     a run whose JSON has since been superseded."""
@@ -96,7 +95,7 @@ def _entry_for(ctx, name: str) -> Dict:
     )
     if not view:
         return {}
-    fields: Dict = {}
+    fields: dict = {}
     for sample in view.limit(8):
         fields.setdefault("__by_slice__", {})[sample["comparator_key"]] = sample
         fields.update({
@@ -174,7 +173,7 @@ class ASPDiagnosticsPanel(foo.Panel):
         return types.Property(panel, view=types.GridView(orientation="vertical"))
 
 
-def _facts_markdown(name: str, entry: Dict) -> str:
+def _facts_markdown(name: str, entry: dict) -> str:
     def fmt(value, digits=3):
         if value is None:
             return "—"
@@ -205,7 +204,7 @@ def _facts_markdown(name: str, entry: Dict) -> str:
     ])
 
 
-def _metric_bar_figure(by_slice: Dict) -> Dict:
+def _metric_bar_figure(by_slice: dict) -> dict:
     """Grouped bars of the CQAS-scale normalized metrics, one trace per
     comparator — the Plotly twin of the inspector's radar, using the same
     absolute normalizers so the two surfaces agree."""
@@ -306,7 +305,7 @@ class SyncEvaluations(foo.Operator):
         return {"summary": report.summary()}
 
 
-def _spawn_inspector(name: Optional[str]) -> Optional[int]:
+def _spawn_inspector(name: str | None) -> int | None:
     """Start the inspector as a detached process.
 
     Detached rather than in-process on purpose: the FiftyOne App server runs an

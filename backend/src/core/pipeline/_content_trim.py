@@ -8,7 +8,6 @@ this particular block was safe to extract while most of run() was not).
 from __future__ import annotations
 
 import logging
-from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -19,12 +18,12 @@ logger = logging.getLogger(__name__)
 def _trim_content_crop(
     canvas: np.ndarray,
     valid_mask: np.ndarray,
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     N: int,
     canvas_h: int,
     canvas_w: int,
-) -> "Tuple[np.ndarray, np.ndarray]":
+) -> tuple[np.ndarray, np.ndarray]:
     """Trim leading/trailing pure-background canvas strips (§2.6).
 
     After compositing, the canvas may have leading/trailing strips of pure

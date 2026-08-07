@@ -11,11 +11,9 @@ from __future__ import annotations
 import logging
 import os
 import warnings
-from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
-
 from asp_backend.alignment.canvas import _detect_scroll_axis
 from backend.src.constants import LANCZOS_BLEED, MAX_SAFE_GAIN_DEV, RENDERING_FADE_ROWS
 
@@ -66,15 +64,15 @@ _MASKED_MEDIAN: bool = os.environ.get("ASP_MASKED_MEDIAN", "0") != "0"
 
 
 def _render_median(  # noqa: C901
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     H: int,
     W: int,
-    _baselines: Optional[List[float]] = None,
+    _baselines: list[float] | None = None,
     _skip_anim: bool = False,
-    confidence_weights: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, List[np.ndarray], List[np.ndarray]]:
+    confidence_weights: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, list[np.ndarray], list[np.ndarray]]:
     """
     Memory-efficient and FAST Temporal Median Render.
     Avoids float32 conversion and nanmedian where possible.
@@ -121,7 +119,7 @@ def _render_median(  # noqa: C901
 
     # A5 — per-frame BACKGROUND masks (uint8, 255 = background) for fg-excluded median.
     _exclude_fg = _FG_EXCLUDE_MEDIAN and any(m is not None for m in bg_masks)
-    _frame_bg_u8: List[Optional[np.ndarray]] = []
+    _frame_bg_u8: list[np.ndarray | None] = []
     for i in range(N):
         bm = bg_masks[i] if i < len(bg_masks) else None
         if _exclude_fg and bm is not None:

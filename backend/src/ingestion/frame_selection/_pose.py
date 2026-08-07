@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
 
@@ -23,7 +21,7 @@ except ImportError:
 def _fg_center_diff(
     thumb_a: np.ndarray,
     thumb_b: np.ndarray,
-    fg_mask: Optional[np.ndarray] = None,
+    fg_mask: np.ndarray | None = None,
 ) -> float:
     """
     Pose similarity metric between two thumbnails.
@@ -92,7 +90,7 @@ def _fg_center_diff(
 _DINOV2_CACHE: dict = {}
 
 
-def _compute_dinov2_features(frames_paths: List[str]) -> Optional[np.ndarray]:
+def _compute_dinov2_features(frames_paths: list[str]) -> np.ndarray | None:
     """
     Compute DINOv2 (ViT-S/14) pose embeddings for all frames.
 

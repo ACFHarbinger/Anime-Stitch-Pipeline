@@ -13,7 +13,6 @@ Example:
 
 import ast
 from collections import defaultdict
-from typing import Dict, List, Optional, Set, Tuple, Union
 
 try:
     from pyvis.network import Network  # noqa: F401
@@ -41,17 +40,17 @@ class ASTScopeVisitor(ast.NodeVisitor):
         """
         Initialize the ASTScopeVisitor.
         """
-        self.tree: Dict[str, Union[str, List[Dict[str, List[str]]]]] = {"name": "<module>", "children": []}
-        self.stack: List[Dict[str, Union[str, List[Dict[str, List[str]]]]]] = [self.tree]
+        self.tree: dict[str, str | list[dict[str, list[str]]]] = {"name": "<module>", "children": []}
+        self.stack: list[dict[str, str | list[dict[str, list[str]]]]] = [self.tree]
 
-        self.imports_grouped: Dict[str, List[str]] = defaultdict(list)
-        self.imports_direct: List[str] = []
-        self.imports_graph: Dict[str, Tuple[str, str]] = {}
+        self.imports_grouped: dict[str, list[str]] = defaultdict(list)
+        self.imports_direct: list[str] = []
+        self.imports_graph: dict[str, tuple[str, str]] = {}
 
-        self.flat_defs: Set[str] = set()
-        self.seen_in_scope: Set[Tuple[int, str]] = set()
+        self.flat_defs: set[str] = set()
+        self.seen_in_scope: set[tuple[int, str]] = set()
 
-    def _add_node(self, name: str) -> Optional[Dict[str, List[Dict[str, List[str]]]]]:
+    def _add_node(self, name: str) -> dict[str, list[dict[str, list[str]]]] | None:
         """
         Add a node to the graph.
 

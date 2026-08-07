@@ -35,7 +35,7 @@ def get_top_level_classes(filepath):
         Any: Description of return value.
     """
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             source = f.read()
         tree = ast.parse(source)
         return [node.name for node in tree.body if isinstance(node, ast.ClassDef)]

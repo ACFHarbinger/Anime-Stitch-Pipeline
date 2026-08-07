@@ -7,7 +7,6 @@ statement and algorithm overview.
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional
 
 import cv2
 import numpy as np
@@ -75,14 +74,14 @@ except ValueError:
 
 
 def smart_select_frames(  # noqa: C901
-    frames_paths: List[str],
+    frames_paths: list[str],
     min_step_px: float = 25.0,
     min_phase_response: float = 0.04,
     high_anim_mad: float = 0.10,
     tiny_step_px: float = 8.0,
-    pose_window_px: Optional[float] = None,
+    pose_window_px: float | None = None,
     verbose: bool = True,
-) -> List[str]:
+) -> list[str]:
     """
     Return a pose-consistent subset of ``frames_paths`` for the stitch pipeline.
 
@@ -186,7 +185,7 @@ def smart_select_frames(  # noqa: C901
     # over candidates within the same hold block (identical pose, zero ARAP
     # benefit).  Hold detection also surfaces the block boundary count as
     # a diagnostic for predicted ARAP workload.
-    hold_ids: List[int] = [0] * N  # hold block ID for each frame (0-indexed)
+    hold_ids: list[int] = [0] * N  # hold block ID for each frame (0-indexed)
     n_hold_blocks = 1
     _use_dhash_hold = _HOLD_DHASH_THRESHOLD > 0
     if _use_dhash_hold or _HOLD_THRESHOLD > 0.0:
@@ -217,12 +216,12 @@ def smart_select_frames(  # noqa: C901
         # block rather than one "hold", or hold-averaging would blur dozens
         # of distinct poses together and the phase-correlation skip below
         # would zero out real camera motion across the whole span.
-        _sizes: Dict[int, int] = {}
+        _sizes: dict[int, int] = {}
         for hid in hold_ids:
             _sizes[hid] = _sizes.get(hid, 0) + 1
         if any(sz > _MAX_SKIPPABLE_HOLD_SIZE for sz in _sizes.values()):
             _next_id = n_hold_blocks
-            _capped_ids: List[int] = []
+            _capped_ids: list[int] = []
             for hid in hold_ids:
                 if _sizes[hid] > _MAX_SKIPPABLE_HOLD_SIZE:
                     _capped_ids.append(_next_id)
@@ -314,7 +313,7 @@ def smart_select_frames(  # noqa: C901
         )
 
     # ── 5. Pre-compute cumulative canvas positions ─────────────────────────
-    cumpos: List[float] = [0.0] * N
+    cumpos: list[float] = [0.0] * N
     for i in range(N - 1):
         step = axis_steps[i]
         rejected = responses[i] < min_phase_response or (
@@ -323,7 +322,7 @@ def smart_select_frames(  # noqa: C901
         cumpos[i + 1] = cumpos[i] + (0.0 if rejected else step)
 
     # ── 6. Pass 1 — v1 greedy selection (first-past-threshold) ───────────────
-    selected_v1: List[int] = [0]
+    selected_v1: list[int] = [0]
     last_pos_v1: float = 0.0
 
     for i in range(1, N):

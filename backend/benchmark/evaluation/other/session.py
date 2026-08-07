@@ -22,7 +22,7 @@ independent ways (issue #123):
 from __future__ import annotations
 
 import dataclasses
-from typing import Callable, Dict, List, Optional
+from collections.abc import Callable
 
 from .schema import RatingEntry, load_evaluations, save_evaluations
 
@@ -48,24 +48,24 @@ class EvaluationSession:
 
     def __init__(
         self,
-        names: List[str],
+        names: list[str],
         out_path: str,
         redo: bool = False,
         autosave: bool = True,
-        on_change: Optional[Callable[[], None]] = None,
+        on_change: Callable[[], None] | None = None,
     ):
         self.out_path = out_path
         self.redo = redo
         self.autosave = autosave
         self.on_change = on_change
-        self.evaluations: Dict[str, RatingEntry] = load_evaluations(out_path)
-        self.order: List[str] = list(names)
-        self._history: List[str] = []
-        self._current: Optional[str] = None
+        self.evaluations: dict[str, RatingEntry] = load_evaluations(out_path)
+        self.order: list[str] = list(names)
+        self._history: list[str] = []
+        self._current: str | None = None
         self._dirty = False
         # Working entries for tests that have been opened but have no user
         # input yet. Kept out of `evaluations` so they can never be persisted.
-        self._pending: Dict[str, RatingEntry] = {}
+        self._pending: dict[str, RatingEntry] = {}
 
         start = self.order[0] if self.order else None
         if not redo:
@@ -75,13 +75,13 @@ class EvaluationSession:
     # -- state ---------------------------------------------------------------
 
     @property
-    def current(self) -> Optional[str]:
+    def current(self) -> str | None:
         return self._current
 
     def index_of(self, name: str) -> int:
         return self.order.index(name) if name in self.order else -1
 
-    def entry(self, name: Optional[str] = None) -> RatingEntry:
+    def entry(self, name: str | None = None) -> RatingEntry:
         """The entry for ``name``, created on demand but *not* inserted into
         the persisted mapping — a merely-visited test must not end up in the
         file. ``commit()`` is what inserts it."""
@@ -122,7 +122,7 @@ class EvaluationSession:
 
     # -- persistence ---------------------------------------------------------
 
-    def commit(self, name: Optional[str] = None) -> None:
+    def commit(self, name: str | None = None) -> None:
         """Fold the working entry for ``name`` into the persisted mapping.
 
         A no-op for an entry with nothing in it, which is what keeps a visited
@@ -167,7 +167,7 @@ class EvaluationSession:
 
     # -- navigation ----------------------------------------------------------
 
-    def go_to(self, name: str, record_history: bool = True) -> Optional[str]:
+    def go_to(self, name: str, record_history: bool = True) -> str | None:
         """Move to ``name``, committing the test being left behind.
 
         ``record_history`` is what makes Back work from *every* kind of move,
@@ -181,14 +181,14 @@ class EvaluationSession:
         self._current = name
         return self._current
 
-    def go_back(self) -> Optional[str]:
+    def go_back(self) -> str | None:
         if not self._history:
             return None
         self.commit()
         self._current = self._history.pop()
         return self._current
 
-    def next_unrated(self, from_index: Optional[int] = None) -> Optional[str]:
+    def next_unrated(self, from_index: int | None = None) -> str | None:
         """The next test with no real judgment, searching forward from the
         current position and wrapping once.
 
@@ -206,7 +206,7 @@ class EvaluationSession:
                 return candidate
         return None
 
-    def advance(self, skip: bool = False) -> Optional[str]:
+    def advance(self, skip: bool = False) -> str | None:
         """Move forward one test.
 
         ``skip=True`` marks the current test skipped (so the UI can show it as
@@ -234,7 +234,7 @@ class EvaluationSession:
             return None
         return self.go_to(target)
 
-    def accept(self) -> Optional[str]:
+    def accept(self) -> str | None:
         """Mark the current test reviewed, then advance to the next unrated."""
         current = self._current
         if current is not None:

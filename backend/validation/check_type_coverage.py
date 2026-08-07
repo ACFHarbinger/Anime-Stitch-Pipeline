@@ -25,7 +25,6 @@ import argparse
 import ast
 import os
 from pathlib import Path
-from typing import Dict, List, Tuple, Union
 
 from rich.console import Console
 from rich.table import Table
@@ -33,7 +32,7 @@ from rich.table import Table
 SKIP_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules", "dist", "build"}
 
 
-def analyze_function(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> Tuple[int, int, bool]:
+def analyze_function(node: ast.FunctionDef | ast.AsyncFunctionDef) -> tuple[int, int, bool]:
     """
     Analyze type annotation coverage in a single function.
 
@@ -44,7 +43,7 @@ def analyze_function(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> Tupl
         Tuple[int, int, bool]: Tuple containing (annotated_params, total_params, has_return_annotation).
     """
     skip = {"self", "cls"}
-    params: List[ast.arg] = []
+    params: list[ast.arg] = []
     params.extend(a for a in node.args.posonlyargs if a.arg not in skip)
     params.extend(a for a in node.args.args if a.arg not in skip)
     params.extend(a for a in node.args.kwonlyargs if a.arg not in skip)
@@ -58,7 +57,7 @@ def analyze_function(node: Union[ast.FunctionDef, ast.AsyncFunctionDef]) -> Tupl
     return annotated, total, node.returns is not None
 
 
-def analyze_file(filepath: Path) -> Dict[str, int]:
+def analyze_file(filepath: Path) -> dict[str, int]:
     """
     Analyze type annotation coverage in a single file.
 
@@ -138,7 +137,7 @@ def main() -> None:
     args = parser.parse_args()
 
     console = Console()
-    rows: List[Dict] = []
+    rows: list[dict] = []
     with console.status("[bold green]Analysing type annotations...", spinner="dots"):
         for root, dirs, files in os.walk(args.path):
             dirs[:] = [d for d in dirs if d not in SKIP_DIRS]

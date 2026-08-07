@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
@@ -29,10 +28,10 @@ class Matcher(ABC):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-        m_i: Optional[np.ndarray] = None,
-        m_j: Optional[np.ndarray] = None,
+        m_i: np.ndarray | None = None,
+        m_j: np.ndarray | None = None,
         **kwargs,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         """
         Estimate 2D affine transform matrix M and confidence score between img_i and img_j.
 
@@ -62,7 +61,7 @@ class Matcher(ABC):
 class MatcherRegistry:
     """Registry for discovering and managing pairwise frame matchers."""
 
-    _matchers: Dict[str, Matcher] = {}
+    _matchers: dict[str, Matcher] = {}
 
     @classmethod
     def register(cls, matcher: Matcher) -> None:
@@ -70,12 +69,12 @@ class MatcherRegistry:
         cls._matchers[matcher.name] = matcher
 
     @classmethod
-    def get(cls, name: str) -> Optional[Matcher]:
+    def get(cls, name: str) -> Matcher | None:
         """Retrieve a registered Matcher by name."""
         return cls._matchers.get(name)
 
     @classmethod
-    def list_available(cls) -> List[Matcher]:
+    def list_available(cls) -> list[Matcher]:
         """List all registered and available matchers, sorted by priority."""
         available = [m for m in cls._matchers.values() if m.is_available()]
         available.sort(key=lambda m: m.priority)

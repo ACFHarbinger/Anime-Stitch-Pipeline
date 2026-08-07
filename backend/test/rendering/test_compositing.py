@@ -850,7 +850,7 @@ class TestCoherenceSkipMask:
 
     def test_none_lum_pair_ignored(self):
         order = np.array([0, 1, 2])
-        lums: "list[float | None]" = [100.0, None, 110.0]
+        lums: list[float | None] = [100.0, None, 110.0]
         result = _coherence_skip_mask(order, lums, 20.0)
         assert result == [False, False, False]
 

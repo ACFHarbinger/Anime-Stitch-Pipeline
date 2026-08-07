@@ -11,10 +11,8 @@ from __future__ import annotations
 
 import logging
 import warnings
-from typing import List, Optional
 
 import numpy as np
-
 from backend.src.constants import LANCZOS_BLEED, RENDERING_FADE_ROWS
 
 from . import _native
@@ -25,9 +23,9 @@ logger = logging.getLogger(__name__)
 
 
 def _render_median_gpu_fastpath(  # noqa: C901
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     H: int,
     W: int,
     N: int,
@@ -38,10 +36,10 @@ def _render_median_gpu_fastpath(  # noqa: C901
     frame_right: np.ndarray,
     exclude_fg: bool,
     need_color_corr: bool,
-    baselines: Optional[List[float]],
-    confidence_weights: Optional[np.ndarray],
+    baselines: list[float] | None,
+    confidence_weights: np.ndarray | None,
     skip_anim: bool,
-) -> "Optional[tuple[np.ndarray, np.ndarray]]":
+) -> tuple[np.ndarray, np.ndarray] | None:
     """Return ``(canvas, valid_mask)`` on success, or ``None`` when the fast
     path's preconditions aren't met or the native call raised (caller should
     fall back to the chunked Python path in either case).

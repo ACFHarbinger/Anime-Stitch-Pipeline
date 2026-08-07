@@ -7,12 +7,10 @@ from __future__ import annotations
 import gc
 import logging
 import os
-from typing import Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
 import torch
-
 from backend.src.constants import MATCH_EDGE_CROP, MAX_DX_DRIFT_RATIO
 
 from ._matchers import _phase_correlate, _segment_guided_match, _template_match
@@ -44,8 +42,8 @@ _LOFTR_BG_RATIO_MIN: float = float(os.environ.get("ASP_LOFTR_BG_RATIO_MIN", "0.0
 
 
 def _match_pair(  # noqa: C901
-    frames: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     i: int,
     j: int,
     H: int,
@@ -55,7 +53,7 @@ def _match_pair(  # noqa: C901
     motion_model: str = "translation",
     aliked_wrapper=None,
     roma_wrapper=None,
-) -> Optional[Dict]:
+) -> dict | None:
     """
     Try to match frame i to frame j. Optimized for vertical anime pans.
     """
@@ -78,10 +76,10 @@ def _match_pair(  # noqa: C901
         dx = abs(M[0, 2])
         return not dx > W * MAX_DX_DRIFT_RATIO
 
-    M: Optional[np.ndarray] = None
+    M: np.ndarray | None = None
     mean_conf = 0.0
-    actual_pts_i: Optional[np.ndarray] = None
-    actual_pts_j: Optional[np.ndarray] = None
+    actual_pts_i: np.ndarray | None = None
+    actual_pts_j: np.ndarray | None = None
     _loftr_bg_pts: int = 0  # track how many BG keypoints LoFTR found (for 1b trigger)
 
     # ── Attempt 1: LoFTR ───────────────────────────────────────────────────
@@ -294,14 +292,14 @@ def _match_pair(  # noqa: C901
 
 
 def _pairwise_match(
-    frames: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     loftr_wrapper=None,
     use_loftr: bool = True,
     motion_model: str = "translation",
     aliked_wrapper=None,
     roma_wrapper=None,
-) -> List[Dict]:
+) -> list[dict]:
     """
     Build pairwise correspondence edges using LoFTR -> template match -> PC fallback.
     Adds consecutive (i->i+1) plus skip-pair (i->i+2, i->i+3) edges.
@@ -310,7 +308,7 @@ def _pairwise_match(
     H, W = frames[0].shape[:2]
 
     # Build list of (i, j) pairs to try
-    pairs: List[Tuple[int, int]] = []
+    pairs: list[tuple[int, int]] = []
     for i in range(N - 1):
         pairs.append((i, i + 1))
     for i in range(N - 2):
@@ -318,7 +316,7 @@ def _pairwise_match(
     for i in range(N - 3):
         pairs.append((i, i + 3))  # skip-2
 
-    edges: List[Dict] = []
+    edges: list[dict] = []
     for _idx, (i, j) in enumerate(pairs):
         edge = _match_pair(
             frames,

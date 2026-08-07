@@ -6,8 +6,6 @@ testable function -- pure code motion, no logic change.
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
 
@@ -16,14 +14,14 @@ from ._thumbs import _otsu_bg_mask_pair
 
 def _pairwise_phase_correlate(
     N: int,
-    thumbs: List[np.ndarray],
-    hold_ids: List[int],
+    thumbs: list[np.ndarray],
+    hold_ids: list[int],
     hold_threshold: float,
     otsu_bg_corr: bool,
-    bg_thumb_mask: Optional[np.ndarray],
+    bg_thumb_mask: np.ndarray | None,
     scale_x: float,
     scale_y: float,
-) -> "tuple[List[float], List[float], List[float], List[float]]":
+) -> tuple[list[float], list[float], list[float], list[float]]:
     """Phase-correlate every consecutive thumbnail pair.
 
     Within the same hold block (``hold_ids[i] == hold_ids[i + 1]``), skips
@@ -36,10 +34,10 @@ def _pairwise_phase_correlate(
     Returns ``(raw_dx, raw_dy, responses, frame_mads)``, each length N-1,
     with dx/dy already scaled to full-resolution canvas pixels.
     """
-    raw_dx: List[float] = []
-    raw_dy: List[float] = []
-    responses: List[float] = []
-    frame_mads: List[float] = []
+    raw_dx: list[float] = []
+    raw_dy: list[float] = []
+    responses: list[float] = []
+    frame_mads: list[float] = []
 
     for i in range(N - 1):
         a = thumbs[i]

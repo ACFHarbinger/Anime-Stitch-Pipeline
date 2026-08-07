@@ -13,7 +13,6 @@ path the static exports do.
 from __future__ import annotations
 
 import dataclasses
-from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -26,7 +25,7 @@ except ImportError:
     _SSIM_OK = False
 
 
-def _match_shape(a: np.ndarray, b: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def _match_shape(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Resize b onto a's canvas — same convention bench_anime_stitch.py's own
     GT comparison metrics use."""
     h, w = a.shape[:2]
@@ -35,7 +34,7 @@ def _match_shape(a: np.ndarray, b: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return a, b
 
 
-def shape_note(a: np.ndarray, b: np.ndarray) -> Optional[str]:
+def shape_note(a: np.ndarray, b: np.ndarray) -> str | None:
     """A caveat string when the two images had different canvas sizes.
 
     Comparators legitimately produce different canvas dimensions (ASP
@@ -114,7 +113,7 @@ def alpha_blend(a: np.ndarray, b: np.ndarray, alpha: float = 0.5) -> np.ndarray:
 
 def swipe_composite(
     a: np.ndarray, b: np.ndarray, split: float = 0.5, vertical: bool = True
-) -> Tuple[np.ndarray, int]:
+) -> tuple[np.ndarray, int]:
     """Classic before/after wipe: A on one side of a moving split, B on the
     other. Returns the composite and the split coordinate in pixels so the
     caller can draw the divider line in image space.
@@ -151,7 +150,7 @@ def checkerboard_mosaic(a: np.ndarray, b: np.ndarray, tile: int = 64) -> np.ndar
 
 def contour_bounding(
     a: np.ndarray, b: np.ndarray, blur_ksize: int = 15, thresh: int = 25, min_area: int = 64
-) -> Tuple[np.ndarray, List[Tuple[int, int, int, int]]]:
+) -> tuple[np.ndarray, list[tuple[int, int, int, int]]]:
     """Gaussian-blur the diff map to suppress single-pixel noise, threshold
     it, then draw high-contrast boxes around the surviving changed regions on
     an alpha-blend base image — the "what actually moved" view."""

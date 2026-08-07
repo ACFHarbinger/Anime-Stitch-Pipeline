@@ -2,11 +2,8 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
-
 from backend.src.constants import LUMINANCE_WEIGHTS
 
 from ._flags import _BG_NORM_MIN_PX
@@ -45,9 +42,9 @@ def _has_sufficient_bg(
 
 def _coherence_skip_mask(
     order: np.ndarray,
-    frame_lums: "List[Optional[float]]",
+    frame_lums: list[float | None],
     coherence_limit: float = 20.0,
-) -> "List[bool]":
+) -> list[bool]:
     """Per-frame normalization-skip mask from adjacent-strip coherence check (S18).
 
     Marks both frames in an adjacent pair as skip-normalization when their
@@ -59,7 +56,7 @@ def _coherence_skip_mask(
     Returns a list of bool, one entry per frame index (not per order slot).
     """
     N = len(order)
-    skip: "List[bool]" = [False] * N
+    skip: list[bool] = [False] * N
     lum_by_order = [frame_lums[int(order[k])] for k in range(N)]
     for k in range(N - 1):
         la, lb = lum_by_order[k], lum_by_order[k + 1]

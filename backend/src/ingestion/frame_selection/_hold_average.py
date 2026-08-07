@@ -4,17 +4,16 @@ from __future__ import annotations
 
 import os
 import tempfile
-from typing import List, Tuple
 
 import cv2
 import numpy as np
 
 
 def _hold_block_average(
-    thumbs: List[np.ndarray],
-    hold_ids: List[int],
-    paths: List[str],
-) -> Tuple[List[np.ndarray], List[str]]:
+    thumbs: list[np.ndarray],
+    hold_ids: list[int],
+    paths: list[str],
+) -> tuple[list[np.ndarray], list[str]]:
     """Compress hold blocks into one ECC-aligned average frame each.
 
     For MPEG-compressed sources, MPEG DCT block noise cancels out by √N when N
@@ -31,12 +30,12 @@ def _hold_block_average(
     """
     from collections import OrderedDict
 
-    blocks: OrderedDict[int, List[int]] = OrderedDict()
+    blocks: OrderedDict[int, list[int]] = OrderedDict()
     for idx, hid in enumerate(hold_ids):
         blocks.setdefault(hid, []).append(idx)
 
-    out_thumbs: List[np.ndarray] = []
-    out_paths: List[str] = []
+    out_thumbs: list[np.ndarray] = []
+    out_paths: list[str] = []
 
     for indices in blocks.values():
         if len(indices) == 1:

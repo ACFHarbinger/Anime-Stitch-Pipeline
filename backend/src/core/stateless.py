@@ -6,11 +6,8 @@ These functions hold no state and are shared by every stage of the pipeline.
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
 import cv2
 import numpy as np
-
 from backend.src.constants import LAPLACIAN_BANDS
 
 
@@ -200,7 +197,7 @@ def _seam_dp(
     return path  # horizontal=False: path is column-per-row (transposed)
 
 
-def _largest_valid_rect(mask: np.ndarray) -> Tuple[int, int, int, int]:
+def _largest_valid_rect(mask: np.ndarray) -> tuple[int, int, int, int]:
     """
     Find the largest axis-aligned rectangle of valid (non-zero) pixels.
 
@@ -272,7 +269,7 @@ def _largest_valid_rect(mask: np.ndarray) -> Tuple[int, int, int, int]:
 
     for row in range(hs):
         heights = np.where(bin_s[row], heights + 1, 0)
-        stack: List[int] = []
+        stack: list[int] = []
         for col in range(ws + 1):
             cur_h = int(heights[col]) if col < ws else 0
             start = col

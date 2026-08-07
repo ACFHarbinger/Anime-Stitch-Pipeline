@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import numpy as np
 
 from ._audit import _adapt_feathers_and_synthesize, _audit_and_annotate_composite
@@ -18,22 +16,22 @@ from ._seam_cache import _precompute_seam_paths
 
 
 def _composite_foreground(
-    warped_corr: List[np.ndarray],
-    warped_fgs: List[np.ndarray],
+    warped_corr: list[np.ndarray],
+    warped_fgs: list[np.ndarray],
     canvas: np.ndarray,
     H: int,
     W: int,
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
-    frame_keys: Optional[Tuple[str, ...]] = None,
-    seam_path_cache: Optional[Dict] = None,
-    exclusion_masks: Optional[List[np.ndarray]] = None,
-    preset_boundaries: Optional[np.ndarray] = None,
-    paint_mask: Optional[np.ndarray] = None,
-    seam_meta_out: Optional[dict] = None,
-    seam_overrides: Optional[dict] = None,
-    phase_ids: Optional[List[int]] = None,
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
+    frame_keys: tuple[str, ...] | None = None,
+    seam_path_cache: dict | None = None,
+    exclusion_masks: list[np.ndarray] | None = None,
+    preset_boundaries: np.ndarray | None = None,
+    paint_mask: np.ndarray | None = None,
+    seam_meta_out: dict | None = None,
+    seam_overrides: dict | None = None,
+    phase_ids: list[int] | None = None,
 ) -> np.ndarray:
     N = len(frames)
     print("[Stitch]   Laplacian-blend composite (foreground-only deghost)...")

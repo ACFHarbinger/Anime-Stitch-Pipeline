@@ -30,8 +30,6 @@ photometric signal.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -77,7 +75,7 @@ def warp_with_params(
 def zncc_loss(
     a: torch.Tensor,  # (B, 1, H, W)
     b: torch.Tensor,
-    mask: Optional[torch.Tensor] = None,  # (B, 1, H, W) float 1=valid
+    mask: torch.Tensor | None = None,  # (B, 1, H, W) float 1=valid
     eps: float = 1e-6,
 ) -> torch.Tensor:
     """
@@ -148,7 +146,7 @@ class _PhotometricConsistencyLoss(nn.Module):
         frame_j: torch.Tensor,
         pred: torch.Tensor,  # (B, 4)
         is_neg: torch.Tensor,  # (B,) bool
-        fg_mask_i: Optional[torch.Tensor] = None,  # (B, 1, H, W)
+        fg_mask_i: torch.Tensor | None = None,  # (B, 1, H, W)
     ) -> torch.Tensor:
         pos = ~is_neg
         if not pos.any():
@@ -250,7 +248,7 @@ class StitchNetLoss(nn.Module):
         frame_i: torch.Tensor,  # (B, 1, H, W)
         frame_j: torch.Tensor,
         is_neg: torch.Tensor,  # (B,) bool
-        fg_mask_i: Optional[torch.Tensor] = None,
+        fg_mask_i: torch.Tensor | None = None,
     ) -> dict:
         """
         Returns dict with keys: total, param, photo, sym.

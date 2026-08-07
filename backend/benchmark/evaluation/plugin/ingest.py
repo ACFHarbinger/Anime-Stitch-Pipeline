@@ -18,7 +18,6 @@ re-derived each session.
 from __future__ import annotations
 
 import dataclasses
-from typing import Dict, List, Optional
 
 from ..constants.schema import COMPARATOR_TITLES
 from ..other import discovery
@@ -45,16 +44,16 @@ class IngestResult:
     dataset_name: str
     groups: int
     samples: int
-    slices: List[str]
+    slices: list[str]
     rated: int
 
 
 def build_dataset(
     base_dir: str,
     repo_root: str,
-    evaluations_path: Optional[str] = None,
+    evaluations_path: str | None = None,
     dataset_name: str = DATASET_NAME,
-    results_path: Optional[str] = None,
+    results_path: str | None = None,
     overwrite: bool = True,
     persistent: bool = True,
 ) -> IngestResult:
@@ -67,7 +66,7 @@ def build_dataset(
     require(require_db=True)
     import fiftyone as fo
 
-    evaluations: Dict[str, RatingEntry] = (
+    evaluations: dict[str, RatingEntry] = (
         load_evaluations(evaluations_path) if evaluations_path else {}
     )
     names = discovery.discover_datasets(base_dir)
@@ -155,7 +154,7 @@ def declare_schema(dataset) -> None:
         )
 
 
-def save_default_views(dataset) -> List[str]:
+def save_default_views(dataset) -> list[str]:
     """Persist the triage queries this workflow actually asks."""
     import fiftyone as fo
     from fiftyone import ViewField as F
@@ -191,7 +190,7 @@ def save_default_views(dataset) -> List[str]:
     return saved
 
 
-def launch(dataset_name: str = DATASET_NAME, port: Optional[int] = None, wait: bool = True):
+def launch(dataset_name: str = DATASET_NAME, port: int | None = None, wait: bool = True):
     """Open the FiftyOne App on the dataset."""
     require(require_db=True)
     import fiftyone as fo
@@ -203,6 +202,6 @@ def launch(dataset_name: str = DATASET_NAME, port: Optional[int] = None, wait: b
     return session
 
 
-def slice_titles() -> Dict[str, str]:
+def slice_titles() -> dict[str, str]:
     """Human-readable comparator names, for anything rendering slice labels."""
     return dict(COMPARATOR_TITLES)

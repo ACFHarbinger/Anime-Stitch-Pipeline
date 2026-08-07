@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import contextlib
 import os
-from typing import List, Optional
 
 import cv2
 import numpy as np
@@ -30,12 +29,12 @@ _TWO_CHANNEL_SELECT = os.environ.get("ASP_TWO_CHANNEL_SELECT", "0") != "0"
 
 def _compute_biref_probe_masks(
     N: int,
-    thumbs: List[np.ndarray],
-    frames_paths: List[str],
+    thumbs: list[np.ndarray],
+    frames_paths: list[str],
     pw: float,
-    dinov2_features: Optional[np.ndarray],
+    dinov2_features: np.ndarray | None,
     verbose: bool,
-) -> "tuple[Optional[np.ndarray], Optional[np.ndarray]]":
+) -> tuple[np.ndarray | None, np.ndarray | None]:
     """Run BiRefNet on 5 probe frames and return (bg_thumb_mask, fg_thumb_mask).
 
     ``bg_thumb_mask`` (intersection of probe bg masks) is only populated when
@@ -45,8 +44,8 @@ def _compute_biref_probe_masks(
     ``(None, None)`` when neither is needed, BiRefNet is unavailable, or no
     probe frame loaded successfully.
     """
-    bg_thumb_mask: Optional[np.ndarray] = None
-    fg_thumb_mask: Optional[np.ndarray] = None
+    bg_thumb_mask: np.ndarray | None = None
+    fg_thumb_mask: np.ndarray | None = None
 
     needs_biref_probes = _TWO_CHANNEL_SELECT or (pw > 0 and dinov2_features is None)
     if not needs_biref_probes:

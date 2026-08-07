@@ -36,26 +36,26 @@ import gc
 import math
 import os
 import time
+from collections.abc import Callable
 from pathlib import Path
-from typing import Callable, Dict, Optional
 
 import cv2
 import numpy as np
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler, autocast
-from torch.optim import AdamW
-from torch.utils.data import DataLoader, random_split
-
-# --- Relocated Nested Imports ---
-from asp_backend.models.stitch_net import AnimeStitchNet
 from asp_backend.models.data.stitch_dataset import (
     SyntheticStitchDataset,
     stitch_collate_fn,
 )
-from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
 from asp_backend.models.pipeline.stitch_losses import StitchNetLoss
+
+# --- Relocated Nested Imports ---
+from asp_backend.models.stitch_net import AnimeStitchNet
 from backend.src.constants.pipeline import DEFAULT_CONFIG
+from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
+from torch.cuda.amp import GradScaler, autocast
+from torch.optim import AdamW
+from torch.utils.data import DataLoader, random_split
 
 # ---------------------------------------------------------------------------
 # Default configuration
@@ -74,10 +74,10 @@ class StitchTrainer:
 
     def __init__(
         self,
-        config: Dict,
-        on_log: Optional[Callable[[str], None]] = None,
-        on_metrics: Optional[Callable[[Dict], None]] = None,
-        on_epoch_end: Optional[Callable[[int, Dict], None]] = None,
+        config: dict,
+        on_log: Callable[[str], None] | None = None,
+        on_metrics: Callable[[dict], None] | None = None,
+        on_epoch_end: Callable[[int, dict], None] | None = None,
     ):
         self.cfg = {**DEFAULT_CONFIG, **config}
         self.on_log = on_log or print
@@ -262,7 +262,7 @@ class StitchTrainer:
     # Single training epoch
     # ------------------------------------------------------------------
 
-    def _train_epoch(self, epoch: int, total_epochs: int) -> Dict:
+    def _train_epoch(self, epoch: int, total_epochs: int) -> dict:
         self.model.train()
         accum = {k: 0.0 for k in ["total", "param", "photo", "sym"]}
         n_batches = 0
@@ -321,7 +321,7 @@ class StitchTrainer:
     # Validation epoch
     # ------------------------------------------------------------------
 
-    def _val_epoch(self) -> Dict:
+    def _val_epoch(self) -> dict:
         self.model.eval()
         accum = {k: 0.0 for k in ["total", "param", "photo", "sym"]}
         px_sum = 0.0
@@ -444,8 +444,8 @@ class StitchTrainer:
 
 def load_stitch_net(
     checkpoint_path: str,
-    device: Optional[str] = None,
-) -> "AnimeStitchNet":
+    device: str | None = None,
+) -> AnimeStitchNet:
     """
     Load a trained AnimeStitchNet from a .pt checkpoint or .torchscript file.
     Returns the model in eval mode on the requested device.

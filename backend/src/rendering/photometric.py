@@ -8,13 +8,10 @@ list captured during fitting (or None when unavailable).
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import cv2
 import numpy as np
-from scipy.optimize import least_squares
-
 from asp_backend.core.stateless import _luma
+from scipy.optimize import least_squares
 
 try:
     import base as _batch_photo
@@ -31,9 +28,9 @@ except ImportError:
 
 
 def _apply_basic(
-    frames: List[np.ndarray],
+    frames: list[np.ndarray],
     basic_wrapper,
-) -> Tuple[List[np.ndarray], Optional[List[float]]]:
+) -> tuple[list[np.ndarray], list[float] | None]:
     """
     Apply BaSiC spatial flat-field correction only.
 
@@ -75,7 +72,7 @@ def _apply_basic(
     return [basic_wrapper.apply_correction(img) for img in frames], None
 
 
-def _correct_vignetting(frames: List[np.ndarray]) -> List[np.ndarray]:
+def _correct_vignetting(frames: list[np.ndarray]) -> list[np.ndarray]:
     """
     Estimate and remove digital vignetting (radial darkening).
     Assumes the intensity follows I_obs = I_true * V(r), where V(r) is a radial gain.

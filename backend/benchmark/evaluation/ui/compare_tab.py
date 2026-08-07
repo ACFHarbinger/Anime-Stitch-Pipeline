@@ -15,8 +15,6 @@ the two comparators had different dimensions — which they usually do.
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QCheckBox, QSlider
@@ -93,7 +91,7 @@ class ComparisonTab(ToolTabBase):
             self._vertical.isChecked(),
         ))
 
-    def _pair(self) -> Optional[Tuple[np.ndarray, np.ndarray]]:
+    def _pair(self) -> tuple[np.ndarray, np.ndarray] | None:
         a = self.image(self._a.currentData())
         b = self.image(self._b.currentData())
         if a is None or b is None:

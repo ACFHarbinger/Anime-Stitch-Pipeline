@@ -1,6 +1,5 @@
 import ast
 from pathlib import Path
-from typing import Dict, List
 
 
 def is_constant_name(name: str) -> bool:
@@ -31,14 +30,14 @@ class ConstantVisitor(ast.NodeVisitor):
             })
         self.generic_visit(node)
 
-def find_constants(root_dirs: List[str]) -> List[Dict]:
+def find_constants(root_dirs: list[str]) -> list[dict]:
     all_constants = []
     for root_dir in root_dirs:
         for path in Path(root_dir).rglob("*.py"):
             if "__init__.py" in str(path) or "constant_checker.py" in str(path):
                 continue
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     tree = ast.parse(f.read())
                     visitor = ConstantVisitor(str(path))
                     visitor.visit(tree)

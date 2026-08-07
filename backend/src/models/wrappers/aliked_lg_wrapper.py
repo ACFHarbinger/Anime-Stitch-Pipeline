@@ -17,7 +17,6 @@ keypoints, before falling back to template matching.
 from __future__ import annotations
 
 import logging
-from typing import Optional, Tuple
 
 import cv2
 import numpy as np
@@ -30,8 +29,8 @@ try:
 except ImportError:
     _KORNIA_OK = False
 
-from backend.src.models.core.base import ModelWrapper, lazy_load
 from backend.src.constants.models import WRAPPERS_ALIKED_LG_WRAPPER__MIN_INLIERS
+from backend.src.models.core.base import ModelWrapper, lazy_load
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,7 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
     Instead, we use ``KF.LightGlueMatcher`` which wraps the full pipeline.
     """
 
-    def __init__(self, device: Optional[str] = None):
+    def __init__(self, device: str | None = None):
         if not _KORNIA_OK:
             raise ImportError("kornia >= 0.8 is required for ALIKEDLightGlueWrapper.")
         self._matcher = None  # set before super().__init__ so loaded property is safe
@@ -93,10 +92,10 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-        mask_i: Optional[np.ndarray] = None,
-        mask_j: Optional[np.ndarray] = None,
+        mask_i: np.ndarray | None = None,
+        mask_j: np.ndarray | None = None,
         conf_thresh: float = 0.2,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Detect ALIKED keypoints and match with LightGlue.
 
@@ -213,9 +212,9 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-        mask_i: Optional[np.ndarray] = None,
-        mask_j: Optional[np.ndarray] = None,
-    ) -> Tuple[Optional[np.ndarray], float, np.ndarray, np.ndarray]:
+        mask_i: np.ndarray | None = None,
+        mask_j: np.ndarray | None = None,
+    ) -> tuple[np.ndarray | None, float, np.ndarray, np.ndarray]:
         """
         Estimate a 2-DOF translation from img_i to img_j.
 

@@ -21,14 +21,12 @@ model weights are unavailable.
 from __future__ import annotations
 
 import logging
-from typing import Optional, Tuple
 
 import cv2
 import numpy as np
 import torch
-
-from backend.src.models.core.base import ModelWrapper, lazy_load
 from backend.src.constants.models import WRAPPERS__HF_REPO, WRAPPERS__MIN_INLIERS
+from backend.src.models.core.base import ModelWrapper, lazy_load
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +46,7 @@ class EfficientLoFTRWrapper(ModelWrapper):
     without any changes to the calling code.
     """
 
-    def __init__(self, device: Optional[str] = None):
+    def __init__(self, device: str | None = None):
         if not _TRANSFORMERS_OK:
             raise ImportError(
                 "transformers >= 4.52 is required for EfficientLoFTRWrapper. "
@@ -106,7 +104,7 @@ class EfficientLoFTRWrapper(ModelWrapper):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Run EfficientLoFTR on a BGR uint8 image pair.
 
@@ -171,7 +169,7 @@ class EfficientLoFTRWrapper(ModelWrapper):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Basic EfficientLoFTR match without mask filtering.
         Returns: (pts1, pts2, confidence).
@@ -182,10 +180,10 @@ class EfficientLoFTRWrapper(ModelWrapper):
         self,
         img1: np.ndarray,
         img2: np.ndarray,
-        mask1: Optional[np.ndarray] = None,
-        mask2: Optional[np.ndarray] = None,
+        mask1: np.ndarray | None = None,
+        mask2: np.ndarray | None = None,
         conf_thresh: float = 0.4,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Match img1 ↔ img2, filter by confidence and optional background masks.
         """
@@ -213,10 +211,10 @@ class EfficientLoFTRWrapper(ModelWrapper):
         self,
         img1: np.ndarray,
         img2: np.ndarray,
-        mask1: Optional[np.ndarray] = None,
-        mask2: Optional[np.ndarray] = None,
+        mask1: np.ndarray | None = None,
+        mask2: np.ndarray | None = None,
         min_inliers: int = WRAPPERS__MIN_INLIERS,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         """
         Estimate a (2, 3) translation-only affine from img1 to img2.
         Returns (M, mean_conf) — same interface as LoFTRWrapper.
@@ -246,7 +244,7 @@ class EfficientLoFTRWrapper(ModelWrapper):
         self,
         img1: np.ndarray,
         img2: np.ndarray,
-    ) -> Optional[np.ndarray]:
+    ) -> np.ndarray | None:
         """Legacy API — returns (3, 3) homography or None."""
         pts1, pts2, conf = self.match(img1, img2)
         if len(pts1) < 4:

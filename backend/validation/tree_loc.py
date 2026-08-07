@@ -12,10 +12,9 @@ Example:
 import argparse
 import ast
 import os
-from typing import Set, Tuple
 
 
-def get_docstring_lines(source: str) -> Set[int]:
+def get_docstring_lines(source: str) -> set[int]:
     """
     Parses the source code AST to find all lines that are part of docstrings.
 
@@ -24,7 +23,7 @@ def get_docstring_lines(source: str) -> Set[int]:
     Returns:
         Set[int]: Set of line numbers that are part of docstrings.
     """
-    doc_lines: Set[int] = set()
+    doc_lines: set[int] = set()
     try:
         tree = ast.parse(source)
     except Exception:
@@ -44,7 +43,7 @@ def get_docstring_lines(source: str) -> Set[int]:
     return doc_lines
 
 
-def analyze_file(filepath: str) -> Tuple[int, int, int]:
+def analyze_file(filepath: str) -> tuple[int, int, int]:
     """
     Analyze a file and return the number of code lines, comment lines, and docstring lines.
 
@@ -54,7 +53,7 @@ def analyze_file(filepath: str) -> Tuple[int, int, int]:
         Tuple[int, int, int]: (number of code lines, number of comment lines, number of docstring lines).
     """
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             source = f.read()
             lines = source.splitlines()
     except Exception:

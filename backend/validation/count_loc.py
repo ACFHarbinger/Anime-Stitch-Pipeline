@@ -13,13 +13,12 @@ import argparse
 import ast
 import os
 from collections import defaultdict
-from typing import Dict, List, Set
 
 from rich.console import Console
 from rich.table import Table
 
 
-def get_docstring_lines(source: str) -> Set[int]:
+def get_docstring_lines(source: str) -> set[int]:
     """Get docstring lines.
 
     Args:
@@ -28,7 +27,7 @@ def get_docstring_lines(source: str) -> Set[int]:
     Returns:
         Any: Description of return value.
     """
-    doc_lines: Set[int] = set()
+    doc_lines: set[int] = set()
     try:
         tree = ast.parse(source)
     except SyntaxError:
@@ -49,7 +48,7 @@ def get_docstring_lines(source: str) -> Set[int]:
     return doc_lines
 
 
-def analyze_file(filepath: str) -> Dict[str, int]:
+def analyze_file(filepath: str) -> dict[str, int]:
     """Analyze file.
 
     Args:
@@ -59,7 +58,7 @@ def analyze_file(filepath: str) -> Dict[str, int]:
         Any: Description of return value.
     """
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             source = f.read()
             lines = source.splitlines()
     except (UnicodeDecodeError, PermissionError):
@@ -82,7 +81,7 @@ def analyze_file(filepath: str) -> Dict[str, int]:
     return {"code": n_code, "comment": n_comments, "docstring": n_docs, "total": n_code + n_comments + n_docs}
 
 
-def group_by_directory(file_data: List[Dict], depth: int) -> List[Dict]:
+def group_by_directory(file_data: list[dict], depth: int) -> list[dict]:
     """
     Aggregate file stats into buckets by the first `depth` directory components.
 
@@ -93,7 +92,7 @@ def group_by_directory(file_data: List[Dict], depth: int) -> List[Dict]:
     Returns:
         List[Dict]: List of grouped data.
     """
-    groups: Dict[str, Dict[str, int]] = defaultdict(lambda: {"code": 0, "comment": 0, "docstring": 0, "total": 0})
+    groups: dict[str, dict[str, int]] = defaultdict(lambda: {"code": 0, "comment": 0, "docstring": 0, "total": 0})
     for d in file_data:
         parts = d["path"].replace("\\", "/").split("/")
         key = "/".join(parts[:depth]) if len(parts) > depth else d["path"]
@@ -102,7 +101,7 @@ def group_by_directory(file_data: List[Dict], depth: int) -> List[Dict]:
     return [{"path": k, **v} for k, v in sorted(groups.items())]
 
 
-def load_exceptions(filepath: str) -> Set[str]:
+def load_exceptions(filepath: str) -> set[str]:
     """Load exception file paths from the given filepath.
 
     Args:
@@ -111,10 +110,10 @@ def load_exceptions(filepath: str) -> Set[str]:
     Returns:
         Set[str]: Set of normalized exception file paths.
     """
-    exceptions: Set[str] = set()
+    exceptions: set[str] = set()
     if not os.path.isfile(filepath):
         return exceptions
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         for line in f:
             stripped = line.strip()
             if stripped and not stripped.startswith("#"):
@@ -122,7 +121,7 @@ def load_exceptions(filepath: str) -> Set[str]:
     return exceptions
 
 
-def generate_markdown_report(display_data: List[Dict], file_data: List[Dict], limit: int, sort_key: str) -> str:
+def generate_markdown_report(display_data: list[dict], file_data: list[dict], limit: int, sort_key: str) -> str:
     """Generate a Markdown formatted report table.
 
     Args:
@@ -135,7 +134,7 @@ def generate_markdown_report(display_data: List[Dict], file_data: List[Dict], li
         str: Markdown document string.
     """
     lines = [
-        f"# Codebase Line-Count Analysis Report",
+        "# Codebase Line-Count Analysis Report",
         "",
         f"*Sorted by: {sort_key.upper()}*",
         "",
@@ -193,7 +192,7 @@ def main() -> None:
     args = parser.parse_args()
 
     console = Console()
-    file_data: List[Dict] = []
+    file_data: list[dict] = []
     skip_dirs = {".git", "__pycache__", "venv", ".venv", "node_modules"}
 
     search_paths = args.path if isinstance(args.path, list) else [args.path]
@@ -242,7 +241,7 @@ def main() -> None:
 
     # Check for line count violations
     exceptions = load_exceptions(args.exceptions_file)
-    violations: List[Dict] = []
+    violations: list[dict] = []
     for item in file_data:
         norm_path = os.path.normpath(item["path"])
         if item["code"] > args.max_code_lines:

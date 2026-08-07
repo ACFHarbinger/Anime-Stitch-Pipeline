@@ -5,15 +5,13 @@ Canvas geometry, frame loading and normalization, and SCANS-mode fallback.
 from __future__ import annotations
 
 import logging
-from typing import List, Tuple
 
 import cv2
 import numpy as np
-from PIL import Image
-
 from asp_backend.core.stateless import _largest_valid_rect, _trim_dark_border
 from backend.src.constants import CANVAS_MAX_DIM
 from backend.src.errors import CanvasError
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +28,7 @@ except ImportError:
     _BATCH_CANVAS = False
 
 
-def _load_frames(paths: List[str]) -> List[np.ndarray]:
+def _load_frames(paths: list[str]) -> list[np.ndarray]:
     """Read frames from disk, trim broadcast dark borders, drop unreadables."""
     frames = []
     for p in paths:
@@ -43,7 +41,7 @@ def _load_frames(paths: List[str]) -> List[np.ndarray]:
     return frames
 
 
-def _normalise_widths(frames: List[np.ndarray]) -> List[np.ndarray]:
+def _normalise_widths(frames: list[np.ndarray]) -> list[np.ndarray]:
     """Resize every frame to match the width of the first frame (Lanczos)."""
     target_w = frames[0].shape[1]
     out = []
@@ -57,9 +55,9 @@ def _normalise_widths(frames: List[np.ndarray]) -> List[np.ndarray]:
 
 
 def _compute_canvas(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-) -> Tuple[int, int, np.ndarray]:
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+) -> tuple[int, int, np.ndarray]:
     """
     Compute canvas dimensions and the global translation offset T_global
     that maps all warped corners into positive coordinates.
@@ -99,7 +97,7 @@ def _compute_canvas(
     return canvas_h, canvas_w, T_global
 
 
-def _detect_scroll_axis(affines: List[np.ndarray]) -> str:
+def _detect_scroll_axis(affines: list[np.ndarray]) -> str:
     """
     Classify the scroll direction of a set of affines as:
     - 'vertical'    : ty_range >> tx_range (normal case)
@@ -196,7 +194,7 @@ def _telea_fill_gaps(canvas: np.ndarray, gap_mask: np.ndarray) -> np.ndarray:
 
 
 def _scan_stitch_fallback(
-    frames: List[np.ndarray],
+    frames: list[np.ndarray],
     output_path: str,
 ) -> Image.Image:
     """
@@ -236,7 +234,7 @@ def _scan_stitch_fallback(
 
 
 def _panorama_stitch_fallback(
-    frames: List[np.ndarray],
+    frames: list[np.ndarray],
     output_path: str,
 ) -> Image.Image:
     """§1.3B — PANORAMA stitcher attempted before SCANS for affine-validation failures.
@@ -294,10 +292,10 @@ def _panorama_stitch_fallback(
 
 def find_optimal_sequence(  # noqa: C901
     ref_path: str,
-    candidates: List[str],
+    candidates: list[str],
     min_inliers: int = 30,
     max_overlap: float = 0.85,
-) -> List[str]:
+) -> list[str]:
     """Find the longest coherent panorama sequence while dropping redundant frames.
 
     Uses SIFT feature matching to build a directed overlap graph, then extracts

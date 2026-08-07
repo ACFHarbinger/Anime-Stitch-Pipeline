@@ -16,13 +16,14 @@ Example:
 
 import sys
 import traceback
+from collections.abc import Callable
 from types import FrameType
-from typing import Any, Callable, Optional
+from typing import Any
 
 
 def watch(
     var_name: str,
-    callback: Optional[Callable[[Any, Any, FrameType], None]] = None,
+    callback: Callable[[Any, Any, FrameType], None] | None = None,
     *,
     frame_depth: int = 1,
 ) -> None:
@@ -104,7 +105,7 @@ def watch(
 
 
 def watch_all(
-    callback: Optional[Callable[[str, Any, Any, FrameType], None]] = None,
+    callback: Callable[[str, Any, Any, FrameType], None] | None = None,
     *,
     frame_depth: int = 1,
 ) -> None:

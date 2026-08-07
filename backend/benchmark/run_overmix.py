@@ -35,7 +35,6 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
 
 
 def _load_package(alias: str, src_dir: Path) -> None:
@@ -87,13 +86,13 @@ _OMP_THREADS = os.environ.get("ASP_BENCH_THREAD_CAP", "4")
 _TIMEOUT_SEC = 300
 
 
-def _smart_select_frames(frames_paths: List[str]) -> List[str]:
+def _smart_select_frames(frames_paths: list[str]) -> list[str]:
     # Mirrors bench_anime_stitch.py's own wrapper exactly, so the "smart"
     # variant here really is "the same input the ASP gets."
     return smart_select_frames(frames_paths, min_step_px=50.0)
 
 
-def _collect_frames(dataset_dir: str) -> List[str]:
+def _collect_frames(dataset_dir: str) -> list[str]:
     all_pngs = sorted(
         glob.glob(os.path.join(dataset_dir, "*.png"))
         + glob.glob(os.path.join(dataset_dir, "*.jpg"))
@@ -107,7 +106,7 @@ def _collect_frames(dataset_dir: str) -> List[str]:
     ]
 
 
-def _run_overmix(frames: List[str], out_path: str) -> Dict:
+def _run_overmix(frames: list[str], out_path: str) -> dict:
     """Invoke OvermixCli on `frames`, saving to `out_path`. Returns a result dict."""
     if not os.path.exists(_OVERMIX_BIN):
         return {"ok": False, "error": f"OvermixCli not built at {_OVERMIX_BIN}; run setup_overmix.sh"}
@@ -153,7 +152,7 @@ def _run_overmix(frames: List[str], out_path: str) -> Dict:
     }
 
 
-def process_dataset(dataset_dir: str, run_full: bool) -> Optional[Dict]:
+def process_dataset(dataset_dir: str, run_full: bool) -> dict | None:
     dataset_name = os.path.basename(dataset_dir)
     frames_paths = _collect_frames(dataset_dir)
     if len(frames_paths) < 2:
@@ -161,7 +160,7 @@ def process_dataset(dataset_dir: str, run_full: bool) -> Optional[Dict]:
         return None
 
     out_dir = os.path.join(dataset_dir, "output")
-    variant_log: Dict = {"dataset": dataset_name}
+    variant_log: dict = {"dataset": dataset_name}
 
     smart_frames = _smart_select_frames(frames_paths)
     print(f"\n=== {dataset_name}: smart variant ({len(smart_frames)}/{len(frames_paths)} frames) ===")
@@ -189,7 +188,7 @@ def process_dataset(dataset_dir: str, run_full: bool) -> Optional[Dict]:
     return variant_log
 
 
-def _resolve_datasets(base_dir: str, args) -> List[str]:
+def _resolve_datasets(base_dir: str, args) -> list[str]:
     # Mirrors bench_anime_stitch.py's _resolve_datasets exactly (kept
     # standalone here so this script has no heavy torch/cv2-chain import).
     all_dirs = sorted(

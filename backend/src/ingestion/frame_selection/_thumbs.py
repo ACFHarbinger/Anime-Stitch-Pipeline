@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import concurrent.futures
 import os
-from typing import List, Optional
 
 import cv2
 import numpy as np
@@ -32,8 +31,8 @@ def _load_thumb_gray(path: str) -> np.ndarray:
 
 
 def _load_thumbs_parallel(
-    frames_paths: List[str], max_workers: int = 8
-) -> List[np.ndarray]:
+    frames_paths: list[str], max_workers: int = 8
+) -> list[np.ndarray]:
     """Load thumbnails in parallel (I/O-bound; GIL released in cv2.imread)."""
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as ex:
         return list(ex.map(_load_thumb_gray, frames_paths))
@@ -41,7 +40,7 @@ def _load_thumbs_parallel(
 
 def _otsu_bg_mask_pair(
     a: np.ndarray, b: np.ndarray, min_bg_frac: float = 0.10
-) -> Optional[np.ndarray]:
+) -> np.ndarray | None:
     """§1A: per-pair Otsu background mask for bg-only phase correlation.
 
     Computes an Otsu threshold on each float32 grayscale thumbnail ([0,1]),

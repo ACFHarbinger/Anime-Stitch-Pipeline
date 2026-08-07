@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 import os
-from typing import List, Optional
 
 import numpy as np
-
 from asp_backend.core.stateless import _laplacian_blend
 
 from ._fg_pose import _seam_color_match, _single_pose_soft_edge
@@ -18,8 +16,8 @@ from ._seam_cost import _soft_seam_weight
 
 def _initial_hard_partition_fill(
     canvas: np.ndarray,
-    warped_norm: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
+    warped_norm: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
     order: np.ndarray,
     boundaries: np.ndarray,
     N: int,
@@ -49,7 +47,7 @@ def _fill_single_pose(
     result: np.ndarray,
     fi_a: int,
     fi_b: int,
-    warped_norm: List[np.ndarray],
+    warped_norm: list[np.ndarray],
     _single: int,
     seam_post_diffs: dict,
     path_local: np.ndarray,
@@ -96,8 +94,8 @@ def _blend_or_single_pose_fill(
     fb_zone: np.ndarray,
     fi_a: int,
     fi_b: int,
-    warped_norm: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
+    warped_norm: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
     seam_single_pose: dict,
     seam_post_diffs: dict,
     seam_synthesized: dict,
@@ -105,7 +103,7 @@ def _blend_or_single_pose_fill(
     path_local: np.ndarray,
     blended: np.ndarray,
     apply_mask: np.ndarray,
-    is_fg: Optional[np.ndarray],
+    is_fg: np.ndarray | None,
     feather: int,
 ):
     _single = seam_single_pose.get(k)
@@ -139,16 +137,16 @@ def _process_single_seam(
     result: np.ndarray,
     order: np.ndarray,
     feathers: np.ndarray,
-    warped_norm: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
+    warped_norm: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
     seam_single_pose: dict,
     seam_post_diffs: dict,
     seam_synthesized: dict,
     seam_canonical_crops: dict,
-    seam_overrides: Optional[dict],
+    seam_overrides: dict | None,
     _precomp_paths: dict,
-    _eff_exclusion: Optional[List[np.ndarray]],
-    seam_meta_out: Optional[dict],
+    _eff_exclusion: list[np.ndarray] | None,
+    seam_meta_out: dict | None,
     H: int,
     W: int,
 ):
@@ -212,7 +210,7 @@ def _process_single_seam(
 
 def _fill_still_black_pixels(
     result: np.ndarray,
-    warped_norm: List[np.ndarray],
+    warped_norm: list[np.ndarray],
 ):
     still_black = result.max(axis=2) == 0
     if still_black.any():

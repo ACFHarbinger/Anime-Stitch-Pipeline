@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
-
 from backend.src.constants import LAPLACIAN_BANDS
 
 from ._filter_edges_mixin import _FilterEdgesMixin
@@ -26,8 +25,8 @@ from .run_stage import _RunStageMixin
 if TYPE_CHECKING:
     from asp_backend.models.stitch_net import AnimeStitchNet
     from asp_backend.models.wrappers.aliked_lg_wrapper import ALIKEDLightGlueWrapper
-    from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
     from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
+    from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
     from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
 
 
@@ -85,31 +84,31 @@ class AnimeStitchPipeline(
         self.motion_model = motion_model
 
         # §1.5D: seam path cache shared across run() invocations on the same frame set
-        self._seam_path_cache: Dict = {}
+        self._seam_path_cache: dict = {}
 
         # Issue 10A3: NL seam routing exclusion masks — set externally before run()
         # List of per-frame uint8 (H,W) masks where >127 forces seam cost=1e6.
-        self.exclusion_masks: Optional[List[np.ndarray]] = None
+        self.exclusion_masks: list[np.ndarray] | None = None
 
         # Issue 10A2 S83: live SAM-2 predictor state preserved across HITL boundary.
         # Populated by _compute_fg_masks() when _USE_SAM2 is True; freed by
         # _cleanup_sam2_state() after checkpoint 1.5 mask review completes.
         self._sam2_predictor = None
         self._sam2_inference_state = None
-        self._sam2_tmp_dir: Optional[str] = None
+        self._sam2_tmp_dir: str | None = None
         self._sam2_frame_h: int = 0
         self._sam2_frame_w: int = 0
 
         # Lazy-loaded model instances (only allocated if the flag is True)
-        self._basic: Optional["BaSiCWrapper"] = None
-        self._baselines: Optional[List[float]] = None
-        self._birefnet: Optional["BiRefNetWrapper"] = None
-        self._loftr: Optional["LoFTRWrapper"] = None
-        self._eloftr: Optional["EfficientLoFTRWrapper"] = None
-        self._aliked: Optional["ALIKEDLightGlueWrapper"] = None
+        self._basic: BaSiCWrapper | None = None
+        self._baselines: list[float] | None = None
+        self._birefnet: BiRefNetWrapper | None = None
+        self._loftr: LoFTRWrapper | None = None
+        self._eloftr: EfficientLoFTRWrapper | None = None
+        self._aliked: ALIKEDLightGlueWrapper | None = None
         self._roma = None
         self._sea_raft = None
-        self._stitch_net: Optional["AnimeStitchNet"] = None
+        self._stitch_net: AnimeStitchNet | None = None
 
 
 __all__ = ["AnimeStitchPipeline"]

@@ -6,10 +6,7 @@ as thin wrappers so external callers (tests, helpers) still work.
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import numpy as np
-
 from asp_backend.alignment.canvas import (
     _compute_canvas,
     _crop_to_valid,
@@ -54,24 +51,24 @@ from ._probes import _USE_SAM2, BaSiCWrapper, Image
 class _ThinWrappersMixin:
     """Delegate methods preserved for external callers (tests, helpers)."""
 
-    def _load_frames(self, paths: List[str]) -> List[np.ndarray]:
+    def _load_frames(self, paths: list[str]) -> list[np.ndarray]:
         return _load_frames_fn(paths)
 
     @staticmethod
-    def _normalise_widths(frames: List[np.ndarray]) -> List[np.ndarray]:
+    def _normalise_widths(frames: list[np.ndarray]) -> list[np.ndarray]:
         return _normalise_widths(frames)
 
-    def _apply_basic(self, frames: List[np.ndarray]) -> List[np.ndarray]:
+    def _apply_basic(self, frames: list[np.ndarray]) -> list[np.ndarray]:
         if self._basic is None:
             self._basic = BaSiCWrapper()
         corrected, baselines = _apply_basic(frames, self._basic)
         self._baselines = baselines
         return corrected
 
-    def _correct_vignetting(self, frames: List[np.ndarray]) -> List[np.ndarray]:
+    def _correct_vignetting(self, frames: list[np.ndarray]) -> list[np.ndarray]:
         return _correct_vignetting_fn(frames)
 
-    def _compute_fg_masks(self, frames: List[np.ndarray]) -> List[Optional[np.ndarray]]:
+    def _compute_fg_masks(self, frames: list[np.ndarray]) -> list[np.ndarray | None]:
         if self.use_birefnet and self._birefnet is None:
             from backend.src.models.wrappers.birefnet_wrapper import (
                 BiRefNetWrapper,
@@ -103,9 +100,9 @@ class _ThinWrappersMixin:
 
     def _pairwise_match(
         self,
-        frames: List[np.ndarray],
-        bg_masks: List[Optional[np.ndarray]],
-    ) -> List[Dict]:
+        frames: list[np.ndarray],
+        bg_masks: list[np.ndarray | None],
+    ) -> list[dict]:
         if self.use_loftr and self._loftr is None:
             from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper  # §3.14 lazy
 
@@ -121,13 +118,13 @@ class _ThinWrappersMixin:
 
     def _match_pair(
         self,
-        frames: List[np.ndarray],
-        bg_masks: List[Optional[np.ndarray]],
+        frames: list[np.ndarray],
+        bg_masks: list[np.ndarray | None],
         i: int,
         j: int,
         H: int,
         W: int,
-    ) -> Optional[Dict]:
+    ) -> dict | None:
         return _match_pair(
             frames,
             bg_masks,
@@ -145,14 +142,14 @@ class _ThinWrappersMixin:
     def _template_match(
         img_i: np.ndarray,
         img_j: np.ndarray,
-        m_i: Optional[np.ndarray],
-        m_j: Optional[np.ndarray],
+        m_i: np.ndarray | None,
+        m_j: np.ndarray | None,
         H: int,
         slice_h: int = 256,
         max_search_frac: float = 0.8,
         direction_sign: int = 0,
         max_dy_frac: float = 0.70,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         return _template_match(
             img_i,
             img_j,
@@ -169,41 +166,41 @@ class _ThinWrappersMixin:
     def _phase_correlate(
         img_i: np.ndarray,
         img_j: np.ndarray,
-        m_i: Optional[np.ndarray],
-        m_j: Optional[np.ndarray],
+        m_i: np.ndarray | None,
+        m_j: np.ndarray | None,
         use_mask: bool = True,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         return _phase_correlate(img_i, img_j, m_i, m_j, use_mask=use_mask)
 
     @staticmethod
     def _sample_bg_points(
-        mask: Optional[np.ndarray], H: int, W: int, n: int = 200
+        mask: np.ndarray | None, H: int, W: int, n: int = 200
     ) -> np.ndarray:
         return _sample_bg_points(mask, H, W, n=n)
 
     def _ecc_refine(
         self,
-        frames: List[np.ndarray],
-        affines: List[np.ndarray],
-        bg_masks: List[Optional[np.ndarray]],
-    ) -> List[np.ndarray]:
+        frames: list[np.ndarray],
+        affines: list[np.ndarray],
+        bg_masks: list[np.ndarray | None],
+    ) -> list[np.ndarray]:
         return _ecc_refine(frames, affines, bg_masks)
 
     @staticmethod
     def _compute_canvas(
-        frames: List[np.ndarray],
-        affines: List[np.ndarray],
-    ) -> Tuple[int, int, np.ndarray]:
+        frames: list[np.ndarray],
+        affines: list[np.ndarray],
+    ) -> tuple[int, int, np.ndarray]:
         return _compute_canvas(frames, affines)
 
     def _render(
         self,
-        frames: List[np.ndarray],
-        affines: List[np.ndarray],
-        bg_masks: List[Optional[np.ndarray]],
+        frames: list[np.ndarray],
+        affines: list[np.ndarray],
+        bg_masks: list[np.ndarray | None],
         canvas_h: int,
         canvas_w: int,
-    ) -> Tuple[np.ndarray, np.ndarray, List[np.ndarray], List[np.ndarray]]:
+    ) -> tuple[np.ndarray, np.ndarray, list[np.ndarray], list[np.ndarray]]:
         return _render(
             frames,
             affines,
@@ -225,8 +222,8 @@ class _ThinWrappersMixin:
 
     @staticmethod
     def _cluster_animation_phases(
-        frames: List[np.ndarray],
-        affines: List[np.ndarray],
+        frames: list[np.ndarray],
+        affines: list[np.ndarray],
         H: int,
         W: int,
         target_w: int = 320,
@@ -245,21 +242,21 @@ class _ThinWrappersMixin:
 
     def _composite_foreground(
         self,
-        warped_corr: List[np.ndarray],
-        warped_fgs: List[np.ndarray],
+        warped_corr: list[np.ndarray],
+        warped_fgs: list[np.ndarray],
         canvas: np.ndarray,
         H: int,
         W: int,
-        frames: List[np.ndarray],
-        affines: List[np.ndarray],
-        bg_masks: List[Optional[np.ndarray]],
-        frame_keys: Optional[Tuple[str, ...]] = None,
-        seam_path_cache: Optional[Dict] = None,
-        exclusion_masks: Optional[List[np.ndarray]] = None,
-        preset_boundaries: Optional[np.ndarray] = None,
-        paint_mask: Optional[np.ndarray] = None,
-        seam_meta_out: Optional[dict] = None,
-        seam_overrides: Optional[dict] = None,
+        frames: list[np.ndarray],
+        affines: list[np.ndarray],
+        bg_masks: list[np.ndarray | None],
+        frame_keys: tuple[str, ...] | None = None,
+        seam_path_cache: dict | None = None,
+        exclusion_masks: list[np.ndarray] | None = None,
+        preset_boundaries: np.ndarray | None = None,
+        paint_mask: np.ndarray | None = None,
+        seam_meta_out: dict | None = None,
+        seam_overrides: dict | None = None,
     ) -> np.ndarray:
         return _composite_foreground(
             warped_corr,
@@ -284,18 +281,18 @@ class _ThinWrappersMixin:
 
     @staticmethod
     def _scan_stitch_fallback(
-        frames: List[np.ndarray],
+        frames: list[np.ndarray],
         output_path: str,
-    ) -> "Image.Image":
+    ) -> Image.Image:
         return _scan_stitch_fallback(frames, output_path)
 
     @staticmethod
     def find_optimal_sequence(
         ref_path: str,
-        candidates: List[str],
+        candidates: list[str],
         min_inliers: int = 30,
         max_overlap: float = 0.85,
-    ) -> List[str]:
+    ) -> list[str]:
         return find_optimal_sequence(
             ref_path,
             candidates,

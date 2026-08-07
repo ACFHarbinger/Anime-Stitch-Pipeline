@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
 import numpy as np
 
 from ._hold_detection import _compute_dhash
@@ -11,9 +9,9 @@ from ._thumbs import _load_thumbs_parallel
 
 
 def detect_animation_phases(
-    frames_paths: List[str],
+    frames_paths: list[str],
     z_thresh: float = 2.0,
-) -> List[int]:
+) -> list[int]:
     """§2.2: cluster the *selected* frames into animation phases.
 
     A "phase" is coarser than a hold block: it groups a run of selected
@@ -58,8 +56,8 @@ def detect_animation_phases(
 
 
 def _phase_ids_from_hashes(
-    hashes: List[np.ndarray], z_thresh: float = 2.0
-) -> List[int]:
+    hashes: list[np.ndarray], z_thresh: float = 2.0
+) -> list[int]:
     """Core §2.2 change-point clustering, factored out so callers that already
     have dHashes in hand (e.g. Pass 2 of ``smart_select_frames``, §2.4) don't
     pay for a redundant thumbnail reload. See ``detect_animation_phases`` for
@@ -87,13 +85,13 @@ def _phase_ids_from_hashes(
     return phase_ids
 
 
-def phase_spans(phase_ids: List[int]) -> List[Tuple[int, int, int]]:
+def phase_spans(phase_ids: list[int]) -> list[tuple[int, int, int]]:
     """§2.2 diagnostic helper: collapse ``phase_ids`` into ``(phase, start, end)``
     spans (inclusive frame indices) for reporting/visualization.
     """
     if not phase_ids:
         return []
-    spans: List[Tuple[int, int, int]] = []
+    spans: list[tuple[int, int, int]] = []
     start = 0
     cur = phase_ids[0]
     for i, pid in enumerate(phase_ids[1:], start=1):

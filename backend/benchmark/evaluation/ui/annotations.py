@@ -17,7 +17,7 @@ re-parsing its own display strings to recover them, which is what the old
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import QColor, QFont, QPainter, QPen
@@ -89,7 +89,7 @@ class DefectDialog(QDialog):
         layout.addWidget(buttons)
         self.label_edit.setFocus()
 
-    def result_values(self) -> Tuple[str, int, str]:
+    def result_values(self) -> tuple[str, int, str]:
         return (
             self.defect_combo.currentData(),
             int(self.severity_combo.currentData()),
@@ -103,14 +103,14 @@ class EdgeOverlay(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        self._panels: Dict[str, ImagePanel] = {}
-        self._edges: List[Edge] = []
-        self._pending: List[EdgePoint] = []
+        self._panels: dict[str, ImagePanel] = {}
+        self._edges: list[Edge] = []
+        self._pending: list[EdgePoint] = []
 
     def register_panel(self, key: str, panel: ImagePanel) -> None:
         self._panels[key] = panel
 
-    def register_panels(self, panels: Dict[str, ImagePanel]) -> None:
+    def register_panels(self, panels: dict[str, ImagePanel]) -> None:
         self._panels.update(panels)
 
     def sync_geometry(self) -> None:
@@ -119,17 +119,17 @@ class EdgeOverlay(QWidget):
             self.setGeometry(parent.rect())
             self.raise_()
 
-    def set_edges(self, edges: List[Edge]) -> None:
+    def set_edges(self, edges: list[Edge]) -> None:
         self._edges = list(edges)
         self.update()
 
-    def set_pending(self, points: List[EdgePoint]) -> None:
+    def set_pending(self, points: list[EdgePoint]) -> None:
         """The in-progress chain's endpoints so far, drawn dashed and
         unlabelled — visual feedback for a link that hasn't been finished yet."""
         self._pending = list(points)
         self.update()
 
-    def _to_overlay_point(self, ep: EdgePoint) -> Optional[QPoint]:
+    def _to_overlay_point(self, ep: EdgePoint) -> QPoint | None:
         panel = self._panels.get(ep.image)
         container = self.parentWidget()
         if panel is None or container is None or not panel.isVisible():
@@ -139,7 +139,7 @@ class EdgeOverlay(QWidget):
             return None
         return panel.mapTo(container, view_pt.toPoint())
 
-    def _to_overlay_rect(self, ep: EdgePoint) -> Optional[Tuple[QPoint, QPoint]]:
+    def _to_overlay_rect(self, ep: EdgePoint) -> tuple[QPoint, QPoint] | None:
         panel = self._panels.get(ep.image)
         container = self.parentWidget()
         if panel is None or container is None or not panel.isVisible():
@@ -150,11 +150,11 @@ class EdgeOverlay(QWidget):
             return None
         return panel.mapTo(container, top_left.toPoint()), panel.mapTo(container, bottom_right.toPoint())
 
-    def _draw_chain(self, painter: QPainter, points: List[EdgePoint], label: str) -> None:
+    def _draw_chain(self, painter: QPainter, points: list[EdgePoint], label: str) -> None:
         """One connected chain: a line through consecutive endpoints, a
         marker (ellipse for a point, rect for a region) at each, and the
         label once at the middle segment's midpoint."""
-        anchors: List[QPoint] = []
+        anchors: list[QPoint] = []
         for ep in points:
             if ep.is_region:
                 rect = self._to_overlay_rect(ep)
@@ -211,9 +211,9 @@ class EdgeBuilder:
     """
 
     def __init__(self):
-        self._points: List[EdgePoint] = []
+        self._points: list[EdgePoint] = []
 
-    def pending(self) -> List[EdgePoint]:
+    def pending(self) -> list[EdgePoint]:
         return list(self._points)
 
     def count(self) -> int:
@@ -228,7 +228,7 @@ class EdgeBuilder:
     def add(self, image_key: str, x: float, y: float, w: float = 0.0, h: float = 0.0) -> None:
         self._points.append(EdgePoint(image=image_key, x=x, y=y, w=w, h=h))
 
-    def finish(self, label: str) -> Optional[Edge]:
+    def finish(self, label: str) -> Edge | None:
         """Returns the completed ``Edge`` and clears the pending chain, or
         ``None`` (and leaves the chain untouched) if fewer than 2 endpoints
         have been added yet."""
@@ -256,12 +256,12 @@ class AnnotationListWidget(QWidget):
         row.addWidget(self.remove_btn)
         row.addStretch(1)
         layout.addLayout(row)
-        self._on_remove: Optional[Callable[[str, int], None]] = None
+        self._on_remove: Callable[[str, int], None] | None = None
 
     def set_remove_callback(self, callback: Callable[[str, int], None]) -> None:
         self._on_remove = callback
 
-    def refresh(self, bboxes: List, edges: List) -> None:
+    def refresh(self, bboxes: list, edges: list) -> None:
         self.list_widget.clear()
         for i, b in enumerate(bboxes):
             title = COMPARATOR_TITLES.get(b.image, b.image)

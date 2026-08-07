@@ -20,7 +20,7 @@ import ast
 import contextlib
 import os
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 # --- Templates (Google Style) ---
 
@@ -84,7 +84,7 @@ class DocstringInjector:
         self.filepath = filepath
         self.lines = Path(filepath).read_text(encoding="utf-8").splitlines()
         # We process from bottom to top to avoid invalidating line numbers
-        self.modifications: List[Any] = []
+        self.modifications: list[Any] = []
 
     def _get_indent(self, lineno: int) -> str:
         """Returns the indentation string of a specific line.
@@ -100,7 +100,7 @@ class DocstringInjector:
         line = self.lines[lineno - 1]
         return line[: len(line) - len(line.lstrip())]
 
-    def _format_args(self, args: List[ast.arg], base_indent: str) -> str:
+    def _format_args(self, args: list[ast.arg], base_indent: str) -> str:
         """Formats the Args section with type hints.
 
         Args:

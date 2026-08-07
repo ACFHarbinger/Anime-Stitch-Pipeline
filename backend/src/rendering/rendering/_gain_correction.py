@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import List, Optional, Tuple
 
 import numpy as np
 
@@ -31,7 +30,7 @@ _ADAPTIVE_RENDER_GAIN: bool = os.environ.get("ASP_ADAPTIVE_RENDER_GAIN", "0") !=
 _GAIN_DRIFT_MAX: float = float(os.environ.get("ASP_GAIN_DRIFT_MAX", "0.0"))
 
 
-def _adaptive_render_gain_clamp(ref_lum: float) -> "tuple[float, float]":
+def _adaptive_render_gain_clamp(ref_lum: float) -> tuple[float, float]:
     """§1.40: Luminance-adaptive gain-clamp bounds for sequential colour correction.
 
     Uses the same continuous formula as §1.4B in ``compositing.py``:
@@ -75,10 +74,10 @@ def _check_gain_chain_drift(gains: np.ndarray, max_ratio: float) -> bool:
 
 
 def _compute_sequential_color_gains(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: Optional[List[Optional[np.ndarray]]] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None] | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Sequential per-frame color gain/bias via overlap-zone photometric matching.
 

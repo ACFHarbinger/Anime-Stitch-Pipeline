@@ -13,7 +13,6 @@ relocating duplication into more files").
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
 
 import numpy as np
 
@@ -24,13 +23,13 @@ logger = logging.getLogger(__name__)
 
 def _render_animation_repaint(
     canvas: np.ndarray,
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     H: int,
     W: int,
-    _baselines: Optional[List[float]] = None,
-    confidence_weights: Optional[np.ndarray] = None,
+    _baselines: list[float] | None = None,
+    confidence_weights: np.ndarray | None = None,
 ) -> np.ndarray:
     """Detect cyclic animation pixels and re-render just the majority phase
     group over ``canvas``, in place. Returns ``canvas`` unchanged when there

@@ -5,17 +5,15 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
-
 from asp_backend.alignment.canvas import _load_frames, _normalise_widths
 
 from ._probes import _HAS_BATCH, _batch
 
 
-def _sort_frames_by_index(paths: List[str]) -> List[str]:
+def _sort_frames_by_index(paths: list[str]) -> list[str]:
     """§1.63: Sort frame paths by numeric suffix extracted from the filename (S127).
 
     Frame file names produced by video extraction tools (FFmpeg, OpenCV) are
@@ -53,7 +51,7 @@ def _sort_frames_by_index(paths: List[str]) -> List[str]:
     return sorted_paths
 
 
-def _compute_dy_cv(affines: List[np.ndarray]) -> float:
+def _compute_dy_cv(affines: list[np.ndarray]) -> float:
     """§4.7: Coefficient of variation of adjacent vertical frame steps.
 
     Computes ``std(|Δty|) / mean(|Δty|)`` from the bundle-adjusted affines.
@@ -102,14 +100,14 @@ def _compute_adaptive_dy_cv_max(n_frames: int, base_max: float = 1.5) -> float:
 
 
 def _spatial_dedup_frames(
-    frames: List[np.ndarray],
-    scans_frames: List[np.ndarray],
-    bg_masks: List[np.ndarray],
-    image_paths: List[str],
-    edges: List[dict],
+    frames: list[np.ndarray],
+    scans_frames: list[np.ndarray],
+    bg_masks: list[np.ndarray],
+    image_paths: list[str],
+    edges: list[dict],
     min_displacement_px: float,
-) -> Tuple[
-    List[np.ndarray], List[np.ndarray], List[np.ndarray], List[str], List[dict], int
+) -> tuple[
+    list[np.ndarray], list[np.ndarray], list[np.ndarray], list[str], list[dict], int
 ]:
     """One pass of spatial near-static frame dedup (§1.9A).
 
@@ -195,7 +193,7 @@ def _spatial_dedup_frames(
     )
 
 
-def _reload_scans_frames(paths: List[str]) -> List[np.ndarray]:
+def _reload_scans_frames(paths: list[str]) -> list[np.ndarray]:
     """§1.9C: Reload and width-normalise original frames from disk on demand.
 
     Called only when a SCANS/PANORAMA fallback actually fires and
@@ -242,11 +240,11 @@ def _compute_row_coverage(
 
 
 def _apply_hires_keyframes(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
-    hires_keyframes: Dict[int, str],
-) -> Tuple[int, List[np.ndarray], List[np.ndarray], List[Optional[np.ndarray]]]:
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
+    hires_keyframes: dict[int, str],
+) -> tuple[int, list[np.ndarray], list[np.ndarray], list[np.ndarray | None]]:
     """
     Replace proxy frames with hires counterparts and scale affines/masks.
 
@@ -265,7 +263,7 @@ def _apply_hires_keyframes(
     Returns (n_loaded, frames_hires, affines_scaled, masks_resized).
     When n_loaded == 0 all inputs are returned unchanged.
     """
-    hires_imgs: Dict[int, np.ndarray] = {}
+    hires_imgs: dict[int, np.ndarray] = {}
     for idx, path in hires_keyframes.items():
         if 0 <= idx < len(frames):
             img = cv2.imread(path)
@@ -291,7 +289,7 @@ def _apply_hires_keyframes(
         a_new[1, 2] *= scale_y
         affines_scaled.append(a_new)
 
-    frames_hires: List[np.ndarray] = []
+    frames_hires: list[np.ndarray] = []
     for i, f in enumerate(frames):
         if i in hires_imgs:
             frames_hires.append(hires_imgs[i])
@@ -300,7 +298,7 @@ def _apply_hires_keyframes(
                 cv2.resize(f, (hires_w, hires_h), interpolation=cv2.INTER_LANCZOS4)
             )
 
-    masks_resized: List[Optional[np.ndarray]] = []
+    masks_resized: list[np.ndarray | None] = []
     for m in bg_masks:
         if m is None:
             masks_resized.append(None)

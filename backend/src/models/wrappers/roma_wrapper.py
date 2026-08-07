@@ -17,15 +17,13 @@ from __future__ import annotations
 
 import contextlib
 import logging
-from typing import Optional, Tuple
 
 import cv2
 import numpy as np
 import torch
-from PIL import Image
-
-from backend.src.models.core.base import ModelWrapper, lazy_load
 from backend.src.constants.models import _MAX_DRIFT_RATIO
+from backend.src.models.core.base import ModelWrapper, lazy_load
+from PIL import Image
 
 logger = logging.getLogger(__name__)
 try:
@@ -39,7 +37,7 @@ except ImportError:
 class RoMaWrapper(ModelWrapper):
     """Wraps RoMa v2 for translation-only dense warp estimation."""
 
-    def __init__(self, device: Optional[str] = None):
+    def __init__(self, device: str | None = None):
         if not _ROMA_OK:
             raise ImportError(
                 "romatch is required for RoMaWrapper. "
@@ -83,10 +81,10 @@ class RoMaWrapper(ModelWrapper):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-        mask_i: Optional[np.ndarray] = None,
-        mask_j: Optional[np.ndarray] = None,
+        mask_i: np.ndarray | None = None,
+        mask_j: np.ndarray | None = None,
         max_side: int = 512,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         """
         Estimate a 2-DOF translation from img_i → img_j via RoMa dense warp.
 

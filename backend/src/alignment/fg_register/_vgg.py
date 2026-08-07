@@ -24,7 +24,7 @@ except ImportError:
     nn = None
 
 _VGG19_SINGLETON = None
-_VGG19_DEVICE: "str | None" = None
+_VGG19_DEVICE: str | None = None
 
 
 def _get_vgg19_feat():

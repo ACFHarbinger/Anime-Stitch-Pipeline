@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import numpy as np
-
 from backend.src.constants import SEAM_CROP_BAND_PX
 
 from ._flags import _GRAPHCUT_SEAM, _get_seam_pool
@@ -13,16 +10,16 @@ from ._seam_cost import _build_seam_cost_map
 from ._seam_cut import _seam_cut
 
 
-def _get_seam_cost_flags() -> Tuple:
+def _get_seam_cost_flags() -> tuple:
     """§1.5D: Snapshot of module-level flags that affect seam cost computation."""
     return (_GRAPHCUT_SEAM,)
 
 
 def _make_seam_cache_key(
-    frame_keys: Optional[Tuple[str, ...]],
+    frame_keys: tuple[str, ...] | None,
     k: int,
-    cost_flags: Tuple,
-) -> Optional[Tuple]:
+    cost_flags: tuple,
+) -> tuple | None:
     """§1.5D: Hashable cache key for seam boundary *k*.
 
     Returns *None* when *frame_keys* is None, disabling cache lookup/insertion.
@@ -38,7 +35,7 @@ def _extract_seam_crops(
     canvas: np.ndarray,
     boundaries: np.ndarray,
     band_px: int = SEAM_CROP_BAND_PX,
-) -> Dict[int, np.ndarray]:
+) -> dict[int, np.ndarray]:
     """§2.4C — Crop ±band_px rows around each seam boundary from *canvas*.
 
     Returns a dict mapping seam index k → cropped subarray.  The crop is
@@ -46,7 +43,7 @@ def _extract_seam_crops(
     raising an error.  Returns an empty dict when *boundaries* is empty or
     *canvas* has zero area.
     """
-    result: Dict[int, np.ndarray] = {}
+    result: dict[int, np.ndarray] = {}
     if canvas.size == 0 or len(boundaries) == 0:
         return result
     H = canvas.shape[0]
@@ -62,18 +59,18 @@ def _prepare_seam_jobs(
     boundaries: np.ndarray,
     order: np.ndarray,
     feathers: np.ndarray,
-    warped_norm: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
-    frame_keys: Optional[Tuple[str, ...]],
-    seam_path_cache: Optional[Dict],
-    seam_overrides: Optional[dict],
-    _eff_exclusion: Optional[List[np.ndarray]],
+    warped_norm: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
+    frame_keys: tuple[str, ...] | None,
+    seam_path_cache: dict | None,
+    seam_overrides: dict | None,
+    _eff_exclusion: list[np.ndarray] | None,
     _seam_cost_flags: dict,
     result: np.ndarray,
     H: int,
     W: int,
     _precomp_paths: dict,
-) -> List[Tuple]:
+) -> list[tuple]:
     _seam_jobs = []
     for _k, _by in enumerate(boundaries):
         _ck = _make_seam_cache_key(frame_keys, _k, _seam_cost_flags)
@@ -119,16 +116,16 @@ def _precompute_seam_paths(
     boundaries: np.ndarray,
     order: np.ndarray,
     feathers: np.ndarray,
-    warped_norm: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
-    frame_keys: Optional[Tuple[str, ...]],
-    seam_path_cache: Optional[Dict],
-    exclusion_masks: Optional[List[np.ndarray]],
-    seam_overrides: Optional[dict],
-    paint_mask: Optional[np.ndarray],
+    warped_norm: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
+    frame_keys: tuple[str, ...] | None,
+    seam_path_cache: dict | None,
+    exclusion_masks: list[np.ndarray] | None,
+    seam_overrides: dict | None,
+    paint_mask: np.ndarray | None,
     H: int,
     W: int,
-) -> Tuple[dict, Optional[List[np.ndarray]]]:
+) -> tuple[dict, list[np.ndarray] | None]:
     def _seam_job(job_args):
         _k, _fa_z, _fb_z, _sem, _W, _zh, _wps = job_args
         _both = (_fa_z.max(axis=2) > 0) & (_fb_z.max(axis=2) > 0)
@@ -177,13 +174,13 @@ def _get_or_compute_path_local(
     W: int,
     fa_zone: np.ndarray,
     fb_zone: np.ndarray,
-    bg_a_zone: Optional[np.ndarray],
-    bg_b_zone: Optional[np.ndarray],
+    bg_a_zone: np.ndarray | None,
+    bg_b_zone: np.ndarray | None,
     result_zone: np.ndarray,
     _precomp_paths: dict,
-    _eff_exclusion: Optional[List[np.ndarray]],
-    seam_overrides: Optional[dict],
-) -> Tuple[np.ndarray, np.ndarray]:
+    _eff_exclusion: list[np.ndarray] | None,
+    seam_overrides: dict | None,
+) -> tuple[np.ndarray, np.ndarray]:
     path_local = _precomp_paths.get(k)
     _em_zone_fb = [
         em[y0_f:y1_f]

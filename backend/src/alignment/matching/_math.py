@@ -47,7 +47,7 @@ def _extract_similarity(M: np.ndarray) -> np.ndarray:
 def _compute_translation_spread(
     pts_i: np.ndarray,
     pts_j: np.ndarray,
-) -> "tuple[float, float]":
+) -> tuple[float, float]:
     """§1.36: Per-axis MAD of LoFTR displacement estimates around their median.
 
     When LoFTR finds many correspondences but they disagree on the translation

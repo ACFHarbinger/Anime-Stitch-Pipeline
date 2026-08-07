@@ -9,8 +9,6 @@ has a Hugin panorama, 55 have ground truth).
 
 from __future__ import annotations
 
-from typing import Dict, List
-
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -46,7 +44,7 @@ class InspectorToolbar(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._checks: Dict[str, QCheckBox] = {}
+        self._checks: dict[str, QCheckBox] = {}
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -141,7 +139,7 @@ class InspectorToolbar(QWidget):
     def minimumSizeHint(self) -> QSize:  # noqa: D102 - Qt override
         return QSize(400, 32)
 
-    def set_comparators(self, available: List[str], visible: List[str]) -> None:
+    def set_comparators(self, available: list[str], visible: list[str]) -> None:
         for check in self._checks.values():
             check.setParent(None)
         self._checks = {}

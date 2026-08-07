@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import contextlib
 import os
-from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -95,9 +94,9 @@ def _get_searaft():
 def _dense_flow_searaft(
     prev_bgr: np.ndarray,
     next_bgr: np.ndarray,
-    fg_mask: Optional[np.ndarray] = None,
+    fg_mask: np.ndarray | None = None,
     max_side: int = 640,
-) -> Optional[np.ndarray]:
+) -> np.ndarray | None:
     """
     Dense optical flow ``prev → next`` using RAFT (ptlflow pretrained).
 
@@ -118,7 +117,7 @@ def _dense_flow_searaft(
         prev_s = cv2.resize(prev_bgr, (tw, th))
         next_s = cv2.resize(next_bgr, (tw, th))
 
-        def _to_t(img: np.ndarray) -> "torch.Tensor":
+        def _to_t(img: np.ndarray) -> torch.Tensor:
             rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
             return torch.from_numpy(rgb).permute(2, 0, 1).unsqueeze(0).to(device)
 
@@ -141,7 +140,7 @@ def _dense_flow_searaft(
 
 
 def _sparse_flow_to_dense(
-    flow_arrows: "List[Tuple[float, float, float, float]]",
+    flow_arrows: list[tuple[float, float, float, float]],
     H: int,
     W: int,
 ) -> np.ndarray:

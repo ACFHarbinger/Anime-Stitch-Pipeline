@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-from typing import List
-
 import cv2
 import numpy as np
 
 
 def _cluster_animation_phases(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
     H: int,
     W: int,
     target_w: int = 320,

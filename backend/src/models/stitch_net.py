@@ -38,7 +38,6 @@ Output units
 from __future__ import annotations
 
 import math
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -147,7 +146,7 @@ class _CrossAttentionLayer(nn.Module):
         self,
         q_tok: torch.Tensor,  # (B, L, C)
         kv_tok: torch.Tensor,  # (B, L, C)
-        key_padding_mask: Optional[torch.Tensor] = None,  # (B, L) bool
+        key_padding_mask: torch.Tensor | None = None,  # (B, L) bool
     ) -> torch.Tensor:
         out, _ = self.attn(q_tok, kv_tok, kv_tok, key_padding_mask=key_padding_mask)
         q_tok = self.norm1(q_tok + out)
@@ -246,8 +245,8 @@ class AnimeStitchNet(nn.Module):
         self,
         frame_i: torch.Tensor,  # (B, 1, H, W) float32 [0,1]
         frame_j: torch.Tensor,  # (B, 1, H, W)
-        mask_i: Optional[torch.Tensor] = None,  # (B, 1, H, W) 1=foreground
-        mask_j: Optional[torch.Tensor] = None,
+        mask_i: torch.Tensor | None = None,  # (B, 1, H, W) 1=foreground
+        mask_j: torch.Tensor | None = None,
     ) -> torch.Tensor:
         """Returns (B, 4): [dx, dy, theta, log_s]."""
         # 1. Encode + positional encoding

@@ -10,10 +10,7 @@ whole retry chain finishes, so it stays in run() itself.
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
-
 import numpy as np
-
 from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine
 from asp_backend.core.validation import _validate_affines
 
@@ -21,16 +18,16 @@ from ._edge_filters import _filter_high_conf_edges
 
 
 def _recover_affine_health(  # noqa: C901
-    edges: List[Dict],
+    edges: list[dict],
     N: int,
-    affines: List[np.ndarray],
+    affines: list[np.ndarray],
     health,
     use_affine_ba: bool,
     adaptive_min_gap: float,
     adaptive_rot: float,
     adaptive_sc: float,
     logger,
-) -> "Tuple[List[np.ndarray], object]":
+) -> tuple[list[np.ndarray], object]:
     """Attempt Retries 0-3 to recover a failed affine-validation ``health``.
 
     Returns ``(affines, health)`` -- either the original inputs unchanged

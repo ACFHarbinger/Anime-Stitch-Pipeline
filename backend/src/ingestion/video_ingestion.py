@@ -42,7 +42,6 @@ from __future__ import annotations
 # --------------------------------
 import logging
 import os
-from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -86,7 +85,7 @@ def _decode_proxy_frames(
     video_path: str,
     scale: float = _PROXY_SCALE,
     keyframes_only: bool = _KEYFRAMES_ONLY,
-) -> List[Tuple[int, np.ndarray]]:
+) -> list[tuple[int, np.ndarray]]:
     """
     Decode a sparse proxy (¼-resolution by default) of the video.
 
@@ -98,7 +97,7 @@ def _decode_proxy_frames(
         raise RuntimeError(
             "pyav is required for video ingestion. Install with: pip install av"
         )
-    results: List[Tuple[int, np.ndarray]] = []
+    results: list[tuple[int, np.ndarray]] = []
     container = _av.open(video_path)
     stream = container.streams.video[0]
     if keyframes_only:
@@ -121,9 +120,9 @@ def _decode_proxy_frames(
 
 
 def _telecine_dedup(
-    proxy_frames: List[Tuple[int, np.ndarray]],
+    proxy_frames: list[tuple[int, np.ndarray]],
     mad_thresh: float = _TELECINE_MAD,
-) -> List[int]:
+) -> list[int]:
     """
     Drop duplicate frames caused by 3:2 pull-down telecine.
 
@@ -142,7 +141,7 @@ def _telecine_dedup(
     return kept
 
 
-def _uniform_select(n_total: int, n_select: int) -> List[int]:
+def _uniform_select(n_total: int, n_select: int) -> list[int]:
     """Return ``n_select`` evenly-spaced indices in [0, n_total)."""
     if n_select <= 0 or n_total == 0:
         return []
@@ -152,7 +151,7 @@ def _uniform_select(n_total: int, n_select: int) -> List[int]:
     return [int(i * step) for i in range(n_select)]
 
 
-def _decode_full_frame(video_path: str, frame_pts_index: int) -> Optional[np.ndarray]:
+def _decode_full_frame(video_path: str, frame_pts_index: int) -> np.ndarray | None:
     """
     Decode a single full-resolution frame at the given presentation frame index.
 
@@ -230,12 +229,12 @@ class VideoIngestionStream:
         self.max_frames = max_frames
 
         # Populated by ingest()
-        self._proxy_frames: List[Tuple[int, np.ndarray]] = []
-        self._selected_pts_indices: List[int] = []
+        self._proxy_frames: list[tuple[int, np.ndarray]] = []
+        self._selected_pts_indices: list[int] = []
 
     # ── public API ────────────────────────────────────────────────────────────
 
-    def ingest(self, tmp_dir: str) -> Tuple[List[np.ndarray], List[str]]:
+    def ingest(self, tmp_dir: str) -> tuple[list[np.ndarray], list[str]]:
         """
         Decode + select frames and save them as PNGs in ``tmp_dir``.
 
@@ -283,8 +282,8 @@ class VideoIngestionStream:
         )
 
         # Step 4 — full-resolution decode for selected frames only
-        frames: List[np.ndarray] = []
-        paths: List[str] = []
+        frames: list[np.ndarray] = []
+        paths: list[str] = []
         for seq_idx, pts_idx in enumerate(self._selected_pts_indices):
             img = _decode_full_frame(self.video_path, pts_idx)
             if img is None:
@@ -319,13 +318,13 @@ class VideoIngestionStream:
         )
         return frames, paths
 
-    def proxy_frames(self) -> List[Tuple[int, np.ndarray]]:
+    def proxy_frames(self) -> list[tuple[int, np.ndarray]]:
         """Return the decoded proxy frames (populated after ingest())."""
         return self._proxy_frames
 
     # ── private ───────────────────────────────────────────────────────────────
 
-    def _select(self, proxy_subset: List[int]) -> List[int]:
+    def _select(self, proxy_subset: list[int]) -> list[int]:
         """Select frame indices within ``proxy_subset`` according to self.mode."""
         n = len(proxy_subset)
         want = min(self.n_frames, n)
@@ -373,7 +372,7 @@ def ingest_video(
     n_frames: int = 20,
     mode: str = "uniform",
     telecine: bool = True,
-) -> Tuple[List[np.ndarray], List[str]]:
+) -> tuple[list[np.ndarray], list[str]]:
     """
     One-call convenience wrapper around :class:`VideoIngestionStream`.
 

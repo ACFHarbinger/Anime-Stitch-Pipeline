@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
 
@@ -15,8 +13,8 @@ from ._seam_cache import _extract_seam_crops
 
 def _feather_gc_boundaries(
     result: np.ndarray,
-    ownership_masks: List[np.ndarray],
-    warped_frames: List[np.ndarray],
+    ownership_masks: list[np.ndarray],
+    warped_frames: list[np.ndarray],
     feather_px: int = 96,
 ) -> np.ndarray:
     """§3.33 / §1.3 GraphCut post-mortem fix (2026-07-27).
@@ -91,8 +89,8 @@ def _feather_gc_boundaries(
 
 
 def _execute_graphcut_composite(
-    warped_norm: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
+    warped_norm: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
     canvas: np.ndarray,
     H: int,
     W: int,
@@ -100,7 +98,7 @@ def _execute_graphcut_composite(
     boundaries: np.ndarray,
     seam_post_diffs: dict,
     seam_single_pose: dict,
-    seam_meta_out: Optional[dict],
+    seam_meta_out: dict | None,
 ) -> np.ndarray:
     # Seam-estimation downscale (cv2.Stitcher runs GraphCut at seam_est_resol
     # ≈ 0.1 MPix; full-resolution min-cut over N frames is O(hours) on tall
@@ -176,8 +174,8 @@ def _execute_graphcut_composite(
 
 
 def _try_global_seam_composite(
-    warped_norm: List[np.ndarray],
-    warped_bg: List[Optional[np.ndarray]],
+    warped_norm: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
     canvas: np.ndarray,
     H: int,
     W: int,
@@ -185,8 +183,8 @@ def _try_global_seam_composite(
     boundaries: np.ndarray,
     seam_post_diffs: dict,
     seam_single_pose: dict,
-    seam_meta_out: Optional[dict],
-) -> Optional[np.ndarray]:
+    seam_meta_out: dict | None,
+) -> np.ndarray | None:
     if _GRAPHCUT_SEAM and BATCH_AVAILABLE and N >= 2:
         try:
             return _execute_graphcut_composite(

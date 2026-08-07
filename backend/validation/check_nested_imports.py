@@ -25,7 +25,6 @@ import ast
 import os
 from collections import defaultdict
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 try:
     from rich.console import Console
@@ -250,7 +249,7 @@ def is_header_setup_call(node: ast.stmt) -> bool:
     return func_name in safe_calls
 
 
-def get_factory_line_ranges(tree: ast.AST) -> List[Tuple[int, int]]:
+def get_factory_line_ranges(tree: ast.AST) -> list[tuple[int, int]]:
     """
     Identifies the start and end lines of all classes containing 'Factory'.
 
@@ -276,7 +275,7 @@ def get_factory_line_ranges(tree: ast.AST) -> List[Tuple[int, int]]:
     return ranges  # type: ignore[return-value]
 
 
-def extract_all_imports(node: ast.AST) -> Set[ast.AST]:
+def extract_all_imports(node: ast.AST) -> set[ast.AST]:
     """
     Recursively extract all import nodes from within a given AST node.
 
@@ -295,7 +294,7 @@ def extract_all_imports(node: ast.AST) -> Set[ast.AST]:
 
 def analyze_file(
     filepath: Path, ignore_factories: bool = False
-) -> List[Tuple[int, str]]:
+) -> list[tuple[int, str]]:
     """
     Parses a Python file and returns a list of nested imports.
 
@@ -308,7 +307,7 @@ def analyze_file(
     """
     nested_imports = []
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             source = f.read()
         tree = ast.parse(source, filename=str(filepath))
     except (SyntaxError, UnicodeDecodeError):
@@ -371,7 +370,7 @@ def analyze_file(
 
 
 def print_stats_table(
-    all_results: Dict[str, List[Tuple[int, str]]], target_root: Path
+    all_results: dict[str, list[tuple[int, str]]], target_root: Path
 ) -> None:
     """
     Print a Rich table summarising nested import counts per top-level subdirectory.
@@ -387,7 +386,7 @@ def print_stats_table(
         print("Rich not available, skipping stats table")
         return
 
-    pkg_counts: Dict[str, int] = defaultdict(int)
+    pkg_counts: dict[str, int] = defaultdict(int)
     for filepath_str, results in all_results.items():
         rel = os.path.relpath(filepath_str, str(target_root))
         top = rel.split(os.sep)[0]
@@ -442,7 +441,7 @@ def main() -> None:
 
     files_found = 0
     total_imports = 0
-    all_results: Dict[str, List[Tuple[int, str]]] = {}
+    all_results: dict[str, list[tuple[int, str]]] = {}
     for root, dirs, files in os.walk(target_root):
         dirs[:] = [d for d in dirs if d not in args.exclude]
         for filename in files:

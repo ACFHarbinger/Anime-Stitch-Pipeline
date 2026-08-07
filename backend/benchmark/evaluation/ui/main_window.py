@@ -18,7 +18,6 @@ can't reach. The key map lives in ``shortcuts.py`` and the annotation flow in
 from __future__ import annotations
 
 import traceback as _traceback
-from typing import Dict, List, Optional
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFontMetrics
@@ -148,8 +147,8 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         redo: bool,
         repo_root: str,
         default_display_mode: str = DISPLAY_RAW,
-        results_path: Optional[str] = None,
-        theme: Optional[str] = None,
+        results_path: str | None = None,
+        theme: str | None = None,
     ):
         super().__init__()
         self.setWindowTitle("Benchmark Evaluation Inspector")
@@ -199,11 +198,11 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         return self.session.out_path
 
     @property
-    def evaluations(self) -> Dict[str, RatingEntry]:
+    def evaluations(self) -> dict[str, RatingEntry]:
         return self.session.evaluations
 
     @property
-    def todo(self) -> List[str]:
+    def todo(self) -> list[str]:
         """Datasets still lacking a real judgment — the queue the CLI reports."""
         return [n for n in self.session.order if not self.session.is_rated(n)]
 
@@ -379,7 +378,7 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         _dbg("_load_current: scheduling _fit_all via _schedule_fit(0)")
         self._schedule_fit(0)
 
-    def scorable(self) -> List[str]:
+    def scorable(self) -> list[str]:
         from ..constants.schema import SCORABLE_KEYS
 
         return list(SCORABLE_KEYS)

@@ -14,8 +14,6 @@ package had ``logic`` importing ``ui`` for exactly this helper.
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple, Union
-
 from matplotlib.figure import Figure
 
 from ..constants.user_interface import AX_BG, COL_TEXT_DIM, FIG_BG
@@ -34,11 +32,11 @@ def style_axis(ax) -> None:
 
 
 def themed_figure(
-    figsize: Tuple[float, float] = (6.0, 4.5),
+    figsize: tuple[float, float] = (6.0, 4.5),
     n_axes: int = 1,
-    projection: Optional[str] = None,
+    projection: str | None = None,
     nrows: int = 1,
-) -> Union[Tuple[Figure, object], Tuple[Figure, List]]:
+) -> tuple[Figure, object] | tuple[Figure, list]:
     """A dark-themed figure with ``n_axes`` styled axes.
 
     ``nrows`` lays the axes out in a grid instead of a single row, for the
@@ -65,7 +63,7 @@ def themed_legend(ax, **kwargs):
     return legend
 
 
-def empty_figure(message: str, figsize: Tuple[float, float] = (6.0, 3.0)) -> Figure:
+def empty_figure(message: str, figsize: tuple[float, float] = (6.0, 3.0)) -> Figure:
     """Placeholder for "this test has no data for that chart" — every
     diagnostic here is optional in the benchmark JSON (42 of 97 tests have no
     ground truth, per-seam ghost scores are only emitted for true multi-strip

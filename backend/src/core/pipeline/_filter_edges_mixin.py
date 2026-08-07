@@ -10,10 +10,8 @@ from __future__ import annotations
 import logging
 import os
 import re
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
-
 from asp_backend.alignment.matching import _template_match
 from backend.src.constants import MATCH_EDGE_CROP, MIN_EXPECTED_STEP
 
@@ -28,13 +26,13 @@ class _FilterEdgesMixin:
 
     def _filter_edges(  # noqa: C901
         self,
-        edges: List[Dict],
-        image_paths: List[str],
+        edges: list[dict],
+        image_paths: list[str],
         H: int,
         W: int,
-        frames: List[np.ndarray],
-        bg_masks: List[Optional[np.ndarray]],
-    ) -> List[Dict]:
+        frames: list[np.ndarray],
+        bg_masks: list[np.ndarray | None],
+    ) -> list[dict]:
         """
         Apply geometric-consistency + direction-consensus filters to raw edges.
 
@@ -71,12 +69,12 @@ class _FilterEdgesMixin:
 
             # ── Geometric Consistency Filter ──────────────────────────────────
             if len(edges) > 0:
-                adj_map: Dict[int, Tuple[float, float]] = {}
+                adj_map: dict[int, tuple[float, float]] = {}
                 for e in edges:
                     if e["j"] == e["i"] + 1:
                         adj_map[e["i"]] = (e["M"][0, 2], e["M"][1, 2])
 
-                filtered: List[Dict] = []
+                filtered: list[dict] = []
                 for e in edges:
                     i, j = e["i"], e["j"]
                     if j == i + 1:
@@ -161,12 +159,12 @@ class _FilterEdgesMixin:
                         )
 
                 _ts_pat = re.compile(r"_(\d+)ms", re.IGNORECASE)
-                timestamps_ms: List[Optional[int]] = []
+                timestamps_ms: list[int | None] = []
                 for p in image_paths:
                     m = _ts_pat.search(os.path.basename(p))
                     timestamps_ms.append(int(m.group(1)) if m else None)
 
-                def _interval_ms(fi: int, fj: int) -> Optional[int]:
+                def _interval_ms(fi: int, fj: int) -> int | None:
                     t_i = timestamps_ms[fi] if fi < len(timestamps_ms) else None
                     t_j = timestamps_ms[fj] if fj < len(timestamps_ms) else None
                     if t_i is not None and t_j is not None and t_j != t_i:
@@ -196,7 +194,7 @@ class _FilterEdgesMixin:
                     iv = _interval_ms(e["i"], e["j"])
                     if iv is not None:
                         vel_samples.append(v_e / iv)
-                vel_px_per_ms: Optional[float] = (
+                vel_px_per_ms: float | None = (
                     float(np.median(vel_samples)) if vel_samples else None
                 )
                 if vel_px_per_ms is not None:
@@ -205,7 +203,7 @@ class _FilterEdgesMixin:
                         f"(from {len(vel_samples)} reliable edges)"
                     )
 
-                def _is_outlier(val: float, fi: int, fj: int) -> Tuple[bool, str]:
+                def _is_outlier(val: float, fi: int, fj: int) -> tuple[bool, str]:
                     if _wrong_sign(val):
                         return True, "wrong sign"
                     if _gross_outlier(val):
@@ -224,14 +222,14 @@ class _FilterEdgesMixin:
                     return False, ""
 
                 def _apply_corrected_M(
-                    edge: Dict, new_M: np.ndarray, new_weight: float
-                ) -> Dict:
+                    edge: dict, new_M: np.ndarray, new_weight: float
+                ) -> dict:
                     new_pts_j = edge["pts_i"] + new_M[:, 2].astype(np.float32)
                     return dict(edge, M=new_M, pts_j=new_pts_j, weight=new_weight)
 
                 ec_h = int(H * MATCH_EDGE_CROP)
                 ec_w = int(W * MATCH_EDGE_CROP)
-                corrected: List[Dict] = []
+                corrected: list[dict] = []
                 for e in edges:
                     if e["j"] == e["i"] + 1:
                         fi, fj = e["i"], e["j"]

@@ -25,8 +25,6 @@ a robust per-pair sub-pixel translation estimate.
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 # --------------------------------
 import cv2
 import numpy as np
@@ -34,7 +32,6 @@ import numpy as np
 # --- Relocated Nested Imports ---
 import ptlflow
 import torch
-
 from backend.src.constants import FLOW_MAX_DRIFT, FLOW_PATCH_SIZE
 
 
@@ -50,12 +47,12 @@ def _load_sea_raft(device: str = "cpu"):
 
 
 def _flow_refine(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     device: str = "cpu",
     raft_model=None,
-) -> List[np.ndarray]:
+) -> list[np.ndarray]:
     """
     Sub-pixel refinement of relative affines via SEA-RAFT optical flow.
 

@@ -24,11 +24,9 @@ import logging
 import os
 import warnings
 from pathlib import Path
-from typing import Dict, List, Optional
 
 import cv2
 import numpy as np
-
 from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine
 from asp_backend.alignment.canvas import (
     _compute_canvas,
@@ -77,10 +75,10 @@ class _RunStageMixin:
 
     def run(  # noqa: C901
         self,
-        image_paths: List[str],
+        image_paths: list[str],
         output_path: str,
-        hires_keyframes: Optional[Dict[int, str]] = None,
-    ) -> "Image.Image":
+        hires_keyframes: dict[int, str] | None = None,
+    ) -> Image.Image:
         """
         Execute the full stitching pipeline.
 
@@ -123,7 +121,7 @@ class _RunStageMixin:
             raise PipelineError("Need at least 2 valid frames to stitch.")
         logger.info(f"[Stitch] Stage 1 complete: {N} frames loaded.")
 
-        phase_ids: Optional[List[int]] = None
+        phase_ids: list[int] | None = None
 
         # ── Stage 2: Width normalisation ─────────────────────────────────────
         frames = _normalise_widths(frames)

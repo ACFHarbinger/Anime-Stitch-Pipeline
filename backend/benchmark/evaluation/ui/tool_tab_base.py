@@ -13,7 +13,7 @@ already ran is instant, which matters at a ~28 s/test pace.
 from __future__ import annotations
 
 from collections import OrderedDict
-from typing import Callable, Dict, List, Optional, Tuple
+from collections.abc import Callable
 
 import numpy as np
 from matplotlib.figure import Figure
@@ -41,12 +41,12 @@ class ToolTabBase(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._images: Dict[str, np.ndarray] = {}
-        self._metrics: Dict = {}
-        self._tools: List[Tuple[str, Callable[[], object]]] = []
-        self._cache: "OrderedDict[str, QWidget]" = OrderedDict()
+        self._images: dict[str, np.ndarray] = {}
+        self._metrics: dict = {}
+        self._tools: list[tuple[str, Callable[[], object]]] = []
+        self._cache: OrderedDict[str, QWidget] = OrderedDict()
         self._cache_token = ""
-        self._current_widget: Optional[QWidget] = None
+        self._current_widget: QWidget | None = None
 
         self._tool_list = QListWidget()
         self._tool_list.setMaximumWidth(230)
@@ -101,13 +101,13 @@ class ToolTabBase(QWidget):
         container.setLayout(row)
         self._controls.addWidget(container)
 
-    def _comparator_combo(self, keys: Optional[List[str]] = None) -> QComboBox:
+    def _comparator_combo(self, keys: list[str] | None = None) -> QComboBox:
         combo = QComboBox()
         self._populate_combo(combo, keys or [])
         return combo
 
     @staticmethod
-    def _populate_combo(combo: QComboBox, keys: List[str]) -> None:
+    def _populate_combo(combo: QComboBox, keys: list[str]) -> None:
         previous = combo.currentData()
         combo.blockSignals(True)
         combo.clear()
@@ -119,7 +119,7 @@ class ToolTabBase(QWidget):
 
     # -- content -------------------------------------------------------------
 
-    def set_context(self, images: Dict[str, np.ndarray], metrics: Dict, token: str) -> None:
+    def set_context(self, images: dict[str, np.ndarray], metrics: dict, token: str) -> None:
         """New test loaded. ``token`` identifies it, so the result cache is
         dropped when the underlying images change."""
         self._images = images
@@ -132,10 +132,10 @@ class ToolTabBase(QWidget):
     def _on_context_changed(self) -> None:
         """Hook for subclasses to refresh their comparator selectors."""
 
-    def available(self) -> List[str]:
+    def available(self) -> list[str]:
         return list(self._images)
 
-    def image(self, key: Optional[str]) -> Optional[np.ndarray]:
+    def image(self, key: str | None) -> np.ndarray | None:
         return self._images.get(key) if key else None
 
     def refresh(self) -> None:
@@ -184,7 +184,7 @@ class ToolTabBase(QWidget):
         self._status.setText(name)
         self._mount(widget)
 
-    def _build_result(self, result) -> Optional[QWidget]:
+    def _build_result(self, result) -> QWidget | None:
         """Wrap a handler's return value in a display widget."""
         if result is None:
             return None

@@ -16,7 +16,6 @@ row or a column, so it stays instant regardless of how many frames are loaded.
 from __future__ import annotations
 
 import os
-from typing import List
 
 import cv2
 import numpy as np
@@ -83,8 +82,8 @@ class FilmstripWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._orientation = ORIENTATION_HORIZONTAL
-        self._paths: List[str] = []
-        self._thumbnails: List[_Thumbnail] = []
+        self._paths: list[str] = []
+        self._thumbnails: list[_Thumbnail] = []
         self._current_index = -1
 
         header = QHBoxLayout()
@@ -143,7 +142,7 @@ class FilmstripWidget(QWidget):
     def orientation(self) -> str:
         return self._orientation
 
-    def set_frames(self, paths: List[str]) -> None:
+    def set_frames(self, paths: list[str]) -> None:
         """Decode and thumbnail every path — the one potentially slow step,
         done once per selection rather than on every orientation toggle."""
         self._paths = list(paths)

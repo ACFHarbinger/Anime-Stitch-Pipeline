@@ -23,7 +23,7 @@ import tempfile
 import uuid
 import warnings
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import cv2
 import numpy as np
@@ -32,12 +32,12 @@ import numpy as np
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _mask_to_polygon(mask: np.ndarray) -> List[List[float]]:
+def _mask_to_polygon(mask: np.ndarray) -> list[list[float]]:
     """Convert a binary uint8 mask to a COCO polygon (list of [x,y,...] contours)."""
     contours, _ = cv2.findContours(
         (mask > 127).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
-    polygons: List[List[float]] = []
+    polygons: list[list[float]] = []
     for cnt in contours:
         if cnt.shape[0] < 3:
             continue
@@ -47,7 +47,7 @@ def _mask_to_polygon(mask: np.ndarray) -> List[List[float]]:
     return polygons
 
 
-def _mask_to_rle(mask: np.ndarray) -> Optional[Dict]:
+def _mask_to_rle(mask: np.ndarray) -> dict | None:
     """Encode mask as COCO RLE if pycocotools is available; otherwise returns None."""
     if coco_mask is None:
         return None
@@ -60,7 +60,7 @@ def _mask_to_rle(mask: np.ndarray) -> Optional[Dict]:
         return None
 
 
-def _bbox_from_mask(mask: np.ndarray) -> Tuple[int, int, int, int]:
+def _bbox_from_mask(mask: np.ndarray) -> tuple[int, int, int, int]:
     """Return COCO bbox [x, y, w, h] from a binary mask."""
     ys, xs = np.where(mask > 127)
     if len(xs) == 0:
@@ -107,11 +107,11 @@ class COCOAnnotationBuilder:
     The saved JSON is COCO-compatible: images + annotations + categories arrays.
     """
 
-    def __init__(self, categories: Optional[List[Dict]] = None):
+    def __init__(self, categories: list[dict] | None = None):
         self._categories = categories or list(_DEFAULT_CATEGORIES)
-        self._cat_name_to_id: Dict[str, int] = {c["name"]: c["id"] for c in self._categories}
-        self._images: List[Dict] = []
-        self._annotations: List[Dict] = []
+        self._cat_name_to_id: dict[str, int] = {c["name"]: c["id"] for c in self._categories}
+        self._images: list[dict] = []
+        self._annotations: list[dict] = []
         self._next_img_id = 1
         self._next_ann_id = 1
 
@@ -146,7 +146,7 @@ class COCOAnnotationBuilder:
         *,
         category: str = "foreground",
         source: str = "human",
-        pre_correction_mask: Optional[np.ndarray] = None,
+        pre_correction_mask: np.ndarray | None = None,
     ) -> int:
         """
         Add a binary segmentation mask annotation.
@@ -163,7 +163,7 @@ class COCOAnnotationBuilder:
         bbox = _bbox_from_mask(mask)
         area = float(np.count_nonzero(mask > 127))
 
-        ann: Dict[str, Any] = {
+        ann: dict[str, Any] = {
             "id": self._next_ann_id,
             "image_id": image_id,
             "category_id": cat_id,
@@ -184,8 +184,8 @@ class COCOAnnotationBuilder:
         self,
         image_id: int,
         *,
-        bbox: Optional[List[int]] = None,
-        mask: Optional[np.ndarray] = None,
+        bbox: list[int] | None = None,
+        mask: np.ndarray | None = None,
         text_prompt: str = "",
     ) -> int:
         """
@@ -195,8 +195,8 @@ class COCOAnnotationBuilder:
         text_prompt is stored in attributes for fine-tuning the DINO text encoder.
         """
         cat_id = self._cat_name_to_id.get("seam_exclusion", 2)
-        polygons: List[List[float]] = []
-        final_bbox: List[int] = bbox or [0, 0, 0, 0]
+        polygons: list[list[float]] = []
+        final_bbox: list[int] = bbox or [0, 0, 0, 0]
         area = 0.0
 
         if mask is not None:
@@ -208,7 +208,7 @@ class COCOAnnotationBuilder:
             polygons = [[float(x), float(y), float(x + w), float(y), float(x + w), float(y + h), float(x), float(y + h)]]
             area = float(w * h)
 
-        ann: Dict[str, Any] = {
+        ann: dict[str, Any] = {
             "id": self._next_ann_id,
             "image_id": image_id,
             "category_id": cat_id,
@@ -231,7 +231,7 @@ class COCOAnnotationBuilder:
     ) -> int:
         """Record that the user accepted or rejected a frame during frame-selection review."""
         cat_id = self._cat_name_to_id.get("foreground", 1)
-        ann: Dict[str, Any] = {
+        ann: dict[str, Any] = {
             "id": self._next_ann_id,
             "image_id": image_id,
             "category_id": cat_id,
@@ -247,7 +247,7 @@ class COCOAnnotationBuilder:
 
     # ── serialization ─────────────────────────────────────────────────────
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Return the full COCO-format dict."""
         return {
             "info": {
@@ -304,19 +304,19 @@ class LabelStudioExporter:
     """
 
     def __init__(self):
-        self._tasks: List[Dict] = []
+        self._tasks: list[dict] = []
 
     def add_task(
         self,
         frame_path: str,
         *,
         temporal_id: int = 0,
-        model_mask: Optional[np.ndarray] = None,
-        human_mask: Optional[np.ndarray] = None,
+        model_mask: np.ndarray | None = None,
+        human_mask: np.ndarray | None = None,
         category: str = "foreground",
         text_prompt: str = "",
-        pos_clicks: Optional[List[Tuple[int, int]]] = None,
-        neg_clicks: Optional[List[Tuple[int, int]]] = None,
+        pos_clicks: list[tuple[int, int]] | None = None,
+        neg_clicks: list[tuple[int, int]] | None = None,
     ) -> str:
         """
         Add one annotation task.
@@ -326,7 +326,7 @@ class LabelStudioExporter:
         # relocated: import uuid
         task_id = str(uuid.uuid4())[:8]
 
-        def _mask_to_ls_result(mask: np.ndarray, result_id: str, source: str) -> List[Dict]:
+        def _mask_to_ls_result(mask: np.ndarray, result_id: str, source: str) -> list[dict]:
             """Encode a mask as a Label Studio polygon result."""
             polygons = _mask_to_polygon(mask)
             results = []
@@ -346,8 +346,8 @@ class LabelStudioExporter:
                 })
             return results
 
-        predictions: List[Dict] = []
-        annotations: List[Dict] = []
+        predictions: list[dict] = []
+        annotations: list[dict] = []
 
         if model_mask is not None:
             predictions = [{
@@ -401,7 +401,7 @@ class LabelStudioExporter:
         })
         return task_id
 
-    def to_list(self) -> List[Dict]:
+    def to_list(self) -> list[dict]:
         """Return the Label Studio task list."""
         return list(self._tasks)
 
@@ -422,8 +422,8 @@ class LabelStudioExporter:
 # ---------------------------------------------------------------------------
 
 def create_session_serializers(
-    session_dir: Optional[str] = None,
-) -> Tuple["COCOAnnotationBuilder", "LabelStudioExporter", str]:
+    session_dir: str | None = None,
+) -> tuple[COCOAnnotationBuilder, LabelStudioExporter, str]:
     """
     Create a paired (COCOAnnotationBuilder, LabelStudioExporter) for one HITL session.
 

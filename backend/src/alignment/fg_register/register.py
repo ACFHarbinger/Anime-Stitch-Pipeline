@@ -27,11 +27,9 @@ principle) and never disturbs canvas regions a single frame owns outright.
 from __future__ import annotations
 
 import os
-from typing import Optional, Tuple
 
 import cv2
 import numpy as np
-
 from backend.src.constants import (
     FG_REG_MAX_RESIDUAL as _FG_REG_MAX_RESIDUAL_DEFAULT,
 )
@@ -69,8 +67,8 @@ def register_foreground_at_seam(  # noqa: C901
     smooth_sigma: float = FG_REG_SMOOTH_SIGMA,
     alpha_a: float = 0.5,
     alpha_b: float = 0.5,
-    flow_override: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, dict]:
+    flow_override: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict]:
     """
     Re-pose the foreground of two canvas-aligned frames toward a shared target
     pose in a tapered band around the seam, so character body parts line up

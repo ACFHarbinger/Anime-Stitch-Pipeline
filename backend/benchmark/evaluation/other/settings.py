@@ -12,7 +12,6 @@ from __future__ import annotations
 import dataclasses
 import json
 import os
-from typing import Optional
 
 from ..constants.user_interface import THEME_DARK, THEMES
 
@@ -21,14 +20,14 @@ _THEME_KEYS = {key for key, _ in THEMES}
 
 @dataclasses.dataclass
 class AppSettings:
-    out_dir: Optional[str] = None  # None => bench_eval_dispatch's built-in default
+    out_dir: str | None = None  # None => bench_eval_dispatch's built-in default
     theme: str = THEME_DARK
 
     def to_dict(self) -> dict:
         return {"out_dir": self.out_dir, "theme": self.theme}
 
     @staticmethod
-    def from_dict(d: dict) -> "AppSettings":
+    def from_dict(d: dict) -> AppSettings:
         theme = d.get("theme", THEME_DARK)
         return AppSettings(
             out_dir=d.get("out_dir") or None,
@@ -41,12 +40,12 @@ def default_settings_path() -> str:
     return os.path.join(config_dir, "asp_eval_settings.json")
 
 
-def load_settings(path: Optional[str] = None) -> AppSettings:
+def load_settings(path: str | None = None) -> AppSettings:
     path = path or default_settings_path()
     if not os.path.exists(path):
         return AppSettings()
     try:
-        with open(path, "r", encoding="utf-8") as fh:
+        with open(path, encoding="utf-8") as fh:
             return AppSettings.from_dict(json.load(fh))
     except (OSError, ValueError):
         # A corrupt or unreadable prefs file shouldn't block the tool from
@@ -54,7 +53,7 @@ def load_settings(path: Optional[str] = None) -> AppSettings:
         return AppSettings()
 
 
-def save_settings(settings: AppSettings, path: Optional[str] = None) -> None:
+def save_settings(settings: AppSettings, path: str | None = None) -> None:
     path = path or default_settings_path()
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:

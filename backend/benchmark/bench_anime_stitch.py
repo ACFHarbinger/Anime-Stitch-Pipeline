@@ -22,7 +22,6 @@ import shutil
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -68,13 +67,13 @@ from asp_backend.alignment.canvas import (
 from asp_backend.alignment.ecc import _ecc_refine
 from asp_backend.alignment.matching import _pairwise_match
 from asp_backend.core.pipeline import AnimeStitchPipeline
+from asp_backend.core.pipeline._probes import _USE_SAM2
 from asp_backend.core.validation import _validate_affines
 from asp_backend.ingestion.frame_selection import (
     detect_animation_phases,
     phase_spans,
     smart_select_frames,
 )
-from asp_backend.core.pipeline._probes import _USE_SAM2
 from asp_backend.ingestion.masking import (
     _cleanup_sam2_state,
     _compute_fg_masks,
@@ -134,8 +133,8 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-def _system_info() -> Dict:
-    info: Dict = {
+def _system_info() -> dict:
+    info: dict = {
         "platform": platform.platform(),
         "python": platform.python_version(),
         "cpu": platform.processor(),
@@ -172,11 +171,11 @@ _RAM_ABORT_PCT = float(os.environ.get("ASP_BENCH_RAM_ABORT_PCT", "80"))
 _VRAM_ABORT_PCT = float(os.environ.get("ASP_BENCH_VRAM_ABORT_PCT", "85"))
 
 
-def _resource_snapshot() -> Dict:
+def _resource_snapshot() -> dict:
     """RSS/VRAM snapshot for per-dataset instrumentation and the abort guardrail."""
     proc = psutil.Process(os.getpid())
     vm = psutil.virtual_memory()
-    snap: Dict = {
+    snap: dict = {
         "rss_gb": round(proc.memory_info().rss / 1024**3, 2),
         "sys_ram_used_pct": vm.percent,
         "sys_ram_available_gb": round(vm.available / 1024**3, 2),
@@ -196,7 +195,7 @@ def _resource_snapshot() -> Dict:
     return snap
 
 
-def _resource_danger(snap: Dict) -> Optional[str]:
+def _resource_danger(snap: dict) -> str | None:
     """Reason string if the snapshot crosses an abort threshold, else None."""
     if snap["sys_ram_used_pct"] >= _RAM_ABORT_PCT:
         return (
@@ -218,7 +217,7 @@ def _resource_danger(snap: Dict) -> Optional[str]:
 # permanently (a few syscalls), and each call also runs gc.collect() +
 # torch.cuda.empty_cache() first so the reading reflects what's genuinely
 # unreachable/uncached, not just "not yet collected".
-def _log_resource(tag: str, store: Optional[Dict[str, float]] = None) -> Dict:
+def _log_resource(tag: str, store: dict[str, float] | None = None) -> dict:
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
@@ -241,7 +240,7 @@ def _log_resource(tag: str, store: Optional[Dict[str, float]] = None) -> Dict:
 # process_dataset() (dataset_start ... dataset_end). Not every dataset hits
 # every tag (e.g. a SCANS fallback skips before/after_render_median), so the
 # waterfall renderer only plots tags actually present in a given result.
-STAGE_MEMORY_ORDER: Tuple[str, ...] = (
+STAGE_MEMORY_ORDER: tuple[str, ...] = (
     "dataset_start",
     "before_birefnet",
     "after_birefnet_offload",
@@ -273,7 +272,7 @@ def _coverage(img: np.ndarray) -> float:
 
 
 def _mean_seam_gradient(
-    img: np.ndarray, affines: Optional[List[np.ndarray]] = None
+    img: np.ndarray, affines: list[np.ndarray] | None = None
 ) -> float:
     """
     Average gradient magnitude along horizontal seam boundaries.
@@ -420,7 +419,7 @@ def _seam_coherence(img: np.ndarray) -> float:
 
 def _strip_banding_score(
     render_img: np.ndarray,
-    affines: Optional[List[np.ndarray]] = None,
+    affines: list[np.ndarray] | None = None,
 ) -> float:
     """
     Maximum luminance jump between adjacent frame-strip zones.
@@ -461,7 +460,7 @@ def _strip_banding_score(
 
 def _seam_visibility_score(
     output_img: np.ndarray,
-    affines: Optional[List[np.ndarray]] = None,
+    affines: list[np.ndarray] | None = None,
 ) -> float:
     """
     Worst-case horizontal luminance discontinuity (no-reference).
@@ -515,7 +514,7 @@ def _compute_per_seam_ghost_scores(
     img: np.ndarray,
     n_strips: int,
     band_px: int = 100,
-) -> List[float]:
+) -> list[float]:
     """§3.8B: Per-seam SIQE ghost scores for a vertically-assembled panorama.
 
     Divides the output image into *n_strips* equal-height zones and evaluates
@@ -541,7 +540,7 @@ def _compute_per_seam_ghost_scores(
         return []
     H = img.shape[0]
     zone_h = H / n_strips
-    scores: List[float] = []
+    scores: list[float] = []
     for k in range(1, n_strips):
         boundary_y = int(round(zone_h * k))
         y0 = max(0, boundary_y - band_px)
@@ -551,7 +550,7 @@ def _compute_per_seam_ghost_scores(
     return scores
 
 
-def _compute_cqas(metrics: dict) -> Optional[float]:
+def _compute_cqas(metrics: dict) -> float | None:
     """§3.18 Composite Quality Aggregate Score — single [0,1] quality signal (S148).
 
     Combines five complementary no-reference metrics into one scalar, useful
@@ -599,9 +598,9 @@ def _compute_cqas(metrics: dict) -> Optional[float]:
 
 def _compute_all_metrics(
     img: np.ndarray,
-    affines: Optional[List] = None,
+    affines: list | None = None,
     n_strips: int = 1,
-) -> Dict:
+) -> dict:
     """Core no-reference metric set for one output image.
 
     2026-07 trim: reduced from ~40 metrics to the validated core.  Metric
@@ -633,7 +632,7 @@ def _compute_all_metrics(
     return metrics
 
 
-def _load_ground_truth(dataset_name: str, gt_dir: str) -> Optional[np.ndarray]:
+def _load_ground_truth(dataset_name: str, gt_dir: str) -> np.ndarray | None:
     """
     Load the ground truth reference image for a dataset, if one exists.
 
@@ -735,9 +734,9 @@ def _compute_aligned_ssim(output_img: np.ndarray, gt_img: np.ndarray) -> float:
 
 
 def _compute_gt_metrics(
-    output_img: Optional[np.ndarray],
+    output_img: np.ndarray | None,
     gt_img: np.ndarray,
-) -> Dict:
+) -> dict:
     """
     Compute SSIM and PSNR between a pipeline output and the ground truth.
 
@@ -761,10 +760,10 @@ def _compute_gt_metrics(
     }
 
 
-_HUMAN_RATINGS_CACHE: Optional[Dict] = None
+_HUMAN_RATINGS_CACHE: dict | None = None
 
 
-def _load_human_evaluations() -> Dict:
+def _load_human_evaluations() -> dict:
     """§0.1/0.2: load the most recent human coherence evaluations file (from
     ``evaluation_manager.py``), if any exist. Cached per-process — evaluations don't
     change mid-run. Schema: {test_name: {"asp": 0-4, "simple": 0-4, "notes": str}}.
@@ -786,9 +785,9 @@ def _load_human_evaluations() -> Dict:
 
 
 def _gt_verdict(
-    asp_gt: Dict,
-    sim_gt: Dict,
-) -> Optional[str]:
+    asp_gt: dict,
+    sim_gt: dict,
+) -> str | None:
     """
     Quality verdict derived from ground truth SSIM comparison.
 
@@ -816,7 +815,7 @@ def _gt_verdict(
 
 
 def _save_affine_path_plot(
-    affines: List[np.ndarray],
+    affines: list[np.ndarray],
     canvas_h: int,
     canvas_w: int,
     frame_h: int,
@@ -881,8 +880,8 @@ _PHASE_PALETTE = [
 
 
 def _save_phase_strip_plot(
-    frames_paths: List[str],
-    phase_ids: List[int],
+    frames_paths: list[str],
+    phase_ids: list[int],
     out_path: str,
     thumb_h: int = 100,
 ) -> None:
@@ -904,7 +903,7 @@ def _save_phase_strip_plot(
     if not tiles:
         return
     gap = np.full((tiles[0].shape[0], 4, 3), 18, dtype=np.uint8)
-    strip_parts: List[np.ndarray] = []
+    strip_parts: list[np.ndarray] = []
     for i, t in enumerate(tiles):
         if i > 0:
             strip_parts.append(gap)
@@ -913,7 +912,7 @@ def _save_phase_strip_plot(
 
 
 def _save_translation_plot(
-    affines: List[np.ndarray],
+    affines: list[np.ndarray],
     out_path: str,
     title: str = "Translation Vectors per Frame",
 ) -> None:
@@ -948,8 +947,8 @@ def _save_translation_plot(
 
 
 def _save_gains_plot(
-    frame_lums: List[Optional[float]],
-    gains: List[float],
+    frame_lums: list[float | None],
+    gains: list[float],
     out_path: str,
 ) -> None:
     """Bar chart of per-frame luminance gain corrections."""
@@ -1065,7 +1064,7 @@ def _save_3d_surface(img: np.ndarray, out_path: str, title: str = "") -> None:
 
 
 def _save_overlap_map(
-    affines: List[np.ndarray],
+    affines: list[np.ndarray],
     canvas_h: int,
     canvas_w: int,
     frame_h: int,
@@ -1104,7 +1103,7 @@ def _save_overlap_map(
 
 def _save_mask_overlay(
     frame: np.ndarray,
-    mask: Optional[np.ndarray],
+    mask: np.ndarray | None,
     out_path: str,
     title: str = "",
 ) -> None:
@@ -1129,7 +1128,7 @@ def _save_mask_overlay(
     plt.close(fig)
 
 
-def _save_metrics_bar(metrics_asp: Dict, metrics_simple: Dict, out_path: str) -> None:
+def _save_metrics_bar(metrics_asp: dict, metrics_simple: dict, out_path: str) -> None:
     """Side-by-side bar chart comparing key CV metrics for ASP vs simple."""
     if not _MPL_OK:
         return
@@ -1201,7 +1200,7 @@ def _save_metrics_bar(metrics_asp: Dict, metrics_simple: Dict, out_path: str) ->
 # uses, so every future frame-selection flag is measured against this suite.
 
 
-def _smart_select_frames(frames_paths: List[str]) -> List[str]:
+def _smart_select_frames(frames_paths: list[str]) -> list[str]:
     return smart_select_frames(frames_paths, min_step_px=50.0)
 
 
@@ -1210,7 +1209,7 @@ def _smart_select_frames(frames_paths: List[str]) -> List[str]:
 # ============================================================================
 
 
-def _run_simple_stitch(frames_paths: List[str], out_path: str) -> bool:
+def _run_simple_stitch(frames_paths: list[str], out_path: str) -> bool:
     """Generate OpenCV SCANS simple stitch and save. Returns True on success."""
     raw = [cv2.imread(p) for p in frames_paths]
     raw = [f for f in raw if f is not None]
@@ -1230,7 +1229,7 @@ def _run_simple_stitch(frames_paths: List[str], out_path: str) -> bool:
 # ============================================================================
 
 
-def process_dataset(dataset_dir: str) -> Optional[Dict]:  # noqa: C901
+def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
     """
     Run both pipelines on a single dataset directory.
 
@@ -1238,8 +1237,8 @@ def process_dataset(dataset_dir: str) -> Optional[Dict]:  # noqa: C901
     the dataset is skipped.
     """
     t_total_start = time.perf_counter()
-    timings: Dict[str, float] = {}
-    stage_memory_rss_mb: Dict[str, float] = {}  # §11.6 (issue #69)
+    timings: dict[str, float] = {}
+    stage_memory_rss_mb: dict[str, float] = {}  # §11.6 (issue #69)
 
     print(f"\n{'=' * 60}\nProcessing dataset: {dataset_dir}\n{'=' * 60}")
     _log_resource("dataset_start", store=stage_memory_rss_mb)
@@ -1355,8 +1354,8 @@ def process_dataset(dataset_dir: str) -> Optional[Dict]:  # noqa: C901
     frames = _normalise_widths(frames)
     H, W = frames[0].shape[:2]
     scans_frames = list(frames)  # pre-ML snapshot for SCANS fallback
-    _fallback_reason: Optional[str] = None  # set by whichever gate triggers SCANS
-    _mean_post_warp_diff: Optional[float] = None  # §0.4, set after Stage 11 composite
+    _fallback_reason: str | None = None  # set by whichever gate triggers SCANS
+    _mean_post_warp_diff: float | None = None  # §0.4, set after Stage 11 composite
     for i, f in enumerate(frames):
         cv2.imwrite(os.path.join(stage_dir, f"stage02_normalised_frame{i:02d}.png"), f)
 
@@ -1412,7 +1411,7 @@ def process_dataset(dataset_dir: str) -> Optional[Dict]:  # noqa: C901
     # STEP 4: Background photometric normalisation (luminance scalar gain)
     # ------------------------------------------------------------------
     _LUM_W = np.array([0.114, 0.587, 0.299], dtype=np.float32)
-    bg_frame_lums: List[Optional[float]] = []
+    bg_frame_lums: list[float | None] = []
     for frame, mask in zip(frames, bg_masks, strict=False):
         if mask is not None:
             bg_px = frame[mask > 127].astype(np.float32)
@@ -1478,7 +1477,7 @@ def process_dataset(dataset_dir: str) -> Optional[Dict]:  # noqa: C901
 
     # Collect edge metadata before filtering
     raw_edge_count = len(edges)
-    edge_methods: Dict[str, int] = {}
+    edge_methods: dict[str, int] = {}
     for e in edges:
         m = e.get("method", "unknown")
         edge_methods[m] = edge_methods.get(m, 0) + 1
@@ -2177,41 +2176,41 @@ def _build_result(
     dataset_name: str,
     anime_path: str,
     simple_path: str,
-    asp_img: Optional[np.ndarray],
-    sim_img: Optional[np.ndarray],
-    affines: List[np.ndarray],
-    bg_frame_lums: List[Optional[float]],
-    applied_gains: List[float],
+    asp_img: np.ndarray | None,
+    sim_img: np.ndarray | None,
+    affines: list[np.ndarray],
+    bg_frame_lums: list[float | None],
+    applied_gains: list[float],
     health,
     plots_dir: str,
     stage_dir: str,
-    canvas_h: Optional[int],
-    canvas_w: Optional[int],
+    canvas_h: int | None,
+    canvas_w: int | None,
     used_fallback: bool,
-    timings: Optional[Dict] = None,
+    timings: dict | None = None,
     frame_count: int = 0,
     frame_h: int = 0,
     frame_w: int = 0,
     raw_edge_count: int = 0,
     filtered_edge_count: int = 0,
-    edge_methods: Optional[Dict] = None,
-    edge_stats: Optional[List] = None,
+    edge_methods: dict | None = None,
+    edge_stats: list | None = None,
     birefnet_ok: bool = False,
     loftr_ok: bool = False,
-    gt_img: Optional[np.ndarray] = None,
-    fallback_reason: Optional[str] = None,
+    gt_img: np.ndarray | None = None,
+    fallback_reason: str | None = None,
     orig_frame_count: int = 0,
     smart_select_count: int = 0,
     spatial_dedup_count: int = 0,
     phase_count: int = 0,
-    phase_spans_list: Optional[List] = None,
-    mean_post_warp_diff: Optional[float] = None,
-    overmix_img: Optional[np.ndarray] = None,
-    overmix_path: Optional[str] = None,
-    hugin_img: Optional[np.ndarray] = None,
-    hugin_path: Optional[str] = None,
-    stage_memory_rss_mb: Optional[Dict[str, float]] = None,
-) -> Dict:
+    phase_spans_list: list | None = None,
+    mean_post_warp_diff: float | None = None,
+    overmix_img: np.ndarray | None = None,
+    overmix_path: str | None = None,
+    hugin_img: np.ndarray | None = None,
+    hugin_path: str | None = None,
+    stage_memory_rss_mb: dict[str, float] | None = None,
+) -> dict:
     asp_metrics = _compute_all_metrics(asp_img, affines) if asp_img is not None else {}
     sim_metrics = _compute_all_metrics(sim_img) if sim_img is not None else {}
     # §0.3/§0.5 — Overmix and Hugin are reference comparator columns, not
@@ -2226,10 +2225,10 @@ def _build_result(
         psnr_val = _psnr(asp_img, sim_img)
 
     # Ground truth comparison
-    gt_metrics_asp: Dict = (
+    gt_metrics_asp: dict = (
         _compute_gt_metrics(asp_img, gt_img) if gt_img is not None else {}
     )
-    gt_metrics_sim: Dict = (
+    gt_metrics_sim: dict = (
         _compute_gt_metrics(sim_img, gt_img) if gt_img is not None else {}
     )
     gt_ver = _gt_verdict(gt_metrics_asp, gt_metrics_sim)
@@ -2430,7 +2429,7 @@ def _build_result(
 # ============================================================================
 
 
-def generate_json_results(results: List[Dict], suite_start_time: float) -> str:
+def generate_json_results(results: list[dict], suite_start_time: float) -> str:
     """
     Write a structured JSON results file to backend/benchmark/output/ and
     return the path.  Schema mirrors the existing benchmark JSON files.
@@ -2706,7 +2705,7 @@ human_notes: |
 """
 
 
-def _auto_verdict(asp_m: Dict, sim_m: Dict) -> str:
+def _auto_verdict(asp_m: dict, sim_m: dict) -> str:
     """
     Quality verdict using seam_coherence as the primary discriminator.
 
@@ -2759,7 +2758,7 @@ def _auto_verdict(asp_m: Dict, sim_m: Dict) -> str:
     return "comparable"
 
 
-def _auto_issues(metrics: Dict, is_asp: bool) -> List[str]:
+def _auto_issues(metrics: dict, is_asp: bool) -> list[str]:
     """Generate a list of detected issues from metrics."""
     issues = []
     if not metrics:
@@ -2803,7 +2802,7 @@ def _plot_exists(plots_dir: str, name: str) -> bool:
     return os.path.exists(os.path.join(plots_dir, name))
 
 
-def _report_header_and_summary(results: List[Dict], lines: List[str]) -> None:
+def _report_header_and_summary(results: list[dict], lines: list[str]) -> None:
     # Header
     lines.append(
         _REPORT_HEADER.format(
@@ -2852,10 +2851,10 @@ def _report_header_and_summary(results: List[Dict], lines: List[str]) -> None:
     )
 
 
-def _report_fail_breakdown(results: List[Dict], lines: List[str]) -> None:
+def _report_fail_breakdown(results: list[dict], lines: list[str]) -> None:
     # Global ASP failure breakdown
     lines.append("### Failure Mode Counts (ASP)\n\n")
-    fail_counts: Dict[str, int] = {}
+    fail_counts: dict[str, int] = {}
     for r in results:
         for issue in _auto_issues(r["metrics_asp"], is_asp=True):
             key = issue.strip().lstrip("- ").split(":")[0]
@@ -2873,7 +2872,7 @@ _FRAME_SELECT_DROP_FLAG_PCT = 40.0
 
 
 def _report_frame_selection_telemetry(
-    results: List[Dict], output_dir: str, lines: List[str]
+    results: list[dict], output_dir: str, lines: list[str]
 ) -> None:
     """
     §11.7 dashboard — Frame Selection Telemetry.
@@ -3009,7 +3008,7 @@ _KNOWN_FALLBACK_GATES = [
 ]
 
 
-def _report_fallback_breakdown(results: List[Dict], lines: List[str]) -> None:
+def _report_fallback_breakdown(results: list[dict], lines: list[str]) -> None:
     """
     §11.8 dashboard — Fallback Root Cause Breakdown.
 
@@ -3020,7 +3019,7 @@ def _report_fallback_breakdown(results: List[Dict], lines: List[str]) -> None:
     """
     lines.append("### Fallback Root Cause Breakdown (§11.8)\n\n")
 
-    by_gate: Dict[str, List[str]] = {}
+    by_gate: dict[str, list[str]] = {}
     total_fallbacks = 0
     for r in results:
         if not r.get("used_fallback"):
@@ -3058,7 +3057,7 @@ def _report_fallback_breakdown(results: List[Dict], lines: List[str]) -> None:
 
 
 def _report_stage_memory_waterfall(
-    results: List[Dict], output_dir: str, lines: List[str]
+    results: list[dict], output_dir: str, lines: list[str]
 ) -> None:
     """
     §11.6 dashboard — Stage-Level Memory Profiling.
@@ -3076,7 +3075,7 @@ def _report_stage_memory_waterfall(
     # Average RSS per tag across datasets that reported it (a SCANS fallback
     # skips before/after_render_median and after_composite, so not every tag
     # has full coverage — only average over datasets that actually hit it).
-    per_tag_values: Dict[str, List[float]] = {tag: [] for tag in STAGE_MEMORY_ORDER}
+    per_tag_values: dict[str, list[float]] = {tag: [] for tag in STAGE_MEMORY_ORDER}
     for r in results:
         smem = r.get("stage_memory_rss_mb") or {}
         for tag, val in smem.items():
@@ -3146,7 +3145,7 @@ def _report_stage_memory_waterfall(
         )
 
 
-def _find_latest_baseline(results_dir: Optional[str] = None) -> Optional[List[Dict]]:
+def _find_latest_baseline(results_dir: str | None = None) -> list[dict] | None:
     """
     §11.9 (issue #69) — load the most recent prior `anime_stitch_*.json`
     run's `datasets` list from `backend/benchmark/output/` (the fixed,
@@ -3173,12 +3172,12 @@ def _find_latest_baseline(results_dir: Optional[str] = None) -> Optional[List[Di
 
 
 def detect_regressions(
-    current: List[Dict],
-    baseline: List[Dict],
+    current: list[dict],
+    baseline: list[dict],
     quality_drop_thr: float = 0.05,
     ghosting_increase_thr: float = 0.10,
     time_increase_thr: float = 0.20,
-) -> List[Dict]:
+) -> list[dict]:
     """
     §11.9 (issue #69) — per-dataset regression detection between two runs.
 
@@ -3195,13 +3194,13 @@ def detect_regressions(
     one dimension, each with a ``reasons`` list naming which metric(s) did.
     """
     baseline_by_name = {r["name"]: r for r in baseline if "name" in r}
-    regressions: List[Dict] = []
+    regressions: list[dict] = []
     for r in current:
         base = baseline_by_name.get(r.get("name"))
         if base is None:
             continue
-        reasons: List[str] = []
-        deltas: Dict[str, float] = {}
+        reasons: list[str] = []
+        deltas: dict[str, float] = {}
 
         cur_q = (r.get("metrics_asp") or {}).get("composite_quality")
         base_q = (base.get("metrics_asp") or {}).get("composite_quality")
@@ -3233,7 +3232,7 @@ def detect_regressions(
 
 
 def _report_regression_dashboard(
-    current: List[Dict], baseline: Optional[List[Dict]], lines: List[str]
+    current: list[dict], baseline: list[dict] | None, lines: list[str]
 ) -> None:
     """
     §11.9 dashboard — Cross-Run Regression Dashboard.
@@ -3303,7 +3302,7 @@ def _report_regression_dashboard(
         lines.append("> 🟢 No regressions against the baseline run.\n\n")
 
 
-def _report_experiment_comparison(results: List[Dict], lines: List[str]) -> None:
+def _report_experiment_comparison(results: list[dict], lines: list[str]) -> None:
     """
     §11.10 dashboard — Comparative Seam-Configuration Experiment Tracker.
 
@@ -3317,7 +3316,7 @@ def _report_experiment_comparison(results: List[Dict], lines: List[str]) -> None
     """
     lines.append("### Comparative Seam-Configuration Experiment Tracker (§11.10)\n\n")
 
-    by_label: Dict[str, List[Dict]] = {}
+    by_label: dict[str, list[dict]] = {}
     for r in results:
         label = r.get("experiment_label")
         if label:
@@ -3335,7 +3334,7 @@ def _report_experiment_comparison(results: List[Dict], lines: List[str]) -> None
         "| Experiment | Datasets | Avg composite_quality (ASP) | Avg total_sec |\n"
         "|------------|---------:|-----------------------------:|---------------:|\n"
     )
-    summary: List[Tuple[str, int, Optional[float], Optional[float]]] = []
+    summary: list[tuple[str, int, float | None, float | None]] = []
     for label in sorted(by_label):
         rows = by_label[label]
         quals = [
@@ -3367,12 +3366,12 @@ def _report_experiment_comparison(results: List[Dict], lines: List[str]) -> None
 
 
 def _report_single_test_outputs(
-    r: Dict,
-    anime_rel: Optional[str],
-    simple_rel: Optional[str],
-    overmix_rel: Optional[str],
-    hugin_rel: Optional[str],
-    lines: List[str],
+    r: dict,
+    anime_rel: str | None,
+    simple_rel: str | None,
+    overmix_rel: str | None,
+    hugin_rel: str | None,
+    lines: list[str],
 ) -> None:
     lines.append("### Final Outputs\n\n")
     lines.append("| Anime Stitch Pipeline | OpenCV Simple Stitch | Overmix (reference) | Hugin (reference) |\n")
@@ -3403,12 +3402,12 @@ def _report_single_test_outputs(
 
 
 def _report_single_test_cv_metrics(
-    r: Dict,
-    am: Optional[Dict],
-    sm: Optional[Dict],
-    om: Optional[Dict],
-    hg: Optional[Dict],
-    lines: List[str],
+    r: dict,
+    am: dict | None,
+    sm: dict | None,
+    om: dict | None,
+    hg: dict | None,
+    lines: list[str],
 ) -> None:
     lines.append("### CV Metrics\n\n")
     lines.append("| Metric | ASP | Simple | Overmix | Hugin | Notes |\n")
@@ -3466,7 +3465,7 @@ def _report_single_test_cv_metrics(
     lines.append("\n")
 
 
-def _report_single_test_gt(r: Dict, lines: List[str]) -> None:
+def _report_single_test_gt(r: dict, lines: list[str]) -> None:
     gt = r.get("ground_truth", {})
     if gt.get("available"):
         lines.append("### Ground Truth Comparison\n\n")
@@ -3497,7 +3496,7 @@ def _report_single_test_gt(r: Dict, lines: List[str]) -> None:
         lines.append("\n")
 
 
-def _report_single_test_align(r: Dict, lines: List[str]) -> None:
+def _report_single_test_align(r: dict, lines: list[str]) -> None:
     ah = r["affine_health"]
     lines.append("### Alignment Health\n\n")
     lines.append("```yaml\n")
@@ -3532,7 +3531,7 @@ def _report_single_test_align(r: Dict, lines: List[str]) -> None:
         )
 
 
-def _report_single_test_photo(r: Dict, lines: List[str]) -> None:
+def _report_single_test_photo(r: dict, lines: list[str]) -> None:
     gains = r["photometric"]["applied_gains"]
     non_trivial = [g for g in gains if abs(g - 1.0) > 0.01]
     lines.append("### Photometric Correction\n\n")
@@ -3547,7 +3546,7 @@ def _report_single_test_photo(r: Dict, lines: List[str]) -> None:
     lines.append("\n")
 
 
-def _report_single_test_visualizations_plots(pd: str, rd: str, lines: List[str]) -> None:
+def _report_single_test_visualizations_plots(pd: str, rd: str, lines: list[str]) -> None:
     def _img_row(label, fname, alt=""):
         p = os.path.join(pd, fname)
         if os.path.exists(p):
@@ -3620,7 +3619,7 @@ def _report_single_test_visualizations_plots(pd: str, rd: str, lines: List[str])
             lines.append(_img_row(label, fname))
 
 
-def _report_single_test_visualizations_masks(pd: str, rd: str, lines: List[str]) -> None:
+def _report_single_test_visualizations_masks(pd: str, rd: str, lines: list[str]) -> None:
     mask_any = False
     for i in range(3):
         mp = os.path.join(pd, f"mask_overlay_frame{i:02d}.png")
@@ -3643,7 +3642,7 @@ def _report_single_test_visualizations_masks(pd: str, rd: str, lines: List[str])
         lines.append(" | ".join(cells) + " |\n\n")
 
 
-def _report_single_test_visualizations_stages(sd: str, rd: str, r: Dict, lines: List[str]) -> None:
+def _report_single_test_visualizations_stages(sd: str, rd: str, r: dict, lines: list[str]) -> None:
     # Stage images
     lines.append("#### Stage Intermediate Outputs\n\n")
     _n_frames = min(r.get("frames", {}).get("count", 4), 4)
@@ -3692,14 +3691,14 @@ def _report_single_test_visualizations_stages(sd: str, rd: str, r: Dict, lines: 
             lines.append(f"**{label}**  \n![{label}]({rel})\n\n")
 
 
-def _report_single_test_visualizations(r: Dict, pd: str, sd: str, rd: str, lines: List[str]) -> None:
+def _report_single_test_visualizations(r: dict, pd: str, sd: str, rd: str, lines: list[str]) -> None:
     lines.append("### Intermediate Output Visualizations\n\n")
     _report_single_test_visualizations_plots(pd, rd, lines)
     _report_single_test_visualizations_masks(pd, rd, lines)
     _report_single_test_visualizations_stages(sd, rd, r, lines)
 
 
-def _report_single_test_analysis(r: Dict, am: Optional[Dict], sm: Optional[Dict], lines: List[str]) -> None:
+def _report_single_test_analysis(r: dict, am: dict | None, sm: dict | None, lines: list[str]) -> None:
     lines.append("### Automated Analysis\n\n")
     verdict = _auto_verdict(am, sm)
     verdict_map = {
@@ -3735,7 +3734,7 @@ def _report_single_test_analysis(r: Dict, am: Optional[Dict], sm: Optional[Dict]
     )
 
 
-def _report_per_test_details(results: List[Dict], rd: str, lines: List[str]) -> None:
+def _report_per_test_details(results: list[dict], rd: str, lines: list[str]) -> None:
     for r in results:
         name = r["name"]
         anime_rel = _rel_path(r["anime_path"], rd)
@@ -3773,7 +3772,7 @@ def _report_per_test_details(results: List[Dict], rd: str, lines: List[str]) -> 
         _report_single_test_analysis(r, am, sm, lines)
 
 
-def generate_report(results: List[Dict], output_dir: str) -> str:
+def generate_report(results: list[dict], output_dir: str) -> str:
     """
     Write benchmark_report.md inside output_dir.
     Returns the path to the written file.
@@ -3830,7 +3829,7 @@ def generate_report(results: List[Dict], output_dir: str) -> str:
 # ============================================================================
 
 
-def _resolve_datasets(base_dir: str, args) -> List[str]:
+def _resolve_datasets(base_dir: str, args) -> list[str]:
     """
     Return an ordered list of dataset directories to process based on CLI args.
 

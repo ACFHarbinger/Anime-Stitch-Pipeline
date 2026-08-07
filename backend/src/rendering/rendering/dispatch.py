@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import numpy as np
 
 from .first import _render_first
@@ -12,15 +10,15 @@ from .median import _render_median
 
 
 def _render(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     canvas_h: int,
     canvas_w: int,
     renderer: str = "median",
-    baselines: Optional[List[float]] = None,
-    confidence_weights: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray, List[np.ndarray], List[np.ndarray]]:
+    baselines: list[float] | None = None,
+    confidence_weights: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray, list[np.ndarray], list[np.ndarray]]:
     """Dispatcher for different rendering modes."""
     if renderer == "median":
         return _render_median(

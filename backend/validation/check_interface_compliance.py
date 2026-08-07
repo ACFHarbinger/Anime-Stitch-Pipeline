@@ -34,7 +34,6 @@ import ast
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Set
 
 SKIP_DIRS = {".git", "__pycache__", "venv", ".venv", "node_modules", "dist", "build"}
 
@@ -47,7 +46,7 @@ DIM = "\033[2m"
 RESET = "\033[0m"
 
 
-def collect_python_files(root: Path, exclude: Set[str]) -> List[Path]:
+def collect_python_files(root: Path, exclude: set[str]) -> list[Path]:
     """
     Collect all Python files in a directory and its subdirectories.
 
@@ -58,7 +57,7 @@ def collect_python_files(root: Path, exclude: Set[str]) -> List[Path]:
     Returns:
         List of file paths.
     """
-    files: List[Path] = []
+    files: list[Path] = []
     for dirpath, dirs, filenames in os.walk(root):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS and d not in exclude]
         for fname in filenames:
@@ -103,7 +102,7 @@ def has_decorator(func_node: ast.FunctionDef, name: str) -> bool:
     return False
 
 
-def parse_file(filepath: Path) -> List[Dict]:
+def parse_file(filepath: Path) -> list[dict]:
     """
     Return a list of class descriptors from filepath:
     {name, bases, abstract_methods, all_methods, is_interface, lineno, filepath}
@@ -126,8 +125,8 @@ def parse_file(filepath: Path) -> List[Dict]:
             continue
 
         bases = [base_name(b) for b in node.bases]
-        abstract_methods: Set[str] = set()
-        concrete_methods: Set[str] = set()
+        abstract_methods: set[str] = set()
+        concrete_methods: set[str] = set()
 
         for item in node.body:
             if not isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -153,7 +152,7 @@ def parse_file(filepath: Path) -> List[Dict]:
     return results
 
 
-def build_registry(files: List[Path]) -> Dict[str, List[Dict]]:
+def build_registry(files: list[Path]) -> dict[str, list[dict]]:
     """
     Map class name → list of class descriptors (multiple files may define same name).
 
@@ -163,7 +162,7 @@ def build_registry(files: List[Path]) -> Dict[str, List[Dict]]:
     Returns:
         Dictionary mapping class name to list of class descriptors.
     """
-    registry: Dict[str, List[Dict]] = {}
+    registry: dict[str, list[dict]] = {}
     for fpath in files:
         for cls in parse_file(fpath):
             registry.setdefault(cls["name"], []).append(cls)
@@ -172,9 +171,9 @@ def build_registry(files: List[Path]) -> Dict[str, List[Dict]]:
 
 def get_required_abstract_methods(
     class_name: str,
-    registry: Dict[str, List[Dict]],
-    _seen: Optional[Set[str]] = None,
-) -> Set[str]:
+    registry: dict[str, list[dict]],
+    _seen: set[str] | None = None,
+) -> set[str]:
     """
     Recursively collect abstract methods required by a class and all its bases.
 
@@ -192,7 +191,7 @@ def get_required_abstract_methods(
         return set()
     _seen.add(class_name)
 
-    required: Set[str] = set()
+    required: set[str] = set()
     for entry in registry.get(class_name, []):
         required.update(entry["abstract_methods"])
         for base in entry["bases"]:
@@ -203,9 +202,9 @@ def get_required_abstract_methods(
 
 def get_implemented_methods(
     class_name: str,
-    registry: Dict[str, List[Dict]],
-    _seen: Optional[Set[str]] = None,
-) -> Set[str]:
+    registry: dict[str, list[dict]],
+    _seen: set[str] | None = None,
+) -> set[str]:
     """
     Recursively collect all non-abstract methods in a class and its ancestors.
 
@@ -223,7 +222,7 @@ def get_implemented_methods(
         return set()
     _seen.add(class_name)
 
-    implemented: Set[str] = set()
+    implemented: set[str] = set()
     for entry in registry.get(class_name, []):
         implemented.update(entry["concrete_methods"])
         for base in entry["bases"]:
@@ -232,7 +231,7 @@ def get_implemented_methods(
     return implemented
 
 
-def check_compliance(registry: Dict[str, List[Dict]]) -> List[Dict]:
+def check_compliance(registry: dict[str, list[dict]]) -> list[dict]:
     """
     Return a list of violation descriptors for concrete classes with missing methods.
 
@@ -242,14 +241,14 @@ def check_compliance(registry: Dict[str, List[Dict]]) -> List[Dict]:
     Returns:
         List of violation descriptors.
     """
-    violations: List[Dict] = []
+    violations: list[dict] = []
 
     for class_name, entries in registry.items():
         for entry in entries:
             if entry["is_interface"]:
                 continue
 
-            required: Set[str] = set()
+            required: set[str] = set()
             for base in entry["bases"]:
                 required.update(get_required_abstract_methods(base, registry))
 

@@ -4,11 +4,8 @@ ECC sub-pixel refinement of bundle-adjusted affines.
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
-
 from asp_backend.core.stateless import _luma
 from backend.src.constants import (
     ECC_EPS,
@@ -32,10 +29,10 @@ except ImportError:
 
 
 def _ecc_refine(
-    frames: List[np.ndarray],
-    affines: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
-) -> List[np.ndarray]:
+    frames: list[np.ndarray],
+    affines: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
+) -> list[np.ndarray]:
     """
     Sub-pixel refinement of each frame's affine using ECC maximisation.
 

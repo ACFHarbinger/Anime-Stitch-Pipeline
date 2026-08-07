@@ -15,8 +15,6 @@ composites.
 
 from __future__ import annotations
 
-from typing import Dict, Optional
-
 import numpy as np
 from matplotlib.figure import Figure
 
@@ -38,7 +36,7 @@ def _title(key: str) -> str:
 # ---------------------------------------------------------------------------
 
 
-def seam_quality_figure(entry: Dict) -> Figure:
+def seam_quality_figure(entry: dict) -> Figure:
     """Per-seam SIQE ghost score, one bar per inter-strip boundary, coloured
     against the pipeline's own ghost thresholds (clean < 30, ghost likely
     30-60, ghost confirmed >= 60 — from ``_compute_cqas``).
@@ -81,7 +79,7 @@ def seam_quality_figure(entry: Dict) -> Figure:
 # ---------------------------------------------------------------------------
 
 
-def alignment_drift_figure(entry: Dict) -> Figure:
+def alignment_drift_figure(entry: dict) -> Figure:
     """Per-frame tx/ty and the inter-frame steps, with the >2x-median step
     outliers flagged — those are the frames that hurt bundle adjustment.
 
@@ -143,7 +141,7 @@ def alignment_drift_figure(entry: Dict) -> Figure:
 # ---------------------------------------------------------------------------
 
 
-def photometric_figure(entry: Dict) -> Figure:
+def photometric_figure(entry: dict) -> Figure:
     """Per-frame background luminance (bars) against the applied gain (line,
     right axis), with gains deviating from 1.0 by more than 15% flagged —
     those are the frames most likely to introduce visible colour banding
@@ -206,7 +204,7 @@ def photometric_figure(entry: Dict) -> Figure:
 # ---------------------------------------------------------------------------
 
 
-def matching_figure(entry: Dict) -> Figure:
+def matching_figure(entry: dict) -> Figure:
     """Matcher method mix (donut) beside per-edge weight vs support (scatter).
 
     High weight + high ``n_pts`` edges are reliable; low weight + few points
@@ -261,7 +259,7 @@ def matching_figure(entry: Dict) -> Figure:
 # ---------------------------------------------------------------------------
 
 
-def gt_comparison_figure(entry: Dict, previous_entry: Optional[Dict] = None) -> Figure:
+def gt_comparison_figure(entry: dict, previous_entry: dict | None = None) -> Figure:
     """Grouped bars of every GT metric for ASP vs Simple.
 
     ``previous_entry`` (the same dataset from an older results JSON) turns on
@@ -335,7 +333,7 @@ def gt_comparison_figure(entry: Dict, previous_entry: Optional[Dict] = None) -> 
 # ---------------------------------------------------------------------------
 
 
-def timing_figure(entry: Dict) -> Figure:
+def timing_figure(entry: dict) -> Figure:
     """Where this test's wall time went, largest stage first."""
     stages = mv.timing_breakdown(entry)
     if not stages:
@@ -357,7 +355,7 @@ def timing_figure(entry: Dict) -> Figure:
     return fig
 
 
-def frame_selection_figure(entry: Dict) -> Figure:
+def frame_selection_figure(entry: dict) -> Figure:
     """This test's slice of 11.7's frame-selection funnel: how many frames
     survived each reduction stage."""
     stages = mv.frame_selection_stages(entry)
@@ -386,7 +384,7 @@ def frame_selection_figure(entry: Dict) -> Figure:
     return fig
 
 
-def cv_metric_radar_figure(entry: Dict) -> Figure:
+def cv_metric_radar_figure(entry: dict) -> Figure:
     """No-reference metrics on one radar, one polygon per comparator — the
     fast "who wins on what, and by how much" read before drilling into the
     table.

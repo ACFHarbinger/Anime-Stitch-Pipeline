@@ -12,14 +12,12 @@ original inline `if N < 2: return ...`.
 from __future__ import annotations
 
 import logging
-from typing import List, Optional
 
 import cv2
 import numpy as np
-from PIL import Image
-
 from asp_backend.alignment.canvas import _scan_stitch_fallback
 from backend.src.constants import NEAR_DUP_LUMA_THRESH
+from PIL import Image
 
 from ._frame_utils import _reload_scans_frames
 
@@ -27,13 +25,13 @@ logger = logging.getLogger(__name__)
 
 
 def _dedup_near_static_frames(
-    frames: List[np.ndarray],
-    scans_frames: List[np.ndarray],
-    bg_masks: List[Optional[np.ndarray]],
-    image_paths: List[str],
+    frames: list[np.ndarray],
+    scans_frames: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
+    image_paths: list[str],
     N: int,
     output_path: str,
-) -> "tuple[Optional[Image.Image], List[np.ndarray], List[np.ndarray], List[Optional[np.ndarray]], List[str], int]":
+) -> tuple[Image.Image | None, list[np.ndarray], list[np.ndarray], list[np.ndarray | None], list[str], int]:
     """Drop consecutive frames whose luma is near-identical to the last kept one.
 
     Returns ``(early_result, frames, scans_frames, bg_masks, image_paths, N)``.

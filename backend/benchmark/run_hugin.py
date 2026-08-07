@@ -32,7 +32,6 @@ import sys
 import tempfile
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 from PIL import Image
 
@@ -79,9 +78,9 @@ _TIMEOUT_SEC = 300
 _MAX_CANVAS_DIM = 20000
 
 
-def _read_pto_canvas_size(pto_path: str) -> Tuple[int, int]:
+def _read_pto_canvas_size(pto_path: str) -> tuple[int, int]:
     """Parse the `p` (panorama) line's w/h fields from a .pto file."""
-    with open(pto_path, "r") as fh:
+    with open(pto_path) as fh:
         for line in fh:
             if line.startswith("p "):
                 w_match = re.search(r"\bw(\d+)", line)
@@ -91,19 +90,19 @@ def _read_pto_canvas_size(pto_path: str) -> Tuple[int, int]:
     raise RuntimeError(f"could not parse canvas size from {pto_path}")
 
 
-def _tools_available() -> Optional[str]:
+def _tools_available() -> str | None:
     missing = [t for t in _TOOLS if shutil.which(t) is None]
     if missing:
         return f"missing tools: {', '.join(missing)} (apt install hugin-tools enblend)"
     return None
 
 
-def _smart_select_frames(frames_paths: List[str]) -> List[str]:
+def _smart_select_frames(frames_paths: list[str]) -> list[str]:
     # Mirrors bench_anime_stitch.py's own wrapper exactly.
     return smart_select_frames(frames_paths, min_step_px=50.0)
 
 
-def _collect_frames(dataset_dir: str) -> List[str]:
+def _collect_frames(dataset_dir: str) -> list[str]:
     all_pngs = sorted(
         glob.glob(os.path.join(dataset_dir, "*.png"))
         + glob.glob(os.path.join(dataset_dir, "*.jpg"))
@@ -117,13 +116,13 @@ def _collect_frames(dataset_dir: str) -> List[str]:
     ]
 
 
-def _run(cmd: List[str], cwd: str, env: dict) -> subprocess.CompletedProcess:
+def _run(cmd: list[str], cwd: str, env: dict) -> subprocess.CompletedProcess:
     return subprocess.run(
         cmd, cwd=cwd, env=env, capture_output=True, text=True, timeout=_TIMEOUT_SEC
     )
 
 
-def _run_hugin_toolchain(frames: List[str], out_path: str) -> Dict:
+def _run_hugin_toolchain(frames: list[str], out_path: str) -> dict:
     """Run the full pto_gen->cpfind->autooptimiser->pano_modify->nona->enblend
     chain on `frames`, saving the final blend to `out_path`. Returns a result dict.
     """
@@ -240,7 +239,7 @@ def _run_hugin_toolchain(frames: List[str], out_path: str) -> Dict:
     }
 
 
-def process_dataset(dataset_dir: str, run_full: bool) -> Optional[Dict]:
+def process_dataset(dataset_dir: str, run_full: bool) -> dict | None:
     dataset_name = os.path.basename(dataset_dir)
     frames_paths = _collect_frames(dataset_dir)
     if len(frames_paths) < 2:
@@ -248,7 +247,7 @@ def process_dataset(dataset_dir: str, run_full: bool) -> Optional[Dict]:
         return None
 
     out_dir = os.path.join(dataset_dir, "output")
-    variant_log: Dict = {"dataset": dataset_name}
+    variant_log: dict = {"dataset": dataset_name}
 
     smart_frames = _smart_select_frames(frames_paths)
     print(f"\n=== {dataset_name}: smart variant ({len(smart_frames)}/{len(frames_paths)} frames) ===")
@@ -276,7 +275,7 @@ def process_dataset(dataset_dir: str, run_full: bool) -> Optional[Dict]:
     return variant_log
 
 
-def _resolve_datasets(base_dir: str, args) -> List[str]:
+def _resolve_datasets(base_dir: str, args) -> list[str]:
     # Mirrors bench_anime_stitch.py's _resolve_datasets exactly (kept
     # standalone here so this script has no heavy torch/cv2-chain import).
     all_dirs = sorted(

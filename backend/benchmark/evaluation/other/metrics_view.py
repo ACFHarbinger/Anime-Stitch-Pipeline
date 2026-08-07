@@ -17,7 +17,7 @@ is the true ghosting signal on a 0-100 scale where lower is clean.
 from __future__ import annotations
 
 import dataclasses
-from typing import Dict, List, Optional, Sequence, Tuple
+from collections.abc import Sequence
 
 from ..constants.schema import (
     IMAGE_ASP,
@@ -40,7 +40,7 @@ METRICS_BLOCK = {
 }
 
 # (json key, display label, direction, unit/format hint)
-CV_METRICS: Tuple[Tuple[str, str, str, str], ...] = (
+CV_METRICS: tuple[tuple[str, str, str, str], ...] = (
     ("cqas", "CQAS (aggregate)", HIGHER_BETTER, "{:.4f}"),
     ("sharpness", "Sharpness (Laplacian)", HIGHER_BETTER, "{:.2f}"),
     ("ghosting_siqe", "Ghosting (SIQE 0-100)", LOWER_BETTER, "{:.2f}"),
@@ -53,7 +53,7 @@ CV_METRICS: Tuple[Tuple[str, str, str, str], ...] = (
     ("ghost_seam_max", "Worst per-seam ghost", LOWER_BETTER, "{:.2f}"),
 )
 
-GT_METRICS: Tuple[Tuple[str, str, str, str], ...] = (
+GT_METRICS: tuple[tuple[str, str, str, str], ...] = (
     ("aligned_ssim_vs_gt", "Aligned SSIM vs GT", HIGHER_BETTER, "{:.4f}"),
     ("ssim_vs_gt", "Raw SSIM vs GT", HIGHER_BETTER, "{:.4f}"),
     ("psnr_vs_gt", "PSNR vs GT (dB)", HIGHER_BETTER, "{:.2f}"),
@@ -82,7 +82,7 @@ GAIN_DEVIATION_FLAG = 0.15
 # thresholds, and min-max-across-comparators (the obvious alternative) is
 # actively misleading with two comparators — it pins the winner at 1.0 and the
 # loser at 0.0 on every axis regardless of how close they actually are.
-RADAR_SCALES: Tuple[Tuple[str, str, float, str], ...] = (
+RADAR_SCALES: tuple[tuple[str, str, float, str], ...] = (
     ("cqas", "CQAS", 1.0, HIGHER_BETTER),
     ("sharpness", "Sharpness", 100.0, HIGHER_BETTER),
     ("coverage", "Coverage", 1.0, HIGHER_BETTER),
@@ -92,7 +92,7 @@ RADAR_SCALES: Tuple[Tuple[str, str, float, str], ...] = (
 )
 
 
-def radar_value(metric_key: str, value: Optional[float]) -> Optional[float]:
+def radar_value(metric_key: str, value: float | None) -> float | None:
     """Normalize one metric onto CQAS's own 0-1 quality scale (1 = best)."""
     for key, _label, reference, direction in RADAR_SCALES:
         if key != metric_key:
@@ -105,7 +105,7 @@ def radar_value(metric_key: str, value: Optional[float]) -> Optional[float]:
     return None
 
 
-def radar_rows(entry: Dict, keys: Optional[Sequence[str]] = None) -> List[MetricRow]:
+def radar_rows(entry: dict, keys: Sequence[str] | None = None) -> list[MetricRow]:
     """Radar axes as ``MetricRow``s carrying *normalized* values, so the chart
     builder stays a pure plot of numbers computed here."""
     keys = list(keys) if keys is not None else present_comparators(entry)
@@ -131,9 +131,9 @@ class MetricRow:
     label: str
     direction: str
     fmt: str
-    values: Dict[str, Optional[float]]
+    values: dict[str, float | None]
 
-    def best_key(self) -> Optional[str]:
+    def best_key(self) -> str | None:
         """Which comparator wins this row, or ``None`` when the metric has no
         direction or fewer than two comparators reported it."""
         if self.direction == NEUTRAL:
@@ -149,7 +149,7 @@ class MetricRow:
         return "—" if value is None else self.fmt.format(value)
 
 
-def _as_float(value) -> Optional[float]:
+def _as_float(value) -> float | None:
     if value is None or isinstance(value, bool):
         return None
     try:
@@ -158,12 +158,12 @@ def _as_float(value) -> Optional[float]:
         return None
 
 
-def present_comparators(entry: Dict) -> List[str]:
+def present_comparators(entry: dict) -> list[str]:
     """Comparator keys with a non-empty metrics block in this result."""
     return [key for key in SCORABLE_KEYS if entry.get(METRICS_BLOCK[key])]
 
 
-def cv_metric_rows(entry: Dict, keys: Optional[Sequence[str]] = None) -> List[MetricRow]:
+def cv_metric_rows(entry: dict, keys: Sequence[str] | None = None) -> list[MetricRow]:
     keys = list(keys) if keys is not None else present_comparators(entry)
     rows = []
     for metric_key, label, direction, fmt in CV_METRICS:
@@ -176,7 +176,7 @@ def cv_metric_rows(entry: Dict, keys: Optional[Sequence[str]] = None) -> List[Me
     return rows
 
 
-def gt_metric_rows(entry: Dict) -> List[MetricRow]:
+def gt_metric_rows(entry: dict) -> list[MetricRow]:
     """Ground-truth comparison rows (#69's 11.5). Empty when this test has no
     ground truth, which is 42 of the 97."""
     gt = entry.get("ground_truth") or {}
@@ -191,7 +191,7 @@ def gt_metric_rows(entry: Dict) -> List[MetricRow]:
     return rows
 
 
-def headline_facts(entry: Dict) -> List[Tuple[str, str]]:
+def headline_facts(entry: dict) -> list[tuple[str, str]]:
     """The short "what happened to this test" summary, as label/value pairs."""
     if not entry:
         return [("Metrics", "no benchmark result found for this test")]
@@ -199,7 +199,7 @@ def headline_facts(entry: Dict) -> List[Tuple[str, str]]:
     gt = entry.get("ground_truth") or {}
     frames = entry.get("frames") or {}
     time = entry.get("time") or {}
-    facts: List[Tuple[str, str]] = [
+    facts: list[tuple[str, str]] = [
         ("Verdict", str(comparison.get("verdict", "—"))),
         ("Verdict source", str(comparison.get("verdict_source", "—"))),
         ("Composite", "SCANS fallback" if entry.get("used_fallback") else "true ASP composite"),
@@ -225,7 +225,7 @@ def headline_facts(entry: Dict) -> List[Tuple[str, str]]:
     return facts
 
 
-def pipeline_config_rows(entry: Dict) -> List[Tuple[str, str]]:
+def pipeline_config_rows(entry: dict) -> list[tuple[str, str]]:
     config = entry.get("pipeline_config") or {}
     return [(key, str(value)) for key, value in sorted(config.items())]
 
@@ -235,7 +235,7 @@ def pipeline_config_rows(entry: Dict) -> List[Tuple[str, str]]:
 # ---------------------------------------------------------------------------
 
 
-def seam_ghost_series(entry: Dict, keys: Optional[Sequence[str]] = None) -> Dict[str, List[float]]:
+def seam_ghost_series(entry: dict, keys: Sequence[str] | None = None) -> dict[str, list[float]]:
     """Per-seam SIQE ghost scores per comparator (11.1). Often empty — the
     pipeline only emits these for true multi-strip composites."""
     keys = list(keys) if keys is not None else present_comparators(entry)
@@ -259,17 +259,17 @@ def ghost_band(score: float) -> str:
 
 @dataclasses.dataclass
 class AlignmentSeries:
-    frames: List[int]
-    tx: List[float]
-    ty: List[float]
-    dx_steps: List[float]
-    dy_steps: List[float]
-    dx_cv: Optional[float]
-    dy_cv: Optional[float]
-    outlier_steps: List[int]  # indices into dy_steps beyond 2x the median
+    frames: list[int]
+    tx: list[float]
+    ty: list[float]
+    dx_steps: list[float]
+    dy_steps: list[float]
+    dx_cv: float | None
+    dy_cv: float | None
+    outlier_steps: list[int]  # indices into dy_steps beyond 2x the median
 
 
-def alignment_series(entry: Dict) -> Optional[AlignmentSeries]:
+def alignment_series(entry: dict) -> AlignmentSeries | None:
     """Per-frame translation and inter-frame steps (11.2)."""
     alignment = entry.get("alignment") or {}
     affines = alignment.get("affines") or []
@@ -280,7 +280,7 @@ def alignment_series(entry: Dict) -> Optional[AlignmentSeries]:
     ty = [_as_float(a.get("ty")) or 0.0 for a in affines]
     dy_steps = [_as_float(s) or 0.0 for s in alignment.get("dy_steps") or []]
     dx_steps = [_as_float(s) or 0.0 for s in alignment.get("dx_steps") or []]
-    outliers: List[int] = []
+    outliers: list[int] = []
     if dy_steps:
         magnitudes = sorted(abs(s) for s in dy_steps)
         median = magnitudes[len(magnitudes) // 2]
@@ -298,15 +298,15 @@ def alignment_series(entry: Dict) -> Optional[AlignmentSeries]:
 
 @dataclasses.dataclass
 class PhotometricSeries:
-    bg_lums: List[float]
-    applied_gains: List[float]
-    ref_lum: Optional[float]
-    frames_corrected: Optional[int]
-    gain_range: Optional[List[float]]
-    flagged_frames: List[int]  # gains deviating from 1.0 by >15%
+    bg_lums: list[float]
+    applied_gains: list[float]
+    ref_lum: float | None
+    frames_corrected: int | None
+    gain_range: list[float] | None
+    flagged_frames: list[int]  # gains deviating from 1.0 by >15%
 
 
-def photometric_series(entry: Dict) -> Optional[PhotometricSeries]:
+def photometric_series(entry: dict) -> PhotometricSeries | None:
     """Per-frame background luminance and applied gain (11.3)."""
     photometric = entry.get("photometric") or {}
     gains = [_as_float(g) for g in photometric.get("applied_gains") or []]
@@ -326,15 +326,15 @@ def photometric_series(entry: Dict) -> Optional[PhotometricSeries]:
 
 @dataclasses.dataclass
 class MatchingSummary:
-    raw_edges: Optional[int]
-    filtered_edges: Optional[int]
-    methods: Dict[str, int]
-    weights: List[float]
-    n_pts: List[int]
-    frame_gaps: List[int]  # j - i per edge; 1 = adjacent, >1 = a skip link
+    raw_edges: int | None
+    filtered_edges: int | None
+    methods: dict[str, int]
+    weights: list[float]
+    n_pts: list[int]
+    frame_gaps: list[int]  # j - i per edge; 1 = adjacent, >1 = a skip link
 
 
-def matching_summary(entry: Dict) -> Optional[MatchingSummary]:
+def matching_summary(entry: dict) -> MatchingSummary | None:
     """Matcher method mix and per-edge weight/support (11.4)."""
     matching = entry.get("matching") or {}
     edges = matching.get("edges") or []
@@ -357,7 +357,7 @@ def matching_summary(entry: Dict) -> Optional[MatchingSummary]:
     )
 
 
-def timing_breakdown(entry: Dict) -> List[Tuple[str, float]]:
+def timing_breakdown(entry: dict) -> list[tuple[str, float]]:
     """Per-stage wall time, largest first, excluding the total and the
     non-time counters that share the ``time`` block."""
     time = entry.get("time") or {}
@@ -371,7 +371,7 @@ def timing_breakdown(entry: Dict) -> List[Tuple[str, float]]:
     return sorted(stages, key=lambda kv: kv[1], reverse=True)
 
 
-def frame_selection_stages(entry: Dict) -> List[Tuple[str, int]]:
+def frame_selection_stages(entry: dict) -> list[tuple[str, int]]:
     """Frame counts through the selection funnel (11.7's per-test view)."""
     selection = entry.get("frame_selection") or {}
     order = (

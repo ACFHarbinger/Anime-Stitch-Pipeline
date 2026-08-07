@@ -11,8 +11,6 @@ a glance what's left.
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
@@ -46,7 +44,7 @@ class QueuePanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._session: Optional[EvaluationSession] = None
+        self._session: EvaluationSession | None = None
         self._suppress = False
 
         layout = QVBoxLayout(self)
@@ -124,7 +122,7 @@ class QueuePanel(QWidget):
                 self._list.scrollToItem(item)
                 return
 
-    def _on_current_changed(self, current: Optional[QListWidgetItem], _previous) -> None:
+    def _on_current_changed(self, current: QListWidgetItem | None, _previous) -> None:
         if self._suppress or current is None:
             return
         name = current.data(Qt.ItemDataRole.UserRole)
@@ -144,7 +142,7 @@ class QueuePanel(QWidget):
             parts.append(f"at #{progress.position}")
         self._summary.setText(" · ".join(parts))
 
-    def visible_names(self) -> List[str]:
+    def visible_names(self) -> list[str]:
         return [
             self._list.item(row).data(Qt.ItemDataRole.UserRole)
             for row in range(self._list.count())

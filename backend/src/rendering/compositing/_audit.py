@@ -3,10 +3,7 @@ seam-metadata annotation."""
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import numpy as np
-
 from backend.src.constants import FEATHER_MAX, FEATHER_MIN
 
 from ._fill import _fill_still_black_pixels
@@ -16,10 +13,10 @@ from ._seam_cache import _extract_seam_crops
 
 def _audit_seam_lum_steps(
     result: np.ndarray,
-    boundaries: "List[float]",
+    boundaries: list[float],
     band_px: int = 5,
     warn_thresh: float = 8.0,
-) -> "dict[int, float]":
+) -> dict[int, float]:
     """§1.106: Post-composite per-boundary luminance step audit (S152).
 
     For each boundary, measures mean absolute lum difference in a ±band_px
@@ -66,9 +63,9 @@ def _adapt_feathers_and_synthesize(
     feathers: np.ndarray,
     boundaries: np.ndarray,
     order: np.ndarray,
-    affines: List[np.ndarray],
-    frames: List[np.ndarray],
-    warped_norm: List[np.ndarray],
+    affines: list[np.ndarray],
+    frames: list[np.ndarray],
+    warped_norm: list[np.ndarray],
     H: int,
     W: int,
 ) -> dict:
@@ -110,11 +107,11 @@ def _audit_and_annotate_composite(
     boundaries: np.ndarray,
     order: np.ndarray,
     feathers: np.ndarray,
-    warped_norm: List[np.ndarray],
+    warped_norm: list[np.ndarray],
     _precomp_paths: dict,
     seam_post_diffs: dict,
     seam_single_pose: dict,
-    seam_meta_out: Optional[dict],
+    seam_meta_out: dict | None,
 ) -> np.ndarray:
     _fill_still_black_pixels(result, warped_norm)
 

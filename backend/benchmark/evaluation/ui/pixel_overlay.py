@@ -23,8 +23,6 @@ Two rules that are easy to get wrong here:
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
-
 import numpy as np
 from PySide6.QtCore import QPoint, QPointF, QRect, QRectF, Qt
 from PySide6.QtGui import QColor, QFont, QPainter, QPen
@@ -80,7 +78,7 @@ def draw(panel, painter: QPainter, rect: QRectF) -> None:
     painter.restore()
 
 
-def _hovered_pixel(panel) -> Optional[Tuple[int, int]]:
+def _hovered_pixel(panel) -> tuple[int, int] | None:
     view_pos = getattr(panel, "_hover_view_pos", None)
     if view_pos is None:
         return None

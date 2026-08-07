@@ -30,7 +30,7 @@ import argparse
 import json
 import os
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 _DEFAULT_JSON = os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
@@ -39,12 +39,12 @@ _DEFAULT_JSON = os.path.join(
 )
 
 
-def _parse_fallback_reason(reason: str) -> Dict[str, Any]:
+def _parse_fallback_reason(reason: str) -> dict[str, Any]:
     """Parses e.g. 'seam_vis_gate:asp=42.5_sim=4.0_limit=35.0' or
     'composite_gate_sb:asp_sc=23.8_limit=38.0,asp_sb=37.3_limit=35.0'
     into {"gate": ..., "values": {name: float}}."""
     gate, _, rest = reason.partition(":")
-    values: Dict[str, float] = {}
+    values: dict[str, float] = {}
     for part in re.split(r"[,_](?=[a-z])", rest):
         m = re.match(r"([a-z_]+)=(-?[\d.]+)", part)
         if m:
@@ -52,7 +52,7 @@ def _parse_fallback_reason(reason: str) -> Dict[str, Any]:
     return {"gate": gate, "values": values}
 
 
-def _photometric_lean(seam_visibility: Optional[float], post_warp_diff: Optional[float]) -> str:
+def _photometric_lean(seam_visibility: float | None, post_warp_diff: float | None) -> str:
     """Qualitative bucketing only -- deliberately not a numeric threshold
     rule (both candidates tried in the 18-test sample failed on real
     counter-examples; see module docstring). For human triage context, not
@@ -66,7 +66,7 @@ def _photometric_lean(seam_visibility: Optional[float], post_warp_diff: Optional
     return "mixed/moderate"
 
 
-def _row_for(d: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def _row_for(d: dict[str, Any]) -> dict[str, Any] | None:
     reason = d.get("fallback_reason") or ""
     if not reason:
         return None
@@ -118,11 +118,11 @@ def _row_for(d: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     }
 
 
-def build_triage(json_path: str) -> Dict[str, List[Dict[str, Any]]]:
+def build_triage(json_path: str) -> dict[str, list[dict[str, Any]]]:
     with open(json_path) as fh:
         data = json.load(fh)
 
-    by_gate: Dict[str, List[Dict[str, Any]]] = {}
+    by_gate: dict[str, list[dict[str, Any]]] = {}
     for d in data["datasets"]:
         if not d.get("used_fallback"):
             continue
@@ -137,7 +137,7 @@ def build_triage(json_path: str) -> Dict[str, List[Dict[str, Any]]]:
     return by_gate
 
 
-def render_markdown(by_gate: Dict[str, List[Dict[str, Any]]], json_path: str) -> str:
+def render_markdown(by_gate: dict[str, list[dict[str, Any]]], json_path: str) -> str:
     total = sum(len(v) for v in by_gate.values())
     lines = [
         "# ASP Phase 4 — Full-Corpus Fallback Triage",
@@ -183,7 +183,7 @@ def render_markdown(by_gate: Dict[str, List[Dict[str, Any]]], json_path: str) ->
     return "\n".join(lines)
 
 
-def _fmt(v: Optional[float]) -> str:
+def _fmt(v: float | None) -> str:
     return f"{v:.1f}" if isinstance(v, (int, float)) else "n/a"
 
 

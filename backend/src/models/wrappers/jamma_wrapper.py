@@ -31,16 +31,13 @@ import logging
 import os
 import sys
 from copy import deepcopy
-from typing import Optional, Tuple
 
 import cv2
 import numpy as np
 import torch
-from huggingface_hub import hf_hub_download
-
-from backend.src.models.core.base import ModelWrapper, lazy_load
 from backend.src.constants.models import _CKPT_FILE, _HF_REPO, _JAMMA_ERR, _JAMMA_OK, _MIN_INLIERS
-
+from backend.src.models.core.base import ModelWrapper, lazy_load
+from huggingface_hub import hf_hub_download
 
 _VENDOR_PATH = os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "vendor", "JamMa"
@@ -50,6 +47,7 @@ try:
     if os.path.isdir(_VENDOR_PATH) and _VENDOR_PATH not in sys.path:
         sys.path.insert(0, _VENDOR_PATH)
     import mamba_ssm  # noqa: F401 — confirm CUDA extension is loadable
+
     from src.config.default import get_cfg_defaults  # type: ignore
     from src.jamma.jamma import JamMa  # type: ignore
     _JAMMA_OK = True
@@ -70,7 +68,7 @@ class JamMaWrapper(ModelWrapper):
     not available.  The pipeline catches this and falls back gracefully.
     """
 
-    def __init__(self, device: Optional[str] = None):
+    def __init__(self, device: str | None = None):
         if not _JAMMA_OK:
             raise ImportError(
                 f"JamMa requires mamba_ssm with CUDA extensions. "
@@ -78,7 +76,7 @@ class JamMaWrapper(ModelWrapper):
                 "Fix: pip install mamba-ssm causal-conv1d --no-build-isolation"
             )
         super().__init__(device)
-        self._model: Optional[JamMa] = None
+        self._model: JamMa | None = None
 
     @classmethod
     def is_available(cls) -> bool:
@@ -133,7 +131,7 @@ class JamMaWrapper(ModelWrapper):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Run JamMa matching, returns (pts1, pts2, conf) in original px coords."""
         self.load()
 
@@ -178,17 +176,17 @@ class JamMaWrapper(ModelWrapper):
         self,
         img_i: np.ndarray,
         img_j: np.ndarray,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         return self._run(img_i, img_j)
 
     def match_masked(
         self,
         img1: np.ndarray,
         img2: np.ndarray,
-        mask1: Optional[np.ndarray] = None,
-        mask2: Optional[np.ndarray] = None,
+        mask1: np.ndarray | None = None,
+        mask2: np.ndarray | None = None,
         conf_thresh: float = 0.4,
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         pts1, pts2, conf = self._run(img1, img2)
         if len(pts1) == 0:
             return pts1, pts2, conf
@@ -213,10 +211,10 @@ class JamMaWrapper(ModelWrapper):
         self,
         img1: np.ndarray,
         img2: np.ndarray,
-        mask1: Optional[np.ndarray] = None,
-        mask2: Optional[np.ndarray] = None,
+        mask1: np.ndarray | None = None,
+        mask2: np.ndarray | None = None,
         min_inliers: int = _MIN_INLIERS,
-    ) -> Tuple[Optional[np.ndarray], float]:
+    ) -> tuple[np.ndarray | None, float]:
         pts1, pts2, conf = self.match_masked(img1, img2, mask1, mask2)
         if len(pts1) < min_inliers:
             return None, 0.0
