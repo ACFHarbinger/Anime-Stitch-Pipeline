@@ -5,10 +5,9 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
+from gui.src.constants import ANCHOR_RADIUS, MAX_DISPLAYED_MATCHES
 from PySide6.QtCore import QObject, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QBrush,
@@ -30,7 +29,6 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
-from gui.src.constants import ANCHOR_RADIUS, MAX_DISPLAYED_MATCHES
 from ._pixmap_utils import _bgr_to_qpixmap, _conf_color, _mask_to_qpixmap
 
 
@@ -67,19 +65,19 @@ class _AnchorHandle(QGraphicsEllipseItem):
 class _MatchScene(QGraphicsScene):
     affine_updated = Signal(object)
 
-    def __init__(self, parent: Optional[QObject] = None):
+    def __init__(self, parent: QObject | None = None):
         super().__init__(parent)
-        self._pix_a: Optional[QGraphicsPixmapItem] = None
-        self._pix_b: Optional[QGraphicsPixmapItem] = None
+        self._pix_a: QGraphicsPixmapItem | None = None
+        self._pix_b: QGraphicsPixmapItem | None = None
         self._offset_x: float = 0.0
         self._scale_a: float = 1.0
         self._scale_b: float = 1.0
         self._orig_h_a = self._orig_w_a = self._orig_h_b = self._orig_w_b = 0
         self._match_lines: list = []
-        self._anchors_a: List[_AnchorHandle] = []
-        self._anchors_b: List[_AnchorHandle] = []
-        self._affine_overlay: Optional[QGraphicsRectItem] = None
-        self._hint_label: Optional[QGraphicsTextItem] = None
+        self._anchors_a: list[_AnchorHandle] = []
+        self._anchors_b: list[_AnchorHandle] = []
+        self._affine_overlay: QGraphicsRectItem | None = None
+        self._hint_label: QGraphicsTextItem | None = None
 
         self._debounce = QTimer()
         self._debounce.setSingleShot(True)
@@ -216,7 +214,7 @@ class _MatchScene(QGraphicsScene):
         )
         self.affine_updated.emit(M)
 
-    def get_affine_from_anchors(self) -> Optional[np.ndarray]:
+    def get_affine_from_anchors(self) -> np.ndarray | None:
         if len(self._anchors_a) < 3:
             return None
         pts_a = np.array(

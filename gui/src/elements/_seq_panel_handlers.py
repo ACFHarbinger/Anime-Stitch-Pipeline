@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import os
 import pathlib
-from typing import List
 
 from PySide6.QtCore import Qt, QThreadPool, Slot
 from PySide6.QtGui import QColor, QIcon, QImage, QPixmap
@@ -134,7 +133,7 @@ class _SeqPanelHandlersMixin:
         self._seq_progress.setValue(completed)
 
     @Slot(list)
-    def _seq_on_result(self, chain: List[dict]):
+    def _seq_on_result(self, chain: list[dict]):
         self._seq_progress.hide()
         self._seq_run_btn.setEnabled(True)
         self._seq_worker = None
@@ -142,7 +141,7 @@ class _SeqPanelHandlersMixin:
         self._seq_status.setText(f"Done. {len(chain)} frame(s) in sequence.")
         self._seq_populate_table(chain)
 
-    def _seq_populate_table(self, chain: List[dict]):
+    def _seq_populate_table(self, chain: list[dict]):
         table = self._seq_chain_table
         table.setRowCount(0)
         self._seq_table_item_map.clear()
@@ -186,7 +185,7 @@ class _SeqPanelHandlersMixin:
             replace_item.setForeground(QColor("#90CAF9"))
             table.setItem(r, 2, replace_item)
 
-    def _seq_chain_from_table(self) -> List[dict]:
+    def _seq_chain_from_table(self) -> list[dict]:
         """Read the current table contents back into a chain list."""
         table = self._seq_chain_table
         chain = []

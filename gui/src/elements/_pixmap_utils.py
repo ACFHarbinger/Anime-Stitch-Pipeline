@@ -7,10 +7,9 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
+from gui.src.constants import CONF_HIGH, CONF_LOW, CONF_MED
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor, QImage, QPixmap
-
-from gui.src.constants import CONF_HIGH, CONF_LOW, CONF_MED
 
 
 def _conf_color(c: float) -> QColor:

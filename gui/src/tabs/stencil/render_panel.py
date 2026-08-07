@@ -1,7 +1,7 @@
-from typing import Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
+from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import (
     Qt,
 )
@@ -24,8 +24,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from gui.src.styles import apply_shadow_effect
 
 
 def _bgr_to_qimage(bgr: np.ndarray) -> QImage:
@@ -64,10 +62,10 @@ class RenderPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._sequence: List[str] = []
-        self._homographies: Dict[Tuple[int, int], np.ndarray] = {}
-        self._seam_masks: Dict[Tuple[int, int], np.ndarray] = {}
-        self._corrections: Dict[str, dict] = {}
+        self._sequence: list[str] = []
+        self._homographies: dict[tuple[int, int], np.ndarray] = {}
+        self._seam_masks: dict[tuple[int, int], np.ndarray] = {}
+        self._corrections: dict[str, dict] = {}
         self._build_ui()
 
     def _build_ui(self):
@@ -124,14 +122,14 @@ class RenderPanel(QWidget):
         self._status.setStyleSheet("color:#aaa; font-size:10px;")
         root.addWidget(self._status)
 
-        self._result_bgr: Optional[np.ndarray] = None
+        self._result_bgr: np.ndarray | None = None
 
     def set_pipeline(
         self,
-        sequence: List[str],
-        homographies: Dict[Tuple[int, int], np.ndarray],
-        seam_masks: Dict[Tuple[int, int], np.ndarray],
-        corrections: Dict[str, dict],
+        sequence: list[str],
+        homographies: dict[tuple[int, int], np.ndarray],
+        seam_masks: dict[tuple[int, int], np.ndarray],
+        corrections: dict[str, dict],
     ):
         self._sequence = sequence
         self._homographies = homographies
@@ -172,7 +170,7 @@ class RenderPanel(QWidget):
             self._btn_render.setEnabled(True)
             self._progress.hide()
 
-    def _do_render(self) -> Optional[np.ndarray]:
+    def _do_render(self) -> np.ndarray | None:
         seq = self._sequence
         N = len(seq)
 

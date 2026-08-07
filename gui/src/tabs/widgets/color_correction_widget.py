@@ -1,7 +1,7 @@
-from typing import Dict
 
 import cv2
 import numpy as np
+from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import (
     Qt,
     QTimer,
@@ -20,8 +20,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from gui.src.styles import apply_shadow_effect
 
 
 def _bgr_to_qimage(bgr: np.ndarray) -> QImage:
@@ -142,7 +140,7 @@ class ColorCorrectionWidget(QWidget):
         root.addLayout(prev_row)
 
         # Sliders
-        self._sliders: Dict[str, _CCSlider] = {}
+        self._sliders: dict[str, _CCSlider] = {}
         _defs = [
             ("Brightness", "brightness", -100.0, 100.0, 0.0),
             ("Contrast", "contrast", 0.1, 3.0, 1.0),

@@ -5,8 +5,6 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 
 from __future__ import annotations
 
-from typing import List
-
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMessageBox, QWidget
 
@@ -20,7 +18,7 @@ class _HybridPanelMixin:
         return self._hybrid_panel
 
     @Slot(list)
-    def _on_hybrid_sequence_accepted(self, paths: List[str]):
+    def _on_hybrid_sequence_accepted(self, paths: list[str]):
         """Load the sequence from the Hybrid Stitch panel into the Stitch tab."""
         if not paths:
             return

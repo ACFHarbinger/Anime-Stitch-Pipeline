@@ -3,10 +3,11 @@ from __future__ import annotations
 import copy
 import math
 import os
-from typing import Callable, List, Optional
+from collections.abc import Callable
 
 import cv2
 import numpy as np
+from gui.src.constants.elements import _FRAME_COLORS, _HIGHLIGHT_PEN
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import (
     QBrush,
@@ -35,7 +36,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from gui.src.constants.elements import _FRAME_COLORS, _HIGHLIGHT_PEN
 
 
 def _bgr_thumb_to_qpixmap(bgr: np.ndarray, w: int, h: int) -> QPixmap:
@@ -55,7 +55,7 @@ class _DraggableFrameItem(QGraphicsRectItem):
         frame_h: float,
         base_tx: float,
         base_ty: float,
-        nudge_list: List[List[float]],
+        nudge_list: list[list[float]],
         on_select: Callable[[int], None],
     ):
         super().__init__(0.0, 0.0, frame_w, frame_h)
@@ -94,15 +94,15 @@ class CanvasInspectorDialog(QDialog):
         self._canvas_w: int = int(data["canvas_w"])
         self._frame_h: int = int(data["frame_h"])
         self._frame_w: int = int(data["frame_w"])
-        self._affines: List[List[List[float]]] = copy.deepcopy(data["affines"])
-        self._image_paths: List[str] = list(data.get("image_paths", []))
-        self._thumbnails: List[Optional[np.ndarray]] = list(data.get("thumbnails", []))
+        self._affines: list[list[list[float]]] = copy.deepcopy(data["affines"])
+        self._image_paths: list[str] = list(data.get("image_paths", []))
+        self._thumbnails: list[np.ndarray | None] = list(data.get("thumbnails", []))
         n = len(self._affines)
-        self._nudges: List[List[float]] = [[0.0, 0.0] for _ in range(n)]
-        self._rot_angles: List[float] = [0.0] * n
-        self._scale_factors: List[float] = [1.0] * n
-        self._drag_items: List[_DraggableFrameItem] = []
-        self._selected_idx: Optional[int] = None
+        self._nudges: list[list[float]] = [[0.0, 0.0] for _ in range(n)]
+        self._rot_angles: list[float] = [0.0] * n
+        self._scale_factors: list[float] = [1.0] * n
+        self._drag_items: list[_DraggableFrameItem] = []
+        self._selected_idx: int | None = None
         self._suppress_list_signal: bool = False
 
         self._build_ui()
@@ -420,7 +420,7 @@ class CanvasInspectorDialog(QDialog):
         self._update_tx_label()
         self._update_transform_controls()
 
-    def adjusted_affines(self) -> List[List[List[float]]]:
+    def adjusted_affines(self) -> list[list[list[float]]]:
         """Return affines with nudge (tx/ty) and rotation/scale modifications applied."""
         result = copy.deepcopy(self._affines)
         for idx in range(len(result)):

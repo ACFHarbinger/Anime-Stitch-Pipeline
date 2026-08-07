@@ -1,5 +1,4 @@
 import os
-from typing import List
 
 import cv2
 import numpy as np
@@ -28,7 +27,7 @@ class AnimClusterWorker(QRunnable):
 
     def __init__(
         self,
-        paths: List[str],
+        paths: list[str],
         ac_threshold: float = 0.25,
         min_anim_pixels: int = 500,
     ):
@@ -58,7 +57,7 @@ class AnimClusterWorker(QRunnable):
 
         total_steps = 2 * N
 
-        frames: List[np.ndarray] = []
+        frames: list[np.ndarray] = []
         H = W = 0
         for i, p in enumerate(paths):
             if self._cancelled:
@@ -92,7 +91,7 @@ class AnimClusterWorker(QRunnable):
         th = max(1, int(H * scale))
         tw = target_w
 
-        small_stack: List[np.ndarray] = []
+        small_stack: list[np.ndarray] = []
         for i, frame in enumerate(frames):
             if self._cancelled:
                 return
@@ -132,7 +131,7 @@ class AnimClusterWorker(QRunnable):
             return
 
         anim_ys, anim_xs = np.where(anim_mask > 0)
-        sigs: List[np.ndarray] = []
+        sigs: list[np.ndarray] = []
         for gray in small_stack:
             edges = cv2.Canny((gray * 255).astype(np.uint8), 50, 150)
             sigs.append(edges[anim_ys, anim_xs].astype(np.float32))

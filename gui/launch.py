@@ -43,9 +43,8 @@ def main() -> int:
     _load_package("asp_backend", _REPO_ROOT / "backend" / "src")
     _load_package("asp_gui", _REPO_ROOT / "gui" / "src")
 
-    from PySide6.QtWidgets import QApplication, QMainWindow
-
     from asp_gui.elements.manager import StitchTab
+    from PySide6.QtWidgets import QApplication, QMainWindow
 
     app = QApplication(sys.argv)
     window = QMainWindow()

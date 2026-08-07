@@ -25,7 +25,7 @@ import os
 import os as _os
 import time as _time
 import warnings
-from typing import Callable, Dict, List, Optional
+from collections.abc import Callable
 
 import cv2
 import numpy as np
@@ -85,13 +85,13 @@ class _ProgressPipeline(AnimeStitchPipeline):
         self,
         progress_cb,
         log_cb,
-        manual_affines: Optional[Dict] = None,
-        cancel_flag: Optional[list] = None,
+        manual_affines: dict | None = None,
+        cancel_flag: list | None = None,
         save_intermediate: bool = False,
         intermediate_dir: str = "",
-        pause_cb: Optional[Callable] = None,
-        pipeline_config: Optional[dict] = None,
-        hitl_session_overrides: Optional[Dict[str, dict]] = None,
+        pause_cb: Callable | None = None,
+        pipeline_config: dict | None = None,
+        hitl_session_overrides: dict[str, dict] | None = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -113,7 +113,12 @@ class _ProgressPipeline(AnimeStitchPipeline):
         if self._cancel_flag[0]:
             raise InterruptedError("Stitch cancelled by user.")
 
-    def run(self, image_paths: List[str], output_path: str, hires_keyframes: Optional[Dict[int, str]] = None):  # noqa: C901
+    def run(
+        self,
+        image_paths: list[str],
+        output_path: str,
+        hires_keyframes: dict[int, str] | None = None,
+    ):  # noqa: C901
         out_abs = os.path.abspath(output_path)
         image_paths = [p for p in image_paths if os.path.abspath(p) != out_abs]
 
@@ -192,7 +197,12 @@ class _ProgressPipeline(AnimeStitchPipeline):
         }
         _stage_t0 = _time.perf_counter()
 
-        def _record_stage_failure(stage_idx: int, stage_label: str, exc: Exception, fallback_used: Optional[str] = None):
+        def _record_stage_failure(
+            stage_idx: int,
+            stage_label: str,
+            exc: Exception,
+            fallback_used: str | None = None,
+        ):
             """Record per-stage error context into the execution trace (§5.15 Option D)."""
             _trace["failures"].append({
                 "stage": stage_idx,

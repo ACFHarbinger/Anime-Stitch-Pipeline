@@ -14,10 +14,9 @@ Usage
 
 from __future__ import annotations
 
-from typing import List, Optional, Tuple
-
 import cv2
 import numpy as np
+from gui.src.constants.elements import _COLORS, _MARKER_R, _THUMB_H, _THUMB_W
 from PySide6.QtCore import QPointF, Qt
 from PySide6.QtGui import (
     QColor,
@@ -39,7 +38,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from gui.src.constants.elements import _COLORS, _MARKER_R, _THUMB_H, _THUMB_W
 
 
 def _bgr_to_pixmap(arr: np.ndarray, max_w: int = _THUMB_W, max_h: int = _THUMB_H) -> QPixmap:
@@ -75,7 +73,7 @@ class _FrameView(QWidget):
         self._pixmap = _bgr_to_pixmap(frame_bgr)
         self._scale_x = frame_bgr.shape[1] / max(1, self._pixmap.width())
         self._scale_y = frame_bgr.shape[0] / max(1, self._pixmap.height())
-        self._markers: List[Tuple[float, float]] = []  # image-space coords
+        self._markers: list[tuple[float, float]] = []  # image-space coords
         self._click_cb = None  # set by parent after construction
 
         self._scene = _ClickableScene(self._on_click)
@@ -158,15 +156,17 @@ class LandmarkEditorDialog(QDialog):
         self.setWindowTitle(f"§2.9A  Landmark Editor — Frames {i} → {j}")
         self._i = i
         self._j = j
-        self._pairs: List[Tuple[Tuple[float, float], Tuple[float, float]]] = []
-        self._pending_left: Optional[Tuple[float, float]] = None  # waiting for right click
+        self._pairs: list[tuple[tuple[float, float], tuple[float, float]]] = []
+        self._pending_left: tuple[float, float] | None = None  # waiting for right click
 
         self._view_i = _FrameView(frame_i_bgr, f"Frame {i}  (click first)")
         self._view_j = _FrameView(frame_j_bgr, f"Frame {j}  (click second)")
         self._view_i._click_cb = self._on_left_click
         self._view_j._click_cb = self._on_right_click
 
-        self._status = QLabel("Click a point on the LEFT frame, then the matching point on the RIGHT frame.")
+        self._status = QLabel(
+            "Click a point on the LEFT frame, then the matching point on the RIGHT frame."
+        )
         self._status.setWordWrap(True)
         self._status.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -214,7 +214,8 @@ class LandmarkEditorDialog(QDialog):
     def _on_left_click(self, ix: float, iy: float):
         self._pending_left = (ix, iy)
         self._status.setText(
-            f"Left point set at ({ix:.0f}, {iy:.0f}).  Now click the matching point on the RIGHT frame."
+            f"Left point set at ({ix:.0f}, {iy:.0f}).  "
+            "Now click the matching point on the RIGHT frame."
         )
         color = _COLORS[len(self._pairs) % len(_COLORS)]
         self._view_i.add_marker(ix, iy, color, len(self._pairs))
@@ -268,7 +269,9 @@ class LandmarkEditorDialog(QDialog):
         self._ok_btn.setEnabled(n >= 1)
         self._undo_btn.setEnabled(n > 0)
         if n == 0:
-            self._status.setText("Click a point on the LEFT frame, then the matching point on the RIGHT frame.")
+            self._status.setText(
+                "Click a point on the LEFT frame, then the matching point on the RIGHT frame."
+            )
 
     # ------------------------------------------------------------------
     # Accept / result
@@ -278,6 +281,6 @@ class LandmarkEditorDialog(QDialog):
         if self._pairs:
             self.accept()
 
-    def landmark_pairs(self) -> List[Tuple[Tuple[float, float], Tuple[float, float]]]:
+    def landmark_pairs(self) -> list[tuple[tuple[float, float], tuple[float, float]]]:
         """Return user-placed landmark correspondences in image-pixel space."""
         return list(self._pairs)

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
+from gui.src.constants.elements import _BAR_W, DIALOG__MAX_PREVIEW_H
 from PySide6.QtCore import QRect, Qt
 from PySide6.QtGui import (
     QBrush,
@@ -19,7 +20,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from gui.src.constants.elements import DIALOG__MAX_PREVIEW_H, _BAR_W
 
 
 def _coverage_color(count: int) -> QColor:

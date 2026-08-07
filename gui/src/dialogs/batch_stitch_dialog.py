@@ -1,5 +1,5 @@
-from typing import Optional
 
+from gui.src.constants.components import _STATUS_ICON
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -19,7 +19,6 @@ from PySide6.QtWidgets import (
 )
 
 from ..helpers.batch_stitch_worker import BatchStitchWorker
-from gui.src.constants.components import _STATUS_ICON
 
 
 class BatchStitchDialog(QDialog):
@@ -39,7 +38,7 @@ class BatchStitchDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Batch Stitch")
         self.resize(520, 480)
-        self._worker: Optional[BatchStitchWorker] = None
+        self._worker: BatchStitchWorker | None = None
         self._items: dict = {}
 
         layout = QVBoxLayout(self)

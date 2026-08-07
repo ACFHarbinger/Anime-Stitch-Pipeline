@@ -6,13 +6,12 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 from __future__ import annotations
 
 import os
-from typing import Dict, List, Optional, Tuple
 
+from gui.src.constants import NODE_BODY_HEIGHT, NODE_HDR_HEIGHT
 from PySide6.QtCore import QPointF, Qt, Signal
 from PySide6.QtGui import QPainter, QWheelEvent
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView, QSizePolicy
 
-from gui.src.constants import NODE_BODY_HEIGHT, NODE_HDR_HEIGHT
 from ._node_graph_items import _BaseNode, _GraphEdge, _Port, _SourceNode, _StitchOpNode
 
 
@@ -23,12 +22,12 @@ class _NodeScene(QGraphicsScene):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._drag_edge: Optional[_GraphEdge] = None
-        self._drag_src: Optional[_Port] = None
+        self._drag_edge: _GraphEdge | None = None
+        self._drag_src: _Port | None = None
 
     # ── node factory ─────────────────────────────────────────────────────
 
-    def add_source(self, path: str, pos: Optional[QPointF] = None) -> _SourceNode:
+    def add_source(self, path: str, pos: QPointF | None = None) -> _SourceNode:
         if pos is None:
             x, y = self._next_pos(col=0)
         else:
@@ -65,7 +64,7 @@ class _NodeScene(QGraphicsScene):
         self._drag_src = None
         self.plan_changed.emit()
 
-    def _next_pos(self, col: int = 0) -> Tuple[float, float]:
+    def _next_pos(self, col: int = 0) -> tuple[float, float]:
         nodes = [i for i in self.items() if isinstance(i, _BaseNode)]
         col_nodes = [n for n in nodes if (n.scenePos().x() > 260) == (col > 0)]
         y = (
@@ -78,7 +77,7 @@ class _NodeScene(QGraphicsScene):
 
     # ── port-drag connection ──────────────────────────────────────────────
 
-    def _port_at(self, pos) -> Optional[_Port]:
+    def _port_at(self, pos) -> _Port | None:
         for item in self.items(pos):
             if isinstance(item, _Port):
                 return item
@@ -138,16 +137,16 @@ class _NodeScene(QGraphicsScene):
 
     # ── plan extraction ───────────────────────────────────────────────────
 
-    def get_plan(self) -> List[Dict]:
-        ops: List[_StitchOpNode] = [
+    def get_plan(self) -> list[dict]:
+        ops: list[_StitchOpNode] = [
             i for i in self.items() if isinstance(i, _StitchOpNode)
         ]
         if not ops:
             return []
 
-        id_map: Dict[int, str] = {id(op): f"op_{k}" for k, op in enumerate(ops)}
+        id_map: dict[int, str] = {id(op): f"op_{k}" for k, op in enumerate(ops)}
 
-        def _inputs_for(op: _StitchOpNode) -> List[str]:
+        def _inputs_for(op: _StitchOpNode) -> list[str]:
             res = []
             for port in op.input_ports:
                 for edge in port.edges:
@@ -159,8 +158,8 @@ class _NodeScene(QGraphicsScene):
             return res
 
         # Kahn topological sort
-        in_deg: Dict[int, int] = {id(op): 0 for op in ops}
-        deps: Dict[int, List[_StitchOpNode]] = {id(op): [] for op in ops}
+        in_deg: dict[int, int] = {id(op): 0 for op in ops}
+        deps: dict[int, list[_StitchOpNode]] = {id(op): [] for op in ops}
         for op in ops:
             for inp in _inputs_for(op):
                 for dep in ops:
@@ -169,7 +168,7 @@ class _NodeScene(QGraphicsScene):
                         deps[id(dep)].append(op)
 
         queue = [op for op in ops if in_deg[id(op)] == 0]
-        ordered: List[_StitchOpNode] = []
+        ordered: list[_StitchOpNode] = []
         while queue:
             cur = queue.pop(0)
             ordered.append(cur)

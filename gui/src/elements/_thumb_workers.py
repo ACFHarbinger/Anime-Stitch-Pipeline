@@ -47,7 +47,7 @@ class _MetricsTask(QRunnable):
 
 
 class _ThumbTask(QRunnable):
-    def __init__(self, path: str, size: int, generation: int, hub: "_ThumbHub"):
+    def __init__(self, path: str, size: int, generation: int, hub: _ThumbHub):
         super().__init__()
         self._path = path
         self._size = size

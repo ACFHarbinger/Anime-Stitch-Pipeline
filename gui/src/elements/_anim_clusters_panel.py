@@ -7,8 +7,8 @@ from __future__ import annotations
 
 import os
 import pathlib
-from typing import List, Optional
 
+from gui.src.constants import ANIM_CLUSTER_COLORS
 from PySide6.QtCore import QSize, Qt, QThreadPool, Slot
 from PySide6.QtGui import QColor, QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
@@ -29,7 +29,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.constants import ANIM_CLUSTER_COLORS
 from ..helpers import AnimClusterWorker
 from ._thumb_workers import _ThumbTask
 
@@ -211,7 +210,7 @@ class _AnimClustersPanelMixin:
         self._anim_files_edit.setText(d)
 
     @Slot()
-    def _anim_do_run(self, paths: Optional[List[str]] = None):
+    def _anim_do_run(self, paths: list[str] | None = None):
         if paths is None:
             if self._anim_cluster_dir_path:
                 exts = {".jpg", ".jpeg", ".png", ".bmp", ".webp", ".tiff", ".tif"}
@@ -268,7 +267,7 @@ class _AnimClustersPanelMixin:
         self._anim_progress.setValue(completed)
 
     @Slot(list)
-    def _anim_on_finished(self, rows: List[dict]):
+    def _anim_on_finished(self, rows: list[dict]):
         self._anim_progress.hide()
         self._anim_cluster_worker = None
         self._anim_run_btn.setEnabled(True)

@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import os
 import re
-from typing import Optional
 
+from gui.src.styles import apply_shadow_effect
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import (
@@ -30,8 +31,6 @@ from PySide6.QtWidgets import (
 )
 
 from ..helpers import GraphStitchWorker
-from gui.src.styles import apply_shadow_effect
-from gui.src.windows.settings.splitter_persistence import persist_splitter
 from ._node_graph_items import _StitchOpNode
 from ._node_graph_scene import _NodeScene, _NodeView
 from ._thumbnail_file_picker import _ThumbnailFilePicker
@@ -249,7 +248,7 @@ class _GraphPanelMixin:
     def _graph_grow_input(self):
         # Prefer currently selected op; fall back to last selected so sidebar
         # buttons work even if clicking them briefly moved focus away.
-        target: Optional[_StitchOpNode] = None
+        target: _StitchOpNode | None = None
         for item in self._node_scene.selectedItems():
             if isinstance(item, _StitchOpNode):
                 target = item

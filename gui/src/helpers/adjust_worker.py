@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 import cv2
 import numpy as np
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
@@ -178,7 +176,7 @@ class AdjustWorker(QThread):
     sig_finished = Signal(object)  # QImage
     sig_error = Signal(str)
 
-    def __init__(self, img_path: str, params: dict, max_size: Optional[int] = None):
+    def __init__(self, img_path: str, params: dict, max_size: int | None = None):
         super().__init__()
         self._path = img_path
         self._params = params

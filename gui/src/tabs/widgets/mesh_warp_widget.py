@@ -1,7 +1,8 @@
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import cv2
 import numpy as np
+from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import (
     Qt,
     QTimer,
@@ -30,8 +31,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 from scipy.interpolate import RBFInterpolator
-
-from gui.src.styles import apply_shadow_effect
 
 
 def _bgr_to_qimage(bgr: np.ndarray) -> QImage:
@@ -67,15 +66,15 @@ class _MeshCanvas(QGraphicsView):
         super().__init__(parent)
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
-        self._pix_item: Optional[QGraphicsPixmapItem] = None
-        self._pins: Dict[Tuple[int, int], _MeshPin] = {}
-        self._grid_lines: List[QGraphicsLineItem] = []
+        self._pix_item: QGraphicsPixmapItem | None = None
+        self._pins: dict[tuple[int, int], _MeshPin] = {}
+        self._grid_lines: list[QGraphicsLineItem] = []
         self._img_w = 1
         self._img_h = 1
         self._rows = 5
         self._cols = 8
-        self._orig_positions: Dict[Tuple[int, int], Tuple[float, float]] = {}
-        self._displaced: Optional[Any] = None
+        self._orig_positions: dict[tuple[int, int], tuple[float, float]] = {}
+        self._displaced: Any | None = None
 
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setBackgroundBrush(QBrush(QColor("#111")))
@@ -152,7 +151,7 @@ class _MeshCanvas(QGraphicsView):
                 scene.addItem(item)
                 self._grid_lines.append(item)
 
-    def compute_warp(self) -> Optional[Tuple[Any, Any]]:
+    def compute_warp(self) -> tuple[Any, Any] | None:
         """Return warped image via thin-plate spline from pin displacements."""
         src_pts = []
         dst_pts = []
@@ -232,7 +231,7 @@ class MeshWarpWidget(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._bgr: Optional[np.ndarray] = None
+        self._bgr: np.ndarray | None = None
         self._build_ui()
 
     def _build_ui(self):

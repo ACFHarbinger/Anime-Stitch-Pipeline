@@ -1,5 +1,4 @@
 import json
-from typing import List, Optional, Tuple
 
 from PySide6.QtCore import Qt
 from PySide6.QtGui import (
@@ -26,7 +25,7 @@ from PySide6.QtWidgets import (
 
 
 def parse_canvas_json(path: str) -> dict:
-    with open(path, "r") as fh:
+    with open(path) as fh:
         raw = json.load(fh)
     return {
         "canvas_h": int(raw.get("canvas_h", 0)),
@@ -41,8 +40,8 @@ def parse_canvas_json(path: str) -> dict:
 
 
 def _canvas_frame_corners(
-    affine_2x3: List[List[float]], frame_h: int, frame_w: int
-) -> List[Tuple[float, float]]:
+    affine_2x3: list[list[float]], frame_h: int, frame_w: int
+) -> list[tuple[float, float]]:
     a, b, tx = affine_2x3[0]
     c, d, ty = affine_2x3[1]
     pts = [(0, 0), (frame_w, 0), (frame_w, frame_h), (0, frame_h)]
@@ -65,7 +64,7 @@ class CanvasLayoutInspectorDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Canvas Layout Inspector")
         self.setModal(False)
-        self._data: Optional[dict] = canvas_data
+        self._data: dict | None = canvas_data
         self._build_ui()
         if self._data is not None:
             self._populate()

@@ -1,6 +1,5 @@
 import os
 from math import gcd
-from typing import Dict, List
 
 import cv2
 import numpy as np
@@ -28,7 +27,7 @@ class StatsWorker(QRunnable):
     hist_correlation, ssim, orb_inliers, mean_diff
     """
 
-    def __init__(self, paths: List[str], knn_window: int = 20):
+    def __init__(self, paths: list[str], knn_window: int = 20):
         super().__init__()
         self.setAutoDelete(True)
         self._paths = list(paths)
@@ -53,9 +52,9 @@ class StatsWorker(QRunnable):
             self.signals.pairwise_done.emit([])
             return
 
-        individual: List[dict] = []
+        individual: list[dict] = []
         knn = self._knn_window
-        bgr_cache: Dict[str, np.ndarray] = {}
+        bgr_cache: dict[str, np.ndarray] = {}
 
         if n <= 12:
             pairs = [(i, j, True) for i in range(n) for j in range(i + 1, n)]
@@ -95,7 +94,7 @@ class StatsWorker(QRunnable):
 
         self.signals.individual_done.emit(individual)
 
-        pairwise: List[dict] = []
+        pairwise: list[dict] = []
 
         orb = cv2.ORB_create(nfeatures=500) # pyrefly: ignore [missing-attribute]
         for done_pw, (i, j, is_consec) in enumerate(pairs, start=1):

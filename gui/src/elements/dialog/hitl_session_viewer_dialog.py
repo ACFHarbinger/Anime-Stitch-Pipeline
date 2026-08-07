@@ -4,8 +4,8 @@ import json
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
 
+from gui.src.constants.elements import _CHECKPOINT_LABELS, _DEFAULT_SESSION_DIR
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog,
@@ -21,10 +21,9 @@ from PySide6.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
 )
-from gui.src.constants.elements import _CHECKPOINT_LABELS, _DEFAULT_SESSION_DIR
 
 
-def _list_sessions(session_dir: Path) -> List[Path]:
+def _list_sessions(session_dir: Path) -> list[Path]:
     """Return .json session files in session_dir sorted newest-first."""
     if not session_dir.is_dir():
         return []
@@ -33,7 +32,7 @@ def _list_sessions(session_dir: Path) -> List[Path]:
     return paths
 
 
-def _load_session_meta(path: Path) -> Optional[dict]:
+def _load_session_meta(path: Path) -> dict | None:
     """Load session JSON without decoding numpy arrays. Returns None on error."""
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -76,14 +75,14 @@ def _format_session_info(data: dict, path: Path) -> str:
 class HITLSessionViewerDialog(QDialog):
     """Browse, inspect, delete, and load HITL session files for replay."""
 
-    def __init__(self, session_dir: Optional[Path] = None, parent=None):
+    def __init__(self, session_dir: Path | None = None, parent=None):
         super().__init__(parent)
         self.setWindowTitle("HITL Session Browser")
         self.resize(780, 480)
 
         self._session_dir: Path = session_dir or _DEFAULT_SESSION_DIR
-        self._paths: List[Path] = []
-        self._selected_path: Optional[str] = None
+        self._paths: list[Path] = []
+        self._selected_path: str | None = None
 
         self._build_ui()
         self._refresh()
@@ -203,7 +202,7 @@ class HITLSessionViewerDialog(QDialog):
     # Actions
     # ------------------------------------------------------------------
 
-    def _current_path(self) -> Optional[Path]:
+    def _current_path(self) -> Path | None:
         row = self._list.currentRow()
         if 0 <= row < len(self._paths):
             return self._paths[row]
@@ -255,7 +254,7 @@ class HITLSessionViewerDialog(QDialog):
     # Result accessor
     # ------------------------------------------------------------------
 
-    def selected_path(self) -> Optional[str]:
+    def selected_path(self) -> str | None:
         """Returns the path chosen via 'Load for Replay', or None."""
         return self._selected_path
 

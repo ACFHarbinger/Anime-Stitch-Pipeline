@@ -6,8 +6,9 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 from __future__ import annotations
 
 import os
-from typing import Dict, List
 
+from gui.src.windows.settings.app_settings import AppSettings
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from PySide6.QtCore import QSize, Qt, QThreadPool, Slot
 from PySide6.QtGui import (
     QAction,
@@ -34,8 +35,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from gui.src.windows.settings.app_settings import AppSettings
-from gui.src.windows.settings.splitter_persistence import persist_splitter
 from ._thumb_workers import _ThumbHub, _ThumbTask
 
 
@@ -47,8 +46,8 @@ class _ThumbnailFilePicker(QDialog):
         self.setWindowTitle("Add Source Frames")
         self.resize(960, 640)
         self._current_dir = start_dir or os.path.expanduser("~")
-        self._selected_paths: List[str] = []
-        self._item_map: Dict[str, QListWidgetItem] = {}
+        self._selected_paths: list[str] = []
+        self._item_map: dict[str, QListWidgetItem] = {}
         self._generation = 0
         self._pool = QThreadPool.globalInstance()
         self._hub = _ThumbHub()
@@ -237,7 +236,11 @@ class _ThumbnailFilePicker(QDialog):
 
         menu = QMenu(self._sidebar)
         self._apply_menu_style(menu)
-        fav_act = QAction("❌ Remove from Favourites", menu) if is_fav else QAction("⭐ Add to Favourites", menu)
+        fav_act = (
+            QAction("❌ Remove from Favourites", menu)
+            if is_fav
+            else QAction("⭐ Add to Favourites", menu)
+        )
         menu.addAction(fav_act)
 
         act = menu.exec(self._sidebar.mapToGlobal(pos))
@@ -245,11 +248,15 @@ class _ThumbnailFilePicker(QDialog):
             if is_fav:
                 new_favs = [f for f in favs if os.path.normpath(f) != norm_path]
                 AppSettings.set_favourite_directories(new_favs)
-                QMessageBox.information(self, "Favourite Removed", f"Removed from favourites:\n{path}")
+                QMessageBox.information(
+                    self, "Favourite Removed", f"Removed from favourites:\n{path}"
+                )
             else:
                 favs.append(path)
                 AppSettings.set_favourite_directories(favs)
-                QMessageBox.information(self, "Favourite Added", f"Added to favourites:\n{path}")
+                QMessageBox.information(
+                    self, "Favourite Added", f"Added to favourites:\n{path}"
+                )
             self._populate_sidebar()
 
     def _on_grid_context_menu(self, pos):
@@ -269,7 +276,11 @@ class _ThumbnailFilePicker(QDialog):
 
         menu = QMenu(self._grid)
         self._apply_menu_style(menu)
-        fav_act = QAction("❌ Remove from Favourites", menu) if is_fav else QAction("⭐ Add to Favourites", menu)
+        fav_act = (
+            QAction("❌ Remove from Favourites", menu)
+            if is_fav
+            else QAction("⭐ Add to Favourites", menu)
+        )
         menu.addAction(fav_act)
 
         act = menu.exec(self._grid.mapToGlobal(pos))
@@ -277,11 +288,15 @@ class _ThumbnailFilePicker(QDialog):
             if is_fav:
                 new_favs = [f for f in favs if os.path.normpath(f) != norm_path]
                 AppSettings.set_favourite_directories(new_favs)
-                QMessageBox.information(self, "Favourite Removed", f"Removed from favourites:\n{path}")
+                QMessageBox.information(
+                    self, "Favourite Removed", f"Removed from favourites:\n{path}"
+                )
             else:
                 favs.append(path)
                 AppSettings.set_favourite_directories(favs)
-                QMessageBox.information(self, "Favourite Added", f"Added to favourites:\n{path}")
+                QMessageBox.information(
+                    self, "Favourite Added", f"Added to favourites:\n{path}"
+                )
             self._populate_sidebar()
 
     def _navigate(self, path: str):
@@ -361,7 +376,7 @@ class _ThumbnailFilePicker(QDialog):
         if self._selected_paths:
             self.accept()
 
-    def selected_paths(self) -> List[str]:
+    def selected_paths(self) -> list[str]:
         return self._selected_paths
 
     @staticmethod

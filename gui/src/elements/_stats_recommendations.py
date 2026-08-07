@@ -10,8 +10,6 @@ pre-existing complexity, not introduced by this split).
 
 from __future__ import annotations
 
-from typing import List
-
 import numpy as np
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QMessageBox
@@ -21,8 +19,8 @@ class _StatsRecommendationsMixin:
     # ------------------------------------------------------------------
     @staticmethod
     def _stats_build_recommendations(  # noqa: C901
-        ind: List[dict],
-        pw: List[dict],
+        ind: list[dict],
+        pw: list[dict],
         max_orb: int,  # noqa: ARG004
     ) -> str:
         """
@@ -75,7 +73,7 @@ class _StatsRecommendationsMixin:
         # For each weak consecutive pair, check if any extended-window pair
         # involving either frame scores significantly better.
         extended_pairs = [r for r in pw if not r.get("consecutive", True)]
-        better_matches: List[
+        better_matches: list[
             dict
         ] = []  # {weak_a, weak_b, best_a, best_b, score_orig, score_best}
         for wp in weak_pairs:
@@ -107,7 +105,7 @@ class _StatsRecommendationsMixin:
                 )
 
         # ── Observations (shared facts) ────────────────────────────────
-        obs: List[str] = []
+        obs: list[str] = []
 
         # ── Sharpness — relative to the batch, not absolute ──────────────
         # Digital anime / cel-shading has low Laplacian variance by design
@@ -276,7 +274,7 @@ class _StatsRecommendationsMixin:
             )
 
         # ── Scenario recommendations ───────────────────────────────────
-        def _section(title: str, color: str, items: List[str]) -> str:
+        def _section(title: str, color: str, items: list[str]) -> str:
             bullets = "".join(f"<li>{it}</li>" for it in items)
             return (
                 f"<div style='margin-top:10px;'>"
@@ -287,9 +285,9 @@ class _StatsRecommendationsMixin:
                 f"</div>"
             )
 
-        best_items: List[str] = []
-        balanced_items: List[str] = []
-        fast_items: List[str] = []
+        best_items: list[str] = []
+        balanced_items: list[str] = []
+        fast_items: list[str] = []
 
         # Resolution advice
         if max_w > 0:

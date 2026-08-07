@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-from typing import List
 
 from PIL import Image
 from PySide6.QtCore import QThread, Signal
@@ -59,7 +58,7 @@ class CanvasWorker(QThread):
 
     def __init__(
         self,
-        images_params: List[tuple[str, dict]],  # list of (path, adj_params)
+        images_params: list[tuple[str, dict]],  # list of (path, adj_params)
         layout_mode: str,  # 'horizontal', 'vertical', 'grid'
         canvas_w: int,
         canvas_h: int,

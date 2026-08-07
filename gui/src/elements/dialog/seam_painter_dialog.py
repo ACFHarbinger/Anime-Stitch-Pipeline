@@ -12,10 +12,14 @@ Clicking "Cancel" aborts the pipeline.
 
 from __future__ import annotations
 
-from typing import Optional
-
 import cv2
 import numpy as np
+from gui.src.constants.elements import (
+    _DEFAULT_BRUSH_PX,
+    _MAX_PREVIEW_H,
+    _MAX_PREVIEW_W,
+    _PAINT_COLOR,
+)
 from PySide6.QtCore import QPoint, Qt
 from PySide6.QtGui import (
     QImage,
@@ -31,7 +35,6 @@ from PySide6.QtWidgets import (
     QSlider,
     QVBoxLayout,
 )
-from gui.src.constants.elements import _DEFAULT_BRUSH_PX, _MAX_PREVIEW_H, _MAX_PREVIEW_W, _PAINT_COLOR
 
 
 def _bgr_to_pixmap(bgr: np.ndarray, max_w: int, max_h: int) -> tuple[QPixmap, float]:
@@ -56,7 +59,7 @@ class _PaintCanvas(QLabel):
         self._overlay.fill(Qt.GlobalColor.transparent)
         self._brush_px = _DEFAULT_BRUSH_PX
         self._painting = False
-        self._last_pt: Optional[QPoint] = None
+        self._last_pt: QPoint | None = None
         self._erasing = False
 
         self.setFixedSize(bg_pixmap.size())
@@ -201,7 +204,7 @@ class SeamPainterDialog(QDialog):
     def _on_recomposite(self):
         self.done(self.RECOMPOSITE)
 
-    def full_resolution_mask(self) -> Optional[np.ndarray]:
+    def full_resolution_mask(self) -> np.ndarray | None:
         """Return paint mask upscaled to full canvas resolution, or None if empty."""
         preview_mask = self._painter_widget.paint_mask_preview()
         if not preview_mask.any():

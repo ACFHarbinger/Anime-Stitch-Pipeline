@@ -20,10 +20,17 @@ Architecture: all model inference is delegated to a ``_RefinementWorker`` QThrea
 
 from __future__ import annotations
 
-from typing import Callable, List, Optional, Tuple
+from collections.abc import Callable
 
 import cv2
 import numpy as np
+from gui.src.constants.elements import (
+    _CLICK_RADIUS,
+    _MAX_DISPLAY_H,
+    _NEGATIVE_COLOR,
+    _OVERLAY_ALPHA,
+    _POSITIVE_COLOR,
+)
 from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QImage, QMouseEvent, QPixmap
 from PySide6.QtWidgets import (
@@ -38,7 +45,6 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QVBoxLayout,
 )
-from gui.src.constants.elements import _CLICK_RADIUS, _MAX_DISPLAY_H, _NEGATIVE_COLOR, _OVERLAY_ALPHA, _POSITIVE_COLOR
 
 # ── constants ────────────────────────────────────────────────────────────────
 
@@ -54,9 +60,9 @@ def _bgr_to_qimage(bgr: np.ndarray) -> QImage:
 
 def _render_overlay(
     frame: np.ndarray,
-    mask: Optional[np.ndarray],
-    pos_clicks: List[Tuple[int, int]],
-    neg_clicks: List[Tuple[int, int]],
+    mask: np.ndarray | None,
+    pos_clicks: list[tuple[int, int]],
+    neg_clicks: list[tuple[int, int]],
 ) -> np.ndarray:
     """Render frame with mask overlay and click dots into a uint8 BGR image."""
     out = frame.copy()
@@ -175,9 +181,9 @@ class MaskReviewDialog(QDialog):
         self.setWindowTitle("Mask Review — Foreground Segmentation (Stage 4.5)")
         self.resize(900, 720)
 
-        self._frames: List[np.ndarray] = list(data.get("frames", []))
-        self._masks: List[Optional[np.ndarray]] = list(data.get("bg_masks", []))
-        self._paths: List[str] = list(data.get("image_paths", []))
+        self._frames: list[np.ndarray] = list(data.get("frames", []))
+        self._masks: list[np.ndarray | None] = list(data.get("bg_masks", []))
+        self._paths: list[str] = list(data.get("image_paths", []))
         self._refine_callback = refine_callback
 
         # Ensure mask list is same length as frames
@@ -185,11 +191,11 @@ class MaskReviewDialog(QDialog):
             self._masks.append(None)
 
         self._current_idx = 0
-        self._pos_clicks: List[Tuple[int, int]] = []
-        self._neg_clicks: List[Tuple[int, int]] = []
+        self._pos_clicks: list[tuple[int, int]] = []
+        self._neg_clicks: list[tuple[int, int]] = []
 
-        self._refine_thread: Optional[QThread] = None
-        self._refine_worker: Optional[_RefinementWorker] = None
+        self._refine_thread: QThread | None = None
+        self._refine_worker: _RefinementWorker | None = None
 
         self._frame_h, self._frame_w = (
             (self._frames[0].shape[0], self._frames[0].shape[1])
@@ -443,6 +449,6 @@ class MaskReviewDialog(QDialog):
         self.sig_mask_accepted.emit(list(self._masks))
         self.accept()
 
-    def accepted_masks(self) -> List[Optional[np.ndarray]]:
+    def accepted_masks(self) -> list[np.ndarray | None]:
         """Access masks after dialog.exec() returns Accepted."""
         return list(self._masks)

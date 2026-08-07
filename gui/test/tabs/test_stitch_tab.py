@@ -44,7 +44,8 @@ class TestStitchTabBrowseOutput:
             # Assert that getSaveFileName was called
             mock_save_dialog.assert_called_once()
 
-            # Check the third positional argument (default_file) passed to QFileDialog.getSaveFileName
+            # Check the third positional argument (default_file) passed to
+            # QFileDialog.getSaveFileName
             # It should start in the directory of the last frame path: "/home/user/downloads"
             args, kwargs = mock_save_dialog.call_args
             assert args[2] == os.path.normpath("/home/user/downloads/panorama.png")

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Dict, List
-
 from PySide6.QtCore import QThread, Signal
 
 from .stitch_worker import (
@@ -33,7 +31,7 @@ class GraphStitchWorker(QThread):
     sig_finished = Signal(list)  # list of output paths
     sig_error = Signal(str)
 
-    def __init__(self, plan: List[Dict], pipeline_config: dict):
+    def __init__(self, plan: list[dict], pipeline_config: dict):
         super().__init__()
         self._plan = plan
         self._cfg = pipeline_config
@@ -44,8 +42,8 @@ class GraphStitchWorker(QThread):
 
     def run(self):
         cfg = self._cfg
-        step_outputs: Dict[str, str] = {}
-        output_paths: List[str] = []
+        step_outputs: dict[str, str] = {}
+        output_paths: list[str] = []
         total = len(self._plan)
 
         for idx, step in enumerate(self._plan):
@@ -59,7 +57,7 @@ class GraphStitchWorker(QThread):
             self.sig_log.emit(f"\n=== {step_name} ===")
 
             # Resolve inputs: may be file paths or IDs of earlier steps
-            resolved: List[str] = []
+            resolved: list[str] = []
             for inp in step.get("inputs", []):
                 resolved.append(step_outputs.get(inp, inp))
 
