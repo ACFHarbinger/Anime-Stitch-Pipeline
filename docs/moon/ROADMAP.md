@@ -294,6 +294,28 @@ session: 137 -> 0.** Ruff: 2264 -> 249 (all remaining are the deliberately
 effectively complete; only the 249 E501 lines remain as an explicit,
 reasoned non-action, not unfinished work.
 
+**`gui/test/` missing `q_app` fixture — fixed, 2026-08-07.** Separate from
+issue #3's cross-repo coupling problem: `gui/test/conftest.py` never
+defined the `q_app` fixture every test under `test/tabs/`/`test/dialogs/`
+expects (it was meant to come from Image-Toolkit's own shared root
+conftest.py) — 33 of 50 tests failed at setup with "fixture 'q_app' not
+found", not real test failures. Fixed (added a session-scoped
+`QApplication` fixture, matching `backend/benchmark/evaluation/test/
+conftest.py`'s existing `qapp` pattern): 50/50 pass now when run via
+Image-Toolkit's shared interpreter. **Does not resolve issue #3** — CI's
+own standalone `uv sync` environment still fails collection on the
+deeper `backend.src.constants` cross-repo problem; `ci.yml`'s
+`continue-on-error` comment updated to be precise about which part is
+fixed. The two problems had been conflated in prior docs.
+
+**`gui/` has the same never-cleaned-up lint/type debt `backend/` had —
+issue #14, in progress.** `uv sync` never had `backend/`'s CUDA-toolchain
+blocker (issue #5), so `gui/`'s CI ruff/mypy steps should have been
+running (and failing) this whole time — same debt class as issue #7, just
+never separately tracked. 447 ruff errors (365 auto-fixable, same
+categories as `backend/`'s pre-cleanup state) + 215 mypy errors in 22
+files. Applying the same safe-autofix + verified-triage treatment now.
+
 ---
 
 ## Ground Rules (carried from the critical evaluation — non-negotiable)
