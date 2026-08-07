@@ -24,6 +24,7 @@ import logging
 import os
 import warnings
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import cv2
 import numpy as np
@@ -65,12 +66,21 @@ from ._frame_utils import (
     _spatial_dedup_frames,
 )
 from ._photometric_stage import _apply_background_photometric_normalization
+from ._pipeline_protocol import _PipelineHost
 from ._probes import _DY_CV_MAX, BaSiCWrapper, Image, torch
 
 logger = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # AnimeStitchPipeline.__init__ / sibling mixins (see _pipeline_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    _Base = _PipelineHost
+else:
+    _Base = object
 
-class _RunStageMixin:
+
+class _RunStageMixin(_Base):
     """Provides ``run()``, the full pipeline entry point, for ``AnimeStitchPipeline``."""
 
     def run(  # noqa: C901

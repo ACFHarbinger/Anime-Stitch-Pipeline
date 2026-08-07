@@ -10,13 +10,23 @@ self._eloftr/_loftr/_aliked/_roma and the use_* flags.
 from __future__ import annotations
 
 import logging
+from typing import TYPE_CHECKING
 
+from ._pipeline_protocol import _PipelineHost
 from ._probes import RoMaWrapper
 
 logger = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    # Type-checking-only base: gives mypy visibility into attributes set by
+    # AnimeStitchPipeline.__init__ / sibling mixins (see _pipeline_protocol.py).
+    # Zero runtime effect -- at runtime this mixin still only inherits object.
+    _Base = _PipelineHost
+else:
+    _Base = object
 
-class _MatcherSelectionMixin:
+
+class _MatcherSelectionMixin(_Base):
     """Provides ``_select_matcher`` for ``AnimeStitchPipeline.run()``."""
 
     def _select_matcher(self, H: int, W: int):
