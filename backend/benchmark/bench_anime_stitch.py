@@ -74,7 +74,12 @@ from asp_backend.ingestion.frame_selection import (
     phase_spans,
     smart_select_frames,
 )
-from asp_backend.ingestion.masking import _compute_fg_masks
+from asp_backend.core.pipeline._probes import _USE_SAM2
+from asp_backend.ingestion.masking import (
+    _cleanup_sam2_state,
+    _compute_fg_masks,
+    _compute_fg_masks_sam2_stateful,
+)
 from asp_backend.rendering.compositing import _composite_foreground
 from asp_backend.rendering.rendering import _render_median
 
@@ -1365,7 +1370,18 @@ def process_dataset(dataset_dir: str) -> Optional[Dict]:  # noqa: C901
         from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
 
         birefnet = BiRefNetWrapper()
-        bg_masks = _compute_fg_masks(frames, birefnet)
+        if _USE_SAM2:
+            # §10: route through the pipeline's own ASP_USE_SAM2-aware
+            # masking, mirroring AnimeStitchPipeline._compute_fg_masks --
+            # this benchmark previously called the raw BiRefNet-only
+            # _compute_fg_masks() unconditionally, silently ignoring the
+            # flag (see docs/moon/ROADMAP.md's 2026-08-07 entry, issue #10).
+            bg_masks, _sam2_pred, _sam2_state, _sam2_tmp, _, _ = (
+                _compute_fg_masks_sam2_stateful(frames, birefnet, use_birefnet=True)
+            )
+            _cleanup_sam2_state(_sam2_pred, _sam2_state, _sam2_tmp)
+        else:
+            bg_masks = _compute_fg_masks(frames, birefnet)
         birefnet_ok = True
         if torch.cuda.is_available():
             with contextlib.suppress(Exception):

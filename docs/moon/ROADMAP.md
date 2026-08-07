@@ -76,6 +76,22 @@ gap affects other flags that touch masking specifically is not
 independently audited — worth a dedicated pass (issue #10) before trusting
 any masking-flag A/B result from this harness.
 
+**`ASP_USE_SAM2` A/B, take 2 (2026-08-07, after fixing issue #10's
+measurement bug): a real pipeline bug, issue #11 — flag stays default
+OFF.** Fixed `bench_anime_stitch.py` to route through
+`AnimeStitchPipeline`'s own `_USE_SAM2`-aware masking, and downloaded the
+missing SAM-2 checkpoint (`~/.sam2/sam2_hiera_base_plus.pt` — nothing in
+this repo documents or automates fetching it). With both fixed, SAM-2
+masking genuinely runs — and **2 of 5 verify-subset tests
+(asp_test04, asp_test57) crash outright** with
+`IndexError('boolean index did not match indexed array along axis 0...')`,
+a mask/frame dimension mismatch inside `_compute_fg_masks_sam2_stateful`
+(`backend/src/ingestion/masking.py`). The 3 tests that do complete look
+reasonable (GT-SSIM ASP 0.7347 vs simple 0.7383, sharpness up), but a 40%
+crash rate on a 5-test sample is disqualifying regardless. Root-causing
+the resize/coordinate bug is real pipeline-algorithm debugging, not
+infra — not attempted here, see issue #11.
+
 ---
 
 ## §0 — Product Scope (2026-08-06)
