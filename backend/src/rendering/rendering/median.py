@@ -130,7 +130,7 @@ def _render_median(  # noqa: C901
                     bm_u8,
                     (frames[i].shape[1], frames[i].shape[0]),
                     interpolation=cv2.INTER_NEAREST,
-                )
+                ).astype(np.uint8)
             _frame_bg_u8.append(bm_u8)
         else:
             _frame_bg_u8.append(None)
@@ -185,9 +185,10 @@ def _render_median(  # noqa: C901
                 borderValue=0,
             )
             valid_px = w_mask > 0
-            if _exclude_fg and _frame_bg_u8[i] is not None:
+            _bg_u8_i = _frame_bg_u8[i]
+            if _exclude_fg and bg_canvas is not None and _bg_u8_i is not None:
                 w_bg = cv2.warpAffine(
-                    _frame_bg_u8[i],
+                    _bg_u8_i,
                     M_strip,
                     (W, ch),
                     flags=cv2.INTER_NEAREST,
@@ -195,7 +196,7 @@ def _render_median(  # noqa: C901
                     borderValue=0,
                 )
                 bg_canvas[i] = (w_bg > 127) & valid_px
-            elif _exclude_fg:
+            elif _exclude_fg and bg_canvas is not None:
                 # No mask for this frame → treat all valid pixels as background.
                 bg_canvas[i] = valid_px
             if _baselines is not None:
@@ -227,7 +228,7 @@ def _render_median(  # noqa: C901
         # A5 — effective masks for the median: prefer BACKGROUND samples; where a
         # pixel has no background sample anywhere, fall back to all valid samples
         # (default) or leave as zero when _MASKED_MEDIAN is enabled (§1.87).
-        if _exclude_fg:
+        if _exclude_fg and bg_canvas is not None:
             bg_count = bg_canvas.sum(axis=0)  # (ch, W)
             use_bg = bg_count >= 1  # pixel has ≥1 background sample
             if _MASKED_MEDIAN:
@@ -266,7 +267,7 @@ def _render_median(  # noqa: C901
                 confidence_weights is not None
                 and float(confidence_weights.min()) < 0.70
             )
-            if _use_weighted:
+            if _use_weighted and confidence_weights is not None:
                 # Build weight matrix: (N, P) — zero for out-of-bounds pixels
                 w_mat = np.where(
                     masks_gt1,

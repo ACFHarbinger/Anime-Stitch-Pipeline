@@ -141,14 +141,14 @@ def _compute_fg_masks_sam2(  # noqa: C901
                     _li = list(_obj_ids).index(1)
                     _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
                     if _prob.shape != (_H, _W):
-                        _prob = cv2.resize(_prob, (_W, _H), cv2.INTER_LINEAR)
+                        _prob = cv2.resize(_prob, (_W, _H), interpolation=cv2.INTER_LINEAR)
                     _fg_i = (_prob > 0.5).astype(np.uint8) * 255
                     if FOREGROUND_DILATION > 0:
                         _k = cv2.getStructuringElement(
                             cv2.MORPH_ELLIPSE,
                             (2 * FOREGROUND_DILATION + 1, 2 * FOREGROUND_DILATION + 1),
                         )
-                        _fg_i = cv2.dilate(_fg_i, _k)
+                        _fg_i = cv2.dilate(_fg_i, _k).astype(np.uint8)
                     masks_out[_idx] = cv2.bitwise_not(_fg_i)
 
             predictor.reset_state(_state)
@@ -269,14 +269,14 @@ def _compute_fg_masks_grounded_sam2(
                     _li = list(_obj_ids).index(1)
                     _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
                     if _prob.shape != (_H, _W):
-                        _prob = cv2.resize(_prob, (_W, _H), cv2.INTER_LINEAR)
+                        _prob = cv2.resize(_prob, (_W, _H), interpolation=cv2.INTER_LINEAR)
                     _fg_i = (_prob > 0.5).astype(np.uint8) * 255
                     if FOREGROUND_DILATION > 0:
                         _k = cv2.getStructuringElement(
                             cv2.MORPH_ELLIPSE,
                             (2 * FOREGROUND_DILATION + 1, 2 * FOREGROUND_DILATION + 1),
                         )
-                        _fg_i = cv2.dilate(_fg_i, _k)
+                        _fg_i = cv2.dilate(_fg_i, _k).astype(np.uint8)
                     masks_out[_idx] = cv2.bitwise_not(_fg_i)
 
             predictor.reset_state(_state)
@@ -406,7 +406,7 @@ def _compute_fg_masks_sam2_stateful(  # noqa: C901
                         cv2.MORPH_ELLIPSE,
                         (2 * FOREGROUND_DILATION + 1, 2 * FOREGROUND_DILATION + 1),
                     )
-                    _fg_i = cv2.dilate(_fg_i, _k)
+                    _fg_i = cv2.dilate(_fg_i, _k).astype(np.uint8)
                 masks_out[_idx] = cv2.bitwise_not(_fg_i)
 
         # Fill any missed frames with per-frame BiRefNet
@@ -527,14 +527,16 @@ def _refine_masks_with_clicks(
                 _li = list(_obj_ids).index(1)
                 _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
                 if _prob.shape != (frame_h, frame_w):
-                    _prob = cv2.resize(_prob, (frame_w, frame_h), cv2.INTER_LINEAR)
+                    _prob = cv2.resize(
+                        _prob, (frame_w, frame_h), interpolation=cv2.INTER_LINEAR
+                    )
                 _fg_i = (_prob > 0.5).astype(np.uint8) * 255
                 if FOREGROUND_DILATION > 0:
                     _k = cv2.getStructuringElement(
                         cv2.MORPH_ELLIPSE,
                         (2 * FOREGROUND_DILATION + 1, 2 * FOREGROUND_DILATION + 1),
                     )
-                    _fg_i = cv2.dilate(_fg_i, _k)
+                    _fg_i = cv2.dilate(_fg_i, _k).astype(np.uint8)
                 masks_out[_idx] = cv2.bitwise_not(_fg_i)
 
         return [m for m in masks_out if m is not None]

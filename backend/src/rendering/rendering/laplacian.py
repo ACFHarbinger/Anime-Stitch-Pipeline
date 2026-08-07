@@ -140,8 +140,9 @@ def _render_laplacian(
         weight_roi[(m_i_roi > 0) & (canvas_m_roi == 0)] = 1.0
         weight_roi[(canvas_m_roi > 0) & (m_i_roi == 0)] = 0.0
 
-        if bg_masks[i] is not None:
-            fg_i = bg_masks[i] < 127
+        _bg_i = bg_masks[i]
+        if _bg_i is not None:
+            fg_i = _bg_i < 127
             w_fg_i = cv2.warpAffine(
                 fg_i.astype(np.uint8) * 255,
                 affines[i],
