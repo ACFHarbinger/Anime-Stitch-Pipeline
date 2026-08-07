@@ -248,6 +248,19 @@ injected features, no GPU needed) — verified via a standalone script that
 the live path genuinely substitutes pose-closer candidates using DINOv2
 cosine similarity, not just via tests going green.
 
+**Issue #7, judgment-call bucket, 2026-08-07: mypy 88 -> 24.** Fixed the
+mechanical "can't narrow through a repeated subscript" pattern across 21
+files (bind the subscript/attribute to a local once, check the local, use
+the local — no behavior change) and the 5 `cv2.Stitcher_create`-family
+stub gaps (narrowly-scoped `# type: ignore[attr-defined]` + a one-line
+note, not a blanket suppression). Full test suite identical before/after
+(908 baseline / 911 with issue #12's new tests, same 1 pre-existing
+failure). Session ran out of budget partway through — remaining 24 errors
+are a new symptom (`Cannot determine type of "_loftr"/"_eloftr"/
+"_aliked"/"_roma"` at `run_stage.py:257`, a `has-type` class of error, not
+yet triaged) rather than a known-safe continuation of the same pattern;
+needs a fresh look before assuming it's more of the same.
+
 ---
 
 ## Ground Rules (carried from the critical evaluation — non-negotiable)

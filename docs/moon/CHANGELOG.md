@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Fixed the mechanical "mypy can't narrow through a repeated subscript" pattern across 21 files plus 5 cv2-stub gaps (narrowly-scoped `# type: ignore`): mypy 88 → 24. Full test suite unchanged. Part of issue #7; remaining 24 errors are a different, not-yet-triaged symptom (`has-type` on lazy-loaded matcher attributes at `run_stage.py:257`).
 - Closed issue #12: `_pass2_pose_refine`'s broken DINOv2 recomputation turned out to feed a helper (`_pose_dist`) that's never called anywhere — dead code, zero behavioral impact. Removed it; added the first unit test coverage `_pass2_pose_refine` has ever had (3 tests) and verified via a standalone script that the live DINOv2 scoring path genuinely works.
 - Fixed 28 mixin-composition mypy errors in `core/pipeline/` with a new `TYPE_CHECKING`-only `Protocol` (`_pipeline_protocol.py::_PipelineHost`) describing the composed `AnimeStitchPipeline`'s attributes — zero runtime behavior change, mypy 116 → 88, test suite unchanged. Part of issue #7.
 - Measured `ASP_POSE_WINDOW_PX=80` (DINOv2 pose-consistent frame selection) via a real GPU A/B: 3/5 real composites (was 2/5), verdict counts 1 asp_better / 1 comparable / 3 simple_better (was 0/3/2) — the first `asp_better` verdict produced by any flag this session. GT-SSIM slightly worse on average (0.717 vs 0.7324) but sharpness/ghosting both improve. Genuinely mixed, not a clean win — flagged for a human coherence look, not flipped to default-on.
