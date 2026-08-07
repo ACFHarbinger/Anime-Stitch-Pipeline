@@ -170,7 +170,7 @@ def _segment_guided_match(
         _, labels_flat, centers = cv2.kmeans(
             ms_flat,
             n_colors,
-            None,
+            None,  # type: ignore[call-overload] # cv2-stub gap: bestLabels=None is the standard idiom
             (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0),
             3,
             cv2.KMEANS_PP_CENTERS,
