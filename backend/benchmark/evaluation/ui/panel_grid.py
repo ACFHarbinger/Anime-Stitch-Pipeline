@@ -58,7 +58,9 @@ class _PanelCell(QWidget):
     is tested under.
     """
 
-    def __init__(self, key: str, panel: ImagePanel, on_reorder: Callable[[str, str], None], parent=None):
+    def __init__(
+        self, key: str, panel: ImagePanel, on_reorder: Callable[[str, str], None], parent=None
+    ):
         super().__init__(parent)
         self.key = key
         self.panel = panel

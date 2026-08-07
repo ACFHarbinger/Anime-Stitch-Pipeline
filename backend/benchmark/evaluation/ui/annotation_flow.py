@@ -49,7 +49,9 @@ class AnnotationFlowMixin:
     def _on_region_picked(self, key: str, x: float, y: float, w: float, h: float) -> None:
         self._add_edge_anchor(key, x, y, w, h)
 
-    def _add_edge_anchor(self, key: str, x: float, y: float, w: float = 0.0, h: float = 0.0) -> None:
+    def _add_edge_anchor(
+        self, key: str, x: float, y: float, w: float = 0.0, h: float = 0.0
+    ) -> None:
         """One endpoint (point or region) added to the in-progress link chain.
 
         Does not finish or prompt anything itself — a chain of 2 or more

@@ -56,31 +56,31 @@ def _load_package(alias: str, src_dir: Path) -> None:
 
 _load_package("asp_backend", Path(__file__).resolve().parents[1] / "src")
 
-from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine
-from asp_backend.alignment.canvas import (
+from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine  # noqa: E402
+from asp_backend.alignment.canvas import (  # noqa: E402
     _compute_canvas,
     _crop_to_valid,
     _load_frames,
     _normalise_widths,
     _scan_stitch_fallback,
 )
-from asp_backend.alignment.ecc import _ecc_refine
-from asp_backend.alignment.matching import _pairwise_match
-from asp_backend.core.pipeline import AnimeStitchPipeline
-from asp_backend.core.pipeline._probes import _USE_SAM2
-from asp_backend.core.validation import _validate_affines
-from asp_backend.ingestion.frame_selection import (
+from asp_backend.alignment.ecc import _ecc_refine  # noqa: E402
+from asp_backend.alignment.matching import _pairwise_match  # noqa: E402
+from asp_backend.core.pipeline import AnimeStitchPipeline  # noqa: E402
+from asp_backend.core.pipeline._probes import _USE_SAM2  # noqa: E402
+from asp_backend.core.validation import _validate_affines  # noqa: E402
+from asp_backend.ingestion.frame_selection import (  # noqa: E402
     detect_animation_phases,
     phase_spans,
     smart_select_frames,
 )
-from asp_backend.ingestion.masking import (
+from asp_backend.ingestion.masking import (  # noqa: E402
     _cleanup_sam2_state,
     _compute_fg_masks,
     _compute_fg_masks_sam2_stateful,
 )
-from asp_backend.rendering.compositing import _composite_foreground
-from asp_backend.rendering.rendering import _render_median
+from asp_backend.rendering.compositing import _composite_foreground  # noqa: E402
+from asp_backend.rendering.rendering import _render_median  # noqa: E402
 
 # §2.6 (2026-07-27): repeated benchmark runs have frozen the host hard enough
 # to force a restart, and the user independently observed the benchmark
@@ -3691,14 +3691,18 @@ def _report_single_test_visualizations_stages(sd: str, rd: str, r: dict, lines: 
             lines.append(f"**{label}**  \n![{label}]({rel})\n\n")
 
 
-def _report_single_test_visualizations(r: dict, pd: str, sd: str, rd: str, lines: list[str]) -> None:
+def _report_single_test_visualizations(
+    r: dict, pd: str, sd: str, rd: str, lines: list[str]
+) -> None:
     lines.append("### Intermediate Output Visualizations\n\n")
     _report_single_test_visualizations_plots(pd, rd, lines)
     _report_single_test_visualizations_masks(pd, rd, lines)
     _report_single_test_visualizations_stages(sd, rd, r, lines)
 
 
-def _report_single_test_analysis(r: dict, am: dict | None, sm: dict | None, lines: list[str]) -> None:
+def _report_single_test_analysis(
+    r: dict, am: dict | None, sm: dict | None, lines: list[str]
+) -> None:
     lines.append("### Automated Analysis\n\n")
     verdict = _auto_verdict(am, sm)
     verdict_map = {

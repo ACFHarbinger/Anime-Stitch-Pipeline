@@ -28,6 +28,7 @@ from .laplacian import _render_laplacian
 from .median import _render_median
 
 __all__ = [
+    "_native",
     "_render",
     "_render_median",
     "_render_first",

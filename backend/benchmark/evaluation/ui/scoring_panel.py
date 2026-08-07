@@ -320,7 +320,9 @@ class ScoringPanel(QWidget):
         self._entry.set_score(image_key, dimension, score)
         self._emit_changed()
 
-    def score_focused(self, image_key: str, score: int | None, dimension: str = DIM_COHERENCE) -> bool:
+    def score_focused(
+        self, image_key: str, score: int | None, dimension: str = DIM_COHERENCE
+    ) -> bool:
         """Set a score from a keypress. Returns False when the target block
         isn't present, so the caller can report why nothing happened."""
         block = self.blocks.get(image_key)

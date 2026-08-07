@@ -147,7 +147,9 @@ class GoogleStyleValidator(ast.NodeVisitor):
             sections[key] = docstring[start:end]
         return sections
 
-    def _check_args(self, node: ast.FunctionDef | ast.AsyncFunctionDef, sections: dict[str, str]) -> None:
+    def _check_args(
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef, sections: dict[str, str]
+    ) -> None:
         """Verify that every non-self parameter is documented in the Args section.
 
         Args:

@@ -100,7 +100,9 @@ def file_to_module(filepath: Path, root: Path) -> str:
     return ".".join(parts)
 
 
-def collect_module_map(scan_dirs: list[Path], name_root: Path, exclude: set[str]) -> dict[str, Path]:
+def collect_module_map(
+    scan_dirs: list[Path], name_root: Path, exclude: set[str]
+) -> dict[str, Path]:
     """
     Collect a map of all modules in the codebase.
 
@@ -237,7 +239,9 @@ def find_violations(
     return violations
 
 
-def condense_to_packages(graph: dict[str, set[str]], depth: int) -> tuple[dict[str, set[str]], dict[str, str]]:
+def condense_to_packages(
+    graph: dict[str, set[str]], depth: int
+) -> tuple[dict[str, set[str]], dict[str, str]]:
     """
     Collapse module nodes to their top-`depth` package prefix.
 

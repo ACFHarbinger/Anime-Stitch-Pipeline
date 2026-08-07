@@ -63,7 +63,7 @@ def _load_package(alias: str, src_dir: Path) -> None:
 
 _load_package("asp_backend", Path(__file__).resolve().parents[1] / "src")
 
-from asp_backend.ingestion.frame_selection import smart_select_frames
+from asp_backend.ingestion.frame_selection import smart_select_frames  # noqa: E402
 
 # All the required CLI tools ship in Debian/Ubuntu's `hugin-tools` + `enblend`
 # packages — no vendor/Hugin submodule build needed (that fork's CMake only

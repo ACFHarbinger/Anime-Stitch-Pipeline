@@ -64,7 +64,7 @@ def _load_package(alias: str, src_dir: Path) -> None:
 
 _load_package("asp_backend", Path(__file__).resolve().parents[1] / "src")
 
-from asp_backend.ingestion.frame_selection import smart_select_frames
+from asp_backend.ingestion.frame_selection import smart_select_frames  # noqa: E402
 
 _TOOLKIT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _OVERMIX_BIN = os.path.join(_TOOLKIT_ROOT, "vendor", "Overmix", "build", "OvermixCli")
