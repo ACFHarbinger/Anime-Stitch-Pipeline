@@ -216,7 +216,7 @@ def _segment_guided_match(
 
     # Build color arrays for matching
     labels_j = list(segs_j.keys())
-    colors_j = np.array([segs_j[l]["color"] for l in labels_j], dtype=np.float32)
+    colors_j = np.array([segs_j[label]["color"] for label in labels_j], dtype=np.float32)
 
     displacements = []
     for _li, si in segs_i.items():

@@ -86,7 +86,9 @@ def analyze_file(filepath: Path) -> list[tuple[int, int, str]]:
     return sorted(results, key=lambda x: x[0])
 
 
-def print_stats_table(all_results: dict[str, list[tuple[int, int, str]]], target_root: Path) -> None:
+def print_stats_table(
+    all_results: dict[str, list[tuple[int, int, str]]], target_root: Path
+) -> None:
     """
     Print a Rich table summarising relative import counts per top-level package.
 

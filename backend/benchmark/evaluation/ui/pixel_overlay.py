@@ -169,7 +169,9 @@ def _visible_cells(panel, rect: QRectF):
     return x0, y0, x1, y1
 
 
-def draw_pixel_values(panel, painter: QPainter, x0: int, y0: int, x1: int, y1: int, scale: float) -> None:
+def draw_pixel_values(
+    panel, painter: QPainter, x0: int, y0: int, x1: int, y1: int, scale: float
+) -> None:
     """Draw each visible pixel's RGB triple inside its grid cell.
 
     Device coordinates, world transform reset — see the module docstring for why

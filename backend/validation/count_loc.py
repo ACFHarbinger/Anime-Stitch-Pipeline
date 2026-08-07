@@ -121,7 +121,9 @@ def load_exceptions(filepath: str) -> set[str]:
     return exceptions
 
 
-def generate_markdown_report(display_data: list[dict], file_data: list[dict], limit: int, sort_key: str) -> str:
+def generate_markdown_report(
+    display_data: list[dict], file_data: list[dict], limit: int, sort_key: str
+) -> str:
     """Generate a Markdown formatted report table.
 
     Args:

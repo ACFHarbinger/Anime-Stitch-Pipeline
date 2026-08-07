@@ -44,7 +44,6 @@ from ._audit import (
 from ._boundaries import (
     _compute_initial_boundaries,
     _diff_to_feather,
-    _dominant_frame_in_band,
     _find_optimal_boundaries,
     _gain_to_min_feather,
     _optimize_boundaries_and_feathers,
@@ -77,12 +76,10 @@ from ._flags import (
 )
 from ._gain_compensation import (
     _adaptive_gain_clamp,
-    _apply_joint_gain_solve,
     _bg_gain_unclamped,
     _blocks_gain_compensate,
     _blocks_lum_compensate,
     _equalize_warped_gains,
-    _joint_gain_solve,
 )
 from ._graphcut import (
     _execute_graphcut_composite,
@@ -118,6 +115,8 @@ from ._seam_cut import (
 from .composite import _composite_foreground
 
 __all__ = [
+    "BATCH_AVAILABLE",
+    "batch",
     "_BG_NORM_MIN_PX",
     "_BLOCKS_GAIN_COMP",
     "_BLOCKS_LUM_COMP",
