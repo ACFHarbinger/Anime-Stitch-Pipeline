@@ -92,6 +92,23 @@ crash rate on a 5-test sample is disqualifying regardless. Root-causing
 the resize/coordinate bug is real pipeline-algorithm debugging, not
 infra — not attempted here, see issue #11.
 
+**`ASP_USE_SAM2` A/B, take 3 (2026-08-07): issue #11 fixed, real result —
+flag stays default OFF, but for quality reasons now, not a crash.** Fixed
+`_compute_fg_masks_sam2_stateful` to resize each propagated mask against
+its own frame's shape instead of a shared `frames[0]` reference (root
+cause: `_normalise_widths` only normalises width, so per-frame heights
+legitimately vary by a few px, and the shared-reference resize silently
+produced wrong-sized masks that crashed downstream wherever they got
+indexed against their own frame). All 5/5 verify-subset tests now
+complete cleanly, zero crashes. Full-sample result vs. the BiRefNet-only
+baseline (`anime_stitch_20260807_002510.json`): GT-SSIM 0.7197 vs
+baseline's 0.7324 (worse), aligned sharpness 128.6 vs 122.6 (better),
+ghosting 58.1 vs 63.2 (better), verdict counts unchanged (0 asp_better / 3
+comparable / 2 simple_better). A genuine mixed result, not a win — stays
+default OFF per Ground Rule #2 regardless (no human coherence rating
+exists for either config), but is now honestly measurable for the first
+time, which the crash previously made impossible.
+
 ---
 
 ## §0 — Product Scope (2026-08-06)
