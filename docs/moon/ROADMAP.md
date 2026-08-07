@@ -162,6 +162,15 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   at all** for as long as the `uv sync` bug existed: 2252 ruff errors + 345
   mypy errors, invisible until `uv sync` could actually complete — issue #7,
   needs a dedicated human-triaged session, not attempted here.
+  `[Issue #7, partial, 2026-08-07]` Safe ruff auto-fixes applied
+  (`ruff check . --fix`, default safe fixes only — typing-syntax
+  modernization, import sorting, no logic changes). Verified: full
+  `backend/test/` suite (excluding the 3 files already broken by issue #3)
+  gives the exact same 908 passed / 1 failed (pre-existing) / 3 skipped
+  before and after. Error count 2264 -> 280 (remainder: 260 line-length, 13
+  import-order, 6 unused-import, 1 ambiguous-name — needs real judgment
+  calls, several import-order ones are almost certainly intentional). The
+  345 mypy errors remain untouched, still need a dedicated pass.
 
 ---
 
