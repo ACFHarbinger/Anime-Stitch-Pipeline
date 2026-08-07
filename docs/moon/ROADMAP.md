@@ -68,6 +68,60 @@ open problem this whole roadmap exists to close) is unchanged, as
 expected — nothing this session touched the compositing/matching
 algorithms themselves.
 
+**Full-session code review (2026-08-07, `/code-review high 0f3196a~1..HEAD`,
+278 files).** Despite the session's volume of change (packaging fixes,
+evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both
+`backend/` and `gui/`, CI fixes, justfile fixes, two prior SAM-2 bug fixes),
+the review surfaced only 10 findings:
+- Fixed (7): `_compute_fg_masks_sam2` and `_compute_fg_masks_grounded_sam2`
+  in `backend/src/ingestion/masking.py` had the same shared-`(_H, _W)`
+  frame-0-only resize bug already fixed in `_compute_fg_masks_sam2_stateful`
+  for issue #11 — now resize against each frame's own shape everywhere.
+  `ASP_USE_SAM2` env parsing in `backend/src/core/pipeline/_probes.py`
+  now treats `"false"/"no"/"off"/""` as falsy, not just `"0"`. CI's
+  `lint-test-backend` job now has the same `continue-on-error: true` +
+  explanatory comment on its pytest step that `lint-test-gui` already had,
+  for the identical issue #3 root cause (was asymmetric). A dropped
+  assertion in `test_identical_float32_thumbs_only_first_last`
+  (`backend/test/ingestion/test_frame_selection.py`) — accidentally
+  deleted in an unrelated commit — was restored. Two onboarding-wizard
+  bugs in `gui/src/tabs/stencil/hybrid_stitch_panel.py` were fixed: a
+  bare `QTimer.singleShot(0, ...)` in `__init__` (fires on the next
+  event-loop tick regardless of tab visibility, not on actual
+  first-show) replaced with a proper `showEvent()` override; and
+  re-opening the wizard while one was already open no longer
+  false-marks the tour "seen" via the superseded instance's
+  `finished(Rejected)` signal. Verified via a direct smoke-test script
+  plus the existing suites.
+- Also fixed in passing while verifying the above: a real,
+  previously-undetected test-hermeticity bug in
+  `backend/test/evaluation/test_eval_metrics_view.py` — 6 call sites
+  omitted `results_path`, so `discovery.load_metrics` silently fell
+  back to "most recent real JSON in `backend/benchmark/output/`" and
+  let this session's own GPU benchmark runs leak real data into tests
+  that assumed fake `tmp_path` fixture data. All 6 now pass an explicit
+  nonexistent `results_path`.
+- False positives (2): findings claiming `run_hugin.py`/`run_overmix.py`'s
+  issue #9 self-bootstrap fix "doesn't work" were reproduced with a bare
+  `python3 script.py --help` invocation, which fails identically for
+  every script in this family (including ones already verified working,
+  like `eval_dispatch.py`) — the documented, supported invocation is
+  `PYTHONPATH=<Image-Toolkit-root> python script.py`, which works
+  correctly. Review-methodology artifact, not a regression.
+- Deferred (1, filed as issue #15): `_refine_masks_with_clicks`
+  (`backend/src/ingestion/masking.py`, HITL click-refinement) has the
+  same per-frame-dimension issue as the other three masking functions
+  above, but is structurally different — it takes scalar `frame_h,
+  frame_w` keyword args instead of a `frames` list, sourced from a
+  single value carried across a live SAM-2 predictor-state boundary
+  through the HITL dialog. Needs a real architecture change (threading
+  per-frame shapes through that state), not a bounded fix — tracked
+  separately rather than rushed.
+
+Full backend suite: 911 passed / 1 pre-existing unrelated failure / 3
+skipped (unchanged from baseline). Full gui suite: 50/50 passed. Both
+`backend/` and `gui/` remain clean on mypy (0 errors each).
+
 **5-test verify checkpoint (2026-08-07, `anime_stitch_20260807_002510.json`)
 — first real GPU run since issue #5/#9's packaging fixes (RTX 3090 Ti,
 real corpus at `dump/`), a no-op regression check rather than a measured
