@@ -11,7 +11,7 @@ from __future__ import annotations
 try:
     import torch
 except ImportError:
-    torch = None
+    torch = None  # type: ignore[assignment]
 
 try:
     from skimage.segmentation import slic as _slic_fn  # type: ignore
@@ -21,7 +21,7 @@ except ImportError:
 try:
     import torch.nn as nn
 except ImportError:
-    nn = None
+    nn = None  # type: ignore[assignment]
 
 _VGG19_SINGLETON = None
 _VGG19_DEVICE: str | None = None

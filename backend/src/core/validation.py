@@ -31,7 +31,7 @@ try:
     _HAS_BATCH: bool = True
 except ImportError:
     _batch = None  # type: ignore[assignment]
-    _HAS_BATCH: bool = False
+    _HAS_BATCH = False
 
 # §0.5D — tight/loose rotation and scale thresholds used by
 # _compute_adaptive_rot_scale.  "Loose" applies when all frames share a

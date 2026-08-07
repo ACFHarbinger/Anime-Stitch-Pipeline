@@ -136,8 +136,8 @@ def _compute_sequential_color_gains(
             else None
         )
 
-        stripe_means_i = [[] for _ in range(3)]
-        stripe_means_p = [[] for _ in range(3)]
+        stripe_means_i: list[list[float]] = [[] for _ in range(3)]
+        stripe_means_p: list[list[float]] = [[] for _ in range(3)]
 
         bh = max(10, (r1_i - r0_i) // N_BLOCKS_Y)
         bw = max(10, (c1_i - c0_i) // N_BLOCKS_X)

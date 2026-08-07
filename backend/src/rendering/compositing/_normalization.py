@@ -109,8 +109,8 @@ def _compute_frame_lums(
     warped_list: list,
     warped_bg: list,
     N: int,
-) -> list:
-    frame_lums = []
+) -> list[float | None]:
+    frame_lums: list[float | None] = []
     for i in range(N):
         if warped_bg[i] is not None:
             bg_sel = warped_bg[i] & (warped_list[i].max(axis=2) > 10)
@@ -159,7 +159,7 @@ def _normalize_single_frame(
     warped_list: list,
     warped_bg: list,
     _skip_norm: list,
-    global_ref_lum: float,
+    global_ref_lum: float | None,
     frame_lums: list,
 ) -> tuple:
     if (
