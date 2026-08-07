@@ -74,11 +74,23 @@ class RealHybridStitchPanel(QWidget):
         self._corrections: dict[str, dict] = {}
         self._current_pair: tuple[int, int] = (0, 1)
         self._onboarding_wizard: HybridStitchOnboardingWizard | None = None
+        self._onboarding_shown_this_session = False
         self._build_ui()
-        # First-run only: fires once the panel actually becomes visible so
-        # the wizard doesn't pop up behind a not-yet-shown window. Re-entrant
-        # calls after the first run are gated by AppSettings (Phase 6.1).
-        QTimer.singleShot(0, self._maybe_show_first_run_onboarding)
+        # First-run only, gated by AppSettings (Phase 6.1). Deliberately NOT
+        # a bare QTimer.singleShot(0, ...) in __init__: that only defers to
+        # the next event-loop iteration, not to actual visibility -- this
+        # panel is built eagerly at StitchTab construction regardless of
+        # which tab is active, so a bare singleShot(0, ...) could pop the
+        # tour up while the user is looking at a completely different tab.
+        # showEvent() is the correct Qt hook for "when this widget actually
+        # becomes visible"; self._onboarding_shown_this_session guards
+        # against re-firing every time the user switches back to this tab.
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if not self._onboarding_shown_this_session:
+            self._onboarding_shown_this_session = True
+            QTimer.singleShot(0, self._maybe_show_first_run_onboarding)
 
     # ── UI construction ──────────────────────────────────────────────
 
@@ -431,7 +443,16 @@ class RealHybridStitchPanel(QWidget):
     def _show_onboarding_wizard(self):
         """(Re-)open the guided tour. Non-modal: never blocks normal use."""
         if self._onboarding_wizard is not None:
+            # Disconnect first: close() below triggers finished(Rejected),
+            # and without disconnecting, that would route through
+            # _on_onboarding_finished and mark the tour "seen" as a side
+            # effect of being *superseded* by a new instance, not of the
+            # user actually dismissing it. Also deleteLater() rather than
+            # just close(), so the superseded instance doesn't leak as a
+            # hidden QWizard for the rest of the session.
+            self._onboarding_wizard.finished.disconnect(self._on_onboarding_finished)
             self._onboarding_wizard.close()
+            self._onboarding_wizard.deleteLater()
         wizard = HybridStitchOnboardingWizard(self, self)
         wizard.setModal(False)
         wizard.finished.connect(self._on_onboarding_finished)
