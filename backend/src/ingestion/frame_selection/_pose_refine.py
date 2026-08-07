@@ -21,7 +21,7 @@ import os
 import numpy as np
 
 from ._hold_detection import _compute_dhash
-from ._pose import _compute_dinov2_features, _fg_center_diff
+from ._pose import _fg_center_diff
 from .phases import _phase_ids_from_hashes
 
 # Exposed as ASP advanced options (see core/config.py _CONFIG_SCHEMA's
@@ -86,18 +86,11 @@ def _pass2_pose_refine(  # noqa: C901
                 f"phase(s) across {len(thumbs)} pre-selection frames."
             )
 
-    # Try to compute DINOv2 features when Pass 2 is active.
-    _dino_feats: np.ndarray | None = _compute_dinov2_features(thumbs)
-    if _dino_feats is not None and verbose:
-        print(f"  [PoseSelect] DINOv2 features: {_dino_feats.shape} loaded.")
-    elif verbose:
-        print("  [PoseSelect] DINOv2 unavailable; using fg pixel L1.")
-
-    def _pose_dist(i: int, j: int) -> float:
-        """Pose dissimilarity between frame i and frame j (lower = more similar)."""
-        if _dino_feats is not None:
-            return 1.0 - float(np.dot(_dino_feats[i], _dino_feats[j]))
-        return _fg_center_diff(thumbs[i], thumbs[j], fg_thumb_mask)
+    if verbose:
+        if dinov2_features is not None:
+            print(f"  [PoseSelect] DINOv2 features: {dinov2_features.shape} loaded.")
+        else:
+            print("  [PoseSelect] DINOv2 unavailable; using fg pixel L1.")
 
     refined: list[int] = [selected_v1[0]]
     n_subs = 0

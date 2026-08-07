@@ -979,4 +979,132 @@ class TestNearDupLumaFilterBatchWiring:
         result = _near_dup_luma_filter(thumbs, paths, threshold=3.0)
         assert result[0] == paths[0]
         assert result[-1] == paths[-1]
-        assert len(result) == 2
+
+
+class TestPass2PoseRefine:
+    """Tests for _pass2_pose_refine (Pass 2 pose-consistent refinement, issue #12).
+
+    Regression coverage: the function's primary scoring path must use the
+    ``dinov2_features`` *parameter* supplied by the caller (selector.py,
+    which computes it correctly from real frame file paths) rather than
+    attempting to recompute DINOv2 features locally from ``thumbs``
+    (np.ndarray thumbnails) — that recomputation always silently returned
+    None, since ``_compute_dinov2_features`` expects file paths and does
+    ``PIL.Image.open(path)`` internally under a broad ``except Exception``.
+    The dead local recomputation (and the never-called ``_pose_dist``
+    helper that depended on it) has been removed; these tests pin down
+    that the real (parameter-based) DINOv2 path is what actually drives
+    frame substitution.
+    """
+
+    def _thumb(self, fill: float = 0.5) -> np.ndarray:
+        return np.full((16, 16), fill, dtype=np.float32)
+
+    def test_injected_dinov2_features_drive_substitution(self):
+        """A candidate that is much closer in DINOv2 feature space than the
+        Pass-1 pick should be substituted in, using the injected
+        ``dinov2_features`` parameter (not thumbs-derived features).
+        """
+        from asp_backend.ingestion.frame_selection._pose_refine import (
+            _pass2_pose_refine,
+        )
+
+        N = 5
+        thumbs = [self._thumb() for _ in range(N)]
+        # Unit-ish 2D feature vectors: frame 3 is near-identical in pose to
+        # the anchor frame 0; frame 2 (Pass 1's pick) is nearly opposite.
+        dinov2_features = np.array(
+            [
+                [1.0, 0.0],  # 0: anchor (prev)
+                [0.0, 1.0],  # 1
+                [-1.0, 0.0],  # 2: Pass-1 pick, far from anchor
+                [0.9, 0.436],  # 3: much closer to anchor pose
+                [0.0, -1.0],  # 4: last
+            ],
+            dtype=np.float32,
+        )
+        cumpos = [0.0, 10.0, 20.0, 25.0, 40.0]
+        hold_ids = [0, 1, 2, 3, 4]
+        selected_v1 = [0, 2, 4]
+
+        result = _pass2_pose_refine(
+            selected_v1,
+            N,
+            thumbs,
+            dinov2_features,
+            None,
+            cumpos,
+            1,
+            10.0,
+            hold_ids,
+            0.0,
+            80.0,
+            False,
+            0.0,
+            False,
+        )
+
+        assert 3 in result
+        assert 2 not in result
+        assert result[0] == 0
+        assert result[-1] == 4
+
+    def test_falls_back_to_fg_center_diff_when_dinov2_unavailable(self):
+        """When dinov2_features is None, refinement must not error and must
+        fall back to the fg pixel-diff heuristic (still frame-count-preserving).
+        """
+        from asp_backend.ingestion.frame_selection._pose_refine import (
+            _pass2_pose_refine,
+        )
+
+        N = 5
+        thumbs = [self._thumb(v) for v in [0.5, 0.5, 0.9, 0.5, 0.5]]
+        cumpos = [0.0, 10.0, 20.0, 25.0, 40.0]
+        hold_ids = [0, 1, 2, 3, 4]
+        selected_v1 = [0, 2, 4]
+
+        result = _pass2_pose_refine(
+            selected_v1,
+            N,
+            thumbs,
+            None,
+            None,
+            cumpos,
+            1,
+            10.0,
+            hold_ids,
+            0.0,
+            80.0,
+            False,
+            0.0,
+            False,
+        )
+
+        assert result[0] == 0
+        assert result[-1] == 4
+        assert len(result) == len(selected_v1)
+
+    def test_no_refinement_when_pass2_inactive(self):
+        """pw <= 0 must return selected_v1 unchanged (Pass 2 disabled)."""
+        from asp_backend.ingestion.frame_selection._pose_refine import (
+            _pass2_pose_refine,
+        )
+
+        selected_v1 = [0, 2, 4]
+        result = _pass2_pose_refine(
+            selected_v1,
+            5,
+            [self._thumb() for _ in range(5)],
+            None,
+            None,
+            [0.0, 10.0, 20.0, 25.0, 40.0],
+            1,
+            10.0,
+            [0, 1, 2, 3, 4],
+            0.0,
+            0.0,
+            False,
+            0.0,
+            False,
+        )
+        assert result == selected_v1
