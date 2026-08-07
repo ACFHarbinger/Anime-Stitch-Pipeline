@@ -261,6 +261,22 @@ are a new symptom (`Cannot determine type of "_loftr"/"_eloftr"/
 yet triaged) rather than a known-safe continuation of the same pattern;
 needs a fresh look before assuming it's more of the same.
 
+**Issue #7, ruff cleanup, 2026-08-07: 280 -> 249, only E501 remains.**
+F401 (6): 3 were genuinely-used re-exports flagged only because they're
+accessed via module-attribute in tests (`compositing.BATCH_AVAILABLE`
+etc.) — added to `__all__` instead of removed; 3 were genuinely-redundant
+package-init re-imports — removed. E741 (1): renamed an ambiguous `l` to
+`label`. E402 (13): all in `benchmark/` scripts using the established
+`_load_package()` sys.path bootstrap pattern — `# noqa: E402` added
+matching the existing convention, not reordered (reordering would break
+the bootstrap). E501 (260): assessed rather than blindly wrapped — ~64%
+are string-literal content that would lose grep-ability if wrapped,
+median overage is only 7 chars, and both `backend/` and `gui/`
+`pyproject.toml`s independently declare `line-length = 100` (a deliberate
+convention, not accidental strictness) — wrapped only the 11 clearly-safe
+function-signature occurrences, left the remaining 249 as a judgment call
+not worth forcing. Full test suite identical before/after both changes.
+
 ---
 
 ## Ground Rules (carried from the critical evaluation — non-negotiable)
