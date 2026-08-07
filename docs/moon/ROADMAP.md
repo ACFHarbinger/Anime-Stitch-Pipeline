@@ -236,6 +236,18 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   errors introduced (verified byte-identical remaining error set); full
   test suite identical before/after.
 
+**Issue #12 — closed, 2026-08-07: dead code, not a live bug.** Turned out
+narrower still than the mypy-triage follow-up above found: `_pose_dist`
+(the helper reading the always-`None` broken local) is **never called
+anywhere** — confirmed via full-codebase grep. Zero behavioral impact by
+construction. Removed the dead local + helper; the real DINOv2 scoring
+path (the `dinov2_features` parameter, already confirmed working via the
+`ASP_POSE_WINDOW_PX=80` benchmark run above) is untouched. Added the first
+unit coverage `_pass2_pose_refine` has ever had (3 tests, synthetic
+injected features, no GPU needed) — verified via a standalone script that
+the live path genuinely substitutes pose-closer candidates using DINOv2
+cosine similarity, not just via tests going green.
+
 ---
 
 ## Ground Rules (carried from the critical evaluation — non-negotiable)
