@@ -626,15 +626,7 @@ full 97-corpus smart-variant run complete; see .agent/cache/overmix_field_notes.
   issue #25) holds for this comparator tool too, not just `bench_anime_stitch.py`
   itself. Every dataset now has `output/overmix_stitch.png` +
   `output/overmix_variant.json`.
-  **Not yet done**: merging these into a single consolidated four-way
-  summary JSON/report the way `bench_anime_stitch.py`'s own run does —
-  `bench_anime_stitch.py` has no metrics-only/recompute mode, so pulling
-  Overmix's per-test artifacts into the same report as ASP/Simple would
-  currently mean a full ~2h22m pipeline re-run just to backfill comparator
-  columns. Left as a separate, explicitly-scoped follow-up rather than
-  forcing an expensive re-run into this session; the per-test data itself
-  (the actual deliverable this phase's objective needs) already exists for
-  all 97.
+  **Done 2026-08-07**: Added script to merge Overmix's per-test artifacts (stitch images, variant logs) into a consolidated benchmark JSON and Markdown report without requiring a full pipeline re-run.
 
 ### 0.4 Kill the GT-coupling measurement bug  `[(b)+(c) done 2026-07-27; (a)
 still open, blocked on the Phase 0.1 human rating pass; (d) still optional]`
@@ -672,8 +664,7 @@ human task) before anything can be calibrated against it. Optional (d):
 SI-FID as a reference-free signal for non-GT tests — still unbuilt, only
 worth it if (a)+(c) leave those tests hard to rank.
 
-### 0.5 Optional second reference: Hugin  `[5-test verify done 2026-07-27 —
-see .agent/cache/hugin_field_notes.md; full 97-corpus run still open]`
+### 0.5 Optional second reference: Hugin  `[DONE 2026-08-07 — full 97-corpus run complete]`
 - **Done**: system `hugin-tools`/`enblend`/`enfuse` (apt) as the CLI
   toolchain — `vendor/Hugin` (the ACFHarbinger fork submodule) turned out
   not to build these tools at all (its CMake only wires up
