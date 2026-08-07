@@ -26,6 +26,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QMessageBox,
     QPushButton,
     QTabWidget,
@@ -42,6 +43,7 @@ from .onboarding_wizard import (
     mark_hybrid_stitch_onboarding_seen,
 )
 from .render_panel import RenderPanel
+from .sample_sequences import list_sample_sequences
 
 
 class _FrameListItem(QListWidgetItem):
@@ -113,6 +115,20 @@ class RealHybridStitchPanel(QWidget):
         title.setStyleSheet("font-weight:bold; color:#ddd;")
         toolbar.addWidget(title)
         toolbar.addStretch()
+        self._sample_btn = QToolButton()
+        self._sample_btn.setText("Try a Sample")
+        self._sample_btn.setToolTip(
+            "Load a bundled synthetic sample sequence to explore every tool tab."
+        )
+        self._sample_btn.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        self._sample_btn.setStyleSheet(
+            "QToolButton { border-radius:4px; background:#3a3d42; color:#ccc; "
+            "padding:3px 8px; } QToolButton:hover { background:#1976D2; color:white; }"
+        )
+        self._sample_menu = QMenu(self._sample_btn)
+        self._populate_sample_menu()
+        self._sample_btn.setMenu(self._sample_menu)
+        toolbar.addWidget(self._sample_btn)
         self._help_btn = QToolButton()
         self._help_btn.setText("?")
         self._help_btn.setToolTip("Show the guided tour")
@@ -432,6 +448,31 @@ class RealHybridStitchPanel(QWidget):
             QMessageBox.information(self, "Hybrid Stitch", "Sequence is empty.")
             return
         self.sequence_accepted.emit(list(self._sequence))
+
+    # ── Bundled sample sequences (roadmap Phase 6.3, issue #17) ───────
+
+    def _populate_sample_menu(self) -> None:
+        """(Re-)fill the "Try a Sample" menu from the bundled, synthetic,
+        procedurally-generated sample sequences (see
+        gui/scripts/generate_sample_sequences.py). Safe to call again if
+        samples aren't present -- the menu just gets a disabled placeholder
+        rather than raising."""
+        self._sample_menu.clear()
+        samples = list_sample_sequences()
+        if not samples:
+            action = self._sample_menu.addAction("No bundled samples found")
+            action.setEnabled(False)
+            return
+        for label, paths in samples.items():
+            action = self._sample_menu.addAction(label)
+            action.triggered.connect(
+                lambda _checked=False, p=paths: self._load_sample_sequence(p)
+            )
+
+    def _load_sample_sequence(self, paths: list[str]) -> None:
+        """Load a bundled sample sequence into the sidebar, exactly like a
+        user's own frames -- every tool tab works on it immediately."""
+        self.load_paths(list(paths))
 
     # ── Onboarding wizard (roadmap Phase 6.1) ──────────────────────────
 
