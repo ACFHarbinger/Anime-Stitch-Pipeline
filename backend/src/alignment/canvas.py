@@ -76,15 +76,15 @@ def _compute_canvas(
         except Exception as _e:
             logger.debug(f"[Stitch] batch.canvas.compute_canvas fallback: {_e}")
 
-    all_corners = []
+    _corners_list: list[np.ndarray] = []
     for i, img in enumerate(frames):
         h, w = img.shape[:2]
         M = affines[i]
         corners = np.array([[0, 0], [w, 0], [w, h], [0, h]], np.float32)
         warped = (M[:2, :2] @ corners.T + M[:2, 2:3]).T
-        all_corners.append(warped)
+        _corners_list.append(warped)
 
-    all_corners = np.vstack(all_corners)
+    all_corners = np.vstack(_corners_list)
     min_xy = all_corners.min(axis=0)
     max_xy = all_corners.max(axis=0)
 

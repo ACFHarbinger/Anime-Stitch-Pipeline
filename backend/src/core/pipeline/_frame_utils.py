@@ -102,12 +102,12 @@ def _compute_adaptive_dy_cv_max(n_frames: int, base_max: float = 1.5) -> float:
 def _spatial_dedup_frames(
     frames: list[np.ndarray],
     scans_frames: list[np.ndarray],
-    bg_masks: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
     image_paths: list[str],
     edges: list[dict],
     min_displacement_px: float,
 ) -> tuple[
-    list[np.ndarray], list[np.ndarray], list[np.ndarray], list[str], list[dict], int
+    list[np.ndarray], list[np.ndarray], list[np.ndarray | None], list[str], list[dict], int
 ]:
     """One pass of spatial near-static frame dedup (§1.9A).
 
@@ -177,7 +177,7 @@ def _spatial_dedup_frames(
 
     N = len(frames)
     keep_idx = [i for i in range(N) if i not in drop]
-    o2n: dict = {old: new for new, old in enumerate(keep_idx)}
+    o2n = {old: new for new, old in enumerate(keep_idx)}
     new_edges = [
         {**e, "i": o2n[e["i"]], "j": o2n[e["j"]]}
         for e in edges

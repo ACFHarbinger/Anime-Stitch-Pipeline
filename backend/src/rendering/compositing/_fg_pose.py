@@ -108,7 +108,7 @@ def _check_preemptive_escalations(
     affines: list,
     warped_norm: list,
     feathers: np.ndarray,
-    seam_overrides: dict,
+    seam_overrides: dict | None,
     seam_single_pose: dict,
     seam_post_diffs: dict,
     H: int,
@@ -218,7 +218,7 @@ def _register_foreground_poses(
     feathers: np.ndarray,
     affines: list,
     frames: list,
-    seam_overrides: dict,
+    seam_overrides: dict | None,
     ty_range: float,
     tx_range: float,
     H: int,
@@ -226,9 +226,9 @@ def _register_foreground_poses(
     N: int,
     phase_ids: list[int] | None = None,
 ) -> tuple:
-    seam_single_pose = {}
-    seam_post_diffs = {}  # k → post-warp diff score (residual if fallback)
-    seam_synthesized = {}  # retained for signature compatibility (always empty)
+    seam_single_pose: dict[int, int] = {}
+    seam_post_diffs: dict[int, float] = {}  # k → post-warp diff score (residual if fallback)
+    seam_synthesized: dict[int, object] = {}  # retained for signature compatibility (always empty)
     if _FG_REGISTER_ENABLED and N >= 2:
         try:
             scroll_is_h = tx_range > 0 and ty_range / max(tx_range, 1.0) < 0.1

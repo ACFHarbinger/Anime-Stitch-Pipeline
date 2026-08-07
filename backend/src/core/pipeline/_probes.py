@@ -37,7 +37,7 @@ try:
     _HAS_BATCH: bool = True
 except ImportError:
     _batch = None  # type: ignore[assignment]
-    _HAS_BATCH: bool = False
+    _HAS_BATCH = False
 
 # BaSiCWrapper only uses cv2/numpy/torch — safe to import at module level.
 try:

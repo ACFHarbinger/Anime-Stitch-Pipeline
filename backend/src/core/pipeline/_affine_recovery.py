@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import numpy as np
 from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine
-from asp_backend.core.validation import _validate_affines
+from asp_backend.core.validation import AffineHealth, _validate_affines
 
 from ._edge_filters import _filter_high_conf_edges
 
@@ -21,13 +21,13 @@ def _recover_affine_health(  # noqa: C901
     edges: list[dict],
     N: int,
     affines: list[np.ndarray],
-    health,
+    health: AffineHealth,
     use_affine_ba: bool,
     adaptive_min_gap: float,
     adaptive_rot: float,
     adaptive_sc: float,
     logger,
-) -> tuple[list[np.ndarray], object]:
+) -> tuple[list[np.ndarray], AffineHealth]:
     """Attempt Retries 0-3 to recover a failed affine-validation ``health``.
 
     Returns ``(affines, health)`` -- either the original inputs unchanged

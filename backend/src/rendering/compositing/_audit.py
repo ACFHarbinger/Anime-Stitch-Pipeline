@@ -13,7 +13,7 @@ from ._seam_cache import _extract_seam_crops
 
 def _audit_seam_lum_steps(
     result: np.ndarray,
-    boundaries: list[float],
+    boundaries: np.ndarray,
     band_px: int = 5,
     warn_thresh: float = 8.0,
 ) -> dict[int, float]:
