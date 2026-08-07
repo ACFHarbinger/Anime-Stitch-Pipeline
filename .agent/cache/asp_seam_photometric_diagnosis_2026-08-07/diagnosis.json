@@ -1,0 +1,54 @@
+{
+  "source_benchmark_json": "../../../backend/benchmark/output/anime_stitch_20260807_045552.json",
+  "results": [
+    {
+      "name": "asp_test87",
+      "fallback_reason": "seam_vis_gate:asp=35.4_sim=2.2_limit=35.0",
+      "mean_post_warp_diff": 12.974545454545451,
+      "frame_count": 31,
+      "error": "missing /home/pkhunter/Repositories/Repos/Image-Toolkit/submodules/Anime-Stitch-Pipeline/.claude/worktrees/agent-a54fea782b4d3f446/dump/asp_test87/output/panorama_stages/stage11_fg_composite.png"
+    },
+    {
+      "name": "asp_test10",
+      "fallback_reason": "seam_vis_gate:asp=36.3_sim=4.9_limit=35.0",
+      "mean_post_warp_diff": 10.424999999999999,
+      "frame_count": 5,
+      "error": "missing /home/pkhunter/Repositories/Repos/Image-Toolkit/submodules/Anime-Stitch-Pipeline/.claude/worktrees/agent-a54fea782b4d3f446/dump/asp_test10/output/panorama_stages/stage11_fg_composite.png"
+    },
+    {
+      "name": "asp_test71",
+      "fallback_reason": "seam_vis_gate:asp=38.3_sim=2.2_limit=35.0",
+      "mean_post_warp_diff": 6.131666666666667,
+      "frame_count": 7,
+      "error": "missing /home/pkhunter/Repositories/Repos/Image-Toolkit/submodules/Anime-Stitch-Pipeline/.claude/worktrees/agent-a54fea782b4d3f446/dump/asp_test71/output/panorama_stages/stage11_fg_composite.png"
+    },
+    {
+      "name": "asp_test69",
+      "fallback_reason": "seam_vis_gate:asp=38.7_sim=2.2_limit=35.0",
+      "mean_post_warp_diff": 5.4816666666666665,
+      "frame_count": 7,
+      "error": "missing /home/pkhunter/Repositories/Repos/Image-Toolkit/submodules/Anime-Stitch-Pipeline/.claude/worktrees/agent-a54fea782b4d3f446/dump/asp_test69/output/panorama_stages/stage11_fg_composite.png"
+    },
+    {
+      "name": "asp_test25",
+      "fallback_reason": "composite_gate_sb:asp_sc=41.5_limit=88.5,asp_sb=36.4_limit=35.0",
+      "mean_post_warp_diff": 20.94,
+      "frame_count": 7,
+      "error": "missing /home/pkhunter/Repositories/Repos/Image-Toolkit/submodules/Anime-Stitch-Pipeline/.claude/worktrees/agent-a54fea782b4d3f446/dump/asp_test25/output/panorama_stages/stage11_fg_composite.png"
+    },
+    {
+      "name": "asp_test16",
+      "fallback_reason": "composite_gate_sb:asp_sc=26.5_limit=70.8,asp_sb=37.0_limit=35.0",
+      "mean_post_warp_diff": 23.213333333333335,
+      "frame_count": 15,
+      "error": "missing /home/pkhunter/Repositories/Repos/Image-Toolkit/submodules/Anime-Stitch-Pipeline/.claude/worktrees/agent-a54fea782b4d3f446/dump/asp_test16/output/panorama_stages/stage11_fg_composite.png"
+    },
+    {
+      "name": "asp_test11",
+      "fallback_reason": "composite_gate_sb:asp_sc=23.8_limit=38.0,asp_sb=37.1_limit=35.0",
+      "mean_post_warp_diff": 13.463999999999999,
+      "frame_count": 13,
+      "error": "missing /home/pkhunter/Repositories/Repos/Image-Toolkit/submodules/Anime-Stitch-Pipeline/.claude/worktrees/agent-a54fea782b4d3f446/dump/asp_test11/output/panorama_stages/stage11_fg_composite.png"
+    }
+  ]
+}
