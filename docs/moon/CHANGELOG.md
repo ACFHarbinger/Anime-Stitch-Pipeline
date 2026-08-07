@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Implemented an HSV-based value scaling fix for seam-photometric diagnosis in both Python (`bench_anime_stitch.py`) and C++ (`compositing.cpp`). This resolves excessive color gradient shifts across seams on borderline datasets (e.g., test87, test10) by applying scalar gain only to the luminance/value channel rather than multiplicatively across all RGB channels.
 
 ## [Unreleased]
+### Added
+- Surfaced seam diagnostic recommendations in-context within the `SeamDiagnosticDialog` based on seam analysis (Phase 6.4: Assisted-use suggestions), replacing the need for a separate tutorial mode.
+
 
 ### Added
 - **Phase 0.3**: Added `backend/benchmark/merge_overmix.py` to merge Overmix's per-test artifacts (stitch images, variant logs) into a consolidated benchmark JSON and Markdown report without requiring a full pipeline re-run (Issue #352).

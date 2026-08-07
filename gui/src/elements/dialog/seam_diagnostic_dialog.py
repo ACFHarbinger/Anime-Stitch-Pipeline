@@ -326,6 +326,20 @@ class _SeamCard(QFrame):
 
         row.addStretch(1)
 
+        # ── In-context suggestion (§6.4) ───────────────────────────────
+        suggestion = ""
+        if is_single_pose:
+            suggestion = "💡 <b>Why Force Blend?</b> Fallback triggered due to weak match. Use blend if you drew flow arrows."
+        elif post_diff >= SEAM_OVERLAY_RED_THRESH:
+            suggestion = "💡 <b>Why Force SP?</b> High difference (red) causes ghosting. Force SP to use one frame."
+        elif post_diff >= SEAM_OVERLAY_AMBER_THRESH:
+            suggestion = "💡 <b>Suggestion:</b> Moderate difference. If misaligned, draw flow or force SP."
+        
+        if suggestion:
+            s_lbl = QLabel(suggestion)
+            s_lbl.setStyleSheet("color:#aaa; font-size:10px;")
+            row.addWidget(s_lbl)
+
         # ── §2.11B: waypoint count badge + clear button ────────────────────
         self._wp_lbl = QLabel("0 wps")
         self._wp_lbl.setFixedWidth(44)
