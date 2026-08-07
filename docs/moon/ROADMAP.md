@@ -1178,7 +1178,7 @@ Candidate approaches (not mutually exclusive, roughly cheapest-first):
    beginner distillation of the 13-stage `AnimeStitchPipeline`, when to use
    it vs. HybridStitch), wired into `docs/mkdocs.yml`'s nav and linked from
    `docs/index.md`.
-3. **Bundled sample projects** — 2–3 example frame sequences shipped with a
+3. **Bundled sample projects** — 2–3 example frame sequences shipped with a [DONE 2026-08-07, issue #17]
    guided "try HybridStitch on this" mode; teaches by doing.
 4. **Assisted-use suggestions** — surface `gui/src/elements/_stats_recommendations.py`'s
    existing diagnostics as explained, in-context suggestions ("why this seam

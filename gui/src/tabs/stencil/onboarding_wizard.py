@@ -17,7 +17,9 @@ from __future__ import annotations
 
 from gui.src.windows.settings.app_settings import AppSettings
 from PySide6.QtCore import Qt
+import os
 from PySide6.QtWidgets import (
+    QPushButton,
     QLabel,
     QVBoxLayout,
     QWizard,
@@ -56,6 +58,29 @@ def _make_page(title: str, subtitle: str, body: str) -> QWizardPage:
     return page
 
 
+
+def _make_sample_page(wizard: 'HybridStitchOnboardingWizard') -> QWizardPage:
+    page = QWizardPage()
+    page.setTitle("Bundled Samples")
+    page.setSubTitle("Try Hybrid Stitch with a sample sequence.")
+    layout = QVBoxLayout(page)
+    label = QLabel(
+        "<p>If you don't have a frame sequence ready, you can try one of the "
+        "bundled synthetic samples to get a feel for the workflow.</p>"
+        "<p>Click the button below to instantly load the <b>test_scroll_gradient</b> "
+        "sample into the sequence list.</p>"
+    )
+    label.setWordWrap(True)
+    label.setTextFormat(Qt.TextFormat.RichText)
+    layout.addWidget(label)
+    
+    btn = QPushButton("Load Sample Sequence")
+    btn.clicked.connect(wizard._load_sample_sequence)
+    layout.addWidget(btn)
+    
+    layout.addStretch()
+    return page
+
 class HybridStitchOnboardingWizard(QWizard):
     """Guided first-run tour of the Hybrid Stitch panel.
 
@@ -89,6 +114,7 @@ class HybridStitchOnboardingWizard(QWizard):
             ),
             None,
         )
+        self._add_page(_make_sample_page(self), None)
         self._add_page(
             _make_page(
                 "1. Sequence sidebar",
@@ -159,6 +185,17 @@ class HybridStitchOnboardingWizard(QWizard):
             ),
             "Render",
         )
+
+
+    def _load_sample_sequence(self):
+        sample_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../data/samples/test_scroll_gradient"))
+        if not os.path.exists(sample_dir):
+            return
+        frames = [os.path.join(sample_dir, f) for f in sorted(os.listdir(sample_dir)) if f.endswith('.png')]
+        if frames and self._panel is not None:
+            self._panel._sequence = frames
+            self._panel._refresh_list()
+            self.next()
 
         self.currentIdChanged.connect(self._on_page_changed)
 

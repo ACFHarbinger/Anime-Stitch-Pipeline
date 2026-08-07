@@ -12,6 +12,16 @@ control over a stitch.
 This tutorial walks through the panel tab by tab, in the order you'd
 normally use them.
 
+
+## Try the bundled samples
+
+If you don't have your own frame sequence, you can try Hybrid Stitch using one of the bundled synthetic sample sequences:
+
+- **Sample A (`test_scroll_gradient`)**: Located in `data/samples/test_scroll_gradient`. A simple vertical color gradient scrolling scene demonstrating a basic scroll that HybridStitch can stitch.
+- **Sample B (`test_scroll_pattern`)**: Located in `data/samples/test_scroll_pattern`. A simple geometric pattern that scrolls, providing a slightly more complex test.
+
+You can load these samples directly through the in-app onboarding wizard or manually add the frames from the `data/samples/` directory.
+
 ## Layout
 
 The panel splits into two halves:
