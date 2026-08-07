@@ -1169,6 +1169,26 @@ Candidate approaches (not mutually exclusive, roughly cheapest-first):
    `docs/index.md`.
 3. **Bundled sample projects** — 2–3 example frame sequences shipped with a [DONE 2026-08-07, issue #17]
    guided "try HybridStitch on this" mode; teaches by doing.
+   `[DONE 2026-08-07, issue #17]`
+   `gui/scripts/generate_sample_sequences.py` procedurally draws three tall
+   synthetic "scroll page" images with PIL (flat rounded panels, a wavy
+   line-art silhouette + speech-bubble outlines, a warm dot-grid/text-label
+   page — never real source art, per the corpus's explicit-content
+   constraint) and slices each into 6 overlapping 480×320 frames (35%
+   vertical overlap, matching a real scroll capture's frame-to-frame
+   redundancy), committed under `gui/resources/samples/<name>/frame_NN.png`
+   (~60 KiB total for all 18 frames). `gui/src/tabs/stencil/sample_sequences.py::list_sample_sequences`
+   discovers the bundled sequences at runtime. `RealHybridStitchPanel` gets
+   a new "Try a Sample" toolbar button (next to the "?" tour button) with an
+   instant-popup `QMenu` listing each sample; selecting one calls the
+   existing `load_paths()` to populate the sequence sidebar exactly like a
+   user's own frames, so every tool tab (Control Points, Color Correct,
+   Seam Painter, Mesh Warp, Render) works on it immediately. Non-modal,
+   discoverable, never blocks normal use. 12 new tests
+   (`gui/test/tabs/test_sample_sequences.py`): generator output validity
+   (frame count/size, real overlapping pixel content between consecutive
+   frames, total bundle size), `list_sample_sequences` discovery, and the
+   panel's "Try a Sample" menu/load-into-sidebar behavior.
 4. **Assisted-use suggestions** — surface `gui/src/elements/_stats_recommendations.py`'s
    existing diagnostics as explained, in-context suggestions ("why this seam
    adjustment") rather than a separate tutorial mode. The most

@@ -17,11 +17,14 @@ from .panels import (
     StitchPanel,
 )
 from .render_panel import RenderPanel
+from .sample_sequences import SAMPLES_DIR, list_sample_sequences
 
 __all__ = [
     "ControlPointEditor",
     "RealHybridStitchPanel",
     "RenderPanel",
+    "SAMPLES_DIR",
+    "list_sample_sequences",
     "EditTabPanel",
     "StitchPanel",
     "GraphPanel",
