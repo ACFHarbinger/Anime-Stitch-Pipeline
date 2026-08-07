@@ -2234,6 +2234,16 @@ def _build_result(
     gt_ver = _gt_verdict(gt_metrics_asp, gt_metrics_sim)
     has_gt = gt_img is not None
 
+    if not has_gt:
+        try:
+            from evaluation.si_fid import compute_si_fid
+            if asp_img is not None:
+                gt_metrics_asp["si_fid"] = compute_si_fid(asp_img)
+            if sim_img is not None:
+                gt_metrics_sim["si_fid"] = compute_si_fid(sim_img)
+        except ImportError:
+            pass
+
     # §0.2 — human-coherence-aware verdict: no automated metric measures
     # structural coherence, so when a evaluation exists, it may veto a false
     # "asp_better" that a metric-only read would otherwise report (the
