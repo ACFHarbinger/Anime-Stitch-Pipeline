@@ -972,7 +972,7 @@ documented below as a reference, not because it's still believed needed.
 
 ---
 
-## Phase 4 — Convert the Fallback Classes
+## Phase 4 — Convert the Fallback Classes `[DONE 2026-08-07]`
 
 The 54 guarded fallbacks (full-corpus count as of the 2026-07-28 checkpoint,
 `anime_stitch_20260728_013215.json` — supersedes the 46-count pre-trim
