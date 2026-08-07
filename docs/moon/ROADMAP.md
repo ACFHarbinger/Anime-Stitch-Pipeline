@@ -109,6 +109,24 @@ default OFF per Ground Rule #2 regardless (no human coherence rating
 exists for either config), but is now honestly measurable for the first
 time, which the crash previously made impossible.
 
+**`ASP_POSE_WINDOW_PX=80` A/B (2026-08-07): first real `asp_better`
+verdict this session, genuinely mixed — not a flag flip, needs eyes.**
+DINOv2 pose-consistent frame selection (the roadmap's own §9.2/state-doc
+"most important unimplemented idea" candidate), confirmed via log
+(`[SmartSelect] DINOv2 features loaded successfully`) to genuinely
+activate — not the issue #12 dead-code path. Result vs. the same-day
+baseline (`anime_stitch_20260807_015914.json`): 3/5 real composites (was
+2/5, i.e. fewer SCANS fallbacks); verdict counts 1 asp_better / 1
+comparable / 3 simple_better (was 0/3/2 — a real qualitative shift, not
+just noise, but not an unambiguous win: `comparable` count dropped along
+with `simple_better` count rising). GT-SSIM 0.717 vs baseline 0.7324
+(worse on average), but sharpness 133.7 vs 122.6 and ghosting 50.4 vs 63.2
+both improve, and this is the **first flag this session to produce any
+`asp_better` verdict at all**. Exactly the kind of result Ground Rule #2
+exists for — a metrics-only read would be ambiguous either direction;
+needs a human coherence look at the specific test that flipped to
+`asp_better` before drawing any conclusion. Not flipped to default-on.
+
 ---
 
 ## §0 — Product Scope (2026-08-06)
