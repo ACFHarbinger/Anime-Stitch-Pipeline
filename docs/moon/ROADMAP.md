@@ -226,6 +226,15 @@ project couldn't afford pre-product-market-fit. Resulting decisions:
   run (`[SmartSelect] DINOv2 features loaded successfully` in the log);
   only the secondary `_pose_dist` helper is affected. Low urgency, not
   fixed.
+  `[Issue #7, mixin bucket, 2026-08-07]` The 28 mixin-composition errors
+  fixed: new `core/pipeline/_pipeline_protocol.py`, a `TYPE_CHECKING`-only
+  `Protocol` (`_PipelineHost`) describing every attribute
+  `AnimeStitchPipeline.__init__` sets plus the cross-mixin methods each
+  mixin borrows from a sibling — `_RunStageMixin`/`_MatcherSelectionMixin`/
+  `_ThinWrappersMixin` use it as a `TYPE_CHECKING`-only base (real base
+  stays `object`, zero runtime behavior change). mypy 116 -> 88; no new
+  errors introduced (verified byte-identical remaining error set); full
+  test suite identical before/after.
 
 ---
 
