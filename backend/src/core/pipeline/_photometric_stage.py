@@ -50,9 +50,10 @@ def _apply_background_photometric_normalization(
     if len(_valid_means) >= 3:
         _ref_mean = np.median(_valid_means, axis=0)  # (3,) BGR reference
         for _i in range(N):
-            if bg_frame_means[_i] is None:
+            _bg_mean_i = bg_frame_means[_i]
+            if _bg_mean_i is None:
                 continue
-            _gain = _ref_mean / np.maximum(bg_frame_means[_i], 1.0)
+            _gain = _ref_mean / np.maximum(_bg_mean_i, 1.0)
             _ref_lum_scalar = float(np.dot(_ref_mean, [0.114, 0.587, 0.299]))
             _gain_lo, _gain_hi = (
                 (0.80, 1.25) if _ref_lum_scalar < 80.0 else (0.88, 1.14)
@@ -71,22 +72,23 @@ def _apply_background_photometric_normalization(
     # matching each background segment to the reference (frame 0) segment
     # with the closest colour, removing per-region flicker independently.
     for _i in range(1, N):
-        if bg_masks[_i] is None:
+        bg_mask_i = bg_masks[_i]
+        if bg_mask_i is None:
             continue
-        bm = bg_masks[_i] > 127
+        bm = bg_mask_i > 127
         if bm.sum() < 1000:
             continue
         # Quick color-region segmentation via quantization (no SAM needed)
         img_small = cv2.resize(
             frames[_i],
             (frames[_i].shape[1] // 4, frames[_i].shape[0] // 4),
-            cv2.INTER_AREA,
+            interpolation=cv2.INTER_AREA,
         )
         flat = img_small.reshape(-1, 3).astype(np.float32)
         _, labels_flat, centers = cv2.kmeans(
             flat,
             min(8, len(np.unique(flat.reshape(-1)))),
-            None,
+            None,  # type: ignore[call-overload] # cv2-stub gap: bestLabels=None is the standard idiom
             (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0),
             2,
             cv2.KMEANS_PP_CENTERS,
@@ -95,17 +97,17 @@ def _apply_background_photometric_normalization(
         seg_map_full = cv2.resize(
             seg_map.astype(np.uint8),
             (frames[_i].shape[1], frames[_i].shape[0]),
-            cv2.INTER_NEAREST,
+            interpolation=cv2.INTER_NEAREST,
         )
         # Reference: frame 0 colour clusters
         img0_small = cv2.resize(
-            frames[0], img_small.shape[:2][::-1], cv2.INTER_AREA
+            frames[0], img_small.shape[:2][::-1], interpolation=cv2.INTER_AREA
         )
         flat0 = img0_small.reshape(-1, 3).astype(np.float32)
         ref_centers = cv2.kmeans(
             flat0,
             min(8, len(np.unique(flat0.reshape(-1)))),
-            None,
+            None,  # type: ignore[call-overload] # cv2-stub gap: bestLabels=None is the standard idiom
             (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0),
             2,
             cv2.KMEANS_PP_CENTERS,
