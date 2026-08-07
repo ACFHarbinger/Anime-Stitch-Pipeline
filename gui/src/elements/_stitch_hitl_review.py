@@ -106,12 +106,6 @@ class _StitchHitlReviewMixin(_Base):
                 # Click refinement via live SAM-2 predictor preserved across HITL boundary
                 predictor = data.get("sam2_predictor")
                 state = data.get("sam2_inference_state")
-                _fh = data.get("sam2_frame_h") or (
-                    frames[0].shape[0] if frames else 1080
-                )
-                _fw = data.get("sam2_frame_w") or (
-                    frames[0].shape[1] if frames else 1920
-                )
                 if predictor is not None and state is not None:
                     refined = _refine_masks_with_clicks(
                         predictor,
@@ -119,8 +113,7 @@ class _StitchHitlReviewMixin(_Base):
                         pos_clicks=pos_clicks,
                         neg_clicks=neg_clicks,
                         frame_idx=frame_idx,
-                        frame_h=_fh,
-                        frame_w=_fw,
+                        frame_shapes=[f.shape[:2] for f in frames],
                     )
                     if refined:
                         return refined

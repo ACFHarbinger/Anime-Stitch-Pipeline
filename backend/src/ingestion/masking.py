@@ -544,9 +544,10 @@ def _refine_masks_with_clicks(
             if 1 in _obj_ids:
                 _li = list(_obj_ids).index(1)
                 _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
-                if _prob.shape != (frame_h, frame_w):
+                _frame_h, _frame_w = frame_shapes[_idx]
+                if _prob.shape != (_frame_h, _frame_w):
                     _prob = cv2.resize(
-                        _prob, (frame_w, frame_h), interpolation=cv2.INTER_LINEAR
+                        _prob, (_frame_w, _frame_h), interpolation=cv2.INTER_LINEAR
                     )
                 _fg_i = (_prob > 0.5).astype(np.uint8) * 255
                 if FOREGROUND_DILATION > 0:
