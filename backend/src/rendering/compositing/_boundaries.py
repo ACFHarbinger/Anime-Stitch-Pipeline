@@ -98,10 +98,11 @@ def _find_optimal_boundaries(
     if bg_masks is not None and affines is not None:
         for i in range(len(order)):
             fi = int(order[i])
-            if bg_masks[fi] is not None:
+            bg_fi = bg_masks[fi]
+            if bg_fi is not None:
                 warped_bgs[fi] = (
                     cv2.warpAffine(
-                        bg_masks[fi].astype(np.uint8),
+                        bg_fi.astype(np.uint8),
                         affines[fi],
                         (W, H),
                         flags=cv2.INTER_NEAREST,
