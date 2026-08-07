@@ -58,6 +58,24 @@ confirm the full toolchain (GPU, corpus, benchmark harness, inspector
 entry point) is genuinely working end-to-end for the first time this
 session, unblocking real Phase-0/2 work going forward.
 
+**`ASP_USE_SAM2` A/B (2026-08-07): measurement bug found, not a real
+result — issue #10.** Re-ran the 5-test verify with `ASP_USE_SAM2=1`;
+every summary metric came back byte-identical to the baseline (no
+`sam2`-related log output either). Root cause confirmed by reading the
+code, not just inferred: `bench_anime_stitch.py`'s "STEP 3: BiRefNet
+foreground masks" calls the raw `_compute_fg_masks()` function directly
+rather than `AnimeStitchPipeline`'s own `_USE_SAM2`-aware
+`_compute_fg_masks()` method, and its later `AnimeStitchPipeline(...)`
+construction explicitly disables every one of the pipeline's own stage
+toggles (`use_basic=False, use_birefnet=False, use_loftr=False,
+use_ecc=False`) — the benchmark script has a parallel, hand-rolled
+reimplementation of the pipeline stages, not a call into
+`AnimeStitchPipeline.run()`. **`ASP_USE_SAM2` cannot be measured via
+`bench_anime_stitch.py` in its current form, at all.** Whether this same
+gap affects other flags that touch masking specifically is not
+independently audited — worth a dedicated pass (issue #10) before trusting
+any masking-flag A/B result from this harness.
+
 ---
 
 ## §0 — Product Scope (2026-08-06)
