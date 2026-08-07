@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > content that does not currently exist in this repo, not as a citation you
 > can follow.
 
+## S365 — 2026-08-07 (Photometric Fix for Seam Rendering)
+
+Implemented an HSV-based value scaling fix for seam-photometric diagnosis in both Python (`bench_anime_stitch.py`) and C++ (`compositing.cpp`). This resolves excessive color gradient shifts across seams on borderline datasets (e.g., test87, test10) by applying scalar gain only to the luminance/value channel rather than multiplicatively across all RGB channels.
+
 ## [Unreleased]
 
 ### Added
