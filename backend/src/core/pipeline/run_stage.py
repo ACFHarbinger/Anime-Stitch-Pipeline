@@ -72,6 +72,13 @@ from ._probes import _DY_CV_MAX, BaSiCWrapper, Image, torch
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    from asp_backend.models.wrappers.aliked_lg_wrapper import ALIKEDLightGlueWrapper
+    from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
+    from asp_backend.models.wrappers.roma_wrapper import RoMaWrapper
+    from backend.src.models.wrappers.basic_wrapper import BaSiCWrapper as _BaSiCWrapperT
+    from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
+    from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
+
     # Type-checking-only base: gives mypy visibility into attributes set by
     # AnimeStitchPipeline.__init__ / sibling mixins (see _pipeline_protocol.py).
     # Zero runtime effect -- at runtime this mixin still only inherits object.
@@ -82,6 +89,21 @@ else:
 
 class _RunStageMixin(_Base):
     """Provides ``run()``, the full pipeline entry point, for ``AnimeStitchPipeline``."""
+
+    if TYPE_CHECKING:
+        # Explicit re-declarations (mirroring _PipelineHost) -- mypy cannot
+        # otherwise determine these attributes' types here: each is both
+        # read (in a condition) and reassigned to differing types (wrapper
+        # instance vs. None) across branches below, and without a local
+        # declaration mypy tries (and fails) to infer a type from those
+        # in-method assignments alone rather than deferring to the
+        # inherited Protocol attribute.
+        _basic: _BaSiCWrapperT | None
+        _birefnet: BiRefNetWrapper | None
+        _loftr: LoFTRWrapper | None
+        _eloftr: EfficientLoFTRWrapper | None
+        _aliked: ALIKEDLightGlueWrapper | None
+        _roma: RoMaWrapper | None
 
     def run(  # noqa: C901
         self,

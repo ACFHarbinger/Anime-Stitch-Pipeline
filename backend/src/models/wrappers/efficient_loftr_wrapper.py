@@ -115,6 +115,10 @@ class EfficientLoFTRWrapper(ModelWrapper):
         conf       : (K,) float32 match confidence.
         """
         self.load()
+        # self.load() above guarantees self._processor/self._model are set;
+        # mypy can't see that invariant across the method boundary.
+        assert self._processor is not None
+        assert self._model is not None
 
         h0, w0 = img_i.shape[:2]
         h1, w1 = img_j.shape[:2]

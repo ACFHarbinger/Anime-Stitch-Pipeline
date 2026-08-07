@@ -18,6 +18,11 @@ from ._probes import RoMaWrapper
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
+    from asp_backend.models.wrappers.aliked_lg_wrapper import ALIKEDLightGlueWrapper
+    from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
+    from asp_backend.models.wrappers.roma_wrapper import RoMaWrapper as _RoMaWrapperT
+    from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
+
     # Type-checking-only base: gives mypy visibility into attributes set by
     # AnimeStitchPipeline.__init__ / sibling mixins (see _pipeline_protocol.py).
     # Zero runtime effect -- at runtime this mixin still only inherits object.
@@ -28,6 +33,23 @@ else:
 
 class _MatcherSelectionMixin(_Base):
     """Provides ``_select_matcher`` for ``AnimeStitchPipeline.run()``."""
+
+    if TYPE_CHECKING:
+        # Explicit re-declarations (mirroring _PipelineHost) -- mypy cannot
+        # otherwise determine these attributes' types here: within
+        # _select_matcher() below each is both read (in a condition) and
+        # reassigned to differing types (wrapper instance vs. None) across
+        # branches, and without a local declaration mypy tries (and fails)
+        # to infer a type from those in-method assignments alone rather than
+        # deferring to the inherited Protocol attribute.
+        _eloftr: EfficientLoFTRWrapper | None
+        _loftr: LoFTRWrapper | None
+        _aliked: ALIKEDLightGlueWrapper | None
+        _roma: _RoMaWrapperT | None
+        use_efficient_loftr: bool
+        use_loftr: bool
+        use_aliked: bool
+        use_roma: bool
 
     def _select_matcher(self, H: int, W: int):
         """Select and lazily construct the dense-matching backend, priority:

@@ -106,7 +106,7 @@ def _decode_proxy_frames(
     fi = 0
     for packet in container.demux(stream):
         for frame in packet.decode():
-            img = frame.to_ndarray(format="bgr24")
+            img: np.ndarray = frame.to_ndarray(format="bgr24")
             if scale != 1.0 and scale > 0:
                 h, w = img.shape[:2]
                 new_w = max(1, int(w * scale))
@@ -165,6 +165,9 @@ def _decode_full_frame(video_path: str, frame_pts_index: int) -> np.ndarray | No
         stream = container.streams.video[0]
         # Seek to approximately the right PTS
         fps = float(stream.average_rate or 24)
+        # pyav stubs type time_base as Fraction | None; in practice a video
+        # stream always has a time_base once opened/demuxed.
+        assert stream.time_base is not None
         target_ts = int(frame_pts_index / fps / stream.time_base)
         container.seek(target_ts, stream=stream, backward=True, any_frame=False)
 
