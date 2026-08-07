@@ -140,8 +140,17 @@ def _compute_fg_masks_sam2(  # noqa: C901
                 if 1 in _obj_ids:
                     _li = list(_obj_ids).index(1)
                     _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
-                    if _prob.shape != (_H, _W):
-                        _prob = cv2.resize(_prob, (_W, _H), interpolation=cv2.INTER_LINEAR)
+                    # Resize against *this* frame's own shape, not the
+                    # shared (_H, _W) reference taken from frames[0] --
+                    # _normalise_widths only normalises width, so per-frame
+                    # heights can differ by a few px (issue #11's root
+                    # cause; was previously only fixed in the sibling
+                    # _compute_fg_masks_sam2_stateful, not here).
+                    _frame_h, _frame_w = frames[_idx].shape[:2]
+                    if _prob.shape != (_frame_h, _frame_w):
+                        _prob = cv2.resize(
+                            _prob, (_frame_w, _frame_h), interpolation=cv2.INTER_LINEAR
+                        )
                     _fg_i = (_prob > 0.5).astype(np.uint8) * 255
                     if FOREGROUND_DILATION > 0:
                         _k = cv2.getStructuringElement(
@@ -268,8 +277,17 @@ def _compute_fg_masks_grounded_sam2(
                 if 1 in _obj_ids:
                     _li = list(_obj_ids).index(1)
                     _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
-                    if _prob.shape != (_H, _W):
-                        _prob = cv2.resize(_prob, (_W, _H), interpolation=cv2.INTER_LINEAR)
+                    # Resize against *this* frame's own shape, not the
+                    # shared (_H, _W) reference taken from frames[0] --
+                    # _normalise_widths only normalises width, so per-frame
+                    # heights can differ by a few px (issue #11's root
+                    # cause; was previously only fixed in the sibling
+                    # _compute_fg_masks_sam2_stateful, not here).
+                    _frame_h, _frame_w = frames[_idx].shape[:2]
+                    if _prob.shape != (_frame_h, _frame_w):
+                        _prob = cv2.resize(
+                            _prob, (_frame_w, _frame_h), interpolation=cv2.INTER_LINEAR
+                        )
                     _fg_i = (_prob > 0.5).astype(np.uint8) * 255
                     if FOREGROUND_DILATION > 0:
                         _k = cv2.getStructuringElement(

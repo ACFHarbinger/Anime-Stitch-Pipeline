@@ -979,6 +979,7 @@ class TestNearDupLumaFilterBatchWiring:
         result = _near_dup_luma_filter(thumbs, paths, threshold=3.0)
         assert result[0] == paths[0]
         assert result[-1] == paths[-1]
+        assert len(result) == 2
 
 
 class TestPass2PoseRefine:

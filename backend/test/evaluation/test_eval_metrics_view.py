@@ -318,20 +318,44 @@ def _fake_corpus(
 
 def test_discovery_finds_every_comparator_present(tmp_path):
     base = _fake_corpus(tmp_path, with_hugin=True)
-    assets = discovery.load_test_assets(base, "asp_test01", _repo_root)
+    # Explicit (nonexistent) results_path keeps this hermetic: without it,
+    # load_test_assets -> load_metrics(repo_root, None) defaults to "the
+    # most recent real backend/benchmark/output/anime_stitch_*.json" --
+    # any real benchmark run leaves one behind and its real "asp_test01"
+    # entry (real paths.stage_dir etc.) silently overrides this fixture's
+    # fake tmp_path data, breaking assertions that assume the fake data.
+    assets = discovery.load_test_assets(
+        base, "asp_test01", _repo_root, results_path=str(tmp_path / "no_such_results.json")
+    )
     assert assets.available() == ["asp", "simple", "overmix", "hugin", "ground_truth"]
 
 
 def test_discovery_omits_absent_comparators(tmp_path):
     base = _fake_corpus(tmp_path, with_gt=False, with_overmix=False)
-    assets = discovery.load_test_assets(base, "asp_test01", _repo_root)
+    # Explicit (nonexistent) results_path keeps this hermetic: without it,
+    # load_test_assets -> load_metrics(repo_root, None) defaults to "the
+    # most recent real backend/benchmark/output/anime_stitch_*.json" --
+    # any real benchmark run leaves one behind and its real "asp_test01"
+    # entry (real paths.stage_dir etc.) silently overrides this fixture's
+    # fake tmp_path data, breaking assertions that assume the fake data.
+    assets = discovery.load_test_assets(
+        base, "asp_test01", _repo_root, results_path=str(tmp_path / "no_such_results.json")
+    )
     assert assets.available() == ["asp", "simple"]
     assert assets.gt_path is None
 
 
 def test_legacy_path_properties_still_work(tmp_path):
     base = _fake_corpus(tmp_path)
-    assets = discovery.load_test_assets(base, "asp_test01", _repo_root)
+    # Explicit (nonexistent) results_path keeps this hermetic: without it,
+    # load_test_assets -> load_metrics(repo_root, None) defaults to "the
+    # most recent real backend/benchmark/output/anime_stitch_*.json" --
+    # any real benchmark run leaves one behind and its real "asp_test01"
+    # entry (real paths.stage_dir etc.) silently overrides this fixture's
+    # fake tmp_path data, breaking assertions that assume the fake data.
+    assets = discovery.load_test_assets(
+        base, "asp_test01", _repo_root, results_path=str(tmp_path / "no_such_results.json")
+    )
     assert assets.asp_path.endswith("_anime_stitch.png")
     assert assets.simple_path.endswith("_opencv_stitch.png")
     assert assets.gt_path.endswith("asp_test01.png")
@@ -343,13 +367,29 @@ def test_discovery_falls_back_to_the_pre_rename_filename(tmp_path):
     name doesn't imply it's the only ASP alternative now that Overmix/Hugin
     exist. A corpus generated before the rename must still be discoverable."""
     base = _fake_corpus(tmp_path, simple_suffix="simple_stitch")
-    assets = discovery.load_test_assets(base, "asp_test01", _repo_root)
+    # Explicit (nonexistent) results_path keeps this hermetic: without it,
+    # load_test_assets -> load_metrics(repo_root, None) defaults to "the
+    # most recent real backend/benchmark/output/anime_stitch_*.json" --
+    # any real benchmark run leaves one behind and its real "asp_test01"
+    # entry (real paths.stage_dir etc.) silently overrides this fixture's
+    # fake tmp_path data, breaking assertions that assume the fake data.
+    assets = discovery.load_test_assets(
+        base, "asp_test01", _repo_root, results_path=str(tmp_path / "no_such_results.json")
+    )
     assert assets.simple_path.endswith("_simple_stitch.png")
 
 
 def test_stage_renders_group_by_prefix(tmp_path):
     base = _fake_corpus(tmp_path)
-    assets = discovery.load_test_assets(base, "asp_test01", _repo_root)
+    # Explicit (nonexistent) results_path keeps this hermetic: without it,
+    # load_test_assets -> load_metrics(repo_root, None) defaults to "the
+    # most recent real backend/benchmark/output/anime_stitch_*.json" --
+    # any real benchmark run leaves one behind and its real "asp_test01"
+    # entry (real paths.stage_dir etc.) silently overrides this fixture's
+    # fake tmp_path data, breaking assertions that assume the fake data.
+    assets = discovery.load_test_assets(
+        base, "asp_test01", _repo_root, results_path=str(tmp_path / "no_such_results.json")
+    )
     groups = discovery.stage_groups(assets.stage_dir)
     assert groups["stage02_normalised"] and len(groups["stage02_normalised"]) == 3
     assert "stage11_fg_composite" in groups
@@ -357,7 +397,15 @@ def test_stage_renders_group_by_prefix(tmp_path):
 
 def test_load_images_decodes_only_what_exists(tmp_path):
     base = _fake_corpus(tmp_path, with_gt=False)
-    assets = discovery.load_test_assets(base, "asp_test01", _repo_root)
+    # Explicit (nonexistent) results_path keeps this hermetic: without it,
+    # load_test_assets -> load_metrics(repo_root, None) defaults to "the
+    # most recent real backend/benchmark/output/anime_stitch_*.json" --
+    # any real benchmark run leaves one behind and its real "asp_test01"
+    # entry (real paths.stage_dir etc.) silently overrides this fixture's
+    # fake tmp_path data, breaking assertions that assume the fake data.
+    assets = discovery.load_test_assets(
+        base, "asp_test01", _repo_root, results_path=str(tmp_path / "no_such_results.json")
+    )
     images = discovery.load_images(assets)
     assert set(images) == {"asp", "simple", "overmix"}
 

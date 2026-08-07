@@ -79,7 +79,13 @@ except ImportError:
 # seam_vis 60–120 vs SCANS 2–3) while SCANS handles these sequences trivially.
 # Default 1.5 (enabled). Set ASP_DY_CV_MAX=0 to disable.
 _DY_CV_MAX: float = float(os.environ.get("ASP_DY_CV_MAX", "1.5"))
-_USE_SAM2: bool = os.environ.get("ASP_USE_SAM2", "0") != "0"
+_USE_SAM2: bool = os.environ.get("ASP_USE_SAM2", "0").strip().lower() not in (
+    "0",
+    "false",
+    "no",
+    "off",
+    "",
+)
 
 
 __all__ = [
