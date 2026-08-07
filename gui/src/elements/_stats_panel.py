@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import os
 import pathlib
-from typing import List
 
 import numpy as np
 from PySide6.QtCore import QSize, Qt, QThreadPool, Slot
@@ -280,7 +279,7 @@ class _StatsPanelMixin:
         else:
             self._stats_load_from_frames()
 
-    def _stats_do_run(self, paths: List[str]):
+    def _stats_do_run(self, paths: list[str]):
         if not paths:
             return
 
@@ -289,7 +288,7 @@ class _StatsPanelMixin:
             self._stats_worker.cancel()
             self._stats_worker = None
 
-        self._stats_ind_rows: List[dict] = []
+        self._stats_ind_rows: list[dict] = []
         self._stats_ind_table.setRowCount(0)
         self._stats_pw_table.setRowCount(0)
         self._stats_ind_summary.setText("")
@@ -313,7 +312,7 @@ class _StatsPanelMixin:
         self._stats_progress.setValue(completed)
 
     @Slot(list)
-    def _stats_on_individual(self, rows: List[dict]):
+    def _stats_on_individual(self, rows: list[dict]):
         self._stats_ind_rows = rows
         table = self._stats_ind_table
         table.setRowCount(len(rows))
@@ -385,7 +384,7 @@ class _StatsPanelMixin:
             )
 
     @Slot(list)
-    def _stats_on_pairwise(self, rows: List[dict]):
+    def _stats_on_pairwise(self, rows: list[dict]):
         table = self._stats_pw_table
         table.setRowCount(len(rows))
         cols = self._stats_pw_cols

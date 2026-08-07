@@ -1,8 +1,13 @@
 import json
 import os
-from typing import List, Optional, Tuple
 
 import numpy as np
+from gui.src.constants import (
+    CONF_HIGH,
+    CONF_LOW,
+    CONF_MED,
+)
+from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import Qt
 from PySide6.QtGui import (
     QBrush,
@@ -28,13 +33,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from gui.src.constants import (
-    CONF_HIGH,
-    CONF_LOW,
-    CONF_MED,
-)
-from gui.src.styles import apply_shadow_effect
-
 
 def _conf_color(c: float) -> QColor:
     if c >= 0.7:
@@ -44,9 +42,9 @@ def _conf_color(c: float) -> QColor:
     return CONF_LOW
 
 
-def parse_edge_json(path: str) -> List[dict]:
+def parse_edge_json(path: str) -> list[dict]:
     """Load and normalise an ASP stage05_edges.json file."""
-    with open(path, "r") as fh:
+    with open(path) as fh:
         raw = json.load(fh)
     result = []
     for rec in raw:
@@ -67,7 +65,7 @@ def parse_edge_json(path: str) -> List[dict]:
 
 def _edge_graph_node_positions(
     n: int, radius: float = 150.0
-) -> List[Tuple[float, float]]:
+) -> list[tuple[float, float]]:
     if n <= 0:
         return []
     if n == 1:
@@ -88,15 +86,15 @@ class EdgeGraphInspectorDialog(QDialog):
 
     def __init__(
         self,
-        edges: Optional[List[dict]] = None,
-        frame_paths: Optional[List[str]] = None,
+        edges: list[dict] | None = None,
+        frame_paths: list[str] | None = None,
         parent=None,
     ):
         super().__init__(parent)
         self.setWindowTitle("Edge Graph Inspector — Stage 5")
         self.resize(920, 580)
-        self._edges: List[dict] = edges if edges is not None else []
-        self._frame_paths: List[str] = frame_paths or []
+        self._edges: list[dict] = edges if edges is not None else []
+        self._frame_paths: list[str] = frame_paths or []
         self._build_ui()
         if edges is not None:
             self._populate()

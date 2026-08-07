@@ -7,10 +7,9 @@ flaw annotations. Feedback is persisted to FeedbackStore by the caller.
 
 from __future__ import annotations
 
-from typing import List, Optional
-
 import cv2
 import numpy as np
+from gui.src.constants.elements import _PREVIEW_MAX_PX
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
@@ -30,7 +29,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from gui.src.constants.elements import _PREVIEW_MAX_PX
 
 try:
     from backend.src.constants.animation import RLHF_FLAW_TYPES
@@ -41,7 +39,7 @@ except Exception:
 class _AddFlawDialog(QDialog):
     """Minimal dialog to capture a single flaw annotation (type + severity)."""
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Add Flaw")
         layout = QFormLayout(self)
@@ -86,13 +84,13 @@ class FinalOutputReviewDialog(QDialog):
       - Rejected  → user skipped (no feedback saved)
     """
 
-    def __init__(self, data: dict, parent: Optional[QWidget] = None) -> None:
+    def __init__(self, data: dict, parent: QWidget | None = None) -> None:
         super().__init__(parent)
         self.setWindowTitle("Step 5 — Rate Output Quality")
         self.resize(740, 580)
-        self._feedback: Optional[dict] = None
+        self._feedback: dict | None = None
 
-        canvas_preview: Optional[np.ndarray] = data.get("canvas_preview")
+        canvas_preview: np.ndarray | None = data.get("canvas_preview")
         self._output_path: str = data.get("output_path", "")
         self._pipeline_config: dict = data.get("pipeline_config", {})
 
@@ -194,7 +192,7 @@ class FinalOutputReviewDialog(QDialog):
 
     def _on_save(self) -> None:
         overall_rating = self._rating_slider.value() / 2.0
-        annotations: List[dict] = []
+        annotations: list[dict] = []
         for i in range(self._flaw_list.count()):
             item = self._flaw_list.item(i)
             annotations.append(item.data(Qt.ItemDataRole.UserRole))
@@ -208,6 +206,6 @@ class FinalOutputReviewDialog(QDialog):
 
     # ---------------------------------------------------------------------- #
 
-    def get_feedback(self) -> Optional[dict]:
+    def get_feedback(self) -> dict | None:
         """Returns collected feedback dict, or None if the user skipped."""
         return self._feedback

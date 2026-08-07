@@ -1,7 +1,7 @@
-from typing import Optional
 
 import cv2
 import numpy as np
+from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import (
     QPointF,
     Qt,
@@ -26,8 +26,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.styles import apply_shadow_effect
-
 
 def _bgr_to_qimage(bgr: np.ndarray) -> QImage:
     rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
@@ -44,13 +42,13 @@ class _PaintCanvas(QGraphicsView):
         super().__init__(parent)
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
-        self._pix_item: Optional[QGraphicsPixmapItem] = None
-        self._overlay: Optional[np.ndarray] = None  # RGBA paint layer, H×W×4
-        self._overlay_item: Optional[QGraphicsPixmapItem] = None
+        self._pix_item: QGraphicsPixmapItem | None = None
+        self._overlay: np.ndarray | None = None  # RGBA paint layer, H×W×4
+        self._overlay_item: QGraphicsPixmapItem | None = None
         self._brush_mode = "A"  # "A" | "B" | "neutral"
         self._brush_size = 20
         self._painting = False
-        self._last_pt: Optional[QPointF] = None
+        self._last_pt: QPointF | None = None
         self._img_w = 1
         self._img_h = 1
 
@@ -182,9 +180,9 @@ class SeamPainterWidget(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._warped_a: Optional[np.ndarray] = None
-        self._warped_b: Optional[np.ndarray] = None
-        self._seam_mask: Optional[np.ndarray] = None
+        self._warped_a: np.ndarray | None = None
+        self._warped_b: np.ndarray | None = None
+        self._seam_mask: np.ndarray | None = None
         self._build_ui()
 
     def _build_ui(self):
@@ -260,7 +258,7 @@ class SeamPainterWidget(QWidget):
             "Paint Force-A (red) / Force-B (blue) regions, then Compute Seam."
         )
 
-    def get_seam_mask(self) -> Optional[np.ndarray]:
+    def get_seam_mask(self) -> np.ndarray | None:
         return self._seam_mask
 
     def _set_brush(self, mode: str):

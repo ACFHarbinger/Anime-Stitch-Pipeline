@@ -17,8 +17,6 @@ user-designated pixels.
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
-
 import cv2
 import numpy as np
 from backend.src.constants import SEAM_OVERLAY_AMBER_THRESH, SEAM_OVERLAY_RED_THRESH
@@ -56,7 +54,7 @@ class _WaypointCanvas(QLabel):
     waypoint_changed: Signal = Signal()  # emitted whenever the waypoints dict changes
 
     # Per-seam colour palette (cycles for >10 seams)
-    _PALETTE: List[str] = [
+    _PALETTE: list[str] = [
         "#ff4444", "#44aa44", "#4488ff", "#cc8800",
         "#aa44aa", "#008888", "#ff8844", "#8844ff",
         "#44ff88", "#ff4488",
@@ -67,19 +65,19 @@ class _WaypointCanvas(QLabel):
         base_pixmap: QPixmap,
         canvas_w: int,
         canvas_h: int,
-        boundaries: List[float],
-        parent: Optional[QWidget] = None,
+        boundaries: list[float],
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self._base_pix: QPixmap = base_pixmap
         self._canvas_w: int = max(1, canvas_w)
         self._canvas_h: int = max(1, canvas_h)
-        self._boundaries: List[float] = list(boundaries)
+        self._boundaries: list[float] = list(boundaries)
         pw, ph = max(1, base_pixmap.width()), max(1, base_pixmap.height())
         self._scale_x: float = pw / self._canvas_w
         self._scale_y: float = ph / self._canvas_h
         self._active: bool = False
-        self._waypoints: Dict[int, List[Tuple[int, int]]] = {}
+        self._waypoints: dict[int, list[tuple[int, int]]] = {}
         self._redraw()
 
     # ── public API ───────────────────────────────────────────────────────────
@@ -96,7 +94,7 @@ class _WaypointCanvas(QLabel):
             self._redraw()
             self.waypoint_changed.emit()
 
-    def all_waypoints(self) -> Dict[int, List[Tuple[int, int]]]:
+    def all_waypoints(self) -> dict[int, list[tuple[int, int]]]:
         """Return a shallow copy of the current waypoints dict (seam_k → list)."""
         return {k: list(v) for k, v in self._waypoints.items() if v}
 
@@ -174,7 +172,7 @@ class _FlowArrowCanvas(QLabel):
         base_pixmap: QPixmap,
         canvas_w: int,
         canvas_h: int,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self._base_pix: QPixmap = base_pixmap
@@ -185,15 +183,15 @@ class _FlowArrowCanvas(QLabel):
         self._scale_x: float = pw / self._canvas_w
         self._scale_y: float = ph / self._canvas_h
         self._active: bool = False
-        self._origin: Optional[Tuple[float, float]] = None  # current drag origin (canvas px)
-        self._arrows: List[Tuple[float, float, float, float]] = []  # (x, y, dx, dy)
+        self._origin: tuple[float, float] | None = None  # current drag origin (canvas px)
+        self._arrows: list[tuple[float, float, float, float]] = []  # (x, y, dx, dy)
         self._redraw()
 
     def set_active(self, active: bool) -> None:
         self._active = active
         self.setCursor(Qt.CursorShape.CrossCursor if active else Qt.CursorShape.ArrowCursor)
 
-    def all_flow_arrows(self) -> List[Tuple[float, float, float, float]]:
+    def all_flow_arrows(self) -> list[tuple[float, float, float, float]]:
         return list(self._arrows)
 
     def clear(self) -> None:
@@ -211,7 +209,11 @@ class _FlowArrowCanvas(QLabel):
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event) -> None:
-        if self._active and event.button() == Qt.MouseButton.LeftButton and self._origin is not None:
+        if (
+            self._active
+            and event.button() == Qt.MouseButton.LeftButton
+            and self._origin is not None
+        ):
             pos = event.position()
             ex = pos.x() / self._scale_x
             ey = pos.y() / self._scale_y
@@ -263,8 +265,8 @@ class _SeamCard(QFrame):
         boundary_y: float,
         post_diff: float,
         is_single_pose: bool,
-        crop: Optional[np.ndarray] = None,
-        parent: Optional[QWidget] = None,
+        crop: np.ndarray | None = None,
+        parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
         self._k = k
@@ -444,7 +446,7 @@ class SeamDiagnosticDialog(QDialog):
     def __init__(
         self,
         data: dict,
-        parent: Optional[QWidget] = None,
+        parent: QWidget | None = None,
     ) -> None:
         """
         Parameters
@@ -461,16 +463,16 @@ class SeamDiagnosticDialog(QDialog):
         self.setMinimumSize(700, 450)
         self.setSizeGripEnabled(True)
 
-        boundaries: List[float] = data.get("boundaries", [])
+        boundaries: list[float] = data.get("boundaries", [])
         seam_post_diffs: dict = data.get("seam_post_diffs", {})
-        sp_keys: List[int] = data.get("seam_single_pose_keys", [])
-        canvas_preview: Optional[np.ndarray] = data.get("canvas_preview")
+        sp_keys: list[int] = data.get("seam_single_pose_keys", [])
+        canvas_preview: np.ndarray | None = data.get("canvas_preview")
         seam_crops: dict = data.get("seam_crops", {})
         canvas_h: int = int(data.get("canvas_h", 0))
         canvas_w: int = int(data.get("canvas_w", 0))
 
-        self._canvas: Optional[_WaypointCanvas] = None
-        self._flow_canvas: Optional[_FlowArrowCanvas] = None
+        self._canvas: _WaypointCanvas | None = None
+        self._flow_canvas: _FlowArrowCanvas | None = None
 
         # ── Root layout ────────────────────────────────────────────────────
         root = QHBoxLayout(self)
@@ -559,14 +561,14 @@ class SeamDiagnosticDialog(QDialog):
         card_layout.setContentsMargins(4, 4, 4, 4)
 
         # Build cards, sort worst-first by post_diff
-        seam_info: List[tuple] = []
+        seam_info: list[tuple] = []
         for k, by in enumerate(boundaries):
             diff = float(seam_post_diffs.get(k, 0.0))
             is_sp = k in sp_keys
             seam_info.append((k, by, diff, is_sp))
         seam_info.sort(key=lambda t: (t[3], t[2]), reverse=True)  # SP first, then high diff
 
-        self._cards: List[_SeamCard] = []
+        self._cards: list[_SeamCard] = []
         for k, by, diff, is_sp in seam_info:
             card = _SeamCard(k, by, diff, is_sp, crop=seam_crops.get(k))
             if self._canvas is not None:
@@ -660,7 +662,7 @@ class SeamDiagnosticDialog(QDialog):
 
     # ── public API ───────────────────────────────────────────────────────────
 
-    def get_overrides(self) -> Dict[int, dict]:
+    def get_overrides(self) -> dict[int, dict]:
         """Return per-seam override dict (only non-default seams included).
 
         Each entry may contain any combination of:
@@ -671,10 +673,10 @@ class SeamDiagnosticDialog(QDialog):
         - ``"flow_arrows"`` (List[Tuple[float,float,float,float]]) — user-drawn
           displacement arrows ``(x, y, dx, dy)`` for §2.10C flow override
         """
-        all_wps: Dict[int, List[Tuple[int, int]]] = (
+        all_wps: dict[int, list[tuple[int, int]]] = (
             self._canvas.all_waypoints() if self._canvas is not None else {}
         )
-        flow_arrows_global: List[Tuple[float, float, float, float]] = (
+        flow_arrows_global: list[tuple[float, float, float, float]] = (
             self._flow_canvas.all_flow_arrows() if self._flow_canvas is not None else []
         )
         # Collect all seams with any kind of override
@@ -690,7 +692,7 @@ class SeamDiagnosticDialog(QDialog):
             else:
                 seam_keys.add(0)
 
-        result: Dict[int, dict] = {}
+        result: dict[int, dict] = {}
         for k in seam_keys:
             entry: dict = {}
             card = next((c for c in self._cards if c.seam_index == k), None)

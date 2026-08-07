@@ -9,7 +9,7 @@ import contextlib
 import os
 import shutil
 import tempfile
-from typing import Callable, Dict, List, Optional
+from collections.abc import Callable
 
 import cv2
 import numpy as np
@@ -48,15 +48,15 @@ class StitchWorker(QThread):
 
     def __init__(
         self,
-        image_paths: List[str],
+        image_paths: list[str],
         output_path: str,
         pipeline_config: dict,
-        manual_affines: Optional[Dict] = None,
+        manual_affines: dict | None = None,
         hitl_mode: bool = False,
-        video_path: Optional[str] = None,
+        video_path: str | None = None,
         video_n_frames: int = 20,
         video_mode: str = "uniform",
-        session_path: Optional[str] = None,
+        session_path: str | None = None,
     ):
         super().__init__()
         self._image_paths = image_paths
@@ -67,7 +67,7 @@ class StitchWorker(QThread):
         self._hitl_mode = hitl_mode
 
         # Issue 9 S84: optional video source for frame extraction
-        self._video_path: Optional[str] = video_path
+        self._video_path: str | None = video_path
         self._video_n_frames: int = video_n_frames
         self._video_mode: str = video_mode
 
@@ -86,12 +86,12 @@ class StitchWorker(QThread):
         self._hitl_override: dict = {}
 
         # Issue 10A3: NL seam-routing exclusion masks (set via set_exclusion_masks())
-        self._exclusion_masks: Optional[List] = None
+        self._exclusion_masks: list | None = None
 
         # S88: session persistence — accumulated overrides + optional replay source
-        self._hitl_session_overrides: Dict[str, dict] = {}
-        self._current_session_path: Optional[str] = None
-        self._replay_session: Dict[str, dict] = {}
+        self._hitl_session_overrides: dict[str, dict] = {}
+        self._current_session_path: str | None = None
+        self._replay_session: dict[str, dict] = {}
         if session_path:
             with contextlib.suppress(Exception):
                 self._replay_session = load_session(session_path)
@@ -109,7 +109,7 @@ class StitchWorker(QThread):
         self._hitl_wait.wakeAll()
         self._hitl_mutex.unlock()
 
-    def set_frame_override(self, paths: List[str]) -> None:
+    def set_frame_override(self, paths: list[str]) -> None:
         """Set frame list override (call before resume() at the frame checkpoint)."""
         self._hitl_override["frame_override"] = paths
 
@@ -121,7 +121,7 @@ class StitchWorker(QThread):
         """Set NL seam-routing exclusion masks (Issue 10A3). Call before resume()."""
         self._hitl_override["exclusion_masks"] = exclusion_masks
 
-    def set_edge_override(self, edges: List[dict]) -> None:
+    def set_edge_override(self, edges: list[dict]) -> None:
         """Set edge list override (call before resume() at the edge checkpoint)."""
         self._hitl_override["edges"] = edges
 
@@ -162,7 +162,7 @@ class StitchWorker(QThread):
     # S88 ----------------------------------------------------------------- #
 
     @property
-    def current_session_path(self) -> Optional[str]:
+    def current_session_path(self) -> str | None:
         """Path of the autosaved session JSON (set after a successful run)."""
         return self._current_session_path
 
@@ -243,7 +243,7 @@ class StitchWorker(QThread):
 
         # ── Video ingestion pre-run (Issue 9 / S84) ──────────────────────
         image_paths = list(self._image_paths)
-        _video_tmp_dir: Optional[str] = None
+        _video_tmp_dir: str | None = None
 
         if self._video_path:
             self.sig_log.emit(f"[Video] Extracting frames from '{self._video_path}'…")

@@ -5,6 +5,7 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 
 from __future__ import annotations
 
+from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QDoubleSpinBox,
@@ -20,8 +21,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from gui.src.styles import apply_shadow_effect
 
 
 class _SeqPanelBuildMixin:

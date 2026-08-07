@@ -1,10 +1,19 @@
 from __future__ import annotations
 
 import math
-from typing import List, Tuple
 
 import cv2
 from asp_backend.core.pipeline import _build_landmark_affine
+from gui.src.constants.elements import (
+    _CENTRE,
+    _CONF_DIS,
+    _CONF_HIGH,
+    _CONF_LOW,
+    _CONF_MANUAL,
+    _CONF_MED,
+    _NODE_R,
+    _RADIUS,
+)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import (
     QBrush,
@@ -34,7 +43,6 @@ from PySide6.QtWidgets import (
 )
 
 from .landmark_editor_dialog import LandmarkEditorDialog
-from gui.src.constants.elements import _CENTRE, _CONF_DIS, _CONF_HIGH, _CONF_LOW, _CONF_MANUAL, _CONF_MED, _NODE_R, _RADIUS
 
 
 class _ManualEdgeDialog(QDialog):
@@ -99,7 +107,7 @@ def _conf_color(conf: float) -> QColor:
     return _CONF_LOW
 
 
-def _node_positions(n: int) -> List[Tuple[float, float]]:
+def _node_positions(n: int) -> list[tuple[float, float]]:
     if n <= 0:
         return []
     if n == 1:
@@ -113,7 +121,7 @@ def _node_positions(n: int) -> List[Tuple[float, float]]:
     ]
 
 
-def _mst_edge_set(edges: List[dict]) -> set:
+def _mst_edge_set(edges: list[dict]) -> set:
     sorted_by_conf = sorted(edges, key=lambda e: e["conf"], reverse=True)
     parent: dict[int, int] = {}
 
@@ -144,10 +152,10 @@ class EdgeReviewDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Edge Graph Review — Stage 5")
         self.resize(960, 600)
-        self._edges: List[dict] = list(data.get("edges", []))
-        self._image_paths: List[str] = list(data.get("image_paths", []))
-        self._enabled: List[bool] = [True] * len(self._edges)
-        self._manual_edges: List[dict] = []  # S89: user-added edges
+        self._edges: list[dict] = list(data.get("edges", []))
+        self._image_paths: list[str] = list(data.get("image_paths", []))
+        self._enabled: list[bool] = [True] * len(self._edges)
+        self._manual_edges: list[dict] = []  # S89: user-added edges
         self._n_frames: int = data.get("n_frames", 0) or (
             (max((max(e["i"], e["j"]) for e in self._edges), default=-1) + 1)
             if self._edges
@@ -340,7 +348,9 @@ class EdgeReviewDialog(QDialog):
         self._table.blockSignals(False)
 
         n_on = sum(self._enabled)
-        n_low = sum(1 for e, en in zip(edges, self._enabled, strict=False) if en and e["conf"] < 0.5)
+        n_low = sum(
+            1 for e, en in zip(edges, self._enabled, strict=False) if en and e["conf"] < 0.5
+        )
         self._status_label.setText(
             f"{n_nodes} frames · {len(edges)} edges · {n_on} enabled"
             f" · {n_low} low-conf · {len(self._manual_edges)} manual"
@@ -434,7 +444,7 @@ class EdgeReviewDialog(QDialog):
         self._enabled = [True] * len(self._edges)
         self._populate()
 
-    def accepted_edges(self) -> List[dict]:
+    def accepted_edges(self) -> list[dict]:
         """Return enabled original edges + all manual edges (S89)."""
         return [e for e, en in zip(self._edges, self._enabled, strict=False) if en] + list(
             self._manual_edges

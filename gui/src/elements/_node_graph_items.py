@@ -6,8 +6,15 @@ Extracted from ``stitch_tab.py`` -- pure code motion, no logic change.
 from __future__ import annotations
 
 import os
-from typing import List, Optional
 
+from gui.src.constants import (
+    EDGE_COLOR,
+    NODE_BODY_HEIGHT,
+    NODE_HDR_HEIGHT,
+    NODE_THUMB_HEIGHT,
+    NODE_WIDTH,
+    PORT_RADIUS,
+)
 from PySide6.QtCore import QPointF, QRectF, QSize, Qt
 from PySide6.QtGui import (
     QBrush,
@@ -26,15 +33,6 @@ from PySide6.QtWidgets import (
     QGraphicsRectItem,
 )
 
-from gui.src.constants import (
-    EDGE_COLOR,
-    NODE_BODY_HEIGHT,
-    NODE_HDR_HEIGHT,
-    NODE_THUMB_HEIGHT,
-    NODE_WIDTH,
-    PORT_RADIUS,
-)
-
 
 class _Port(QGraphicsEllipseItem):
     """Input (left) or output (right) connection port on a graph node."""
@@ -45,7 +43,7 @@ class _Port(QGraphicsEllipseItem):
         self.node = node
         self.is_input = is_input
         self.index = index
-        self.edges: List["_GraphEdge"] = []
+        self.edges: list[_GraphEdge] = []
         self.setZValue(15)
         self.setAcceptHoverEvents(True)
         color = QColor(100, 180, 100) if is_input else QColor(80, 160, 230)
@@ -73,7 +71,7 @@ class _Port(QGraphicsEllipseItem):
 class _GraphEdge(QGraphicsPathItem):
     """Cubic-Bezier edge from an output port to an input port."""
 
-    def __init__(self, src: _Port, dst: Optional[_Port] = None):
+    def __init__(self, src: _Port, dst: _Port | None = None):
         super().__init__()
         self.src = src
         self.dst = dst
@@ -118,8 +116,8 @@ class _BaseNode(QGraphicsRectItem):
         self.setZValue(10)
         self._title = title
         self._hdr_color = hdr_color
-        self._input_ports: List[_Port] = []
-        self._output_port: Optional[_Port] = None
+        self._input_ports: list[_Port] = []
+        self._output_port: _Port | None = None
         self.setPen(QPen(QColor(70, 70, 75), 1))
         self.setBrush(QBrush(QColor(42, 42, 48)))
 
@@ -219,11 +217,11 @@ class _SourceNode(_BaseNode):
         super().__init__(os.path.basename(path), self._HDR, x, y)
         self.path = path
         self.setRect(0, 0, NODE_WIDTH, NODE_HDR_HEIGHT + NODE_THUMB_HEIGHT)
-        self._thumb: Optional[QPixmap] = self._load_thumb(path)
+        self._thumb: QPixmap | None = self._load_thumb(path)
         self.set_output_port()  # repositioned after setRect
 
     @staticmethod
-    def _load_thumb(path: str) -> Optional[QPixmap]:
+    def _load_thumb(path: str) -> QPixmap | None:
         """Load a downscaled thumbnail efficiently via QImageReader."""
         reader = QImageReader(path)
         if not reader.canRead():

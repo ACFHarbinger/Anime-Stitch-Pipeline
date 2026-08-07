@@ -7,6 +7,9 @@ from __future__ import annotations
 
 import os
 
+from gui.src.constants import SIZE_PRESETS
+from gui.src.styles import apply_shadow_effect
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from PySide6.QtCore import QSize, Qt, QThreadPool, Slot
 from PySide6.QtGui import QColor, QIcon, QImage, QPixmap
 from PySide6.QtWidgets import (
@@ -32,10 +35,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.constants import SIZE_PRESETS
 from ..helpers import CanvasWorker
-from gui.src.styles import apply_shadow_effect
-from gui.src.windows.settings.splitter_persistence import persist_splitter
 from ._thumb_workers import _ThumbTask
 
 

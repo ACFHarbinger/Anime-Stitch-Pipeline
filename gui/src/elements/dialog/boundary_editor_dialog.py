@@ -12,10 +12,14 @@ before calling `_find_optimal_boundaries`, so this checkpoint is never reached.
 
 from __future__ import annotations
 
-from typing import List
-
 import cv2
 import numpy as np
+from gui.src.constants.elements import (
+    _LABEL_COLOR,
+    _LINE_COLOR,
+    DIALOG__MAX_PREVIEW_W,
+    DIALOG_BOUNDARY_EDITOR_DIALOG__MAX_PREVIEW_H,
+)
 from PySide6.QtCore import QPointF, QRectF, Qt
 from PySide6.QtGui import QColor, QFont, QImage, QPen, QPixmap
 from PySide6.QtWidgets import (
@@ -31,7 +35,6 @@ from PySide6.QtWidgets import (
     QSizePolicy,
     QVBoxLayout,
 )
-from gui.src.constants.elements import DIALOG_BOUNDARY_EDITOR_DIALOG__MAX_PREVIEW_H, DIALOG__MAX_PREVIEW_W, _LABEL_COLOR, _LINE_COLOR
 
 
 def _bgr_to_pixmap(bgr: np.ndarray, max_w: int, max_h: int) -> tuple[QPixmap, float]:
@@ -82,13 +85,15 @@ class BoundaryEditorDialog(QDialog):
         self.resize(560, 780)
 
         canvas_bgr: np.ndarray = data["canvas_preview"]
-        self._boundaries_full: List[float] = list(data["boundaries"])
+        self._boundaries_full: list[float] = list(data["boundaries"])
         self._canvas_h_full: int = int(data["canvas_h"])
         self._canvas_w_full: int = int(data["canvas_w"])
         frame_count: int = int(data.get("frame_count", len(self._boundaries_full) + 1))
 
         # Downsample canvas for display
-        pixmap, self._scale = _bgr_to_pixmap(canvas_bgr, DIALOG__MAX_PREVIEW_W, DIALOG_BOUNDARY_EDITOR_DIALOG__MAX_PREVIEW_H)
+        pixmap, self._scale = _bgr_to_pixmap(
+            canvas_bgr, DIALOG__MAX_PREVIEW_W, DIALOG_BOUNDARY_EDITOR_DIALOG__MAX_PREVIEW_H
+        )
         self._preview_w = pixmap.width()
         self._preview_h = pixmap.height()
 
@@ -100,7 +105,7 @@ class BoundaryEditorDialog(QDialog):
         self._scene.addItem(bg_item)
 
         # Add draggable lines
-        self._lines: List[_DraggableLine] = []
+        self._lines: list[_DraggableLine] = []
         for idx, by in enumerate(boundaries_px):
             line = _DraggableLine(by, self._preview_w, idx, self._preview_h)
             self._scene.addItem(line)
@@ -164,7 +169,7 @@ class BoundaryEditorDialog(QDialog):
             line.setY(0)
             line.setLine(0, by, self._preview_w, by)
 
-    def adjusted_boundaries(self) -> List[float]:
+    def adjusted_boundaries(self) -> list[float]:
         """Return boundary y-coordinates scaled back to full canvas space."""
         result = []
         for line in self._lines:

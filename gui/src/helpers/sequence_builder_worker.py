@@ -1,5 +1,4 @@
 import os
-from typing import Dict, List, Optional
 
 import cv2
 import numpy as np
@@ -43,7 +42,7 @@ class SequenceBuilderWorker(QRunnable):
     def __init__(
         self,
         anchor: str,
-        candidates: List[str],
+        candidates: list[str],
         min_score: float = 0.25,
         blur_threshold: float = 0.5,
         min_pan_ratio: float = 0.03,
@@ -87,9 +86,9 @@ class SequenceBuilderWorker(QRunnable):
         orb = cv2.ORB_create(nfeatures=800)
         bf = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=False)
 
-        cache: Dict[str, Optional[np.ndarray]] = {}
-        feats: Dict[str, tuple] = {}  # (kp, des)
-        sharpness: Dict[str, float] = {}
+        cache: dict[str, np.ndarray | None] = {}
+        feats: dict[str, tuple] = {}  # (kp, des)
+        sharpness: dict[str, float] = {}
 
         for idx, p in enumerate(all_paths):
             if self._cancelled:
@@ -128,7 +127,7 @@ class SequenceBuilderWorker(QRunnable):
                 f"(sharpness < {sharp_thresh:.1f})."
             )
 
-        fitness_cache: Dict[tuple, tuple] = {}  # key → (score, dx, dy)
+        fitness_cache: dict[tuple, tuple] = {}  # key → (score, dx, dy)
 
         def stitch_fitness(ref_p: str, cand_p: str) -> tuple:
             key = (min(ref_p, cand_p), max(ref_p, cand_p))
@@ -188,7 +187,11 @@ class SequenceBuilderWorker(QRunnable):
                 return zero
 
             peak = 0.30
-            disp_q = ratio / peak if ratio <= peak else (self._max_pan - ratio) / (self._max_pan - peak)
+            disp_q = (
+                ratio / peak
+                if ratio <= peak
+                else (self._max_pan - ratio) / (self._max_pan - peak)
+            )
             disp_q = max(0.0, disp_q)
 
             inlier_ratio = inliers / max(len(good), 1)
@@ -198,7 +201,7 @@ class SequenceBuilderWorker(QRunnable):
             fitness_cache[key] = result
             return result
 
-        chain: List[str] = [self._anchor]
+        chain: list[str] = [self._anchor]
         used: set = {self._anchor}
 
         def best_next(ref: str) -> tuple:
@@ -236,7 +239,7 @@ class SequenceBuilderWorker(QRunnable):
             done += 1
             self.signals.progress.emit(72 + int(done / max(total, 1) * 27), 100)
 
-        result: List[dict] = []
+        result: list[dict] = []
         for idx, p in enumerate(chain):
             s_prev = None if idx == 0 else stitch_fitness(chain[idx - 1], p)[0]
             result.append(

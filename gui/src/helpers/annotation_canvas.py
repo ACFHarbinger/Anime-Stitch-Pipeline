@@ -13,8 +13,7 @@ annotation_added(x, y, w, h)  — emitted with normalized [0,1] region coords
 
 from __future__ import annotations
 
-from typing import List, Tuple
-
+from gui.src.constants.helpers import _FLAW_COLORS
 from PySide6.QtCore import QPoint, QRect, Qt, Signal
 from PySide6.QtGui import (
     QColor,
@@ -25,7 +24,6 @@ from PySide6.QtGui import (
     QWheelEvent,
 )
 from PySide6.QtWidgets import QRubberBand, QSizePolicy, QWidget
-from gui.src.constants.helpers import _FLAW_COLORS
 
 # Flaw type → (R, G, B, alpha 0-255) overlay colour
 
@@ -70,7 +68,7 @@ class AnnotationCanvas(QWidget):
         self._pixmap: QPixmap | None = None
         self._zoom: float = 1.0
         self._pan_offset: QPoint = QPoint(0, 0)
-        self._annotations: List[_Annotation] = []
+        self._annotations: list[_Annotation] = []
         self._annotation_mode: bool = False
         self._active_flaw_type: str = "seam"
         self._active_severity: float = 0.5
@@ -127,7 +125,7 @@ class AnnotationCanvas(QWidget):
         self.update()
 
     @property
-    def annotations(self) -> List[_Annotation]:
+    def annotations(self) -> list[_Annotation]:
         return list(self._annotations)
 
     # --------------------------------------------------------- coordinate helpers
@@ -151,7 +149,7 @@ class AnnotationCanvas(QWidget):
         oy = (self.height() - ph) // 2 + self._pan_offset.y()
         return QRect(ox, oy, pw, ph)
 
-    def _widget_to_image(self, pt: QPoint) -> Tuple[float, float]:
+    def _widget_to_image(self, pt: QPoint) -> tuple[float, float]:
         """Convert widget-space point to normalized image coordinates [0,1]."""
         r = self._image_rect()
         if r.width() == 0 or r.height() == 0 or self._pixmap is None:

@@ -11,10 +11,10 @@ from asp_backend.ingestion.masking import (
     _compute_fg_masks_grounded_sam2,
     _refine_masks_with_clicks,
 )
+from gui.src.components import BatchStitchDialog
 from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QDialog, QFileDialog, QMessageBox
 
-from gui.src.components import BatchStitchDialog
 from .dialog import (
     BoundaryEditorDialog,
     CanvasInspectorDialog,

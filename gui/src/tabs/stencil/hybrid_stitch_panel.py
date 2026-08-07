@@ -1,8 +1,13 @@
 import os
-from typing import Dict, List, Tuple
 
 import cv2
 import numpy as np
+from gui.src.constants import (
+    DARK_GROUP_STYLE,
+    STITCH_THUMB_H,
+    STITCH_THUMB_W,
+)
+from gui.src.styles import apply_shadow_effect
 from PySide6.QtCore import (
     QSize,
     Qt,
@@ -29,12 +34,6 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.constants import (
-    DARK_GROUP_STYLE,
-    STITCH_THUMB_H,
-    STITCH_THUMB_W,
-)
-from gui.src.styles import apply_shadow_effect
 from ..widgets import ColorCorrectionWidget, MeshWarpWidget, SeamPainterWidget
 from .control_point_editor import ControlPointEditor, _apply_color_correction, _load_thumb
 from .onboarding_wizard import (
@@ -69,11 +68,11 @@ class RealHybridStitchPanel(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._sequence: List[str] = []
-        self._homographies: Dict[Tuple[int, int], np.ndarray] = {}
-        self._seam_masks: Dict[Tuple[int, int], np.ndarray] = {}
-        self._corrections: Dict[str, dict] = {}
-        self._current_pair: Tuple[int, int] = (0, 1)
+        self._sequence: list[str] = []
+        self._homographies: dict[tuple[int, int], np.ndarray] = {}
+        self._seam_masks: dict[tuple[int, int], np.ndarray] = {}
+        self._corrections: dict[str, dict] = {}
+        self._current_pair: tuple[int, int] = (0, 1)
         self._onboarding_wizard: HybridStitchOnboardingWizard | None = None
         self._build_ui()
         # First-run only: fires once the panel actually becomes visible so
@@ -222,7 +221,7 @@ class RealHybridStitchPanel(QWidget):
 
     # ── Sequence management ──────────────────────────────────────────
 
-    def load_paths(self, paths: List[str]):
+    def load_paths(self, paths: list[str]):
         """Load an existing path list into the sequence."""
         self._sequence = list(paths)
         self._refresh_list()

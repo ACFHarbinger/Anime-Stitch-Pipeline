@@ -1,9 +1,15 @@
 import math
 import os
-from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
+from gui.src.constants import (
+    STITCH_CP_COLORS,
+    STITCH_THUMB_H,
+    STITCH_THUMB_W,
+)
+from gui.src.styles import apply_shadow_effect
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from PySide6.QtCore import (
     QPointF,
     QRectF,
@@ -36,14 +42,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-
-from gui.src.constants import (
-    STITCH_CP_COLORS,
-    STITCH_THUMB_H,
-    STITCH_THUMB_W,
-)
-from gui.src.styles import apply_shadow_effect
-from gui.src.windows.settings.splitter_persistence import persist_splitter
 
 
 def _load_thumb(path: str, w: int = STITCH_THUMB_W, h: int = STITCH_THUMB_H) -> QPixmap:
@@ -147,8 +145,8 @@ class _CPCanvas(QGraphicsView):
         self._scene = QGraphicsScene(self)
         self.setScene(self._scene)
         self._label_str = label
-        self._pix_item: Optional[QGraphicsPixmapItem] = None
-        self._dots: List[_CPDot] = []
+        self._pix_item: QGraphicsPixmapItem | None = None
+        self._dots: list[_CPDot] = []
         self._img_w = 1
         self._img_h = 1
         self._mode = "add"  # "add" | "view"
@@ -221,7 +219,7 @@ class _CPCanvas(QGraphicsView):
             self.scene().removeItem(dot)
         self._dots.clear()
 
-    def point_positions(self) -> List[Tuple[float, float]]:
+    def point_positions(self) -> list[tuple[float, float]]:
         return [(d.pos().x(), d.pos().y()) for d in self._dots]
 
     # ── internal callbacks ───────────────────────────────────────────
@@ -296,11 +294,11 @@ class ControlPointEditor(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._H: Optional[np.ndarray] = None
+        self._H: np.ndarray | None = None
         self._cc_a: dict = {}
         self._cc_b: dict = {}
-        self._auto_pts_a: List[Tuple[float, float]] = []
-        self._auto_pts_b: List[Tuple[float, float]] = []
+        self._auto_pts_a: list[tuple[float, float]] = []
+        self._auto_pts_b: list[tuple[float, float]] = []
         self._build_ui()
 
     def _build_ui(self):
@@ -423,7 +421,7 @@ class ControlPointEditor(QWidget):
             "Frames loaded. Place ≥4 corresponding points, then Solve."
         )
 
-    def get_homography(self) -> Optional[np.ndarray]:
+    def get_homography(self) -> np.ndarray | None:
         return self._H
 
     def fit_views(self):
@@ -536,7 +534,7 @@ class ControlPointEditor(QWidget):
         self.homography_solved.emit(H, mean_e)
 
     @staticmethod
-    def _run_orb(path_a: str, path_b: str, max_pts: int = 50) -> Tuple[list, list]:
+    def _run_orb(path_a: str, path_b: str, max_pts: int = 50) -> tuple[list, list]:
         bgr_a = cv2.imread(path_a)
         bgr_b = cv2.imread(path_b)
         if bgr_a is None or bgr_b is None:

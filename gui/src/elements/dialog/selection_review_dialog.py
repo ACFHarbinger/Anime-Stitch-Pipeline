@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import os
-from typing import List
 
 import cv2
 import numpy as np
+from gui.src.constants.elements import _CARD_H, _CARD_W, _DIFF_BAR_H, _DIFF_HIGH
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QBrush, QColor, QImage, QPainter, QPixmap
 from PySide6.QtWidgets import (
@@ -18,7 +18,6 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from gui.src.constants.elements import _CARD_H, _CARD_W, _DIFF_BAR_H, _DIFF_HIGH
 
 
 def _diff_color(diff: float) -> QColor:
@@ -98,14 +97,14 @@ class SelectionReviewDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(title)
         self.resize(980, 340)
-        self._paths: List[str] = list(data["paths"])
-        thumbnails: List[np.ndarray] = list(data["thumbnails"])
-        diffs: List[float] = list(data.get("frame_diffs", [0.0] * len(self._paths)))
+        self._paths: list[str] = list(data["paths"])
+        thumbnails: list[np.ndarray] = list(data["thumbnails"])
+        diffs: list[float] = list(data.get("frame_diffs", [0.0] * len(self._paths)))
 
         while len(diffs) < len(self._paths):
             diffs.append(0.0)
 
-        self._cards: List[_ThumbnailCard] = [
+        self._cards: list[_ThumbnailCard] = [
             _ThumbnailCard(p, t, d)
             for p, t, d in zip(self._paths, thumbnails, diffs, strict=False)
         ]
@@ -202,5 +201,5 @@ class SelectionReviewDialog(QDialog):
         n_sel = sum(1 for c in self._cards if c.included)
         self._status_label.setText(f"{n_sel} of {len(self._cards)} frames selected")
 
-    def selected_paths(self) -> List[str]:
+    def selected_paths(self) -> list[str]:
         return [c.path for c in self._cards if c.included]

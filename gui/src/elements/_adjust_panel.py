@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import os
 import tempfile
-from typing import Optional
 
+from gui.src.constants import CROP_PRESETS
+from gui.src.styles import apply_shadow_effect
 from PIL import Image
 from PySide6.QtCore import Qt, Slot
 from PySide6.QtGui import QImage, QPixmap
@@ -29,10 +30,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from gui.src.constants import CROP_PRESETS
 from ..helpers import AdjustWorker
 from ..helpers.adjust_worker import _apply_adjustments
-from gui.src.styles import apply_shadow_effect
 
 
 class _AdjustPanelMixin:
@@ -390,7 +389,7 @@ class _AdjustPanelMixin:
         new_val = (current + delta + 180) % 360 - 180
         self._adj_angle_spin.setValue(new_val)
 
-    def _adj_set_flip(self, h: Optional[bool] = None, v: Optional[bool] = None):
+    def _adj_set_flip(self, h: bool | None = None, v: bool | None = None):
         if h is not None:
             self._adj_flip_h = h
         if v is not None:
@@ -461,7 +460,7 @@ class _AdjustPanelMixin:
         worker.finished.connect(worker.deleteLater)
         worker.start()
 
-    def _adj_export_to_temp(self) -> Optional[str]:
+    def _adj_export_to_temp(self) -> str | None:
         """Save the adjusted result to a temp file and return its path."""
         if not self._adj_img_path:
             return None

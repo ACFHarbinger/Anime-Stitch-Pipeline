@@ -14,6 +14,8 @@ exception rather than forcing an unsafe split.
 
 from __future__ import annotations
 
+from gui.src.styles import apply_shadow_effect
+from gui.src.windows.settings.splitter_persistence import persist_splitter
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
@@ -38,8 +40,6 @@ from PySide6.QtWidgets import (
 )
 
 from ..helpers import StitchWorker
-from gui.src.styles import apply_shadow_effect
-from gui.src.windows.settings.splitter_persistence import persist_splitter
 from ._match_editor import _MatchScene, _MatchView
 
 

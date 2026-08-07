@@ -38,12 +38,11 @@ from __future__ import annotations
 
 import glob
 import os
-from typing import Optional
 
 from asp_gui.helpers.stitch_worker import StitchWorker
+from gui.src.constants.tabs import _IMAGE_EXTS
 from PySide6.QtCore import Property, QObject, QThread, Signal, Slot
 from PySide6.QtWidgets import QFileDialog
-from gui.src.constants.tabs import _IMAGE_EXTS
 
 
 def _collect_images(directory: str) -> list[str]:
@@ -72,7 +71,7 @@ class StitchTabBackend(QObject):
     compositeFgChanged = Signal()
     usePoissonChanged = Signal()
 
-    def __init__(self, parent: Optional[QObject] = None) -> None:
+    def __init__(self, parent: QObject | None = None) -> None:
         super().__init__(parent)
 
         self._source_dir: str = ""
@@ -90,8 +89,8 @@ class StitchTabBackend(QObject):
         self._composite_fg: bool = True
         self._use_poisson: bool = False
 
-        self._worker: Optional[StitchWorker] = None
-        self._thread: Optional[QThread] = None
+        self._worker: StitchWorker | None = None
+        self._thread: QThread | None = None
 
     # ── source_dir ────────────────────────────────────────────────────────────
     def _get_source_dir(self) -> str:

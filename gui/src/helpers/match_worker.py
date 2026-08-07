@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 import cv2
 import numpy as np
 from PySide6.QtCore import QThread, Signal
@@ -35,8 +33,8 @@ class MatchWorker(QThread):
                 self.sig_error.emit("Could not read one or both images.")
                 return
 
-            mask_a: Optional[np.ndarray] = None
-            mask_b: Optional[np.ndarray] = None
+            mask_a: np.ndarray | None = None
+            mask_b: np.ndarray | None = None
             if self._use_birefnet:
                 br = BiRefNetWrapper()
                 if hasattr(br, "get_background_mask"):
