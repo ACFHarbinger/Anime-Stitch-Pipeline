@@ -14,7 +14,7 @@ project:
   # GitHub Project (V2) number as shown in the project URL:
   # https://github.com/users/ACFHarbinger/projects/12 ("Image-Toolkit" —
   # the shared org-wide board this repo's issues are tracked on, alongside
-  # Image-Toolkit's and Cel-Shaded-Generator's own).
+  # Image-Toolkit's and CSG's own).
   number: 12
   owner: "ACFHarbinger"
   owner_type: "user"        # "user" | "org"
