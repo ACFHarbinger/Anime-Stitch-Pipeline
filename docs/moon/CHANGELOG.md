@@ -23,6 +23,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Implemented an HSV-based value scaling fix for seam-photometric diagnosis in both Python (`bench_anime_stitch.py`) and C++ (`compositing.cpp`). This resolves excessive color gradient shifts across seams on borderline datasets (e.g., test87, test10) by applying scalar gain only to the luminance/value channel rather than multiplicatively across all RGB channels.
 
 ## [Unreleased]
+### Changed
+- Stopped tracking `docs/website/tsconfig.tsbuildinfo` (a stray TypeScript
+  incremental-build cache left over from before the Vue 3 site removal --
+  no `.gitignore` rule covered it). Added `docs/website/.gitignore`
+  (`node_modules/`, `dist/`, `*.local`, `*.tsbuildinfo`), matching CSG/CRE.
+  `docs/mkdocs.yml`'s `site_dir` now points at `build/gen/site` (was
+  `../site`, unreferenced by any `.gitignore` rule); CI workflows
+  (`.github`/`.forgejo`/`.gitea`/`.gitlab`) updated to match. GitLab's job
+  still ends with `mv build/gen/site public`, since GitLab Pages requires
+  that literal directory name.
+
 ### Added
 - Surfaced seam diagnostic recommendations in-context within the `SeamDiagnosticDialog` based on seam analysis (Phase 6.4: Assisted-use suggestions), replacing the need for a separate tutorial mode.
 

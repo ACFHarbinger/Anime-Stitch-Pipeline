@@ -92,11 +92,11 @@ pages:
     - apt-get update && apt-get install -y --no-install-recommends nodejs npm
     - pip install uv
     - uv pip install --system mkdocs-material mkdocstrings[python] mkdocs-jupyter
-    - mkdocs build --config-file docs/mkdocs.yml --strict --site-dir site
+    - mkdocs build --config-file docs/mkdocs.yml --strict --site-dir build/gen/site
     - cd docs/website && npm ci && SITE_BASE=/app/ npm run build && cd ../..
-    - mkdir -p site/app && cp -r docs/website/dist/. site/app/
+    - mkdir -p build/gen/site/app && cp -r docs/website/dist/. build/gen/site/app/
     # GitLab Pages requires the output directory to be named "public"
-    - mv site public
+    - mv build/gen/site public
   artifacts:
     paths:
       - public

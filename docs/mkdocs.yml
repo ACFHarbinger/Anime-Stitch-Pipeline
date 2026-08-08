@@ -7,7 +7,7 @@ repo_name: ACFHarbinger/Anime-Stitch-Pipeline
 edit_uri: edit/main/docs/
 
 docs_dir: .
-site_dir: ../site
+site_dir: ../build/gen/site
 exclude_docs: |
   sphinx/conf.py
 

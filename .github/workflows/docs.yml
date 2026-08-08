@@ -35,10 +35,10 @@ jobs:
         working-directory: docs/website
         env:
           SITE_BASE: /${{ github.event.repository.name }}/app/
-      - run: mkdir -p site/app && cp -r docs/website/dist/. site/app/
+      - run: mkdir -p build/gen/site/app && cp -r docs/website/dist/. build/gen/site/app/
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.REPO_PROJECT_TOKEN }}
-          publish_dir: ./site
+          publish_dir: ./build/gen/site
