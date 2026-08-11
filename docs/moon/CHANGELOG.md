@@ -26,12 +26,25 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **C/D investigation baseline (2026-08-11):** ran the combined existing
+  pose-window, phase-composite, and joint-gain candidates on the five-test
+  verification set. The run produced 1 ASP ground-truth win, 2 SCANS wins,
+  and 2 comparable results; ASP sharpness and measured ghosting improved, but
+  GT-SSIM remained slightly behind SCANS. The candidates remain experimental
+  and default-off while candidate frame selection and photometric policy work
+  continues.
+
 - Added a **Load Evaluation…** control to the benchmark inspector. It opens
   an existing `asp_evaluations_*.json`, switches the active output to that
   file, and resumes at its first unrated dataset. The existing `--out PATH`
   CLI option remains available for scripted launches.
 
 ### Changed
+- Fixed the Image-Toolkit ASP benchmark wrapper to use the corpus at
+  `submodules/ASP/dump` for all ASP benchmark, resume, range, and cleanup
+  recipes. The previous parent-level `dump` path caused verification to report
+  zero matched datasets without running the benchmark.
+
 - Stopped tracking `docs/website/tsconfig.tsbuildinfo` (a stray TypeScript
   incremental-build cache left over from before the Vue 3 site removal --
   no `.gitignore` rule covered it). Added `docs/website/.gitignore`
@@ -109,4 +122,3 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 ### Added
 
 - Repository created from scratch as a GitHub template.
-

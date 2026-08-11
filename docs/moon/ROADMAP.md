@@ -207,6 +207,19 @@ exists for — a metrics-only read would be ambiguous either direction;
 needs a human coherence look at the specific test that flipped to
 `asp_better` before drawing any conclusion. Not flipped to default-on.
 
+**C/D combined baseline (2026-08-11, current checkout): existing candidates are
+insufficient, workstream remains active.** The repaired Image-Toolkit wrapper now
+passes the actual ASP corpus path (`submodules/ASP/dump`) instead of the absent
+parent-level `dump` directory. A controlled five-test run with
+`ASP_POSE_WINDOW_PX=80 ASP_PHASE_COMPOSITE=1 ASP_JOINT_GAIN_SOLVE=1` produced
+3 true composites and 2 guarded fallbacks (test08 and test57, both
+`seam_vis_gate`). ASP improved the technical aggregate dimensions (sharpness
+121.0 vs SCANS 104.4; ghosting 53.9 vs 77.3), but the ground-truth comparison
+remained 1 ASP win / 2 SCANS wins / 2 comparable, with GT-SSIM 0.7382 vs 0.7447.
+This is a useful safety-preserving baseline, not evidence for enabling any flag:
+the next C/D work must select among multiple frame candidates and must reduce
+photometric residuals without weakening structural fallback gates.
+
 ---
 
 ## §0 — Product Scope (2026-08-06)
