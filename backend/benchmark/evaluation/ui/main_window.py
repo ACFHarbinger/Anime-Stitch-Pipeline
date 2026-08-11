@@ -22,6 +22,7 @@ import traceback as _traceback
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
+    QFileDialog,
     QHBoxLayout,
     QLabel,
     QMainWindow,
@@ -222,8 +223,12 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         self.settings_btn = QPushButton("⚙ Settings")
         self.settings_btn.setToolTip("Default save directory, dark/light theme")
         self.settings_btn.clicked.connect(self._open_settings)
+        self.load_eval_btn = QPushButton("Load Evaluation…")
+        self.load_eval_btn.setToolTip("Resume an existing benchmark evaluation JSON")
+        self.load_eval_btn.clicked.connect(self._load_evaluation_file)
         header.addWidget(self.title_label)
         header.addWidget(self.status_label, stretch=1)
+        header.addWidget(self.load_eval_btn)
         header.addWidget(self.settings_btn)
         outer.addLayout(header)
 
@@ -563,6 +568,24 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         self._commit()
         self.session.save()
         self.status_label.setText(f"Saved to {self.session.out_path}")
+
+    def _load_evaluation_file(self) -> None:
+        path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load previous benchmark evaluation",
+            self.session.out_path,
+            "ASP evaluations (*.json);;All files (*)",
+            options=QFileDialog.Option.DontUseNativeDialog,
+        )
+        if not path:
+            return
+        self.session.load_evaluation_file(path)
+        self.queue_panel.refresh()
+        if self.session.current:
+            self._load_current()
+        else:
+            self._update_header()
+        self.status_label.setText(f"Resumed evaluation from {self.session.out_path}")
 
     # -- navigation ----------------------------------------------------------
 

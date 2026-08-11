@@ -165,6 +165,18 @@ class EvaluationSession:
         save_evaluations(self.out_path, self.evaluations)
         self._dirty = False
 
+    def load_evaluation_file(self, path: str) -> None:
+        """Switch to an existing evaluation file and resume its queue."""
+        self.commit()
+        self.out_path = path
+        self.evaluations = load_evaluations(path)
+        self._pending.clear()
+        self._history.clear()
+        self._dirty = False
+        self._current = self.next_unrated(from_index=-1) or (self.order[0] if self.order else None)
+        if self.on_change is not None:
+            self.on_change()
+
     # -- navigation ----------------------------------------------------------
 
     def go_to(self, name: str, record_history: bool = True) -> str | None:

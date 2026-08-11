@@ -23,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Implemented an HSV-based value scaling fix for seam-photometric diagnosis in both Python (`bench_anime_stitch.py`) and C++ (`compositing.cpp`). This resolves excessive color gradient shifts across seams on borderline datasets (e.g., test87, test10) by applying scalar gain only to the luminance/value channel rather than multiplicatively across all RGB channels.
 
 ## [Unreleased]
+
+### Added
+
+- Added a **Load Evaluation…** control to the benchmark inspector. It opens
+  an existing `asp_evaluations_*.json`, switches the active output to that
+  file, and resumes at its first unrated dataset. The existing `--out PATH`
+  CLI option remains available for scripted launches.
+
 ### Changed
 - Stopped tracking `docs/website/tsconfig.tsbuildinfo` (a stray TypeScript
   incremental-build cache left over from before the Vue 3 site removal --
@@ -101,5 +109,4 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 ### Added
 
 - Repository created from scratch as a GitHub template.
-
 
