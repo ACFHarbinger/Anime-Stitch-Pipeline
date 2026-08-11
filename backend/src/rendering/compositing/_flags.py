@@ -104,6 +104,10 @@ _GLOBAL_GAIN_COMP: bool = os.environ.get("ASP_GLOBAL_GAIN_COMP", "1") != "0"
 _JOINT_GAIN_SOLVE: bool = os.environ.get("ASP_JOINT_GAIN_SOLVE", "0") != "0"
 _JOINT_GAIN_SIGMA_N: float = float(os.environ.get("ASP_JOINT_GAIN_SIGMA_N", "10.0"))
 _JOINT_GAIN_SIGMA_G: float = float(os.environ.get("ASP_JOINT_GAIN_SIGMA_G", "0.1"))
+# Optional robustification for the joint solve.  Isolated overlap regions can
+# contain animation or a seam artifact rather than a true exposure relation;
+# reject only those measurements before solving.  Default OFF pending A/B.
+_JOINT_GAIN_ROBUST: bool = os.environ.get("ASP_JOINT_GAIN_ROBUST", "0") != "0"
 
 
 __all__ = [
@@ -120,4 +124,5 @@ __all__ = [
     "_JOINT_GAIN_SOLVE",
     "_JOINT_GAIN_SIGMA_N",
     "_JOINT_GAIN_SIGMA_G",
+    "_JOINT_GAIN_ROBUST",
 ]

@@ -28,9 +28,9 @@ def _compute_seam_energy(
         gy_i = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
         energy += edge_weight * (np.abs(gx_i) + np.abs(gy_i))
 
-    # P2.4 — Semantic character boundary avoidance
+    # P2.4 — Semantic character boundary avoidance (hard veto for character cels)
     if sem_cost is not None and sem_cost.shape == energy.shape:
-        energy += sem_weight * sem_cost
+        energy += sem_weight * sem_cost + 1e6 * (sem_cost > 0.1).astype(np.float32)
 
     return energy
 

@@ -138,24 +138,57 @@ float compute_adaptive_f_scale_impl(
 // ---------------------------------------------------------------------------
 // bundle_adjust_affine_impl
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// bundle_adjust_affine_impl
+// ---------------------------------------------------------------------------
+enum MotionModel {
+    BUNDLE_ADJUST_2D_TRANSLATION = 0,
+    BUNDLE_ADJUST_2D_TRANSLATION_SCALE = 1,
+    BUNDLE_ADJUST_AFFINE = 2
+};
+
 std::vector<AffineParams> bundle_adjust_affine_impl(
     std::vector<Edge> edges,
     int N,
     float f_scale,
     bool use_gnc,
-    bool adaptive_f_scale)
+    bool adaptive_f_scale,
+    int motion_model)
 {
     edges = spanning_tree_inlier_filter_impl(edges, N, 50.0f);
 
-    int dof = 2; // tx, ty
+    int dof = 2; // default: 2D translation [tx, ty]
+    if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+        dof = 3; // [tx, ty, scale]
+    } else if (motion_model == BUNDLE_ADJUST_AFFINE) {
+        dof = 4; // [a, b, tx, ty]
+    }
+
     int num_vars = N * dof;
     Eigen::VectorXd x = Eigen::VectorXd::Zero(num_vars);
+
+    for (int f = 0; f < N; ++f) {
+        if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+            x(f * dof + 2) = 1.0;
+        } else if (motion_model == BUNDLE_ADJUST_AFFINE) {
+            x(f * dof + 0) = 1.0;
+        }
+    }
 
     for (int f = 1; f < N; ++f) {
         for (const auto& e : edges) {
             if (e.src == f - 1 && e.dst == f) {
-                x(f * dof + 0) = x((f - 1) * dof + 0) - e.dx;
-                x(f * dof + 1) = x((f - 1) * dof + 1) - e.dy;
+                if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+                    x(f * dof + 0) = x((f - 1) * dof + 0) - e.dx;
+                    x(f * dof + 1) = x((f - 1) * dof + 1) - e.dy;
+                    x(f * dof + 2) = 1.0;
+                } else if (motion_model == BUNDLE_ADJUST_AFFINE) {
+                    x(f * dof + 2) = x((f - 1) * dof + 2) - e.dx;
+                    x(f * dof + 3) = x((f - 1) * dof + 3) - e.dy;
+                } else {
+                    x(f * dof + 0) = x((f - 1) * dof + 0) - e.dx;
+                    x(f * dof + 1) = x((f - 1) * dof + 1) - e.dy;
+                }
                 break;
             }
         }
@@ -168,84 +201,149 @@ std::vector<AffineParams> bundle_adjust_affine_impl(
             Eigen::VectorXd JTWr = Eigen::VectorXd::Zero(num_vars);
 
             // Anchor frame 0
-            JTWJ(0, 0) += 2000.0 * 2000.0;
-            JTWJ(1, 1) += 2000.0 * 2000.0;
-            JTWr(0) -= 2000.0 * 2000.0 * x_cur(0);
-            JTWr(1) -= 2000.0 * 2000.0 * x_cur(1);
+            if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+                JTWJ(0, 0) += 2000.0 * 2000.0;
+                JTWJ(1, 1) += 2000.0 * 2000.0;
+                JTWJ(2, 2) += 2000.0 * 2000.0;
+                JTWr(0) -= 2000.0 * 2000.0 * x_cur(0);
+                JTWr(1) -= 2000.0 * 2000.0 * x_cur(1);
+                JTWr(2) -= 2000.0 * 2000.0 * (x_cur(2) - 1.0);
+            } else if (motion_model == BUNDLE_ADJUST_AFFINE) {
+                JTWJ(0, 0) += 2000.0 * 2000.0;
+                JTWJ(1, 1) += 2000.0 * 2000.0;
+                JTWJ(2, 2) += 2000.0 * 2000.0;
+                JTWJ(3, 3) += 2000.0 * 2000.0;
+                JTWr(0) -= 2000.0 * 2000.0 * (x_cur(0) - 1.0);
+                JTWr(1) -= 2000.0 * 2000.0 * x_cur(1);
+                JTWr(2) -= 2000.0 * 2000.0 * x_cur(2);
+                JTWr(3) -= 2000.0 * 2000.0 * x_cur(3);
+            } else {
+                JTWJ(0, 0) += 2000.0 * 2000.0;
+                JTWJ(1, 1) += 2000.0 * 2000.0;
+                JTWr(0) -= 2000.0 * 2000.0 * x_cur(0);
+                JTWr(1) -= 2000.0 * 2000.0 * x_cur(1);
+            }
 
-            // Trajectory regularizer
+            // Identity / scale prior for non-anchor frames
+            if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+                double reg_scale = 100.0 * 100.0;
+                for (int f = 1; f < N; ++f) {
+                    int s_idx = f * 3 + 2;
+                    JTWJ(s_idx, s_idx) += reg_scale;
+                    JTWr(s_idx) -= reg_scale * (x_cur(s_idx) - 1.0);
+                }
+            } else if (motion_model == BUNDLE_ADJUST_AFFINE) {
+                double reg_id = 1000.0 * 1000.0;
+                for (int f = 1; f < N; ++f) {
+                    int a_idx = f * 4 + 0;
+                    int b_idx = f * 4 + 1;
+                    JTWJ(a_idx, a_idx) += reg_id;
+                    JTWr(a_idx) -= reg_id * (x_cur(a_idx) - 1.0);
+                    JTWJ(b_idx, b_idx) += reg_id;
+                    JTWr(b_idx) -= reg_id * x_cur(b_idx);
+                }
+            }
+
+            // Trajectory smoothness regularizer
             double reg_traj = 0.10;
+            double w_reg = reg_traj * reg_traj;
             for (int f = 1; f < N - 1; ++f) {
-                // tx_acc = x[f+1] - 2*x[f] + x[f-1]
-                // We add J_reg^T J_reg x = -J_reg^T r_reg
-                // Here J_reg is [1, -2, 1]
-                int idx0 = (f - 1) * dof;
-                int idx1 = f * dof;
-                int idx2 = (f + 1) * dof;
-                
-                double w_reg = reg_traj * reg_traj;
-                
-                // Add to JTWJ and JTWr for tx
-                JTWJ(idx0, idx0) += w_reg; JTWJ(idx0, idx1) -= 2*w_reg; JTWJ(idx0, idx2) += w_reg;
-                JTWJ(idx1, idx0) -= 2*w_reg; JTWJ(idx1, idx1) += 4*w_reg; JTWJ(idx1, idx2) -= 2*w_reg;
-                JTWJ(idx2, idx0) += w_reg; JTWJ(idx2, idx1) -= 2*w_reg; JTWJ(idx2, idx2) += w_reg;
-                
-                double tx_acc = x_cur(idx2) - 2 * x_cur(idx1) + x_cur(idx0);
-                JTWr(idx0) -= w_reg * tx_acc;
-                JTWr(idx1) -= w_reg * tx_acc * (-2);
-                JTWr(idx2) -= w_reg * tx_acc;
+                int tx_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 2 : 0;
+                int ty_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 3 : 1;
 
-                // Add to JTWJ and JTWr for ty
-                JTWJ(idx0+1, idx0+1) += w_reg; JTWJ(idx0+1, idx1+1) -= 2*w_reg; JTWJ(idx0+1, idx2+1) += w_reg;
-                JTWJ(idx1+1, idx0+1) -= 2*w_reg; JTWJ(idx1+1, idx1+1) += 4*w_reg; JTWJ(idx1+1, idx2+1) -= 2*w_reg;
-                JTWJ(idx2+1, idx0+1) += w_reg; JTWJ(idx2+1, idx1+1) -= 2*w_reg; JTWJ(idx2+1, idx2+1) += w_reg;
-                
-                double ty_acc = x_cur(idx2+1) - 2 * x_cur(idx1+1) + x_cur(idx0+1);
-                JTWr(idx0+1) -= w_reg * ty_acc;
-                JTWr(idx1+1) -= w_reg * ty_acc * (-2);
-                JTWr(idx2+1) -= w_reg * ty_acc;
+                int idx0_x = (f - 1) * dof + tx_off;
+                int idx1_x = f * dof + tx_off;
+                int idx2_x = (f + 1) * dof + tx_off;
+
+                JTWJ(idx0_x, idx0_x) += w_reg; JTWJ(idx0_x, idx1_x) -= 2*w_reg; JTWJ(idx0_x, idx2_x) += w_reg;
+                JTWJ(idx1_x, idx0_x) -= 2*w_reg; JTWJ(idx1_x, idx1_x) += 4*w_reg; JTWJ(idx1_x, idx2_x) -= 2*w_reg;
+                JTWJ(idx2_x, idx0_x) += w_reg; JTWJ(idx2_x, idx1_x) -= 2*w_reg; JTWJ(idx2_x, idx2_x) += w_reg;
+
+                double tx_acc = x_cur(idx2_x) - 2 * x_cur(idx1_x) + x_cur(idx0_x);
+                JTWr(idx0_x) -= w_reg * tx_acc;
+                JTWr(idx1_x) -= w_reg * tx_acc * (-2);
+                JTWr(idx2_x) -= w_reg * tx_acc;
+
+                int idx0_y = (f - 1) * dof + ty_off;
+                int idx1_y = f * dof + ty_off;
+                int idx2_y = (f + 1) * dof + ty_off;
+
+                JTWJ(idx0_y, idx0_y) += w_reg; JTWJ(idx0_y, idx1_y) -= 2*w_reg; JTWJ(idx0_y, idx2_y) += w_reg;
+                JTWJ(idx1_y, idx0_y) -= 2*w_reg; JTWJ(idx1_y, idx1_y) += 4*w_reg; JTWJ(idx1_y, idx2_y) -= 2*w_reg;
+                JTWJ(idx2_y, idx0_y) += w_reg; JTWJ(idx2_y, idx1_y) -= 2*w_reg; JTWJ(idx2_y, idx2_y) += w_reg;
+
+                double ty_acc = x_cur(idx2_y) - 2 * x_cur(idx1_y) + x_cur(idx0_y);
+                JTWr(idx0_y) -= w_reg * ty_acc;
+                JTWr(idx1_y) -= w_reg * ty_acc * (-2);
+                JTWr(idx2_y) -= w_reg * ty_acc;
+
+                if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+                    int idx0_s = (f - 1) * dof + 2;
+                    int idx1_s = f * dof + 2;
+                    int idx2_s = (f + 1) * dof + 2;
+
+                    JTWJ(idx0_s, idx0_s) += w_reg; JTWJ(idx0_s, idx1_s) -= 2*w_reg; JTWJ(idx0_s, idx2_s) += w_reg;
+                    JTWJ(idx1_s, idx0_s) -= 2*w_reg; JTWJ(idx1_s, idx1_s) += 4*w_reg; JTWJ(idx1_s, idx2_s) -= 2*w_reg;
+                    JTWJ(idx2_s, idx0_s) += w_reg; JTWJ(idx2_s, idx1_s) -= 2*w_reg; JTWJ(idx2_s, idx2_s) += w_reg;
+
+                    double s_acc = x_cur(idx2_s) - 2 * x_cur(idx1_s) + x_cur(idx0_s);
+                    JTWr(idx0_s) -= w_reg * s_acc;
+                    JTWr(idx1_s) -= w_reg * s_acc * (-2);
+                    JTWr(idx2_s) -= w_reg * s_acc;
+                }
             }
 
             for (size_t idx = 0; idx < edges.size(); ++idx) {
                 const auto& e = edges[idx];
                 int i = e.src, j = e.dst;
-                double pred_dx = x_cur(j * dof) - x_cur(i * dof);
-                double pred_dy = x_cur(j * dof + 1) - x_cur(i * dof + 1);
+
+                int tx_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 2 : 0;
+                int ty_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 3 : 1;
+
+                double pred_dx = x_cur(j * dof + tx_off) - x_cur(i * dof + tx_off);
+                double pred_dy = x_cur(j * dof + ty_off) - x_cur(i * dof + ty_off);
                 double obs_dx = -e.dx;
                 double obs_dy = -e.dy;
-                
+
                 double res_x = pred_dx - obs_dx;
                 double res_y = pred_dy - obs_dy;
                 double res_sq = res_x * res_x + res_y * res_y;
-                
+
                 double w = e.weight * e.weight * gnc_ws[idx] * gnc_ws[idx];
-                
+
                 // Cauchy loss IRLS weight
                 double cauchy_w = 1.0 / (1.0 + res_sq / c_sq);
                 w *= cauchy_w;
-                
-                // J for res_x is [ ..., -1 (at i), ..., 1 (at j), ... ]
-                // J^T W J adds w to (i,i), (j,j), -w to (i,j) and (j,i)
-                JTWJ(i * dof, i * dof) += w;
-                JTWJ(j * dof, j * dof) += w;
-                JTWJ(i * dof, j * dof) -= w;
-                JTWJ(j * dof, i * dof) -= w;
-                
-                JTWr(i * dof) -= w * (-res_x);
-                JTWr(j * dof) -= w * (res_x);
-                
-                JTWJ(i * dof + 1, i * dof + 1) += w;
-                JTWJ(j * dof + 1, j * dof + 1) += w;
-                JTWJ(i * dof + 1, j * dof + 1) -= w;
-                JTWJ(j * dof + 1, i * dof + 1) -= w;
-                
-                JTWr(i * dof + 1) -= w * (-res_y);
-                JTWr(j * dof + 1) -= w * (res_y);
+
+                int ix = i * dof + tx_off;
+                int jx = j * dof + tx_off;
+                JTWJ(ix, ix) += w; JTWJ(jx, jx) += w;
+                JTWJ(ix, jx) -= w; JTWJ(jx, ix) -= w;
+                JTWr(ix) -= w * (-res_x);
+                JTWr(jx) -= w * (res_x);
+
+                int iy = i * dof + ty_off;
+                int jy = j * dof + ty_off;
+                JTWJ(iy, iy) += w; JTWJ(jy, jy) += w;
+                JTWJ(iy, jy) -= w; JTWJ(jy, iy) -= w;
+                JTWr(iy) -= w * (-res_y);
+                JTWr(jy) -= w * (res_y);
+
+                if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+                    int is = i * dof + 2;
+                    int js = j * dof + 2;
+                    double res_s = x_cur(js) - x_cur(is);
+                    double w_s = w * 100.0;
+                    JTWJ(is, is) += w_s; JTWJ(js, js) += w_s;
+                    JTWJ(is, js) -= w_s; JTWJ(js, is) -= w_s;
+                    JTWr(is) -= w_s * (-res_s);
+                    JTWr(js) -= w_s * (res_s);
+                }
             }
 
             Eigen::VectorXd dx = JTWJ.ldlt().solve(JTWr);
             x_cur += dx;
-            
+
             if (dx.norm() < 1e-4) break;
         }
         return x_cur;
@@ -254,16 +352,19 @@ std::vector<AffineParams> bundle_adjust_affine_impl(
     if (use_gnc) {
         std::vector<float> gnc_ws(edges.size(), 1.0f);
         float mu = -1.0f;
-        float c_sq = 100.0f; // 10^2
-        
+        float c_sq = f_scale * f_scale;
+
         for (int outer = 0; outer < 8; ++outer) {
             std::vector<double> edge_res_sq(edges.size(), 0.0);
             double max_sq = 0.0;
+            int tx_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 2 : 0;
+            int ty_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 3 : 1;
+
             for (size_t idx = 0; idx < edges.size(); ++idx) {
                 const auto& e = edges[idx];
                 int i = e.src, j = e.dst;
-                double pred_dx = x(j * dof) - x(i * dof);
-                double pred_dy = x(j * dof + 1) - x(i * dof + 1);
+                double pred_dx = x(j * dof + tx_off) - x(i * dof + tx_off);
+                double pred_dy = x(j * dof + ty_off) - x(i * dof + ty_off);
                 double obs_dx = -e.dx;
                 double obs_dy = -e.dy;
                 double sq = (pred_dx - obs_dx) * (pred_dx - obs_dx) + (pred_dy - obs_dy) * (pred_dy - obs_dy);
@@ -273,24 +374,27 @@ std::vector<AffineParams> bundle_adjust_affine_impl(
             if (mu < 0.0f) {
                 mu = std::max(1.0, max_sq / (2.0 * c_sq));
             }
-            
+
             for (size_t idx = 0; idx < edges.size(); ++idx) {
                 double denom = mu * c_sq + edge_res_sq[idx];
                 double w = (mu * c_sq) / std::max(denom, 1e-12);
-                gnc_ws[idx] = w; // We don't square because w is applied as w^2 in solve_irls
+                gnc_ws[idx] = static_cast<float>(w);
             }
-            
-            x = solve_irls(1e9f, 200, gnc_ws); // Use 1e9 to practically disable Cauchy during GNC
+
+            x = solve_irls(1e9f, 200, gnc_ws);
             mu /= 1.4f; // anneal
         }
     } else {
         std::vector<float> gnc_ws(edges.size(), 1.0f);
         x = solve_irls(f_scale * f_scale, 200, gnc_ws);
-        
+
         if (adaptive_f_scale) {
             std::vector<AffineParams> cur_affines;
+            int tx_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 2 : 0;
+            int ty_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 3 : 1;
             for (int f = 0; f < N; ++f) {
-                cur_affines.push_back({(float)x(f * dof), (float)x(f * dof + 1), 1.0f, 0.0f, f});
+                float s = (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) ? (float)x(f * dof + 2) : 1.0f;
+                cur_affines.push_back({(float)x(f * dof + tx_off), (float)x(f * dof + ty_off), s, 0.0f, f});
             }
             float adapt = compute_adaptive_f_scale_impl(edges, cur_affines, f_scale);
             if (adapt > f_scale * 1.5f) {
@@ -300,8 +404,20 @@ std::vector<AffineParams> bundle_adjust_affine_impl(
     }
 
     std::vector<AffineParams> out;
+    int tx_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 2 : 0;
+    int ty_off = (motion_model == BUNDLE_ADJUST_AFFINE) ? 3 : 1;
     for (int f = 0; f < N; ++f) {
-        out.push_back({(float)x(f * dof), (float)x(f * dof + 1), 1.0f, 0.0f, f});
+        float s = 1.0f;
+        float r = 0.0f;
+        if (motion_model == BUNDLE_ADJUST_2D_TRANSLATION_SCALE) {
+            s = (float)x(f * dof + 2);
+        } else if (motion_model == BUNDLE_ADJUST_AFFINE) {
+            float a = (float)x(f * dof + 0);
+            float b = (float)x(f * dof + 1);
+            s = std::sqrt(a * a + b * b);
+            r = std::atan2(b, a);
+        }
+        out.push_back({(float)x(f * dof + tx_off), (float)x(f * dof + ty_off), s, r, f});
     }
     return out;
 }
@@ -315,11 +431,12 @@ static py::list bundle_adjust_affine(
     int      N,
     float    f_scale          = 10.0f,
     bool     use_gnc          = true,
-    bool     adaptive_f_scale = true)
+    bool     adaptive_f_scale = true,
+    int      motion_model     = 0)
 {
     std::vector<Edge> edges;
     for (auto item : edges_py) edges.push_back(edge_from_dict(item.cast<py::dict>()));
-    auto result = bundle_adjust_affine_impl(edges, N, f_scale, use_gnc, adaptive_f_scale);
+    auto result = bundle_adjust_affine_impl(edges, N, f_scale, use_gnc, adaptive_f_scale, motion_model);
     return affines_to_list(result);
 }
 
@@ -353,47 +470,6 @@ static float compute_adaptive_f_scale(
 }
 
 // ---------------------------------------------------------------------------
-// bundle_adjust_affine
-//
-// Full affine bundle adjustment:
-//   - Optional GNC-TLS outer loop (8 iterations, Geman-McClure weights)
-//   - Eigen LDLT inner solve: (J^T W J) Δx = J^T W r
-//   - Cauchy robust loss on inner iterations
-//   - Optional adaptive f_scale re-solve
-//
-// Args
-// ----
-// edges            : list of Edge dicts {"i","j","dx","dy","weight"}
-// N                : int, number of frames
-// f_scale          : float, Cauchy loss scale (default 10.0)
-// use_gnc          : bool, enable GNC-TLS outer loop
-// adaptive_f_scale : bool, re-solve with median_residual-scaled f
-//
-// Returns
-// -------
-// list of AffineParams dicts {"tx","ty","scale","rotation","frame_idx"}
-// ---------------------------------------------------------------------------
-
-
-// ---------------------------------------------------------------------------
-// spanning_tree_inlier_filter
-//
-// Kruskal maximum spanning tree (highest-weight-first) with Union-Find.
-// BFS from frame 0 propagates reference translations.
-// Drops edges where predicted − observed displacement > inlier_threshold.
-// Falls back to original edges if graph disconnects or < max(2,N-1) inliers.
-// ---------------------------------------------------------------------------
-
-
-// ---------------------------------------------------------------------------
-// compute_adaptive_f_scale
-//
-// After an initial solve, compute adaptive_scale = max(floor, 2 × median_residual).
-// Returns float.
-// ---------------------------------------------------------------------------
-
-
-// ---------------------------------------------------------------------------
 // register_bundle_adjust — called from bindings.cpp
 // ---------------------------------------------------------------------------
 void register_bundle_adjust(py::module_& m) {
@@ -402,10 +478,14 @@ void register_bundle_adjust(py::module_& m) {
 
         Functions
         ---------
-        bundle_adjust_affine(edges, N, f_scale, use_gnc, adaptive_f_scale) -> list[dict]
+        bundle_adjust_affine(edges, N, f_scale, use_gnc, adaptive_f_scale, motion_model) -> list[dict]
         spanning_tree_inlier_filter(edges, N, inlier_threshold) -> list[dict]
         compute_adaptive_f_scale(edges, affines, floor_scale) -> float
     )doc";
+
+    m.attr("BUNDLE_ADJUST_2D_TRANSLATION")       = 0;
+    m.attr("BUNDLE_ADJUST_2D_TRANSLATION_SCALE") = 1;
+    m.attr("BUNDLE_ADJUST_AFFINE")               = 2;
 
     m.def("bundle_adjust_affine", &bundle_adjust_affine,
         py::arg("edges"),
@@ -413,6 +493,7 @@ void register_bundle_adjust(py::module_& m) {
         py::arg("f_scale")          = 10.0f,
         py::arg("use_gnc")          = true,
         py::arg("adaptive_f_scale") = true,
+        py::arg("motion_model")     = 0,
         R"doc(
             Full affine bundle adjustment.
 
@@ -423,6 +504,7 @@ void register_bundle_adjust(py::module_& m) {
             f_scale : float  — Cauchy robust loss scale
             use_gnc : bool  — enable GNC-TLS outer loop (8 iters)
             adaptive_f_scale : bool  — re-solve with median-residual f
+            motion_model : int — 0: 2D Translation, 1: 2D Translation+Scale, 2: Affine
 
             Returns
             -------

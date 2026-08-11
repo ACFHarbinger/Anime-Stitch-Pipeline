@@ -84,7 +84,8 @@ cv::Mat build_seam_cost_map_impl(
     bool  cost_map_norm,
     float scatter_cost_weight,
     const std::vector<int>& pinned_rows,
-    bool  try_gpu = false);
+    bool  try_gpu = false,
+    const std::vector<cv::Mat>& exclusion_masks = {});
 
 // ---------------------------------------------------------------------------
 // seam_cut tests
@@ -165,6 +166,22 @@ TEST_CASE("build_seam_cost_map all-background gives near-zero cost", "[seam]") {
     double mn, mx;
     cv::minMaxLoc(cost, &mn, &mx);
     CHECK(mx < 0.5);
+}
+
+TEST_CASE("build_seam_cost_map applies 1e9 penalty on character cel exclusion mask", "[seam]") {
+    const int H = 30, W = 40;
+    cv::Mat fa     = cv::Mat::zeros(H, W, CV_8UC3);
+    cv::Mat mask_a = ones_mask(H, W);
+    cv::Mat mask_b = ones_mask(H, W);
+    cv::Mat char_mask = cv::Mat::zeros(H, W, CV_8UC1);
+    // Draw character cel barrier in center: rows 10-20, cols 15-25
+    char_mask(cv::Range(10, 20), cv::Range(15, 25)).setTo(255);
+
+    cv::Mat cost = build_seam_cost_map_impl(fa, mask_a, mask_b, 0.0f, 0.0f, true, 0.0f, {}, false, {char_mask});
+    REQUIRE(cost.rows == H);
+    REQUIRE(cost.cols == W);
+    CHECK(cost.at<float>(15, 20) == 1e9f);
+    CHECK(cost.at<float>(0, 0) < 1.0f);
 }
 // ---------------------------------------------------------------------------
 // GraphCutSeamFinder tests (Phase 4 — native OpenCV API, no pybind11 needed)

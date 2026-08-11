@@ -8,7 +8,7 @@ from ._audit import _adapt_feathers_and_synthesize, _audit_and_annotate_composit
 from ._boundaries import _optimize_boundaries_and_feathers
 from ._fg_pose import _register_foreground_poses
 from ._fill import _initial_hard_partition_fill, _process_single_seam
-from ._flags import _GLOBAL_GAIN_COMP, _JOINT_GAIN_SOLVE
+from ._flags import _GLOBAL_GAIN_COMP, _JOINT_GAIN_ROBUST, _JOINT_GAIN_SOLVE
 from ._gain_compensation import _apply_joint_gain_solve, _equalize_warped_gains
 from ._graphcut import _try_global_seam_composite
 from ._normalization import _normalize_warped_frames, _warp_inputs
@@ -84,7 +84,9 @@ def _composite_foreground(
     # Equalise inter-frame luminance before seam finding.
     if _GLOBAL_GAIN_COMP and len(warped_norm) >= 2:
         if _JOINT_GAIN_SOLVE:
-            warped_norm = _apply_joint_gain_solve(warped_norm, warped_bg)
+            warped_norm = _apply_joint_gain_solve(
+                warped_norm, warped_bg, robust=_JOINT_GAIN_ROBUST
+            )
         else:
             warped_norm = _equalize_warped_gains(warped_norm, block_size=32)
 

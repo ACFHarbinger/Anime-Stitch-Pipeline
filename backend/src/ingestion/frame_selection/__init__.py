@@ -68,7 +68,10 @@ from ._hold_detection import (
     _detect_hold_blocks,
     _detect_hold_blocks_dhash,
     _drop_exact_dhash_duplicates,
+    _estimate_background_plate,
     _refine_hold_ids_by_response,
+    _select_hold_keyframes_dp,
+    _separate_character_cels,
 )
 from ._pose import _DINOV2_CACHE, _compute_dinov2_features, _fg_center_diff
 from ._quality_filters import (
@@ -86,7 +89,10 @@ __all__ = [
     "detect_animation_phases",
     "phase_spans",
     "_phase_ids_from_hashes",
+    "_estimate_background_plate",
+    "_separate_character_cels",
     "_detect_hold_blocks",
+    "_select_hold_keyframes_dp",
     "_detect_hold_blocks_dhash",
     "_compute_dhash",
     "_drop_exact_dhash_duplicates",
@@ -102,3 +108,4 @@ __all__ = [
     "_hold_block_average",
     "_DINOV2_CACHE",
 ]
+

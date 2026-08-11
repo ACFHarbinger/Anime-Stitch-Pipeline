@@ -33,9 +33,10 @@ using Edge = base::Edge;
 std::vector<AffineResult> bundle_adjust_affine_impl(
     std::vector<Edge> edges,
     int   N,
-    float f_scale,
-    bool  use_gnc,
-    bool  adaptive_f_scale);
+    float f_scale = 10.0f,
+    bool  use_gnc = true,
+    bool  adaptive_f_scale = true,
+    int   motion_model = 0);
 
 std::vector<Edge> spanning_tree_inlier_filter_impl(
     const std::vector<Edge>& edges,
@@ -64,14 +65,14 @@ static std::vector<Edge> make_chain(int N, float step_px = 100.0f, float noise_s
 // bundle_adjust_affine tests
 // ---------------------------------------------------------------------------
 
-TEST_CASE("bundle_adjust_affine: output count equals N", "[bundle_adjust][not_impl]") {
+TEST_CASE("bundle_adjust_affine: output count equals N", "[bundle_adjust]") {
     const int N = 8;
     auto edges = make_chain(N);
     auto affines = bundle_adjust_affine_impl(edges, N, 10.0f, true, true);
     REQUIRE(static_cast<int>(affines.size()) == N);
 }
 
-TEST_CASE("bundle_adjust_affine: frame 0 is anchored at (tx=0, ty=0)", "[bundle_adjust][not_impl]") {
+TEST_CASE("bundle_adjust_affine: frame 0 is anchored at (tx=0, ty=0)", "[bundle_adjust]") {
     const int N = 6;
     auto edges = make_chain(N, 80.0f);
     auto affines = bundle_adjust_affine_impl(edges, N, 10.0f, false, false);
@@ -79,7 +80,7 @@ TEST_CASE("bundle_adjust_affine: frame 0 is anchored at (tx=0, ty=0)", "[bundle_
     CHECK(std::abs(affines[0].ty) < 1e-3f);
 }
 
-TEST_CASE("bundle_adjust_affine: ty sequence is monotone for clean vertical chain", "[bundle_adjust][not_impl]") {
+TEST_CASE("bundle_adjust_affine: ty sequence is monotone for clean vertical chain", "[bundle_adjust]") {
     const int N = 8;
     auto edges = make_chain(N, 100.0f, 0.5f, 0);  // tight noise
     auto affines = bundle_adjust_affine_impl(edges, N, 10.0f, false, false);
@@ -87,11 +88,27 @@ TEST_CASE("bundle_adjust_affine: ty sequence is monotone for clean vertical chai
         CHECK(affines[i+1].ty < affines[i].ty);
 }
 
-TEST_CASE("bundle_adjust_affine: GNC flag does not break output count", "[bundle_adjust][not_impl]") {
+TEST_CASE("bundle_adjust_affine: GNC flag does not break output count", "[bundle_adjust]") {
     const int N = 6;
     auto edges = make_chain(N);
     auto affines = bundle_adjust_affine_impl(edges, N, 10.0f, true, false);
     REQUIRE(static_cast<int>(affines.size()) == N);
+}
+
+TEST_CASE("bundle_adjust_affine: 2D Translation + Scale mode anchors frame 0 scale to 1.0", "[bundle_adjust]") {
+    const int N = 6;
+    auto edges = make_chain(N, 80.0f);
+    // motion_model = 1 (BUNDLE_ADJUST_2D_TRANSLATION_SCALE)
+    auto affines = bundle_adjust_affine_impl(edges, N, 10.0f, true, true, 1);
+    REQUIRE(static_cast<int>(affines.size()) == N);
+    CHECK(std::abs(affines[0].tx) < 1e-3f);
+    CHECK(std::abs(affines[0].ty) < 1e-3f);
+    CHECK(std::abs(affines[0].scale - 1.0f) < 1e-3f);
+    for (int i = 0; i < N; ++i) {
+        CHECK(affines[i].scale > 0.5f);
+        CHECK(affines[i].scale < 1.5f);
+        CHECK(affines[i].rotation == 0.0f);
+    }
 }
 
 // ---------------------------------------------------------------------------

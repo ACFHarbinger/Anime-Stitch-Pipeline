@@ -132,7 +132,18 @@ std::vector<int> seam_cut_impl(const cv::Mat& fa_zone, const cv::Mat& fb_zone, c
     return path;
 }
 
-cv::Mat build_seam_cost_map_impl(const cv::Mat& fa_zone, const cv::Mat& bg_mask_a, const cv::Mat& bg_mask_b, float cost_map_blur_sigma, float cost_col_smooth_sigma, bool cost_map_norm, float scatter_cost_weight, const std::vector<int>& pinned_rows, bool try_gpu = false) {
+cv::Mat build_seam_cost_map_impl(
+    const cv::Mat& fa_zone,
+    const cv::Mat& bg_mask_a,
+    const cv::Mat& bg_mask_b,
+    float cost_map_blur_sigma,
+    float cost_col_smooth_sigma,
+    bool cost_map_norm,
+    float scatter_cost_weight,
+    const std::vector<int>& pinned_rows,
+    bool try_gpu = false,
+    const std::vector<cv::Mat>& exclusion_masks = {})
+{
     int H = fa_zone.rows, W = fa_zone.cols;
     cv::Mat cost(H, W, CV_32F, cv::Scalar(0.0f));
 
@@ -294,6 +305,23 @@ cv::Mat build_seam_cost_map_impl(const cv::Mat& fa_zone, const cv::Mat& bg_mask_
         }
     }
 
+    for (const auto& em : exclusion_masks) {
+        if (em.empty()) continue;
+        cv::Mat em_resized = em;
+        if (em.rows != H || em.cols != W) {
+            cv::resize(em, em_resized, cv::Size(W, H), 0, 0, cv::INTER_NEAREST);
+        }
+        for (int y = 0; y < H; ++y) {
+            const uint8_t* mptr = em_resized.ptr<uint8_t>(y);
+            float* cptr = cost.ptr<float>(y);
+            for (int x = 0; x < W; ++x) {
+                if (mptr[x] > 127) {
+                    cptr[x] = 1e9f;
+                }
+            }
+        }
+    }
+
     return cost;
 }
 
@@ -353,6 +381,7 @@ static py::array_t<int32_t> seam_cut(
 //   Tier 1.5: fg-heavy columns   = 1.5  (§1.126 FG_MAJORITY_FLOOR)
 //   Tier 2.0: dominated columns  = 2.0  (§3.15A column barrier)
 //   Tier 1e6: pinned rows        (hard barrier)
+//   Tier 1e9: character mask     (maximal barrier)
 //
 // Additional modifiers:
 //   §1.110 COST_MAP_BLUR_SIGMA  : cv::GaussianBlur on soft cost
@@ -371,7 +400,8 @@ static py::array_t<float> build_seam_cost_map(
     bool                 cost_map_norm         = true,
     float                scatter_cost_weight   = 0.0f,
     py::object           pinned_rows           = py::none(),
-    bool                 try_gpu               = false)
+    bool                 try_gpu               = false,
+    py::object           exclusion_masks       = py::none())
 {
     cv::Mat fa = as_mat(fa_zone);
     cv::Mat bg_a, bg_b;
@@ -382,7 +412,18 @@ static py::array_t<float> build_seam_cost_map(
         auto w_list = pinned_rows.cast<py::list>();
         for (auto item : w_list) pinned.push_back(item.cast<int>());
     }
-    cv::Mat cost = build_seam_cost_map_impl(fa, bg_a, bg_b, cost_map_blur_sigma, cost_col_smooth_sigma, cost_map_norm, scatter_cost_weight, pinned, try_gpu);
+    std::vector<cv::Mat> ex_mats;
+    if (!exclusion_masks.is_none()) {
+        if (py::isinstance<py::list>(exclusion_masks)) {
+            auto m_list = exclusion_masks.cast<py::list>();
+            for (auto item : m_list) {
+                if (!item.is_none()) ex_mats.push_back(as_mat(item.cast<py::array_t<uint8_t>>()));
+            }
+        } else if (py::isinstance<py::array>(exclusion_masks)) {
+            ex_mats.push_back(as_mat(exclusion_masks.cast<py::array_t<uint8_t>>()));
+        }
+    }
+    cv::Mat cost = build_seam_cost_map_impl(fa, bg_a, bg_b, cost_map_blur_sigma, cost_col_smooth_sigma, cost_map_norm, scatter_cost_weight, pinned, try_gpu, ex_mats);
     
     std::vector<ssize_t> shape = {cost.rows, cost.cols};
     std::vector<ssize_t> strides = {static_cast<ssize_t>(cost.step[0]), 4};
@@ -448,7 +489,7 @@ static py::list graphcut_seam_find(
         masks[i].getMat(cv::ACCESS_READ).copyTo(mask_out);
         // Return as uint8 ndarray (H, W)
         std::vector<ssize_t> shape   = {mask_out.rows, mask_out.cols};
-        std::vector<ssize_t> strides = {mask_out.step[0], 1};
+        std::vector<ssize_t> strides = {static_cast<ssize_t>(mask_out.step[0]), 1};
         auto arr = py::array_t<uint8_t>(shape, strides);
         auto req = arr.request();
         std::memcpy(req.ptr, mask_out.data, mask_out.total());
@@ -508,13 +549,16 @@ void register_seam(py::module_& m) {
         py::arg("scatter_cost_weight")   = 0.0f,
         py::arg("pinned_rows")           = py::none(),
         py::arg("try_gpu")               = false,
+        py::arg("exclusion_masks")       = py::none(),
         R"doc(
-            Build a six-tier seam cost map from foreground masks.
+            Build a seven-tier seam cost map from foreground masks and character barriers.
 
             Tiers: 0.0 (bg), 0.3 (outer ring), 0.5 (buffer), 1.0 (fg),
-                   1.5 (fg-heavy columns), 2.0 (dominated columns), 1e6 (hard barrier).
+                   1.5 (fg-heavy columns), 2.0 (dominated columns), 1e6 (hard barrier),
+                   1e9 (character cel mask barrier).
 
             try_gpu: use cv::UMat for GaussianBlur/boxFilter (OpenCL path).
+            exclusion_masks: list of uint8 masks (255 = exclude) carrying 1e9 cost barrier.
             Returns float32 ndarray (H, W).
         )doc");
 

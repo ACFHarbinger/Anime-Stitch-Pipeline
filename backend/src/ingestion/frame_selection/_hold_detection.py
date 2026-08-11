@@ -70,9 +70,88 @@ except ValueError:
     _MAX_SKIPPABLE_HOLD_SIZE = 8
 
 
+def _estimate_background_plate(
+    thumbs: list[np.ndarray],
+    method: str = "median",
+) -> np.ndarray:
+    """Calculate background plate estimate via temporal median or min across thumbnails.
+
+    Separates the rigid background plate from transient character cels by taking
+    the pixel-wise temporal median (or min) across the frame sequence.
+
+    Parameters
+    ----------
+    thumbs : list of (H, W) or (H, W, C) float32 or uint8 thumbnails.
+    method : "median" (default) or "min".
+
+    Returns
+    -------
+    np.ndarray — background plate thumbnail estimate.
+    """
+    if not thumbs:
+        raise ValueError("thumbs list cannot be empty")
+
+    stack_list = [
+        t.astype(np.float32) / 255.0 if t.dtype == np.uint8 else t.astype(np.float32)
+        for t in thumbs
+    ]
+    min_h = min(t.shape[0] for t in stack_list)
+    min_w = min(t.shape[1] for t in stack_list)
+    cropped = [t[:min_h, :min_w] for t in stack_list]
+    stack = np.stack(cropped, axis=0)
+
+    if method == "min":
+        return np.min(stack, axis=0)
+    return np.median(stack, axis=0)
+
+
+def _separate_character_cels(
+    thumbs: list[np.ndarray],
+    bg_plate: np.ndarray | None = None,
+    method: str = "median",
+    threshold: float = 0.05,
+) -> list[np.ndarray]:
+    """Separate character cels from background using background subtraction.
+
+    Subtracts the estimated background plate from each thumbnail to isolate
+    the character cel region, preventing background panning from confounding
+    cel motion and hold detection.
+
+    Parameters
+    ----------
+    thumbs : list of (H, W) or (H, W, C) thumbnails.
+    bg_plate : optional pre-calculated background plate. If None, estimated via `_estimate_background_plate`.
+    method : "median" or "min" for plate estimation.
+    threshold : luminance difference threshold below which background noise is zeroed out.
+
+    Returns
+    -------
+    List of character cel foreground arrays.
+    """
+    if not thumbs:
+        return []
+    if bg_plate is None:
+        bg_plate = _estimate_background_plate(thumbs, method=method)
+
+    cels: list[np.ndarray] = []
+    for t in thumbs:
+        t_f = t.astype(np.float32) / 255.0 if t.dtype == np.uint8 else t.astype(np.float32)
+        h = min(t_f.shape[0], bg_plate.shape[0])
+        w = min(t_f.shape[1], bg_plate.shape[1])
+        diff = np.abs(t_f[:h, :w] - bg_plate[:h, :w])
+        bg_level = float(np.median(diff))
+        diff_zeroed = np.maximum(0.0, diff - bg_level)
+        if threshold > 0.0:
+            diff_zeroed = np.where(diff_zeroed >= threshold, diff_zeroed, 0.0)
+        cels.append(diff_zeroed)
+    return cels
+
+
 def _detect_hold_blocks(
     thumbs: list[np.ndarray],
     hold_threshold: float = 0.025,
+    use_bg_sub: bool = False,
+    bg_method: str = "median",
 ) -> list[int]:
     """
     Detect animation "on twos / on threes" hold blocks and return the index of
@@ -96,34 +175,29 @@ def _detect_hold_blocks(
         consecutive thumbnails are considered the same cel.  Default 0.025
         (2.5% of [0,1] range).  Typical within-hold MAD: 0.003–0.010.
         Typical cross-hold MAD: 0.030–0.120.
+    use_bg_sub : bool — if True, subtract background plate before MAD calculation
+        to separate background panning from character cel motion.
+    bg_method : "median" or "min" background plate estimation method.
 
     Returns
     -------
     List[int] — indices of the first frame of each hold block.  Each block
     represents one unique animation cel.  Length ≤ len(thumbs).
-
-    Notes
-    -----
-    - For ``hold_threshold=0`` or len(thumbs) ≤ 1, returns list(range(N)).
-    - This function is pure NumPy — no GPU, ~1ms for 300 frames.
-    - Hold boundaries are the natural pose-change points (Sýkora 2009 §3.1).
-      They provide a principled frame universe for Pass 2 pose-consistent
-      refinement: candidates that cross exactly one hold boundary are
-      guaranteed to show a different character pose (needed for ARAP to have
-      useful work to do); candidates that stay within one hold are wasted
-      (identical pose → ARAP residual ≈ 0, good — but selection is redundant).
     """
     N = len(thumbs)
     if hold_threshold <= 0.0 or N <= 1:
         return list(range(N))
 
-    if _BATCH_FSEL:
+    _use_bg = use_bg_sub or os.environ.get("ASP_HOLD_BG_SUB", "0") != "0"
+    work_thumbs = _separate_character_cels(thumbs, method=bg_method) if _use_bg else thumbs
+
+    if _BATCH_FSEL and not _use_bg:
         try:
             # C++ expects uint8; convert float32 [0,1] grayscale thumbnails
             u8 = [np.ascontiguousarray(
                       np.clip(t * 255, 0, 255).astype(np.uint8)
                       if t.dtype != np.uint8 else t)
-                  for t in thumbs]
+                  for t in work_thumbs]
             # C++ returns indices of hold frames (MAD < threshold w.r.t. previous)
             hold_set = set(_batch.frame_selection.detect_hold_blocks_mad(
                 u8, hold_threshold))
@@ -133,13 +207,13 @@ def _detect_hold_blocks(
 
     blocks: list[int] = [0]
     for i in range(1, N):
-        h = min(thumbs[i].shape[0], thumbs[i - 1].shape[0])
-        w = min(thumbs[i].shape[1], thumbs[i - 1].shape[1])
+        h = min(work_thumbs[i].shape[0], work_thumbs[i - 1].shape[0])
+        w = min(work_thumbs[i].shape[1], work_thumbs[i - 1].shape[1])
         mad = float(
             np.mean(
                 np.abs(
-                    thumbs[i][:h, :w].astype(np.float32)
-                    - thumbs[i - 1][:h, :w].astype(np.float32)
+                    work_thumbs[i][:h, :w].astype(np.float32)
+                    - work_thumbs[i - 1][:h, :w].astype(np.float32)
                 )
             )
         )
@@ -147,6 +221,139 @@ def _detect_hold_blocks(
             blocks.append(i)
 
     return blocks
+
+
+def _select_hold_keyframes_dp(
+    thumbs: list[np.ndarray],
+    hold_ids: list[int],
+    cumpos: list[float] | None = None,
+    target_step: float = 25.0,
+    dominant_sign: int = 1,
+    bg_plate: np.ndarray | None = None,
+    verbose: bool = False,
+) -> list[int]:
+    """Select keyframes across hold clusters using Dynamic Programming (DP).
+
+    Prefers keyframes where the character cel is on a stable hold drawing
+    or static pose, preventing duplicated limbs and misordered content.
+
+    Parameters
+    ----------
+    thumbs : list of (H, W) thumbnail arrays.
+    hold_ids : per-frame hold block ID assignment.
+    cumpos : optional list of cumulative camera displacements per frame.
+    target_step : target camera step between keyframes (pixels).
+    dominant_sign : direction of camera panning (+1 or -1).
+    bg_plate : optional pre-calculated background plate.
+    verbose : print diagnostic messages.
+
+    Returns
+    -------
+    List of selected frame indices (one representative keyframe per hold cluster).
+    """
+    N = len(thumbs)
+    if N <= 2 or not hold_ids:
+        return list(range(N))
+
+    from collections import OrderedDict
+    blocks: OrderedDict[int, list[int]] = OrderedDict()
+    for idx, hid in enumerate(hold_ids):
+        blocks.setdefault(hid, []).append(idx)
+
+    cels = _separate_character_cels(thumbs, bg_plate=bg_plate)
+
+    layer_candidates: list[list[int]] = []
+    layer_instabilities: list[dict[int, float]] = []
+
+    for _hid, indices in blocks.items():
+        if len(indices) == 1:
+            layer_candidates.append(indices)
+            layer_instabilities.append({indices[0]: 0.0})
+            continue
+
+        block_cels = [cels[i] for i in indices]
+        h_min = min(c.shape[0] for c in block_cels)
+        w_min = min(c.shape[1] for c in block_cels)
+        stacked = np.stack([c[:h_min, :w_min] for c in block_cels], axis=0)
+        med_cel = np.median(stacked, axis=0)
+
+        instabilities: dict[int, float] = {}
+        for i in indices:
+            c = cels[i][:h_min, :w_min]
+            inst = float(np.mean(np.abs(c - med_cel)))
+            edge_penalty = 0.01 if (i == indices[0] or i == indices[-1]) else 0.0
+            instabilities[i] = inst + edge_penalty
+
+        layer_candidates.append(indices)
+        layer_instabilities.append(instabilities)
+
+    if len(layer_candidates) <= 1:
+        return [min(layer_instabilities[0], key=layer_instabilities[0].get)]
+
+    costs: list[dict[int, float]] = [
+        {layer_candidates[0][0]: layer_instabilities[0][layer_candidates[0][0]]}
+    ]
+    parents: list[dict[int, int]] = [{}]
+
+    for L in range(1, len(layer_candidates)):
+        curr_cost: dict[int, float] = {}
+        curr_parent: dict[int, int] = {}
+        candidates = layer_candidates[L]
+        prev_layer = layer_candidates[L - 1]
+
+        for c in candidates:
+            best_val = float("inf")
+            best_p: int | None = None
+            inst_c = layer_instabilities[L][c]
+
+            for p in prev_layer:
+                if c <= p:
+                    continue
+                prior = costs[-1][p]
+
+                if cumpos is not None:
+                    step = (
+                        (cumpos[c] - cumpos[p]) * dominant_sign
+                        if dominant_sign != 0
+                        else abs(cumpos[c] - cumpos[p])
+                    )
+                    prog_penalty = abs(step - target_step) / max(target_step, 1.0)
+                else:
+                    prog_penalty = 0.0
+
+                h_c = min(cels[p].shape[0], cels[c].shape[0])
+                w_c = min(cels[p].shape[1], cels[c].shape[1])
+                cel_diff = float(
+                    np.mean(np.abs(cels[p][:h_c, :w_c] - cels[c][:h_c, :w_c]))
+                )
+
+                total = prior + inst_c + 0.1 * prog_penalty + 0.5 * cel_diff
+                if total < best_val:
+                    best_val = total
+                    best_p = p
+
+            if best_p is not None:
+                curr_cost[c] = best_val
+                curr_parent[c] = best_p
+
+        if not curr_cost:
+            return [indices[len(indices) // 2] for indices in blocks.values()]
+
+        costs.append(curr_cost)
+        parents.append(curr_parent)
+
+    best_last = min(costs[-1], key=costs[-1].get)
+    path = [best_last]
+    for L in range(len(layer_candidates) - 1, 0, -1):
+        path.append(parents[L][path[-1]])
+    path.reverse()
+
+    if verbose:
+        print(
+            f"  [HoldDP] Selected {len(path)} stable keyframes across {len(blocks)} hold clusters."
+        )
+
+    return path
 
 
 def _compute_dhash(
@@ -339,9 +546,13 @@ __all__ = [
     "_HOLD_DHASH_THRESHOLD",
     "_DHASH_EXACT_DROP",
     "_MAX_SKIPPABLE_HOLD_SIZE",
+    "_estimate_background_plate",
+    "_separate_character_cels",
     "_detect_hold_blocks",
+    "_select_hold_keyframes_dp",
     "_compute_dhash",
     "_detect_hold_blocks_dhash",
     "_drop_exact_dhash_duplicates",
     "_refine_hold_ids_by_response",
 ]
+
