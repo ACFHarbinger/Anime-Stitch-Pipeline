@@ -103,6 +103,7 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_JOINT_GAIN_SOLVE": (int, 0, 1, "§3.1 Brown-Lowe joint gain solve, replaces §4.10's sequential chain (default OFF pending A/B)"),
     "ASP_JOINT_GAIN_SIGMA_N": (float, 0.01, None, "§3.1 joint gain solve noise sigma (default 10.0)"),
     "ASP_JOINT_GAIN_SIGMA_G": (float, 0.001, None, "§3.1 joint gain solve gain-prior sigma (default 0.1)"),
+    "ASP_JOINT_GAIN_ROBUST": (int, 0, 1, "§3.1 reject isolated overlap luminance ratios before joint gain solve"),
     "ASP_SP_SOFT_PX": (int, 0, None, "Single-pose soft-edge half-width (px)"),
     "ASP_BG_NORM_MIN_PX": (int, 0, None, "Min bg pixels for normalisation gain estimate (0=200)"),
     "ASP_POST_SEAM_WARN_THRESH": (float, 0.0, None, "Post-composite seam lum-step warning threshold"),
@@ -125,6 +126,8 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_POSE_REFINE_MIN_ADV_FRAC": (float, 0.0, None, "Pass-2 pose refinement: min frame-advance fraction constraint"),
     "ASP_POSE_REFINE_MAX_ADV_FRAC": (float, 0.0, None, "Pass-2 pose refinement: max frame-advance fraction constraint"),
     "ASP_POSE_REFINE_SAME_HOLD_PENALTY": (float, 0.0, 1.0, "Pass-2 pose refinement: similarity penalty for staying within the same hold block"),
+    "ASP_POSE_PATH_SELECT": (int, 0, 1, "Experimental global dynamic-programming pose path selection"),
+    "ASP_POSE_PATH_SAFE": (int, 0, 1, "Reject experimental pose paths with structural-risk diagnostics"),
 }
 
 
@@ -324,7 +327,7 @@ _DUMP_SECTIONS: dict[str, list[str]] = {
     "compositing": [
         "ASP_PHASE_COMPOSITE", "ASP_GRAPHCUT_SEAM", "ASP_GC_FEATHER_PX", "ASP_BLOCKS_GAIN_COMP",
         "ASP_BLOCKS_LUM_COMP", "ASP_GLOBAL_GAIN_COMP", "ASP_JOINT_GAIN_SOLVE",
-        "ASP_JOINT_GAIN_SIGMA_N", "ASP_JOINT_GAIN_SIGMA_G", "ASP_SP_SOFT_PX",
+        "ASP_JOINT_GAIN_SIGMA_N", "ASP_JOINT_GAIN_SIGMA_G", "ASP_JOINT_GAIN_ROBUST", "ASP_SP_SOFT_PX",
         "ASP_BG_NORM_MIN_PX", "ASP_POST_SEAM_WARN_THRESH",
     ],
     "acceleration": ["ASP_BATCH_GPU"],
@@ -337,6 +340,8 @@ _DUMP_SECTIONS: dict[str, list[str]] = {
         "ASP_MAX_SKIPPABLE_HOLD_SIZE", "ASP_POSE_REFINE_LOOK_RANGE",
         "ASP_POSE_REFINE_MIN_GAIN", "ASP_POSE_REFINE_MIN_ADV_FRAC",
         "ASP_POSE_REFINE_MAX_ADV_FRAC", "ASP_POSE_REFINE_SAME_HOLD_PENALTY",
+        "ASP_POSE_PATH_SELECT",
+        "ASP_POSE_PATH_SAFE",
     ],
 }
 

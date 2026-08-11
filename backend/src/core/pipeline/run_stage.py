@@ -310,11 +310,17 @@ class _RunStageMixin(_Base):
             return _scan_stitch_fallback(_sf, output_path)
 
         # ── Stage 7: Global bundle adjustment ────────────────────────────────
-        use_affine_ba = getattr(self, "motion_model", "affine") == "affine"
-        affines = _bundle_adjust_affine(edges, N, use_affine=use_affine_ba)
+        _motion_model = getattr(self, "motion_model", "affine")
+        use_affine_ba = _motion_model == "affine"
+        affines = _bundle_adjust_affine(
+            edges,
+            N,
+            use_affine=use_affine_ba,
+            motion_model=_motion_model,
+        )
         logger.debug(
             f"[Stitch] Stage 7 complete: bundle adjustment done "
-            f"(mode={'affine' if use_affine_ba else 'translation'})."
+            f"(mode={_motion_model})."
         )
 
         # ── Stage 7b: Affine validation gate ─────────────────────────────────
@@ -347,6 +353,7 @@ class _RunStageMixin(_Base):
                 _adaptive_rot,
                 _adaptive_sc,
                 logger,
+                _motion_model,
             )
             if not health.valid:
                 # §1.3B: PANORAMA stitcher handles scale/rotation that

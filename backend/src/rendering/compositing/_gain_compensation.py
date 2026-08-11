@@ -166,6 +166,7 @@ def _joint_gain_solve(
     warped_bg: list[np.ndarray | None],
     sigma_n: float = 10.0,
     sigma_g: float = 0.1,
+    robust: bool = False,
 ) -> np.ndarray:
     """§3.1: Brown-Lowe (2007) joint multi-image gain compensation.
 
@@ -219,6 +220,29 @@ def _joint_gain_solve(
     if not overlaps:
         return np.ones(N, dtype=np.float64)
 
+    if robust and len(overlaps) >= 4:
+        # A pair can be contaminated by foreground leakage, a hard seam, or a
+        # transient animation cel.  Its log luminance ratio is an exposure
+        # observation only when it agrees with the other overlap observations.
+        # Reject isolated outliers with a robust MAD threshold; retain all
+        # observations when the sample has no useful spread estimate.
+        log_ratios = np.asarray(
+            [np.log(max(mean_i, 1e-6) / max(mean_j, 1e-6)) for _, _, mean_i, mean_j, _ in overlaps],
+            dtype=np.float64,
+        )
+        center = float(np.median(log_ratios))
+        mad = float(np.median(np.abs(log_ratios - center)))
+        tolerance = max(0.10, 3.0 * 1.4826 * mad)
+        filtered = [
+            item
+            for item, ratio in zip(overlaps, log_ratios, strict=False)
+            if abs(float(ratio) - center) <= tolerance
+        ]
+        # Keep the original system well-constrained.  This is a diagnostic
+        # safeguard, not permission to solve a nearly empty graph.
+        if len(filtered) >= max(3, N - 1) and _overlap_graph_connected(filtered, N):
+            overlaps = filtered
+
     inv_sigma_n2 = 1.0 / (sigma_n * sigma_n)
     inv_sigma_g2 = 1.0 / (sigma_g * sigma_g)
 
@@ -247,16 +271,43 @@ def _joint_gain_solve(
     return np.clip(gains, 0.5, 2.0)
 
 
+def _overlap_graph_connected(
+    overlaps: list[tuple[int, int, float, float, int]],
+    num_frames: int,
+) -> bool:
+    """Return whether every frame remains connected by overlap observations."""
+    if num_frames <= 1:
+        return True
+    graph = [set() for _ in range(num_frames)]
+    for i, j, *_ in overlaps:
+        if 0 <= i < num_frames and 0 <= j < num_frames:
+            graph[i].add(j)
+            graph[j].add(i)
+    seen = {0}
+    stack = [0]
+    while stack:
+        for neighbour in graph[stack.pop()]:
+            if neighbour not in seen:
+                seen.add(neighbour)
+                stack.append(neighbour)
+    return len(seen) == num_frames
+
+
 def _apply_joint_gain_solve(
     warped_frames: list[np.ndarray],
     warped_bg: list[np.ndarray | None],
+    robust: bool = False,
 ) -> list[np.ndarray]:
     """Solve §3.1's joint gain system and apply each frame's scalar gain to
     its own bg-only pixels (matches _normalize_single_frame's convention —
     foreground/character pixels are never touched by a background exposure
     correction)."""
     gains = _joint_gain_solve(
-        warped_frames, warped_bg, sigma_n=_JOINT_GAIN_SIGMA_N, sigma_g=_JOINT_GAIN_SIGMA_G
+        warped_frames,
+        warped_bg,
+        sigma_n=_JOINT_GAIN_SIGMA_N,
+        sigma_g=_JOINT_GAIN_SIGMA_G,
+        robust=robust,
     )
     result = []
     for i, wf in enumerate(warped_frames):
@@ -307,6 +358,7 @@ __all__ = [
     "_adaptive_gain_clamp",
     "_bg_gain_unclamped",
     "_joint_gain_solve",
+    "_overlap_graph_connected",
     "_apply_joint_gain_solve",
     "_equalize_warped_gains",
 ]

@@ -64,7 +64,7 @@ class AnimeStitchPipeline(
         composite_fg: bool = True,
         laplacian_bands: int = LAPLACIAN_BANDS,
         edge_crop: int = 30,
-        motion_model: str = "translation",  # 'translation' or 'affine' (4-DOF)
+        motion_model: str = "translation",  # 'translation', 'translation_scale', or 'affine'
         **kwargs,
     ):
         self.kwargs = kwargs

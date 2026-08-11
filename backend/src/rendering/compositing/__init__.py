@@ -80,6 +80,7 @@ from ._gain_compensation import (
     _blocks_gain_compensate,
     _blocks_lum_compensate,
     _equalize_warped_gains,
+    _overlap_graph_connected,
 )
 from ._graphcut import (
     _execute_graphcut_composite,
@@ -146,6 +147,7 @@ __all__ = [
     "_compute_skip_normalization_mask",
     "_diff_to_feather",
     "_equalize_warped_gains",
+    "_overlap_graph_connected",
     "_execute_graphcut_composite",
     "_extract_seam_crops",
     "_feather_gc_boundaries",

@@ -27,6 +27,7 @@ def _recover_affine_health(  # noqa: C901
     adaptive_rot: float,
     adaptive_sc: float,
     logger,
+    motion_model: str = "translation",
 ) -> tuple[list[np.ndarray], AffineHealth]:
     """Attempt Retries 0-3 to recover a failed affine-validation ``health``.
 
@@ -47,7 +48,9 @@ def _recover_affine_health(  # noqa: C901
     if health.reason.startswith("ratio="):
         _hc_edges = _filter_high_conf_edges(edges)
         if len(_hc_edges) >= N - 1:
-            _affines_r0 = _bundle_adjust_affine(_hc_edges, N, use_affine=use_affine_ba)
+            _affines_r0 = _bundle_adjust_affine(
+                _hc_edges, N, use_affine=use_affine_ba, motion_model=motion_model
+            )
             _health_r0 = _validate_affines(
                 _affines_r0,
                 min_step=adaptive_min_gap,
@@ -64,7 +67,9 @@ def _recover_affine_health(  # noqa: C901
     # Retry 1: consecutive-only bundle — skip edges sometimes corrupt the solution
     _adj_only = [e for e in edges if e["j"] == e["i"] + 1]
     if len(_adj_only) >= N - 1:
-        affines_r1 = _bundle_adjust_affine(_adj_only, N, use_affine=use_affine_ba)
+        affines_r1 = _bundle_adjust_affine(
+            _adj_only, N, use_affine=use_affine_ba, motion_model=motion_model
+        )
         health_r1 = _validate_affines(affines_r1)
         logger.debug(
             f"[Stitch]   Retry 1 (adj-only bundle): "

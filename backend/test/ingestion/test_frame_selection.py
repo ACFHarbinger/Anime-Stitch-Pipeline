@@ -33,6 +33,7 @@ from asp_backend.ingestion.frame_selection import (
     _detect_hold_blocks,
     _detect_hold_blocks_dhash,
     _drop_exact_dhash_duplicates,
+    _estimate_background_plate,
     _fg_center_diff,
     _hold_block_average,
     _near_dup_luma_filter,
@@ -40,6 +41,8 @@ from asp_backend.ingestion.frame_selection import (
     _refine_hold_ids_by_response,
     _reject_blurry_frames,
     _reject_low_contrast_frames,
+    _select_hold_keyframes_dp,
+    _separate_character_cels,
     _temporal_variance_filter,
 )
 
@@ -1109,3 +1112,149 @@ class TestPass2PoseRefine:
             False,
         )
         assert result == selected_v1
+
+    def test_global_pose_path_keeps_progress_and_prefers_coherent_route(self):
+        """The experimental global path must not choose a stationary frame."""
+        from asp_backend.ingestion.frame_selection._pose_refine import _global_pose_path
+
+        features = np.array(
+            [
+                [1.0, 0.0],
+                [0.99, 0.1],
+                [0.0, 1.0],
+                [0.98, 0.2],
+                [0.0, -1.0],
+                [0.97, 0.24],
+                [0.0, 0.5],
+            ],
+            dtype=np.float32,
+        )
+        result = _global_pose_path(
+            [0, 2, 4, 6],
+            7,
+            [self._thumb() for _ in range(7)],
+            features,
+            None,
+            [0.0, 8.0, 20.0, 28.0, 40.0, 48.0, 60.0],
+            1,
+            10.0,
+            [0] * 7,
+            0.0,
+            None,
+            False,
+        )
+        assert result[0] == 0
+        assert result[-1] == 6
+        assert all(a < b for a, b in zip(result, result[1:], strict=False))
+        assert result[1] == 3
+
+    def test_structural_guard_rejects_excessive_substitution(self):
+        from asp_backend.ingestion.frame_selection._pose_refine import (
+            _path_structurally_safe,
+        )
+
+        baseline = [0, 2, 4, 6, 8, 10]
+        candidate = [0, 1, 3, 5, 7, 10]
+        assert not _path_structurally_safe(
+            baseline,
+            candidate,
+            list(np.arange(11, dtype=float) * 10.0),
+            1,
+            10.0,
+            None,
+        )
+
+    def test_structural_guard_allows_bounded_same_phase_substitution(self):
+        from asp_backend.ingestion.frame_selection._pose_refine import (
+            _path_structurally_safe,
+        )
+
+        baseline = [0, 2, 4, 6, 8, 10]
+        candidate = [0, 3, 4, 6, 8, 10]
+        phases = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2]
+        assert _path_structurally_safe(
+            baseline,
+            candidate,
+            list(np.arange(11, dtype=float) * 10.0),
+            1,
+            10.0,
+            phases,
+        )
+
+
+class TestBackgroundPlateAndCelSeparation:
+    def test_estimate_background_plate_median(self):
+        """Temporal median plate estimation recovers static background despite moving foreground."""
+        rng = np.random.RandomState(42)
+        bg = rng.uniform(0.2, 0.4, (64, 64)).astype(np.float32)
+        thumbs = []
+        for i in range(5):
+            t = bg.copy()
+            r, c = i * 8, i * 8
+            t[r : r + 12, c : c + 12] = 0.9
+            thumbs.append(t)
+
+        plate = _estimate_background_plate(thumbs, method="median")
+        assert plate.shape == (64, 64)
+        diff = np.abs(plate - bg)
+        assert np.mean(diff) < 0.05, f"Background plate diff too high: {np.mean(diff):.4f}"
+
+    def test_estimate_background_plate_min(self):
+        """Temporal min plate estimation recovers dark background beneath bright character cels."""
+        bg = np.full((32, 32), 0.1, dtype=np.float32)
+        thumbs = []
+        for i in range(4):
+            t = bg.copy()
+            t[i * 5 : (i + 1) * 5, :] = 0.8
+            thumbs.append(t)
+
+        plate = _estimate_background_plate(thumbs, method="min")
+        assert np.allclose(plate, 0.1, atol=0.01)
+
+    def test_separate_character_cels(self):
+        """Subtracting background plate isolates character cels."""
+        bg = np.full((32, 32), 0.2, dtype=np.float32)
+        thumbs = []
+        for i in range(3):
+            t = bg.copy()
+            t[10:20, 10:20] = 0.8
+            thumbs.append(t)
+
+        cels = _separate_character_cels(thumbs, bg_plate=bg, threshold=0.05)
+        assert len(cels) == 3
+        assert np.max(cels[0][:8, :8]) == 0.0
+        assert np.mean(cels[0][10:20, 10:20]) > 0.5
+
+
+class TestBackgroundSubtractedHoldDetection:
+    def test_background_panning_does_not_break_cel_hold(self):
+        """Background panning over a held cel is ignored when use_bg_sub=True."""
+        thumbs = []
+        for i in range(4):
+            bg_shift = np.full((32, 32), 0.1 * i, dtype=np.float32)
+            cel = np.zeros((32, 32), dtype=np.float32)
+            cel[12:20, 12:20] = 0.7
+            thumbs.append(bg_shift + cel)
+
+        blocks_raw = _detect_hold_blocks(thumbs, hold_threshold=0.025, use_bg_sub=False)
+        assert len(blocks_raw) > 1
+
+        blocks_bg = _detect_hold_blocks(thumbs, hold_threshold=0.025, use_bg_sub=True)
+        assert len(blocks_bg) == 1
+        assert blocks_bg[0] == 0
+
+
+class TestDPHoldKeyframeSelection:
+    def test_select_hold_keyframes_dp_prefers_stable_interior(self):
+        """DP keyframe selection prefers stable interior drawing over noisy hold boundaries."""
+        bg = np.full((32, 32), 0.2, dtype=np.float32)
+        t0 = bg.copy(); t0[10:20, 10:20] = 0.75
+        t1 = bg.copy(); t1[10:20, 10:20] = 0.80
+        t2 = bg.copy(); t2[10:20, 10:20] = 0.85
+
+        thumbs = [t0, t1, t2]
+        hold_ids = [0, 0, 0]
+
+        selected = _select_hold_keyframes_dp(thumbs, hold_ids)
+        assert len(selected) == 1
+        assert selected[0] == 1

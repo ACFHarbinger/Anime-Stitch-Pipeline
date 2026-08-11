@@ -418,9 +418,26 @@ def _bundle_adjust_affine(
     num_frames: int,
     iterations: int = 200,
     use_affine: bool = True,
+    motion_model: str | None = None,
 ) -> list[np.ndarray]:
-    """Global Levenberg-Marquardt bundle adjustment for Affine (6-DOF) or Translation (2-DOF)."""
-    if BATCH_AVAILABLE and not use_affine:
+    """Solve global frame poses.
+
+    ``motion_model='translation_scale'`` exposes the existing C++ 3-DoF
+    translation+scale solver as an opt-in experiment.  ``None`` retains the
+    historical ``use_affine`` contract so existing callers remain unchanged.
+    """
+    if motion_model is None:
+        motion_model = "affine" if use_affine else "translation"
+    if motion_model not in {"translation", "translation_scale", "affine"}:
+        raise ValueError(f"Unsupported motion model: {motion_model}")
+
+    cpp_motion_model = {
+        "translation": 0,
+        "translation_scale": 1,
+        "affine": 2,
+    }[motion_model]
+
+    if BATCH_AVAILABLE and motion_model in {"translation", "translation_scale"}:
         cpp_edges = []
         for e in edges:
             ce = e.copy()
@@ -429,18 +446,38 @@ def _bundle_adjust_affine(
             ce["weight"] = float(e.get("weight", 1.0))
             cpp_edges.append(ce)
 
-        cpp_out = batch.bundle_adjust.bundle_adjust_affine(
-            cpp_edges,
-            num_frames,
-            f_scale=_BA_F_SCALE,
-            use_gnc=(_GNC_OUTER > 0),
-            adaptive_f_scale=True,
-        )
+        try:
+            cpp_out = batch.bundle_adjust.bundle_adjust_affine(
+                cpp_edges,
+                num_frames,
+                f_scale=_BA_F_SCALE,
+                use_gnc=(_GNC_OUTER > 0),
+                adaptive_f_scale=True,
+                motion_model=cpp_motion_model,
+            )
+        except TypeError as exc:
+            # A stale local extension may predate the motion_model keyword.
+            # Preserve the old translation ABI, but never silently downgrade
+            # an explicitly requested scale experiment.
+            if motion_model != "translation":
+                raise RuntimeError(
+                    "ASP base extension lacks motion_model support; rebuild base "
+                    "before using translation_scale"
+                ) from exc
+            cpp_out = batch.bundle_adjust.bundle_adjust_affine(
+                cpp_edges,
+                num_frames,
+                f_scale=_BA_F_SCALE,
+                use_gnc=(_GNC_OUTER > 0),
+                adaptive_f_scale=True,
+            )
 
         out = []
         for f in range(num_frames):
             cd = cpp_out[f]
             M = np.eye(2, 3, dtype=np.float32)
+            if motion_model == "translation_scale":
+                M[:2, :2] *= float(cd.get("scale", 1.0))
             M[0, 2] = cd["tx"]
             M[1, 2] = cd["ty"]
             out.append(M)
@@ -502,7 +539,11 @@ def _bundle_adjust_affine(
                     f"(res_thresh={res_threshold:.1f}px, dy_median={med_dy:.1f}px)"
                 )
                 out = _bundle_adjust_affine(
-                    clean_edges, num_frames, iterations, use_affine
+                    clean_edges,
+                    num_frames,
+                    iterations,
+                    use_affine,
+                    motion_model=motion_model,
                 )
 
     return out

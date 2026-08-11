@@ -106,6 +106,27 @@ class TestTranslationOnlyMode:
         assert len(affines) == N
 
 
+class TestTranslationScaleMode:
+    """The opt-in C++ 3-DoF model preserves scale without enabling shear."""
+
+    def test_scale_mode_returns_scaled_matrices(self):
+        edges = [make_edge(0, 1, dy=300.0), make_edge(1, 2, dy=300.0)]
+        try:
+            affines = _bundle_adjust_affine(
+                edges, 3, use_affine=False, motion_model="translation_scale"
+            )
+        except RuntimeError as exc:
+            pytest.skip(str(exc))
+        assert len(affines) == 3
+        for matrix in affines:
+            assert matrix.shape == (2, 3)
+            assert np.isfinite(matrix).all()
+
+    def test_scale_mode_rejects_unknown_model(self):
+        with pytest.raises(ValueError, match="Unsupported motion model"):
+            _bundle_adjust_affine([], 1, motion_model="homography")
+
+
 class TestAffineMode:
     """use_affine=True should return 2×3 matrices (may include small rotation)."""
 
