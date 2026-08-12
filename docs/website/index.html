@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Stitch Pipeline (ASP) — High-Performance Panorama Engine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@300;400;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0a0a0c;
+      color: #e2e8f0;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .glow-cyan { text-shadow: 0 0 20px rgba(0, 240, 255, 0.4); }
+    .border-glow:hover { border-color: rgba(0, 240, 255, 0.5); box-shadow: 0 0 15px rgba(0, 240, 255, 0.15); }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+  
+  <!-- Navigation Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0c]/90 backdrop-blur-md border-b border-[#1a1c23]">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-3 h-3 bg-[#00f0ff] rounded-full animate-pulse"></div>
+        <span class="font-mono text-sm font-bold tracking-wider text-[#00f0ff]">ASP</span>
+        <span class="text-xs text-[#8c92a0] border border-[#1a1c23] px-2 py-0.5 rounded font-mono">SUBMODULE</span>
+      </div>
+
+      <nav class="hidden md:flex space-x-8 text-sm font-medium text-[#8c92a0]">
+        <a href="#overview" class="hover:text-[#00f0ff] transition-colors">Overview</a>
+        <a href="#pipeline" class="hover:text-[#00f0ff] transition-colors">Stitching Pipeline</a>
+        <a href="#benchmarks" class="hover:text-[#00f0ff] transition-colors">GNC & Seams</a>
+      </nav>
+
+      <!-- Back to Main Toolkit -->
+      <a href="https://acfharbinger.github.io/Image-Toolkit/" 
+         class="flex items-center space-x-2 bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 text-[#00f0ff] border border-[#00f0ff]/30 px-4 py-2 rounded-lg text-xs font-mono font-bold transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span>Back to Image-Toolkit</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="pt-32 pb-16 px-6 max-w-7xl mx-auto flex-grow">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span class="text-[#00f0ff] text-xs font-mono tracking-[0.3em] uppercase font-bold">Panorama & Seam Processing Engine</span>
+      <h1 class="text-4xl md:text-6xl font-extrabold mt-4 tracking-tight text-white glow-cyan">
+        Anime Stitch Pipeline
+      </h1>
+      <p class="text-[#8c92a0] mt-6 text-lg leading-relaxed">
+        High-performance C++ and Python panorama stitching core for anime panning shots. Incorporating 2D $[t_x, t_y, s]$ motion estimation, Graduated Non-Convexity (GNC-TLS) robust residual weighting, character cel seam exclusion barriers ($1\text{e}9$), and dynamic keyframe selection.
+      </p>
+
+      <div class="mt-8 flex justify-center gap-4">
+        <span class="bg-[#1a1c23] text-[#00f0ff] text-xs font-mono px-3 py-1.5 rounded border border-[#00f0ff]/20">C++20 Core</span>
+        <span class="bg-[#1a1c23] text-[#ff0055] text-xs font-mono px-3 py-1.5 rounded border border-[#ff0055]/20">GNC-TLS Solvers</span>
+        <span class="bg-[#1a1c23] text-emerald-400 text-xs font-mono px-3 py-1.5 rounded border border-emerald-500/20">702 Verified Tests</span>
+      </div>
+    </div>
+
+    <!-- Core Capabilities Grid -->
+    <div id="pipeline" class="grid md:grid-cols-3 gap-6 mb-16">
+      <div class="border border-[#1a1c23] bg-[#0d0e12] p-6 rounded-xl border-glow transition-all">
+        <div class="text-[#00f0ff] font-mono text-xs font-bold mb-2">STAGE 01</div>
+        <h3 class="text-lg font-bold text-white mb-2">2D $[t_x, t_y, s]$ Motion Model</h3>
+        <p class="text-sm text-[#8c92a0]">
+          Constrains homography estimation to pure lateral pan and scale $[t_x, t_y, s]$, eliminating homography rotational warping and image stretching across anime cel pans.
+        </p>
+      </div>
+
+      <div class="border border-[#1a1c23] bg-[#0d0e12] p-6 rounded-xl border-glow transition-all">
+        <div class="text-[#ff0055] font-mono text-xs font-bold mb-2">STAGE 02</div>
+        <h3 class="text-lg font-bold text-white mb-2">GNC-TLS Outlier Rejection</h3>
+        <p class="text-sm text-[#8c92a0]">
+          Graduated Non-Convexity Total Least Squares iteratively dampens feature matches along moving ink outlines, guaranteeing stable global bundle adjustment.
+        </p>
+      </div>
+
+      <div class="border border-[#1a1c23] bg-[#0d0e12] p-6 rounded-xl border-glow transition-all">
+        <div class="text-emerald-400 font-mono text-xs font-bold mb-2">STAGE 03</div>
+        <h3 class="text-lg font-bold text-white mb-2">Character Cel Seam Barrier</h3>
+        <p class="text-sm text-[#8c92a0]">
+          Applies a $1\text{e}9$ C++ cost exclusion barrier along foreground character masks during Min-Cut/Max-Flow DP seam calculation, preventing torn anatomy.
+        </p>
+      </div>
+    </div>
+
+    <!-- Interactive Pipeline Flow Visualizer -->
+    <div class="border border-[#1a1c23] bg-[#0d0e12] p-8 rounded-2xl mb-16">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-white">Stitching Execution Flow</h3>
+        <span class="text-xs font-mono text-[#00f0ff] border border-[#00f0ff]/30 px-3 py-1 rounded">C++ / Python Pipeline</span>
+      </div>
+      <div class="grid md:grid-cols-4 gap-4 text-center">
+        <div class="bg-[#14161d] p-4 rounded-lg border border-[#1a1c23]">
+          <div class="text-xs font-mono text-[#8c92a0]">Input Frames</div>
+          <div class="font-bold text-white mt-1">Cel Hold Ingestion</div>
+        </div>
+        <div class="bg-[#14161d] p-4 rounded-lg border border-[#1a1c23]">
+          <div class="text-xs font-mono text-[#8c92a0]">Feature Match</div>
+          <div class="font-bold text-[#00f0ff] mt-1">2D Scale Alignment</div>
+        </div>
+        <div class="bg-[#14161d] p-4 rounded-lg border border-[#1a1c23]">
+          <div class="text-xs font-mono text-[#8c92a0]">Min-Cut Seam</div>
+          <div class="font-bold text-[#ff0055] mt-1">Cel Mask Barrier</div>
+        </div>
+        <div class="bg-[#14161d] p-4 rounded-lg border border-[#1a1c23]">
+          <div class="text-xs font-mono text-[#8c92a0]">Color Match</div>
+          <div class="font-bold text-emerald-400 mt-1">L-Channel Gain Match</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-[#1a1c23] bg-[#0a0a0c] py-8 text-center text-xs text-[#8c92a0]">
+    <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+      <span>Anime Stitch Pipeline (ASP) Submodule — Part of Image-Toolkit</span>
+      <a href="https://acfharbinger.github.io/Image-Toolkit/" class="text-[#00f0ff] hover:underline font-mono">
+        Return to Image-Toolkit Hub &rarr;
+      </a>
+    </div>
+  </footer>
+</body>
+</html>
