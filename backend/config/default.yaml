@@ -1,7 +1,0 @@
-# Example runtime configuration.
-app:
-  name: dev-repo-template
-  log_level: INFO
-
-greeting:
-  default_name: world

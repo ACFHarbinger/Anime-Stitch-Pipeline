@@ -1,0 +1,8 @@
+/* The React island (src/frameworks/react/, plus frontend/src/components/common/*
+   it mounts verbatim) is styled with Tailwind utility classes — this is what
+   actually generates them (tailwind.config.js globs frontend/src too). The
+   Vue chrome around it uses hand-written CSS custom properties instead (see
+   theme.css) and doesn't depend on this file. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

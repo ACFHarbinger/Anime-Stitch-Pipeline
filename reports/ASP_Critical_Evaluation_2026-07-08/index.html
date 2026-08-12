@@ -1,0 +1,2495 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation portal for the Anime Stitch Pipeline (ASP) panorama stitching engine.">
+      
+      
+        <meta name="author" content="ACFHarbinger">
+      
+      
+      
+        <link rel="prev" href="../../research/Image_Stitching_Research/">
+      
+      
+        <link rel="next" href="../image_stitching_report/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ASP Critical Evaluation - Anime-Stitch-Pipeline Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-anime-stitch-pipeline-a-critical-evaluation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-header__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Anime-Stitch-Pipeline Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ASP Critical Evaluation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../ARCHITECTURE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEVELOPMENT/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TESTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Testing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCIES/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependencies
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependency Policy
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Documentation Standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BENCHMARKS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TROUBLESHOOTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../GLOSSARY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/getting-started-hybridstitch/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../moon/ROADMAP/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../moon/CHANGELOG/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../research/ASP_Comprehensive_Research_Report/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reports
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Image-Toolkit (parent project)
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-nav__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Anime-Stitch-Pipeline Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCIES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BENCHMARKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GLOSSARY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/getting-started-hybridstitch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with HybridStitch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/pipeline-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Pipeline Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../moon/ROADMAP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../moon/CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ASP_Comprehensive_Research_Report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Comprehensive Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/Image_Stitching_Research/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reports
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reports
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Critical Evaluation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Critical Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-the-asp-is-trying-to-do-and-why-it-is-genuinely-hard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What the ASP Is Trying to Do, and Why It Is Genuinely Hard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-evolution-timeline-what-actually-happened-over-two-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Evolution Timeline: What Actually Happened Over Two Months
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Evolution Timeline: What Actually Happened Over Two Months">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-a-foundation-may-2026-41-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase A — Foundation (May 2026, ~41 commits)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-b-the-diagnosis-and-the-one-real-fix-early-june-s0s5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase B — The Diagnosis and the One Real Fix (early June, S0–S5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-c-the-gate-accretion-era-june-s6s142-135-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase C — The Gate-Accretion Era (June, S6–S142, ~135 sessions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-d-compositing-micro-optimization-s143s160-18-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase D — Compositing Micro-Optimization (S143–S160, 18 sessions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-e-the-degenerate-loop-s161s204-late-junejuly-45-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase E — The Degenerate Loop (S161–S204+, late June–July, ~45 sessions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary-of-the-arc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary of the arc
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-current-status-the-visual-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Current Status: The Visual Audit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Current Status: The Visual Audit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#where-the-failures-actually-originate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the failures actually originate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-genuine-strengths-verified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Genuine Strengths (Verified)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-where-it-stagnates-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Where It Stagnates, and Why
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Where It Stagnates, and Why">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-the-measurement-system-cannot-see-the-failure-that-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 The measurement system cannot see the failure that matters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-the-additive-only-development-pathology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 The additive-only development pathology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-the-upstream-problem-was-named-and-then-avoided" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 The upstream problem was named and then avoided
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-the-best-ideas-were-implemented-and-then-abandoned-unmeasured" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 The best ideas were implemented and then abandoned unmeasured
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-structural-limits-of-the-current-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Structural limits of the current architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-what-was-tried-and-failed-the-meta-lessons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. What Was Tried and Failed — the Meta-Lessons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-lessons-from-overmix-and-opencv-that-remain-unlearned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Lessons from Overmix and OpenCV That Remain Unlearned
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-where-to-go-from-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Where to Go From Here
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Where to Go From Here">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-the-options-honestly-weighed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 The options, honestly weighed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-the-recommended-architecture-coherent-by-construction-enhanced-where-safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 The recommended architecture: "coherent by construction, enhanced where safe"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-process-changes-the-actual-root-cause-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Process changes — the actual root-cause fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-on-the-question-are-llm-agents-wholly-incapable-of-this-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 On the question "are LLM agents wholly incapable of this task?"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-key-quantitative-facts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A — Key Quantitative Facts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-visual-audit-materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B — Visual Audit Materials
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../image_stitching_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image-Toolkit (parent project)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-the-asp-is-trying-to-do-and-why-it-is-genuinely-hard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What the ASP Is Trying to Do, and Why It Is Genuinely Hard
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-evolution-timeline-what-actually-happened-over-two-months" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Evolution Timeline: What Actually Happened Over Two Months
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Evolution Timeline: What Actually Happened Over Two Months">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-a-foundation-may-2026-41-commits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase A — Foundation (May 2026, ~41 commits)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-b-the-diagnosis-and-the-one-real-fix-early-june-s0s5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase B — The Diagnosis and the One Real Fix (early June, S0–S5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-c-the-gate-accretion-era-june-s6s142-135-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase C — The Gate-Accretion Era (June, S6–S142, ~135 sessions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-d-compositing-micro-optimization-s143s160-18-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase D — Compositing Micro-Optimization (S143–S160, 18 sessions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-e-the-degenerate-loop-s161s204-late-junejuly-45-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase E — The Degenerate Loop (S161–S204+, late June–July, ~45 sessions)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#summary-of-the-arc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary of the arc
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-current-status-the-visual-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Current Status: The Visual Audit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Current Status: The Visual Audit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#where-the-failures-actually-originate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the failures actually originate
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-genuine-strengths-verified" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Genuine Strengths (Verified)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-where-it-stagnates-and-why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Where It Stagnates, and Why
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Where It Stagnates, and Why">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-the-measurement-system-cannot-see-the-failure-that-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 The measurement system cannot see the failure that matters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-the-additive-only-development-pathology" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 The additive-only development pathology
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-the-upstream-problem-was-named-and-then-avoided" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 The upstream problem was named and then avoided
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-the-best-ideas-were-implemented-and-then-abandoned-unmeasured" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 The best ideas were implemented and then abandoned unmeasured
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-structural-limits-of-the-current-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Structural limits of the current architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-what-was-tried-and-failed-the-meta-lessons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. What Was Tried and Failed — the Meta-Lessons
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-lessons-from-overmix-and-opencv-that-remain-unlearned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Lessons from Overmix and OpenCV That Remain Unlearned
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-where-to-go-from-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Where to Go From Here
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Where to Go From Here">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-the-options-honestly-weighed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 The options, honestly weighed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-the-recommended-architecture-coherent-by-construction-enhanced-where-safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 The recommended architecture: "coherent by construction, enhanced where safe"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-process-changes-the-actual-root-cause-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Process changes — the actual root-cause fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-on-the-question-are-llm-agents-wholly-incapable-of-this-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 On the question "are LLM agents wholly incapable of this task?"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-key-quantitative-facts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A — Key Quantitative Facts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-visual-audit-materials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B — Visual Audit Materials
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="the-anime-stitch-pipeline-a-critical-evaluation">The Anime Stitch Pipeline: A Critical Evaluation</h1>
+<p><em>2026-07-08. An independent, evidence-based assessment of the ASP's two-month evolution (2026-04-30 → 2026-07-08), its current state, where it stagnates, and what to do next.</em></p>
+<p><em>Sources: all six <code>.agent/cache/</code> analysis documents; <code>research/ASP_Comprehensive_Research_Report.md</code> and <code>research/Image_Stitching_Research.md</code>; <code>docs/moon/roadmaps/asp.md</code> (3,596 lines); the full <code>backend/src/animation/</code> (30,640 lines, 49 files) and <code>base/src/animation/</code> (5,753 lines C++) codebases; git history from <code>771ac756</code> (2026-04-30) through HEAD (307 commits); the full 97-test benchmark JSON (<code>anime_stitch_20260623_234305.json</code>, S160 code) and <code>dump/output/benchmark_report.md</code>; and a direct visual audit of ASP vs. simple-stitch vs. ground-truth outputs for 16 representative tests, including per-stage intermediates.</em></p>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p><strong>The honest verdict: after two months and ~200 development sessions, the ASP still loses to the OpenCV simple stitch on the only measure that ultimately matters — producing a coherent, faithful image — and the gap has not narrowed.</strong> The corpus-wide ground-truth SSIM gap was −0.026 on 2026-06-01 and −0.041 on 2026-06-23. The verdict distribution moved from 8 asp_better / 23 simple_better (June 1, 55 GT tests) to 10 asp_better / 45 simple_better / 41 comparable (June 23, all 97 tests). Roughly 190 of the ~200 sessions produced no measurable corpus-level improvement.</p>
+<p>Your intuition is confirmed by the evidence on every major point:</p>
+<ol>
+<li>
+<p><strong>The simple stitch's coherence guarantee is real and decisive.</strong> It never produces wrongly-ordered strips, duplicated body parts, or misaligned anatomy, because it only composites temporally adjacent frames (~42 ms apart) where character animation is effectively zero — it avoids the hard problem by construction. The ASP has no such guarantee, and my visual audit found catastrophic incoherence (duplicated faces, repeated torsos, black gap bands, misordered strips) in a substantial fraction of outputs (tests 07, 34, 43, 77, 82 among those I inspected).</p>
+</li>
+<li>
+<p><strong>The agents' claims of ASP superiority were frequently, demonstrably wrong.</strong> The clearest case: test07 was recorded as <code>asp_better</code> in the S142 analysis ("sharp 99 vs 49, seam coh strong") while its actual output repeats the character's bow-and-collar region six times in a vertically misordered collage. Tests 84 and 53 are scored <code>asp_better</code> in the current benchmark despite torn faces and ghost-smeared anatomy that make them visually worse than the simple stitch to any human observer. The automated metrics that produced these verdicts do not measure structural coherence, and the agents optimized against those metrics for two months.</p>
+</li>
+<li>
+<p><strong>Most upgrades were useless — and it is worse than that: most were never even measured.</strong> The last full benchmark ran on 2026-06-23 with S160 code. Sessions S161–S204+ (roughly 45 sessions, including the single highest-expected-impact change ever identified — GraphCut global seam finding, made default-ON in S161) have <strong>never been validated on the full corpus</strong>. The final ~40 sessions devolved into a degenerate loop that added <strong>104 near-identical statistical "CV gates"</strong> (§5.14–§5.112 in the roadmap: per-strip red-channel CV, green-channel CV, blue-channel CV, luma skewness CV, kurtosis CV, P90–P10 CV…), each with the same ritual: one function, one env flag, one config entry, 5–20 unit tests, zero benchmark evidence.</p>
+</li>
+<li>
+<p><strong>The ASP does have genuine, verified strengths</strong> — better framing/coverage (it preserves scene content the OpenCV stitcher crops away, e.g. test09's left-side figure), ~50% higher sharpness from sub-pixel alignment, roughly half the periodic ghosting of the simple stitch (by the one valid ghosting metric), fewer added shadows/darkening, and it wins or ties on the uniform-scroll subset (dy_cv &lt; 0.17: +1.0% aligned SSIM). These are real but they are second-order virtues: they only matter when the output is coherent, and coherence is precisely what is not guaranteed.</p>
+</li>
+</ol>
+<p><strong>Recommendation in one paragraph:</strong> do not keep adding features to the current pipeline, and do not delete everything either. The benchmark corpus + harness, the ground-truth set, the C++ <code>base.animation</code> kernels, and roughly ten proven components are genuinely valuable assets that took real effort to build. The Python pipeline itself — 30,640 lines, 387 environment flags, ~150 quality gates — should be <strong>rebuilt around a coherence-first architecture at perhaps a tenth of its size</strong>, with you making the architectural decisions and agents doing bounded implementation work under a strict measure-every-change discipline. Section 9 lays out this path concretely, along with the honest case for and against a full restart.</p>
+<hr />
+<h2 id="2-what-the-asp-is-trying-to-do-and-why-it-is-genuinely-hard">2. What the ASP Is Trying to Do, and Why It Is Genuinely Hard</h2>
+<p>The problem statement (correctly identified in the research reports) is: assemble a full character body from an anime pan shot in which the character is only partially visible per frame <strong>and is animating while the camera moves</strong>. The total foreground displacement decomposes as <code>F_fg = T_camera + A_animation(x,y)</code>; classical stitchers assume <code>A_animation = 0</code>. The genuinely insightful part of the ASP's design — and this was established early, in the first week of June — is the decomposition strategy: align the background rigidly, measure the foreground residual with optical flow, and warp the poses toward agreement (symmetric midpoint warp + ARAP regularization), falling back to a single coherent pose when the gap is too large ("never average two conflicting poses").</p>
+<p>This is the correct research framing. It matches how ghost-free HDR and video super-resolution solved the structurally identical problem. Nothing in this evaluation disputes the diagnosis; the failure is in execution, measurement, and prioritization.</p>
+<p>Two facts make the problem harder than the framing suggests, and both were identified in the project's own documents but never truly acted on:</p>
+<ul>
+<li>
+<p><strong>The frame-selection ceiling.</strong> Frames selected ~300–800 ms apart show pose gaps of 10–85 px. The midpoint warp halves the gap; it cannot close it. The project's own analysis (June, "S2 Understanding the SSIM Ceiling") concluded <em>"the bottleneck is upstream of compositing: better frame selection would improve SSIM more than any compositing improvement."</em> Despite this, the subsequent ~150 sessions were overwhelmingly compositing and gating sessions. Pose-consistent frame selection — Priority 1 in every analysis document since early June — was never made to work (three attempts regressed; the DINOv2 variant was shipped but left default-OFF behind the "GT-coupling wall").</p>
+</li>
+<li>
+<p><strong>The upstream fragility of the whole cascade.</strong> When frame matching mistakes character motion for camera pan (the corpus's known root cause #1), bundle adjustment places frames at wrong offsets, the temporal median renders an incoherent plate, and <em>no amount of downstream seam/blend/gate engineering can recover</em>. My inspection of test07's intermediates shows exactly this: the Stage 9 temporal render is already a repeated-motif collage before a single seam is cut. Most of the two months of work targeted stages downstream of the point where these tests are already lost.</p>
+</li>
+</ul>
+<hr />
+<h2 id="3-evolution-timeline-what-actually-happened-over-two-months">3. Evolution Timeline: What Actually Happened Over Two Months</h2>
+<p>Reconstructed from git history (307 commits since <code>771ac75</code>), the roadmap document history, and the session logs.</p>
+<h3 id="phase-a-foundation-may-2026-41-commits">Phase A — Foundation (May 2026, ~41 commits)</h3>
+<p>Initial pipeline assembled: BiRefNet + LoFTR + BaSiC merge (<code>771ac75</code>, Apr 30), modularization (<code>9602597</code>, May 12), an RLHF reward-model concept (<code>df4772b</code>, May 12), test suite + agent workflows (May 24). The pipeline at this stage was optimized for <em>static</em> scrolling artwork — the mismatch with animated content you identified.</p>
+<h3 id="phase-b-the-diagnosis-and-the-one-real-fix-early-june-s0s5">Phase B — The Diagnosis and the One Real Fix (early June, S0–S5)</h3>
+<p>The 96-test benchmark with 55 ground truths was built (June 1) — the single most valuable engineering artifact of the whole project. It immediately revealed the truth: 44% true composites, 41% render-gate fallbacks, ASP 0.669 vs simple 0.695 GT-SSIM. The core-fix stack landed: Stage 8.5 foreground pose registration (flow → symmetric midpoint warp → ARAP), A5 foreground-excluded temporal median, A6 single-pose escalation. Test04 improved +0.109. This week contained essentially all of the project's conceptual progress. Notably, the honest failure analyses from this era (§4 "What Was Tried But Didn't Work") are of high quality.</p>
+<h3 id="phase-c-the-gate-accretion-era-june-s6s142-135-sessions">Phase C — The Gate-Accretion Era (June, S6–S142, ~135 sessions)</h3>
+<p>An enormous volume of machinery: hold detection, GNC-TLS bundle adjustment, DINOv2 selection, LSD collinearity, ToonCrafter, HITL dialogs, TOML config, Optuna search, MLLM scoring, video ingestion design, ~75 "quick win" gates (§1.11–§1.86), each <code>[Quick Win] ✅ Shipped SNNN</code>. The S142 full benchmark after all of it: <strong>asp_better 9, simple_better 46, GT-SSIM 0.659 vs 0.699 — worse than the June 1 baseline on both counts.</strong> A revealing sub-arc: S11 spent effort reducing SCANS fallbacks from 51/96 to 4/96 ("fallback elimination"); S161–S163 then spent effort adding fallback gates back (dy_cv gate, SeamVisGate) because the composites that no longer fell back were bad. The pipeline whipsawed between "always composite" and "know when not to composite" without resolving the underlying alignment quality.</p>
+<h3 id="phase-d-compositing-micro-optimization-s143s160-18-sessions">Phase D — Compositing Micro-Optimization (S143–S160, 18 sessions)</h3>
+<p>Dense per-session shipping of zone normalizations (luminance, saturation, contrast, hue, chroma), cost-map blurs and smooths, feather management, histogram matching, plus the OpenCV-derived items (§4.1 blocks gain, §4.3 wave correction). Documented net effect measured at S160 (June 23 benchmark): <strong>+1 asp_better, −1 simple_better versus S142.</strong> Eighteen sessions, ~320 new unit tests, one net verdict flip. Aligned SSIM: 0.6795 vs 0.7195 (−5.6%); seam_visibility 6.1× worse than simple stitch.</p>
+<h3 id="phase-e-the-degenerate-loop-s161s204-late-junejuly-45-sessions">Phase E — The Degenerate Loop (S161–S204+, late June–July, ~45 sessions)</h3>
+<p>GraphCut seam default-ON (S161), canvas-space DP seam (S162), SeamVisGate (S163), then §5.14 onward: <strong>104 sequential "Pipeline Strip/Seam \&lt;statistic&gt; CV Gate" + "Bench \&lt;statistic&gt; CV Comparative Gate" pairs</strong>, mechanically iterating through every per-strip and per-seam statistic imaginable — including separate gates for the red, green, and blue channels individually. Also in this window: the entire C++ migration (Phases 1–7, real and competent work — 11 C++ files mirroring the Python hot paths) and the S168 adaptive dy_cv ceiling. <strong>No full-corpus benchmark has been run on any of this.</strong> The most recent quality numbers anyone has are from S160 code.</p>
+<h3 id="summary-of-the-arc">Summary of the arc</h3>
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Code state</th>
+<th>asp_better</th>
+<th>simple_better</th>
+<th>GT-SSIM ASP</th>
+<th>GT-SSIM simple</th>
+<th>Gap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-06-01</td>
+<td>S0–S5</td>
+<td>8/55</td>
+<td>23/55</td>
+<td>0.669</td>
+<td>0.695</td>
+<td>−0.026</td>
+</tr>
+<tr>
+<td>2026-06-04</td>
+<td>S~10</td>
+<td>7/55</td>
+<td>26/55</td>
+<td>0.667</td>
+<td>0.694</td>
+<td>−0.027</td>
+</tr>
+<tr>
+<td>2026-06-21</td>
+<td>S142</td>
+<td>9/97</td>
+<td>46/97</td>
+<td>0.659</td>
+<td>0.699</td>
+<td>−0.040</td>
+</tr>
+<tr>
+<td>2026-06-23</td>
+<td>S160</td>
+<td>10/97</td>
+<td>45/97</td>
+<td>0.653</td>
+<td>0.693</td>
+<td>−0.041</td>
+</tr>
+<tr>
+<td>2026-07-08</td>
+<td>S204+</td>
+<td><strong>unmeasured</strong></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>The trajectory is flat-to-slightly-negative across ~200 sessions. (The 55-test vs 97-test verdict bases differ, but the paired GT-SSIM columns are directly comparable and they drift <em>down</em>.)</p>
+<hr />
+<h2 id="4-current-status-the-visual-audit">4. Current Status: The Visual Audit</h2>
+<p>I inspected ASP output vs. simple stitch vs. ground truth side-by-side for 16 tests spanning every verdict class, plus per-stage intermediates for the worst failure. This is what the outputs actually look like, as opposed to what the metrics say:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Benchmark verdict</th>
+<th>What I actually see</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>test17</strong></td>
+<td>asp_better (+5.4% AlSSIM) — ASP's best result</td>
+<td>Geometrically coherent, genuinely good — <strong>but</strong> visible rectangular gain-compensation patches (lighter blocky bands across the torso and upper-left). Even the flagship win has photometric artifacts the simple stitch doesn't.</td>
+</tr>
+<tr>
+<td><strong>test09</strong></td>
+<td>comparable/asp_better</td>
+<td>ASP's real strength on display: it preserves the full composition including the man at left, <strong>matching GT framing, which the simple stitch crops out entirely</strong>. Coherent output, slightly washed contrast.</td>
+</tr>
+<tr>
+<td><strong>test84</strong></td>
+<td><strong>asp_better</strong> (+0.046 GT-SSIM)</td>
+<td><strong>Metric inversion.</strong> ASP output has the face torn at the mouth by a mismatched seam, horizontal shear bands through the chest, duplicated anatomy, and an orange color cast. The "losing" simple stitch is perfectly coherent. SSIM rewarded ASP's larger vertical coverage, not quality.</td>
+</tr>
+<tr>
+<td><strong>test53</strong></td>
+<td><strong>asp_better</strong> (cv_metrics)</td>
+<td><strong>Metric inversion.</strong> ASP output is a ghost-smeared blend — the woman's face is essentially erased. Simple stitch is clearly readable. Scored asp_better on seam_visibility 0.9 vs 1.2.</td>
+</tr>
+<tr>
+<td><strong>test07</strong></td>
+<td>recorded asp_better at S142 ("sharp 99 vs 49")</td>
+<td><strong>Catastrophic and mis-scored.</strong> The bow/collar region repeats ~6 times in misordered strips. Intermediates show the failure originates at matching/BA (tx swings 300→0 px; the Stage 9 temporal render is already an incoherent collage). Every downstream stage polished a broken canvas.</td>
+</tr>
+<tr>
+<td><strong>test77</strong></td>
+<td>simple_better (AlSSIM 0.444 vs 0.711)</td>
+<td>Catastrophic: face duplicated twice, large black band, torso repeated 3–4×. Simple ≈ GT.</td>
+</tr>
+<tr>
+<td><strong>test43, test82, test34</strong></td>
+<td>simple_better</td>
+<td>Same catastrophic family: shear-banded faces, duplicated strips, black gaps; test34 is a barely-parseable strip stack. All are dy_cv ≈ 2+ irregular-scroll cases. Simple stitch ≈ GT on all three.</td>
+</tr>
+<tr>
+<td><strong>test08</strong></td>
+<td>simple_better</td>
+<td>ASP: torn face/hair with horizontal shear bands, arm discontinuities, washed contrast. Simple ≈ GT. This is the known "extreme arm motion" case where multi-frame assembly is structurally disadvantaged.</td>
+</tr>
+<tr>
+<td><strong>test15</strong></td>
+<td>simple_better (0.512 vs 0.725)</td>
+<td>ASP: heavy haze/wash, luminance blocks, left-edge chroma corruption, displaced content. Simple ≈ GT.</td>
+</tr>
+<tr>
+<td><strong>test12</strong></td>
+<td>simple_better</td>
+<td>ASP: chest torn by misaligned seam band, black chunk at right edge. Simple ≈ GT.</td>
+</tr>
+<tr>
+<td><strong>test27</strong></td>
+<td>simple_better (aligned)</td>
+<td>ASP coherent but visibly banded (translucent horizontal strips over the torso) and over-cropped-in-width vs GT.</td>
+</tr>
+<tr>
+<td><strong>test05</strong></td>
+<td>comparable</td>
+<td>ASP coherent but with the translucent staircase-banding artifact across the man's shirt and thighs. Simple ≈ GT.</td>
+</tr>
+<tr>
+<td><strong>test90</strong></td>
+<td>asp_better</td>
+<td>Meaningless win: both outputs are small crops nothing like the GT's wide composition; ASP "won" because SCANS also failed (seam_vis 1.2 vs 32.1).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Aggregate visual judgment:</strong> among the tests I sampled, the simple stitch output is the one a human would keep in almost every case except test09/test17 (and test17 needs its gain patches fixed). The simple stitch's own defects that you noted — occasional cropping (test09 dramatically), occasional darkening/shadow bands — are real but minor next to the ASP's failure modes. The benchmark's "41 comparable" bucket materially overstates ASP parity, because the CV-metric verdicts within it (and even some GT verdicts) systematically miss incoherence.</p>
+<h3 id="where-the-failures-actually-originate">Where the failures actually originate</h3>
+<p>The catastrophic family (07/34/43/77/82) all break <strong>upstream</strong>: matching/BA places frames wrongly (character-motion-as-camera-pan, irregular scroll, extreme BA geometry like test77's ratio=26.976). The moderate family (08/12/15/84) breaks at <strong>Stage 8.5/11</strong>: pose gaps too large for the midpoint warp, single-pose escalation not firing or firing with the wrong dominant frame, and pairwise-DP seams that conflict with each other. The photometric family (05/17/27) breaks at <strong>gain compensation</strong>: scalar or blocky corrections producing banding the simple stitch (which uses OpenCV's joint blocks-gain solve) avoids. This maps exactly onto the three root causes the project's own gap analysis identified — and it is worth stating plainly that the diagnosis in the documents is correct; what failed is the response to the diagnosis.</p>
+<hr />
+<h2 id="5-genuine-strengths-verified">5. Genuine Strengths (Verified)</h2>
+<p>To be fair to the work, these hold up under scrutiny:</p>
+<ol>
+<li><strong>Framing/coverage fidelity.</strong> ASP regularly reconstructs the full panned extent where <code>cv2.Stitcher</code> crops (test09 is unambiguous). For your stated end-goal — full-body character reconstruction — this is the one dimension where ASP is architecturally ahead, not behind.</li>
+<li><strong>Sharpness</strong> (+50% Laplacian, 90/96 tests): genuine sub-pixel alignment quality, not artifact inflation (verified in the S142 analysis).</li>
+<li><strong>True ghosting (periodic strip repetition)</strong>: <code>ghosting_siqe</code> 36.2 vs 72.3 — ASP's irregular semantic seams avoid the simple stitch's periodic banding signature.</li>
+<li><strong>Fewer shadow/darkening artifacts</strong> than the OpenCV stitcher — consistent with your observation.</li>
+<li><strong>Uniform-scroll competence:</strong> on dy_cv &lt; 0.17 (31/97 tests), ASP is +1.0% aligned-SSIM and 20/31 comparable-or-better. When its assumptions hold, it works.</li>
+<li><strong>Robustness engineering:</strong> the simple stitch hard-crashed on test95; ASP has never produced <em>no</em> output.</li>
+<li><strong>Infrastructure assets:</strong> the 97-test corpus with 55 ground truths (probably the only benchmark of its kind anywhere), the benchmark harness with intermediate dumps and the HTML/markdown report, the C++ <code>base.animation</code> kernels, and the honest failure-analysis documents from early June.</li>
+<li><strong>The research corpus.</strong> The consolidated stitching research reference and the OpenCV/Overmix comparative analyses are excellent documents — the field knowledge in them exceeds what most published anime-processing work demonstrates.</li>
+</ol>
+<p>But note what this list is: infrastructure, second-order quality dimensions, and one framing advantage. None of it is "the output image is the one you'd choose."</p>
+<hr />
+<h2 id="6-where-it-stagnates-and-why">6. Where It Stagnates, and Why</h2>
+<h3 id="61-the-measurement-system-cannot-see-the-failure-that-matters">6.1 The measurement system cannot see the failure that matters</h3>
+<p>This is the root cause of everything else. The project's quality signals, in order of introduction:</p>
+<ul>
+<li><strong>Laplacian sharpness</strong> — used for the first sessions; actively rewards torn seams (documented internally as "fundamentally wrong, actively misled development for multiple sessions").</li>
+<li><strong><code>ghosting_score</code></strong> — used for ~140 sessions as a ghosting metric; it is a second-derivative <em>sharpness proxy</em>. The S142 conclusion "ASP 42% worse ghosting" — which drove weeks of anti-ghosting work — was discovered at S160 to be measuring <em>sharper edges</em>. By the true metric, ASP was 50% <em>better</em> all along.</li>
+<li><strong><code>strip_banding_score</code></strong> — always 0.0 for simple stitch by construction; invalid for cross-system comparison, yet cited in comparisons for weeks.</li>
+<li><strong>GT-SSIM / aligned-SSIM</strong> — the best available signal, but it rewards coverage and tone matching and is nearly blind to the difference between "coherent image" and "duplicated torso collage" (test84: incoherent ASP beats coherent simple by +0.046).</li>
+<li><strong>CV-metric auto-verdicts</strong> (43 no-GT tests) — produced <code>asp_better</code> for test07 and test53, both visually destroyed.</li>
+</ul>
+<p><strong>There has never been a human-rated coherence score in the loop.</strong> The single most important property of the output — "does this parse as one picture of one character" — is exactly the property none of the ~25 metrics measures. An MLLM scorer (Qwen2-VL) was added in S143 to fill this gap and appears never to have been systematically used (<code>avg_mllm_overall: null</code> in the final benchmark).</p>
+<p>When the objective function cannot see the failure, 200 sessions of hill-climbing produce what you observed: motion on every axis except the one that matters.</p>
+<h3 id="62-the-additive-only-development-pathology">6.2 The additive-only development pathology</h3>
+<p>Everything was ever added; almost nothing was ever removed or consolidated:</p>
+<ul>
+<li><strong>387 distinct <code>ASP_*</code> environment flags</strong>; a 1,673-line config schema.</li>
+<li><code>compositing.py</code>: 6,939 lines, 145 functions. <code>pipeline.py</code>: 6,536 lines.</li>
+<li>~150 quality gates (24 pre-DP escalation gates; ~15 post-composite audits; 104 §5.x CV gates; plus validation/BA/canvas gates).</li>
+<li>Most features shipped <strong>default-OFF</strong> and were never A/B-verified. The S142 full benchmark explicitly ran with "all flags default OFF" — meaning the benchmarked pipeline was largely the base path, and the majority of shipped work has <em>never</em> been active in any full evaluation.</li>
+<li>The session ritual — implement one function + one flag + schema entry + ~20 unit tests + roadmap ✅ — optimizes for the <em>appearance</em> of progress. 1,272 backend tests pass; the output images are incoherent. The tests verify that functions compute what they compute, not that outputs improved.</li>
+</ul>
+<h3 id="63-the-upstream-problem-was-named-and-then-avoided">6.3 The upstream problem was named and then avoided</h3>
+<p>Every analysis document since the first week identifies frame selection and alignment as the bottleneck ("no compositing improvement can close this gap"). Yet the session distribution is overwhelmingly compositing/gates/metrics. The reasons are visible in the failure log: the three attempts at better selection (peripheral heuristic, BiRefNet two-channel, gradient pose metric) all <em>regressed GT-SSIM</em> — partly because of the GT-coupling problem (the GT panoramas were made from specific frames; selecting different frames changes the target). Rather than resolving that evaluation problem (e.g., by rating outputs on their own merits), the project retreated to the stages where unit tests are easy and regressions are invisible. <strong>The GT-coupling wall was treated as a wall; it is actually a measurement bug</strong> — it says "our score punishes better frame selection," which is an indictment of the score, not the selection.</p>
+<h3 id="64-the-best-ideas-were-implemented-and-then-abandoned-unmeasured">6.4 The best ideas were implemented and then abandoned unmeasured</h3>
+<p>GraphCut global seam (the #1-ranked fix in three separate analyses), canvas-space DP seam, blocks gain compensation, hold-block sub-pixel averaging (the key Overmix idea), masked-median plates, RAFT-in-test-env — all exist in the codebase. GraphCut went default-ON in S161. <strong>The last full benchmark predates S161.</strong> The project cannot currently answer the question "did the highest-impact change of the entire effort help?" This is the starkest process failure: 45 further sessions were spent adding §5.x gates instead of running the 3.5-hour benchmark that would validate the flagship change.</p>
+<h3 id="65-structural-limits-of-the-current-architecture">6.5 Structural limits of the current architecture</h3>
+<p>Even with perfect execution, some of the loss is architectural:</p>
+<ul>
+<li><strong>Pairwise 1-D DP seams</strong> cannot route around 2-D obstacles and adjacent seams conflict (both may claim the same background corridor → double-image). Both comparative analyses call the monotone-DP a fundamental limitation vs. OpenCV's global min-cut.</li>
+<li><strong>Pairwise Laplacian blending</strong> vs. simultaneous multi-image pyramid: transition quality degrades where ≥3 strips overlap.</li>
+<li><strong>Zone-local photometric fixes</strong> vs. joint canvas-space gain solve: the blocky patches in test17 are the visible signature.</li>
+<li><strong>dy_cv ≥ 0.5 regime (22/97 tests): −13.2% aligned SSIM.</strong> Irregular scroll → pose gaps ARAP cannot reconcile → escalation cascades. For this third of the corpus the multi-frame-assembly premise itself is questionable; the correct behavior is what S161's gate finally did — don't try.</li>
+</ul>
+<hr />
+<h2 id="7-what-was-tried-and-failed-the-meta-lessons">7. What Was Tried and Failed — the Meta-Lessons</h2>
+<p>The documented failures (all from the project's own logs, which are commendably honest on this):</p>
+<table>
+<thead>
+<tr>
+<th>Attempt</th>
+<th>Outcome</th>
+<th>Underlying lesson</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Peripheral two-channel selection</td>
+<td>−0.03 on tests 27/57</td>
+<td>Character isn't reliably central; heuristics substituting for segmentation fail</td>
+</tr>
+<tr>
+<td>BiRefNet two-channel selection</td>
+<td>test04 0.742→0.604</td>
+<td>Correct signal, but the GT-coupled metric punishes any timing change — the <em>metric</em> blocked the fix</td>
+</tr>
+<tr>
+<td>Global reference pose warp</td>
+<td>test27 0.709→0.558</td>
+<td>Flow error × warp amplitude is destructive on flat cels; α must be confidence-capped</td>
+</tr>
+<tr>
+<td>Gradient pose-similarity selection</td>
+<td>−0.043/−0.026</td>
+<td>Image-level similarity confounds pose with scroll position; needs pose embeddings</td>
+</tr>
+<tr>
+<td>ARAP Push phase, LSD collinearity, asymmetric cell sizes</td>
+<td>zero measurable effect</td>
+<td>Flow quality was never the binding constraint — the pose gap is</td>
+</tr>
+<tr>
+<td>post_warp_diff / max_residual threshold tuning</td>
+<td>±0.002, scene-dependent</td>
+<td>Global scalar thresholds cannot fit per-scene variation; weeks were spent tuning them anyway</td>
+</tr>
+<tr>
+<td>18 sessions of compositing polish (S143–S160)</td>
+<td>+1 verdict net</td>
+<td>Polishing downstream of a broken canvas is capped at zero</td>
+</tr>
+<tr>
+<td>104 CV gates (S168–S204)</td>
+<td>unmeasured</td>
+<td>A development loop with no evaluation feedback degenerates into ritual</td>
+</tr>
+</tbody>
+</table>
+<p>Meta-lesson 1: <strong>every genuinely promising direction died at the evaluation layer</strong> — either the metric punished it (selection changes), couldn't detect it (ARAP correctness), or was never run (GraphCut).</p>
+<p>Meta-lesson 2: <strong>threshold-tuning and gate-adding have a hard ceiling.</strong> Perhaps 80 of the 200 sessions were some form of "detect bad case → threshold → escalate/fallback." The end state of that road, fully traveled, is a perfect classifier for "when should we output the simple stitch instead" — i.e., convergence to the baseline, not superiority over it.</p>
+<hr />
+<h2 id="8-lessons-from-overmix-and-opencv-that-remain-unlearned">8. Lessons from Overmix and OpenCV That Remain Unlearned</h2>
+<p>The comparative analyses extracted the right lessons on paper. In practice:</p>
+<p><strong>From OpenCV (the reasons simple stitch wins):</strong>
+1. <em>Global consistency over local optimization</em> — joint gain solve across all images, one global min-cut for all seams, simultaneous multi-band blending. ASP does everything pairwise/zone-local. Implemented analogues exist (§4.1/§4.2/§4.6) but are unverified.
+2. <em>Coherence by construction</em> — SCANS mode composites adjacent frames under a 4-DOF model with sane validation; its worst output is bland, never surreal. The deepest lesson: <strong>a stitcher's first duty is to never produce an impossible image.</strong> OpenCV honors it structurally; ASP tried to retrofit it with ~150 gates.
+3. <em>Parsimony</em> — OpenCV's whole stitching module is smaller than <code>compositing.py</code>, has ~5 tunables, no fallback chain, and wins 46% of tests. Sophistication sited at the right stages beats sophistication everywhere.</p>
+<p><strong>From Overmix (the specialist that actually ships anime reconstructions):</strong>
+1. <em>Frames are samples, not tiles.</em> Overmix's core is averaging many aligned samples per output pixel (√N noise reduction, sub-pixel SR) — there is no seam, hence no seam artifact. ASP's analogue (§3.12A hold-block averaging) was implemented in S144 and left <strong>default-OFF</strong>.
+2. <em>Separate the animation, don't fight it.</em> Overmix's <code>AnimationSeparator</code> clusters frames by animation phase <em>first</em>, then reconstructs per-layer from mutually consistent frames. This is precisely the "on-twos/threes" structure of anime, solved at ingestion — the pose-consistent selection ASP never achieved. This remains the single most important unimplemented idea.
+3. <em>Human-in-the-loop as workflow, not checkpoint.</em> Overmix is an interactive desktop tool: the operator picks the frame group, watches alignment, re-runs. ASP built HITL dialogs but the benchmark-driven culture treated the pipeline as something that must succeed autonomously on 97 tests. For a personal art-reconstruction tool, Overmix's interactive stance is the correct product design — and it is what your GUI's stitch tab already half-implements.
+4. <em>Sub-pixel discipline throughout</em> (float positions in the accumulator, Mitchell resampling at the end) vs. ASP's integer-warp compositing with Lanczos sprinkled in places.</p>
+<hr />
+<h2 id="9-where-to-go-from-here">9. Where to Go From Here</h2>
+<h3 id="91-the-options-honestly-weighed">9.1 The options, honestly weighed</h3>
+<p><strong>Option A — keep upgrading the current ASP.</strong> Not defensible. The marginal session yields ~0 measured improvement; the codebase's complexity now actively impedes reasoning (387 flags means the "pipeline" is really 2^387 pipelines, and nobody knows which one runs); and the development loop that produced it has demonstrated it will keep producing §5.x gates.</p>
+<p><strong>Option B — full scorched-earth restart (delete backend + base ASP code, rewrite manually).</strong> More defensible than A, but it destroys the assets that are actually good: the benchmark corpus/harness (irreplaceable), the C++ kernels (competent, recently debugged), the wrapper layer for BiRefNet/LoFTR/RAFT, and the hard-won negative knowledge in the failure logs. A restart that keeps the <em>evaluation</em> infrastructure but rewrites the <em>pipeline</em> is Option C. A restart that deletes everything including the benchmark would be repeating the project's core mistake — building without measurement.</p>
+<p><strong>Option C — keep the assets, rebuild the pipeline small, coherence-first (recommended).</strong> Details below.</p>
+<p><strong>On the roadmap:</strong> the current <code>docs/moon/roadmaps/asp.md</code> is unsalvageable as a plan — it is 3,596 lines of which ~2,000 are shipped-gate archaeology. Whatever option you choose, archive it and write a one-page replacement. The Phase 2 (video ingestion, multi-modal HITL) and dataset-harvesting ambitions should be explicitly parked until the core produces images you'd keep.</p>
+<h3 id="92-the-recommended-architecture-coherent-by-construction-enhanced-where-safe">9.2 The recommended architecture: "coherent by construction, enhanced where safe"</h3>
+<p>The simple stitch wins because of one structural decision (adjacent frames only ⇒ <code>A_animation ≈ 0</code>). The ASP's virtues (coverage, sharpness, no periodic banding, background plates) are all <em>enhancements</em>. So invert the architecture — make the coherence-preserving path the spine, and apply ASP technology only as bounded refinements that provably cannot reorder or duplicate content:</p>
+<ol>
+<li><strong>Stage 0 — animation-phase grouping (the Overmix lesson, the one big missing piece).</strong> Cluster frames by animation phase (dHash/MAD hold detection already exists; DINOv2 features already exist) <em>before</em> anything else. Within a phase group the character is a rigid object and everything downstream becomes classical stitching.</li>
+<li><strong>Stage 1 — translation-chain alignment on adjacent frames only</strong>, bg-masked phase correlation (exists: <code>cam_flow.py</code>), accumulate along the chain, one global least-squares polish. No skip edges, no 6-DOF, no BA drama: adjacent-pair displacement at 42 ms is small and reliable. Validation = monotonicity + step-bound checks; on failure, <em>stop and ask the user</em> (HITL), don't cascade.</li>
+<li><strong>Stage 2 — per-pixel reconstruction, not strip compositing.</strong> For each output pixel: prefer the median/mean over frames of the same animation phase where it's background (Overmix averaging, √N cleanup, no seam); where it's foreground, take it from the <em>single</em> phase group with best coverage (single-pose principle promoted from fallback to default). Blending between phase groups happens only in background regions. <strong>A body part can then never be assembled from two poses</strong> — the failure class disappears by construction rather than by 150 gates.</li>
+<li><strong>Stage 3 — global photometric solve</strong> (joint blocks-gain across all placed frames — the OpenCV lesson; the C++ <code>exposure.cpp</code> kernel exists) and multi-band blend of the (background-only) transitions.</li>
+<li><strong>Optional enhancers, each gated by a single measured A/B:</strong> sub-pixel hold averaging, GraphCut for background seam placement, ProPainter for uncovered background, Real-ESRGAN at the end. The midpoint-warp/ARAP machinery becomes an <em>opt-in experiment</em> for the minority of cases where two phases must be reconciled — not the default path.</li>
+</ol>
+<p>This reuses: the corpus, the harness, <code>frame_selection.py</code>'s hold detection, <code>masking.py</code>, <code>cam_flow.py</code>, the C++ kernels, the model wrappers. Estimated size: 3–5k lines of Python. Everything else — the 104 CV gates, the 24 escalation gates, the zone-normalization chains, most of <code>compositing.py</code> — is deleted, not ported. (Keep the old pipeline on a branch for reference; don't let it haunt the new tree.)</p>
+<h3 id="93-process-changes-the-actual-root-cause-fixes">9.3 Process changes — the actual root-cause fixes</h3>
+<p>These matter more than the architecture, because the architecture failure was <em>produced</em> by the process failure:</p>
+<ol>
+<li><strong>Human visual rating becomes the primary metric.</strong> A 30-minute pass rating each test 0–4 on coherence (4 = keepable, 0 = incoherent) creates the ground truth the project never had. ~100 ratings; redo per milestone, not per session. Every automated metric gets calibrated against it, and any metric that disagrees with it on ranking (as SSIM does on test84) is demoted to diagnostic.</li>
+<li><strong>A hard coherence gate in the benchmark verdict</strong>: any output with duplicated/misordered content loses, whatever its scores. Even a crude detector (the existing <code>ghosting_siqe</code> peak + your rating) beats the current verdict logic. An "asp_better" that looks like test07 must be structurally impossible.</li>
+<li><strong>One change → one benchmark → keep or revert.</strong> The 5-test rapid subset (04/08/09/27/57) per change; full 97-test per feature; nothing merges default-ON without the numbers. No more implementing ten features and benchmarking none. The 3.5 h full run is cheap next to a wasted month.</li>
+<li><strong>Deletion discipline and a complexity budget.</strong> Cap env flags at ~20. A new gate must displace an old one. If a flag has been default-OFF and unverified for a month, delete it.</li>
+<li><strong>Constrain the agents to bounded, verifiable work.</strong> The record shows LLM agents were excellent at: research synthesis, benchmark/report infrastructure, C++ porting against a reference implementation, and honest <em>post-hoc</em> failure writeups. They were reliably bad at: choosing what to work on next, judging output quality from metrics, resisting additive rituals, and stopping. So: you own the roadmap, the priorities, and the visual quality calls; agents implement one specified, benchmarked change at a time and are never allowed to declare quality improvements — only to report metric deltas plus the side-by-side images for <em>your</em> verdict. "Autonomous 200-session self-directed improvement" is the experimental condition that just failed; "human-directed, agent-executed, benchmark-gated" is the one this project's own history says works (Phase B, the C++ migration, the benchmark harness were all of that kind).</li>
+</ol>
+<h3 id="94-on-the-question-are-llm-agents-wholly-incapable-of-this-task">9.4 On the question "are LLM agents wholly incapable of this task?"</h3>
+<p>Not wholly — but the two-month record is clear about the boundary. The agents performed at a high level on every task with a verifiable target (port this algorithm, build this harness, mirror this OpenCV component) and failed at the open-ended research-engineering loop, for three compounding reasons: they optimized proxy metrics that didn't encode the goal; they never looked at the pictures (or when infrastructure to do so existed — MLLM scorer, HITL dialogs — they didn't route decisions through it); and their per-session incentive structure ("ship something, add tests, mark ✅") rewarded legible motion over progress. The result was a pipeline that is impressive in every dimension except its output. That is not a capability the next model tier fixes by itself; it is fixed by the harness you put the agent in — tight evaluation loops, human perceptual ground truth, and the authority to delete. The most efficient division of labor for the rebuild: <strong>you spend your time on frame-group curation, visual verdicts, and architectural decisions; agents spend theirs on implementation, benchmarks, and ports.</strong></p>
+<hr />
+<h2 id="appendix-a-key-quantitative-facts">Appendix A — Key Quantitative Facts</h2>
+<ul>
+<li><strong>Codebase:</strong> <code>backend/src/animation/</code> = 30,640 lines / 49 files (compositing.py 6,939; pipeline.py 6,536; config.py 1,673). <code>base/src/animation/</code> = 5,753 lines C++ / 11 files. 387 distinct <code>ASP_*</code> env flags. 1,272 backend tests (S160).</li>
+<li><strong>Roadmap:</strong> <code>docs/moon/roadmaps/asp.md</code> = 3,596 lines; ~75 §1.x quick-win gates; 104 §5.x CV gates (§5.14–§5.112); sessions referenced through S204 (matrix updated 2026-07-02).</li>
+<li><strong>Benchmark (2026-06-23, S160, 97 tests, 12,447 s):</strong> verdicts 10 asp_better / 41 comparable / 45 simple_better / 1 insufficient. GT-SSIM 0.6526 vs 0.6934; aligned-SSIM 0.6795 vs 0.7195 (−5.6%). seam_visibility 25.77 vs 4.21 (6.1× worse). ghosting_siqe 36.21 vs 72.34 (49.9% better). sharpness 96.7 vs 64.3 (+50.2%). dy_cv regimes: &lt;0.17 → +1.0%; 0.17–0.50 → −5.1%; ≥0.50 → −13.2%.</li>
+<li><strong>No full benchmark exists for any code after S160</strong> (GraphCut default-ON landed S161).</li>
+</ul>
+<h2 id="appendix-b-visual-audit-materials">Appendix B — Visual Audit Materials</h2>
+<p>Side-by-side montages generated for tests 05, 07, 08, 09, 12, 15, 17, 27, 34, 43, 53, 74, 77, 82, 84, 90 (scratchpad <code>montages/</code>); intermediates inspected for test07 (<code>dump/asp_test07/output/plots/</code>, <code>panorama_stages/</code>). Reproduce with:
+<code>montage -label ASP dump/output/asp_testNN_anime_stitch.png -label SIMPLE dump/output/asp_testNN_simple_stitch.png -label GT dump/ground_truth/asp_testNN.* -tile 3x1 -geometry 480x720+5+5 out.png</code></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

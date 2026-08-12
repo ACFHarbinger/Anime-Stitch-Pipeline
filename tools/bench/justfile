@@ -1,8 +1,0 @@
-# tools/bench — run benchmarks.
-
-set shell := ["bash", "-c"]
-
-all: backend
-
-backend:
-    cd backend && uv run pytest benchmark --benchmark-only

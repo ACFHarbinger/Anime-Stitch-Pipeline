@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Image-Toolkit Docs</title>
+    <!--
+      GitHub Pages has no server-side rewrite, so any deep link (e.g.
+      /Image-Toolkit/ARCHITECTURE) 404s there and Pages serves this file.
+      Stash the intended path in sessionStorage and redirect to the SPA
+      root; index.html's inline script restores it via history.replaceState
+      once vue-router has booted, so the URL bar ends up correct without a
+      second network round-trip.
+    -->
+    <script>
+      sessionStorage.setItem("spa-redirect", location.href);
+      var base = "/Image-Toolkit/";
+      location.replace(base);
+    </script>
+  </head>
+  <body></body>
+</html>

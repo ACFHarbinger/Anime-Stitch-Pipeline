@@ -1,0 +1,32 @@
+:root {
+  /* Optic Lab: shared semantic palette. Components should consume these
+     meanings instead of inventing page-specific colors. */
+  --it-ink: #111111;
+  --it-ink-deep: #0a0a0a;
+  --it-surface: #161616;
+  --it-surface-raised: #1d1d1d;
+  --it-paper: #f8f6f0;
+  --it-text: #f4f1eb;
+  --it-text-muted: #8c8a82;
+  --it-text-faint: #666666;
+  --it-silver: #d4d0c6;
+  --it-optic-cyan: #80e5e0;
+  --it-optic-magenta: #c72c6a;
+  --it-optic-violet: #9a8cff;
+  --it-review-amber: #d4af37;
+  --it-blueprint: #27405e;
+  --it-line: rgba(255, 255, 255, .10);
+  --it-line-strong: rgba(212, 175, 55, .28);
+  --it-radius-sm: 3px;
+  --it-radius-md: 8px;
+  --it-shadow-deep: 0 30px 70px rgba(0, 0, 0, .45);
+  --it-motion-fast: 180ms;
+  --it-motion-slow: 700ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --it-motion-fast: 1ms;
+    --it-motion-slow: 1ms;
+  }
+}

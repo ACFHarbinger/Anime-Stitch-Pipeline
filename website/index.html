@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Anime Stitch Pipeline — inspectable panorama stitching for animated imagery."
+    />
+    <title>Anime Stitch Pipeline</title>
+    <script>
+      // GitHub Pages SPA deep-link restore: public/404.html redirects
+      // unknown paths to "/?/actual/path" before this script rewrites the
+      // URL back via history.replaceState, so React Router sees the real path.
+      (function () {
+        var redirect = sessionStorage.getItem("spa-redirect");
+        if (redirect) {
+          sessionStorage.removeItem("spa-redirect");
+          var restored = redirect.replace(/~and~/g, "&");
+          if (restored !== location.href) {
+            history.replaceState(null, "", restored);
+          }
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

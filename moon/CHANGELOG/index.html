@@ -1,0 +1,1878 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation portal for the Anime Stitch Pipeline (ASP) panorama stitching engine.">
+      
+      
+        <meta name="author" content="ACFHarbinger">
+      
+      
+      
+        <link rel="prev" href="../ROADMAP/">
+      
+      
+        <link rel="next" href="../../research/ASP_Comprehensive_Research_Report/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Changelog - Anime-Stitch-Pipeline Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#changelog" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-header__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Anime-Stitch-Pipeline Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Changelog
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../ARCHITECTURE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEVELOPMENT/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TESTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Testing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCIES/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependencies
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependency Policy
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Documentation Standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BENCHMARKS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TROUBLESHOOTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../GLOSSARY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/getting-started-hybridstitch/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../ROADMAP/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../research/ASP_Comprehensive_Research_Report/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reports/ASP_Critical_Evaluation_2026-07-08/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reports
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Image-Toolkit (parent project)
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-nav__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Anime-Stitch-Pipeline Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCIES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BENCHMARKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GLOSSARY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/getting-started-hybridstitch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with HybridStitch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/pipeline-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Pipeline Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ROADMAP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#s365-2026-08-07-photometric-fix-for-seam-rendering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S365 — 2026-08-07 (Photometric Fix for Seam Rendering)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[Unreleased]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-scaffolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Template scaffolding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2026-07-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0] — 2026-07-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0] — 2026-07-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ASP_Comprehensive_Research_Report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Comprehensive Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/Image_Stitching_Research/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" >
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reports
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reports
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reports/ASP_Critical_Evaluation_2026-07-08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Critical Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reports/image_stitching_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image-Toolkit (parent project)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#s365-2026-08-07-photometric-fix-for-seam-rendering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        S365 — 2026-08-07 (Photometric Fix for Seam Rendering)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unreleased" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [Unreleased]
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[Unreleased]">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#added_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-scaffolding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Template scaffolding
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#changed_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changed
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#010-2026-07-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        [0.1.0] — 2026-07-30
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="[0.1.0] — 2026-07-30">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#added_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Added
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="changelog">Changelog</h1>
+<p>All notable changes to this project are documented in this file.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
+and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<blockquote>
+<p><strong>Continuity note (2026-08-06):</strong> <code>docs/moon/ROADMAP.md</code> cites specific
+session numbers (e.g. "S214", "S216") as being documented "in
+<code>docs/moon/CHANGELOG.md</code>". That detailed, session-by-session history
+(~S1–S266+) was kept in the original standalone <code>Anime-Stitch-Pipeline</code>
+repository before it was imported into this repo's current
+template-generated layout; it was never migrated into this file, which
+otherwise only contains that template's own scaffolding history. Those
+roadmap citations
+are dead pending an explicit import of that history — treat any
+<code>docs/moon/CHANGELOG.md SNNN</code> reference in the roadmap as pointing at
+content that does not currently exist in this repo, not as a citation you
+can follow.</p>
+</blockquote>
+<h2 id="s365-2026-08-07-photometric-fix-for-seam-rendering">S365 — 2026-08-07 (Photometric Fix for Seam Rendering)</h2>
+<p>Implemented an HSV-based value scaling fix for seam-photometric diagnosis in both Python (<code>bench_anime_stitch.py</code>) and C++ (<code>compositing.cpp</code>). This resolves excessive color gradient shifts across seams on borderline datasets (e.g., test87, test10) by applying scalar gain only to the luminance/value channel rather than multiplicatively across all RGB channels.</p>
+<h2 id="unreleased">[Unreleased]</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>
+<p><strong>C/D investigation baseline (2026-08-11):</strong> ran the combined existing
+  pose-window, phase-composite, and joint-gain candidates on the five-test
+  verification set. The run produced 1 ASP ground-truth win, 2 SCANS wins,
+  and 2 comparable results; ASP sharpness and measured ghosting improved, but
+  GT-SSIM remained slightly behind SCANS. The candidates remain experimental
+  and default-off while candidate frame selection and photometric policy work
+  continues.</p>
+</li>
+<li>
+<p>Added a <strong>Load Evaluation…</strong> control to the benchmark inspector. It opens
+  an existing <code>asp_evaluations_*.json</code>, switches the active output to that
+  file, and resumes at its first unrated dataset. The existing <code>--out PATH</code>
+  CLI option remains available for scripted launches.</p>
+</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li>
+<p>Fixed the Image-Toolkit ASP benchmark wrapper to use the corpus at
+  <code>submodules/ASP/dump</code> for all ASP benchmark, resume, range, and cleanup
+  recipes. The previous parent-level <code>dump</code> path caused verification to report
+  zero matched datasets without running the benchmark.</p>
+</li>
+<li>
+<p>Stopped tracking <code>docs/website/tsconfig.tsbuildinfo</code> (a stray TypeScript
+  incremental-build cache left over from before the Vue 3 site removal --
+  no <code>.gitignore</code> rule covered it). Added <code>docs/website/.gitignore</code>
+  (<code>node_modules/</code>, <code>dist/</code>, <code>*.local</code>, <code>*.tsbuildinfo</code>), matching CSG/CRE.
+  <code>docs/mkdocs.yml</code>'s <code>site_dir</code> now points at <code>build/gen/site</code> (was
+  <code>../site</code>, unreferenced by any <code>.gitignore</code> rule); CI workflows
+  (<code>.github</code>/<code>.forgejo</code>/<code>.gitea</code>/<code>.gitlab</code>) updated to match. GitLab's job
+  still ends with <code>mv build/gen/site public</code>, since GitLab Pages requires
+  that literal directory name.</p>
+</li>
+</ul>
+<h3 id="added_1">Added</h3>
+<ul>
+<li>Surfaced seam diagnostic recommendations in-context within the <code>SeamDiagnosticDialog</code> based on seam analysis (Phase 6.4: Assisted-use suggestions), replacing the need for a separate tutorial mode.</li>
+</ul>
+<h3 id="added_2">Added</h3>
+<ul>
+<li><strong>Phase 0.3</strong>: Added <code>backend/benchmark/merge_overmix.py</code> to merge Overmix's per-test artifacts (stitch images, variant logs) into a consolidated benchmark JSON and Markdown report without requiring a full pipeline re-run (Issue #352).</li>
+<li><strong>Phase 0.5</strong>: Ran full 97-corpus benchmark for Hugin using run_hugin.py. Fixed missing constants via PYTHONPATH and parallelized the script for faster processing (Issue #18).</li>
+<li><strong>Phase 6.3</strong>: Bundled synthetic sample projects (<code>test_scroll_gradient</code>, <code>test_scroll_pattern</code>) for the HybridStitch onboarding wizard. Provides non-explicit, simple test sequences to learn the tool (Issue #17).</li>
+<li><strong>Phase 4</strong>: Added quantitative (non-visual) seam-photometric diagnosis tooling via <code>backend/benchmark/diagnose_seams.py</code> to analyze borderline seam_vis_gate/composite_gate_sb fallbacks without rendering adult content (Issue #16).</li>
+<li><strong>Phase 0.4(d)</strong>: Implemented SI-FID as a reference-free metric in <code>backend/benchmark/evaluation/si_fid.py</code> and integrated it into <code>bench_anime_stitch.py</code> for non-GT test evaluation.</li>
+<li><strong>Bug Fix</strong>: Fixed <code>_refine_masks_with_clicks</code> dimension mismatch in <code>backend/src/ingestion/masking.py</code> by threading per-frame shapes through the live SAM-2 predictor state across the HITL dialog boundary (Issue #15).</li>
+<li><strong>Bug Fix</strong>: Decoupled <code>gui/</code> tests from Image-Toolkit by making <code>AppSettings</code> import optional in <code>_thumbnail_file_picker.py</code> and removing <code>continue-on-error</code> from <code>lint-test-gui</code> (Issue #3).</li>
+<li>
+<p><strong>Toolchain Cleanup</strong>: Consolidated documentation toolchains to MkDocs and Sphinx. Removed Vue 3 site, Structurizr, and TypeDoc, along with their CI build steps (Issue #4).</p>
+</li>
+<li>
+<p><strong>Bundled sample projects for HybridStitch, closing roadmap Phase 6.3 (issue #17).</strong> <code>gui/scripts/generate_sample_sequences.py</code> procedurally draws 3 tall synthetic "scroll page" images with PIL (flat rounded panels, line-art silhouette + speech bubbles, dot-grid/text-label page — no real source art) and slices each into 6 overlapping 480×320 frames, committed under <code>gui/resources/samples/&lt;name&gt;/frame_NN.png</code> (~60 KiB total). <code>gui/src/tabs/stencil/sample_sequences.py::list_sample_sequences</code> discovers them at runtime; <code>RealHybridStitchPanel</code> gets a new non-modal "Try a Sample" toolbar button (an instant-popup menu) that loads a chosen sequence into the sidebar via the existing <code>load_paths()</code>, so a new user can explore every tool tab on real (synthetic) data immediately. 12 new tests (<code>gui/test/tabs/test_sample_sequences.py</code>) cover generator output validity (frame count, real pixel overlap between consecutive frames, bundle size), sample discovery, and the panel's load-a-sample action. Full gui suite 62/62 (50 pre-existing + 12 new).</p>
+</li>
+<li>Ran a full-session <code>/code-review high 0f3196a~1..HEAD</code> (278 files) as a final Ground Rule check on this session's volume of change. 10 findings surfaced: 7 fixed (the <code>_compute_fg_masks_sam2</code>/<code>_compute_fg_masks_grounded_sam2</code> frame-0-only resize bug in <code>backend/src/ingestion/masking.py</code> — same root cause already fixed for issue #11 in the sibling stateful function; <code>ASP_USE_SAM2</code> env-var parsing now treats <code>"false"/"no"/"off"/""</code> as falsy; CI's <code>lint-test-backend</code> pytest step now has the same <code>continue-on-error: true</code> + explanation as <code>lint-test-gui</code>'s, for the identical issue #3 coupling; a dropped assertion in <code>test_frame_selection.py</code> restored; two onboarding-wizard bugs in <code>gui/src/tabs/stencil/hybrid_stitch_panel.py</code> fixed — <code>showEvent()</code> now gates first-run tour instead of a bare <code>singleShot(0, ...)</code>, and re-opening the wizard no longer false-marks the tour "seen" via the superseded instance's <code>finished</code> signal); plus a real test-hermeticity bug found in passing (<code>test_eval_metrics_view.py</code>'s 6 <code>load_test_assets()</code> calls were missing <code>results_path</code>, letting real benchmark JSON leak into fixture-only tests). 2 findings were review-methodology false positives (bare <code>python3 script.py --help</code> invocation, not the documented <code>PYTHONPATH=...</code> form). 1 finding (<code>_refine_masks_with_clicks</code>'s HITL click-refinement has the same dimension issue but needs a real architectural fix, not a bounded one) deferred to issue #15. Full backend suite 911/1(pre-existing)/3 and full gui suite 50/50 unchanged; both packages remain mypy-clean.</li>
+<li>
+<p>Ran the full 97-test corpus benchmark for the first time since 2026-07-28 (issue #13, RTX 3090 Ti, ~2h40m) — the actual Ground Rule #1 verification of this entire session's infra/bug-fix work, not an assumption. Result: statistically indistinguishable from the pre-session baseline (43 true composites, 54 fallbacks, GT-SSIM 0.6659 vs 0.6931 — both exact/near-exact matches to 2026-07-28's 43/54/0.6656/0.693). Direct corpus-scale confirmation that none of this session's work — packaging fixes, the evaluation-dir move, two real pipeline bug fixes, dead-code removal, or the complete mypy/ruff cleanup across <code>backend/</code> and <code>gui/</code> — changed default pipeline behavior.</p>
+</li>
+<li>
+<p>Fixed <code>gui/test/conftest.py</code>'s missing <code>q_app</code> fixture (separate from issue #3's cross-repo problem): 33 of 50 tests failed at setup with "fixture 'q_app' not found", not real failures. All 50 pass now via Image-Toolkit's shared interpreter. Does not resolve issue #3 itself — CI's standalone environment still hits the deeper <code>backend.src.constants</code> coupling.</p>
+</li>
+<li><strong><code>gui/</code>'s mypy is now fully clean too (215 → 0 errors), closing issue #14.</strong> Same playbook as <code>backend/</code>'s issue #7: a <code>TYPE_CHECKING</code>-only Protocol (<code>_stitch_tab_protocol.py::_StitchTabHost</code>) for <code>StitchTab</code>'s 11-mixin composition (159 of 215 errors), a root-caused <code>has-type</code> fix in <code>_progress_pipeline.py</code>, narrow stub-gap <code># type: ignore</code>s, and mechanical local-bind fixes. Test suite (50/50) unchanged. <code>gui/</code> and <code>backend/</code> are now both fully clean on mypy.</li>
+<li><code>gui/</code> ruff cleanup: 447 → 5 errors (issue #14). Auto-fixed 442 mechanically, manually wrapped 14 non-auto-fixable long lines, left 5 string-literal tooltips/docstrings as-is. 51 files touched, test suite (50/50) unchanged.</li>
+<li>Found <code>gui/</code> has the same never-cleaned-up lint/type debt <code>backend/</code> had (447 ruff + 215 mypy errors) — <code>uv sync</code> never had the CUDA blocker that hid this in <code>backend/</code>, so it should have been failing CI this whole time. Filed as issue #14, cleanup in progress.</li>
+<li><strong><code>backend/</code>'s mypy is now fully clean (137 → 0 errors), and ruff is effectively complete (2264 → 249, all remaining being a deliberate line-length judgment call, not unfinished work).</strong> Root-caused the final 17 <code>has-type</code> errors properly (reproduced with the mixin Protocol removed to rule it out as the cause) rather than guessing — mixin methods reassigning attributes to differing types across branches without a local declaration. Full test suite identical throughout (911 passed, 1 pre-existing unrelated failure, 3 skipped). Closes the mypy portion of issue #7.</li>
+<li>Resolved ruff's F401/E741/E402 (280 → 249 errors, only line-length remains): 3 genuinely-used re-exports moved into <code>__all__</code> (were flagged only because accessed via module-attribute in tests), 3 redundant re-imports removed, 1 ambiguous variable renamed, 13 intentional <code>sys.path</code>-bootstrap imports marked <code># noqa: E402</code>. Assessed but mostly left the 260 line-length violations (wrapped 11 clearly-safe function signatures) — <code>line-length = 100</code> is a deliberate, consistent repo convention and most violations are string-literal content that shouldn't wrap. Part of issue #7.</li>
+<li>Fixed the mechanical "mypy can't narrow through a repeated subscript" pattern across 21 files plus 5 cv2-stub gaps (narrowly-scoped <code># type: ignore</code>): mypy 88 → 24. Full test suite unchanged. Part of issue #7; remaining 24 errors are a different, not-yet-triaged symptom (<code>has-type</code> on lazy-loaded matcher attributes at <code>run_stage.py:257</code>).</li>
+<li>Closed issue #12: <code>_pass2_pose_refine</code>'s broken DINOv2 recomputation turned out to feed a helper (<code>_pose_dist</code>) that's never called anywhere — dead code, zero behavioral impact. Removed it; added the first unit test coverage <code>_pass2_pose_refine</code> has ever had (3 tests) and verified via a standalone script that the live DINOv2 scoring path genuinely works.</li>
+<li>Fixed 28 mixin-composition mypy errors in <code>core/pipeline/</code> with a new <code>TYPE_CHECKING</code>-only <code>Protocol</code> (<code>_pipeline_protocol.py::_PipelineHost</code>) describing the composed <code>AnimeStitchPipeline</code>'s attributes — zero runtime behavior change, mypy 116 → 88, test suite unchanged. Part of issue #7.</li>
+<li>Measured <code>ASP_POSE_WINDOW_PX=80</code> (DINOv2 pose-consistent frame selection) via a real GPU A/B: 3/5 real composites (was 2/5), verdict counts 1 asp_better / 1 comparable / 3 simple_better (was 0/3/2) — the first <code>asp_better</code> verdict produced by any flag this session. GT-SSIM slightly worse on average (0.717 vs 0.7324) but sharpness/ghosting both improve. Genuinely mixed, not a clean win — flagged for a human coherence look, not flipped to default-on.</li>
+<li>Triaged <code>backend/</code>'s mypy errors (issue #7, 137 real current count — the earlier 345 figure predated the evaluation-dir move): fixed 21 verified-safe type-annotation errors (no logic changes, full test suite identical before/after). Categorized the rest: ~83 need case-by-case judgment (mostly mechanical, not bugs), 33 need an architectural call (mixin-composition attribute visibility, cv2 stub gaps). Found one real bug in the process (not a type-checker false positive) — <code>_pass2_pose_refine</code>'s internal <code>_pose_dist</code> helper always gets <code>None</code> DINOv2 features from a wrong-argument-type call; the function's primary scoring path is unaffected and confirmed working via a real benchmark run. Filed as issue #12.</li>
+<li>Applied safe <code>ruff check . --fix</code> auto-fixes across <code>backend/</code> (typing-syntax modernization, import sorting — no logic changes). Verified: full test suite gives the exact same 908 passed / 1 failed (pre-existing) / 3 skipped before and after. Error count 2264 → 280. Part of issue #7; mypy's 345 errors remain untouched.</li>
+<li>Fixed the SAM-2 mask/frame dimension mismatch that crashed 2/5 verify-subset tests (issue #11): <code>_compute_fg_masks_sam2_stateful</code> resized every mask against a single shared reference from <code>frames[0]</code> instead of each frame's own shape, which silently mismatched whenever per-frame heights differed by a few px (normal — <code>_normalise_widths</code> only normalises width). Also fixed an adjacent <code>cv2.resize()</code> call passing <code>cv2.INTER_LINEAR</code> as the wrong positional argument. Verified via a real GPU run: all 5/5 verify-subset tests now complete cleanly (was 3/5). Real result: GT-SSIM 0.7197 vs BiRefNet-only baseline's 0.7324 (worse), sharpness/ghosting both improve — a genuine mixed result. <code>ASP_USE_SAM2</code> stays default OFF (no human rating pass exists for either config yet), but is honestly measurable now. Closes issue #11.</li>
+<li>Fixed <code>bench_anime_stitch.py</code> to actually route through <code>AnimeStitchPipeline</code>'s <code>_USE_SAM2</code>-aware masking (was calling the raw BiRefNet-only function directly, see below). With that fixed and the missing SAM-2 checkpoint downloaded, found a real pipeline bug: <code>ASP_USE_SAM2=1</code> crashes 2/5 verify-subset tests with a mask/frame dimension mismatch inside <code>_compute_fg_masks_sam2_stateful</code>. Flag stays default OFF. Filed as issue #11.</li>
+<li>Found (not fixed): <code>ASP_USE_SAM2</code> has zero effect on <code>bench_anime_stitch.py</code>'s scored output — the benchmark script calls the raw non-SAM2-aware <code>_compute_fg_masks()</code> directly and constructs <code>AnimeStitchPipeline</code> with every stage toggle disabled, bypassing the pipeline's own env-flag-aware masking entirely. Confirmed via a real A/B run producing byte-identical results with the flag on vs off. Filed as issue #10 — may affect other masking-adjacent flags too, not independently audited.</li>
+<li>Ran a real 5-test GPU verify benchmark (<code>anime_stitch_20260807_002510.json</code>, RTX 3090 Ti, real corpus) for the first time since this session's packaging fixes — confirms no regression in pipeline behavior (results land at the post-trim baseline: GT-SSIM 0.7324 vs 0.7423, 0/3/2 asp_better/comparable/simple_better). Not a Phase-0.1 human rating pass.</li>
+<li>Fixed <code>just</code> failing to parse at all in this repo: the root <code>justfile</code> declared <code>mod build</code>/<code>mod test</code>/<code>mod docs</code>/<code>mod bench</code> submodules <em>and</em> top-level recipes with the same names, which <code>just</code> 1.46 rejects outright. Renamed the wrapper recipes to <code>build-all</code>/<code>test-all</code>/<code>docs-build</code>/<code>bench-all</code>. Wired up <code>tools/bench/justfile</code>'s <code>asp-benchmark</code>, <code>asp-benchmark-verify</code>, <code>asp-benchmark-assess</code>, <code>asp-triage</code>, <code>asp-triage-db</code>, <code>asp-run-overmix</code>, <code>asp-run-hugin</code>, <code>test-base-cpp</code> — referenced throughout this roadmap for two months but never actually implemented. Fixed <code>eval_dispatch.py</code>, <code>bench_anime_stitch.py</code>, <code>run_hugin.py</code>, and <code>run_overmix.py</code> to self-bootstrap their <code>asp_backend</code> alias (previously only worked when invoked from within another bootstrap); verified all four run cleanly end-to-end via <code>--help</code> (<code>triage_fallback_classes.py</code> needed only the docstring fix — it doesn't import <code>asp_backend</code>). Closes issue #9.</li>
+<li>Moved <code>backend/src/evaluation/</code> back to <code>backend/benchmark/evaluation/</code>, matching its pre-ASP-extraction layout in Image-Toolkit. To avoid reintroducing the issue #3 namespace collision (ASP's and Image-Toolkit's top-level <code>backend</code> packages share a name), registered it under a new <code>asp_backend_evaluation</code> alias in <code>backend/test/conftest.py</code> rather than using raw <code>backend.benchmark.evaluation.X</code> imports — verified this preserves all 249 previously-passing <code>backend/test/evaluation/</code> tests (a naive literal-path version of this move silently broke them). Closes issue #8.</li>
+<li>Restored <code>backend/test/conftest.py</code>'s missing fixture helpers (<code>make_frame</code>, <code>make_translation_affine</code>, <code>make_rotation_affine</code>, <code>make_edge</code>, <code>compute_ty_gaps</code> + 4 fixtures), recovered verbatim from Image-Toolkit's own <code>backend/test/conftest.py</code> (where this repo's ASP test suite was originally split from). Unblocks 342 previously-uncollectible tests across 6 files. Closes issue #6.</li>
+<li>Fixed <code>backend/pyproject.toml</code> requiring a CUDA toolchain (<code>nvcc</code>) just to run <code>uv sync</code>: moved <code>mamba_ssm</code>/<code>ptlflow</code>/<code>romatch</code>/<code>pycocotools</code>/<code>sam-2</code> (already-lazy-imported research matcher plugins) into an optional <code>matchers</code> extra. Closes issue #5.</li>
+<li>Phase 6.1 (Tutorials &amp; Onboarding): <code>gui/src/tabs/stencil/onboarding_wizard.py::HybridStitchOnboardingWizard</code> — a first-run, dismissible, re-invocable <code>QWizard</code> guided tour over <code>HybridStitchPanel</code>, paging through pages that switch the panel's live tool tabs to match. New "?" toolbar button re-invokes it. 10 new tests. Closes issue #1.</li>
+<li>Phase 6.2 (Tutorials &amp; Onboarding): <code>docs/tutorials/getting-started-hybridstitch.md</code> and <code>docs/tutorials/pipeline-overview.md</code> — beginner-facing docs-site tutorials for <code>HybridStitchPanel</code> and the automated <code>AnimeStitchPipeline</code>, wired into <code>docs/mkdocs.yml</code> nav and <code>docs/index.md</code>. Closes issue #2.</li>
+<li>Moved <code>moon/</code>, <code>reports/</code>, and <code>research/</code> into <code>docs/</code> (<code>docs/moon/</code>, <code>docs/reports/</code>, <code>docs/research/</code>), consolidating all documentation under one directory; extended <code>docs/mkdocs.yml</code>'s nav with Roadmap/Changelog/Research/Reports sections at the new locations plus a link back to the parent Image-Toolkit project.</li>
+<li>Added <code>docs/website/</code> — a Vue 3 + Vite documentation site (same design as Image-Toolkit's own) rendering every <code>docs/**/*.md</code> directly, nav/search generated from this repo's own <code>docs/mkdocs.yml</code>. Includes a "Related Projects" sidebar section embedding Image-Toolkit's and CSG's own docs sites via iframe. Deployed alongside the MkDocs portal in CI (<code>.github/workflows/docs.yml</code> + Forgejo/Gitea/GitLab mirrors) at <code>/app/</code>.</li>
+<li>Fixed <code>.gitlab/.gitlab-ci.yml</code>, <code>.gitlab/issue_templates/</code>, <code>.gitlab/merge_request_templates/</code>, and <code>.devcontainer/</code> — all still referenced the polyglot template's removed rust/typescript/kotlin/go/java dirs, missed when the <code>base</code>/<code>backend</code>/<code>gui</code> rename+flatten landed.</li>
+<li>Imported the Anime Stitch Pipeline (ASP) engine from Image-Toolkit: the C++ pipeline (<code>cpp/src/animation</code>, <code>cpp/test/animation</code>), the Python pipeline (<code>python/src/animation</code>), tests (<code>python/test/animation</code>, <code>python/test/gui</code>), the benchmark evaluation dashboard (<code>python/src/animation/evaluation</code>), benchmark scripts (<code>python/benchmark</code>), the stitch GUI tab/elements/helpers/dialogs (<code>python/src/animation/gui</code>), QML mockups (<code>qml/</code>), the roadmap (<code>moon/ROADMAP.md</code>), research reports, and ASP-specific <code>.agent/</code> workflow/rule/skill/prompt/cache files.</li>
+<li>Pruned the template to Python + C++ only (removed rust/java/kotlin/typescript/go scaffolding, the template-meta <code>dev/</code> tool, and desktop/infra scaffolding this project doesn't need).</li>
+</ul>
+<h3 id="template-scaffolding">Template scaffolding</h3>
+<ul>
+<li>Initial template scaffolding: root files (<code>LICENSE.md</code>, <code>README.md</code>, <code>.env.example</code>, <code>.pre-commit-config.yaml</code>, <code>.gitignore</code>/<code>.gitattributes</code>), <code>.github/</code> CI/CD, <code>git/</code> (<code>CONTRIBUTING.md</code>, <code>codecov.yaml</code>), <code>docs/</code> documentation portal (MkDocs + Sphinx + Structurizr + ADRs), <code>moon/</code> roadmap and changelog.</li>
+<li><code>.agent/</code> LLM coding-agent scaffolding: <code>AGENTS.md</code> plus generic rules, workflows, prompts, and skills covering all six supported languages.</li>
+<li>Six language module skeletons (<code>python/</code>, <code>typescript/</code>, <code>kotlin/</code>, <code>rust/</code>, <code>go/</code>, <code>cpp/</code>), root workspace orchestrator files, and merged <code>python/validation/</code> dev-tooling.</li>
+<li><code>java/</code> Maven module (7th language), wired into CI/pre-commit/justfile/docs alongside the existing six.</li>
+<li>Root Gradle wrapper and multi-project build files pairing with the existing <code>settings.gradle.kts</code>.</li>
+<li><code>moon/roadmaps/developer_tools.md</code>: architecture plan for a polyglot <code>dev/</code> developer-assistant tool, synthesized from prior art across the org's other repos.</li>
+<li>GitHub Project (V2) backlog automation (<code>github/</code> + <code>.github/workflows/agent_sync.yml</code>), ported from Visual-Graph-Programming.</li>
+<li><code>infra/{k8s,helm,terraform,ansible}/</code> infra-as-code scaffolding, alongside the relocated <code>infra/docker/</code>.</li>
+<li><code>dev/</code> developer-assistant tool, milestones D1–D5 of <code>moon/roadmaps/developer_tools.md</code>: the <code>input/protobuf/codegraph.proto</code> schema, a hand-mirrored Python data model (<code>core/model.py</code>), a real AST-based Python import-graph parser (<code>input/python/parser.py</code>), multi-source graph aggregation (<code>core/aggregate.py</code>), layer classification + forbidden-direction violation detection (<code>core/layers.py</code>), Tarjan's-SCC circular-dependency detection (<code>core/cycles.py</code>), a self-contained vis.js/Jinja2 HTML report generator (<code>output/html/report.py</code>), and a <code>cli.py</code> tying it together (<code>report</code>/<code>check</code> subcommands). 13 passing pytest cases, including a fixture project with an intentional import cycle.</li>
+</ul>
+<h3 id="changed_1">Changed</h3>
+<ul>
+<li>Moved <code>docker/</code> to <code>infra/docker/</code> to make room for other infra-as-code stacks; updated all referencing files.</li>
+</ul>
+<h2 id="010-2026-07-30">[0.1.0] — 2026-07-30</h2>
+<h3 id="added_3">Added</h3>
+<ul>
+<li>Repository created from scratch as a GitHub template.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

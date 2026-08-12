@@ -1,0 +1,3256 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation portal for the Anime Stitch Pipeline (ASP) panorama stitching engine.">
+      
+      
+        <meta name="author" content="ACFHarbinger">
+      
+      
+      
+        <link rel="prev" href="../ASP_Comprehensive_Research_Report/">
+      
+      
+        <link rel="next" href="../../reports/ASP_Critical_Evaluation_2026-07-08/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Image Stitching Research - Anime-Stitch-Pipeline Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#image-stitching-comprehensive-research-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-header__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Anime-Stitch-Pipeline Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Image Stitching Research
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../ARCHITECTURE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEVELOPMENT/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TESTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Testing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCIES/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependencies
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependency Policy
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Documentation Standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BENCHMARKS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TROUBLESHOOTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../GLOSSARY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/getting-started-hybridstitch/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../moon/ROADMAP/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../moon/CHANGELOG/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../ASP_Comprehensive_Research_Report/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reports/ASP_Critical_Evaluation_2026-07-08/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reports
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Image-Toolkit (parent project)
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-nav__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Anime-Stitch-Pipeline Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCIES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BENCHMARKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GLOSSARY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/getting-started-hybridstitch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with HybridStitch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/pipeline-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Pipeline Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../moon/ROADMAP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../moon/CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ASP_Comprehensive_Research_Report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Comprehensive Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Research
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-problem-definition-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Problem Definition &amp; Taxonomy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-geometric-foundations-transformation-models-degrees-of-freedom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Geometric Foundations — Transformation Models &amp; Degrees of Freedom
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-two-paradigms-perfect-stitch-vs-scan-stitch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Two Paradigms — Perfect Stitch vs Scan Stitch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The Two Paradigms — Perfect Stitch vs Scan Stitch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-perfect-stitch-homography-local-homography" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 "Perfect Stitch" (homography / local-homography)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-scan-stitch-pushbroom-crossed-slits-geometry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 "Scan Stitch" (pushbroom / Crossed-Slits geometry)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-why-apaphomography-fails-on-anime-manifolds-rank-deficiency-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Why APAP/homography fails on anime manifolds (rank-deficiency proof)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-feature-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Feature Matching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Feature Matching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-classical-detectorsdescriptors-and-why-they-struggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Classical detectors/descriptors (and why they struggle)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-learned-sparse-matchers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Learned sparse matchers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-detector-free-semi-dense-dense-matchers-the-anime-workhorses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Detector-free (semi-dense / dense) matchers — the anime workhorses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-registration-outlier-rejection-sub-pixel-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Registration, Outlier Rejection &amp; Sub-Pixel Refinement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Registration, Outlier Rejection &amp; Sub-Pixel Refinement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-robust-model-fitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Robust model fitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-global-bundle-adjustment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Global bundle adjustment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-ecc-sub-pixel-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 ECC sub-pixel refinement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-phase-correlation-fourier-shift-theorem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Phase correlation (Fourier shift theorem)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-optical-flow-for-stitching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Optical Flow for Stitching
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-spatially-varying-warps-structure-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Spatially-Varying Warps &amp; Structure Preservation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Spatially-Varying Warps &amp; Structure Preservation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-apap-moving-dlt-zaragoza-cvpr-2013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 APAP / Moving DLT (Zaragoza, CVPR 2013)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-content-preserving-warps-tps-mls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Content-Preserving Warps, TPS, MLS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-line-preservation-the-anime-essential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Line preservation (the anime essential)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-seam-driven-multi-hypothesis-parallax-tolerant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Seam-driven multi-hypothesis (parallax-tolerant)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-foreground-assembly-the-core-anime-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Foreground Assembly — The Core Anime Problem
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Foreground Assembly — The Core Anime Problem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-the-motion-decomposition-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 The motion-decomposition model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-why-neither-shortcut-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Why neither shortcut works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-why-simple-stitch-wins-benchmarks-but-is-not-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Why "simple stitch" wins benchmarks but is not the answer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-production-fact-to-exploit-animation-on-twosthrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Production fact to exploit — animation on "twos"/"threes"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-conceptual-ancestor-unwrap-mosaics-siggraph-2008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Conceptual ancestor — Unwrap Mosaics (SIGGRAPH 2008)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-the-flow-guided-arap-regularised-assembly-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.6 The flow-guided, ARAP-regularised assembly stage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#87-two-channel-pose-consistency-frame-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.7 Two-channel pose-consistency frame selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#88-principled-fallback-single-coherent-pose-eden-2006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.8 Principled fallback — single coherent pose (Eden 2006)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#89-the-hdrvsr-analogy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.9 The HDR/VSR analogy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-photometric-correction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Photometric Correction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Photometric Correction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-broadcast-dimming-reversal-harding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Broadcast dimming reversal (Harding)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-spatial-flat-fielding-basic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Spatial flat-fielding (BaSiC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-global-gain-compensation-brownlowe-2007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Global gain compensation (Brown–Lowe 2007)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-colour-transfer-palette-harmonisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Colour transfer &amp; palette harmonisation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-foreground-background-segmentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Foreground / Background Segmentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-seam-finding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Seam Finding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-blending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Blending
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-background-reconstruction-generative-inpainting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Background Reconstruction &amp; Generative Inpainting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-deep-unified-stitching-frameworks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Deep &amp; Unified Stitching Frameworks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-super-resolution-restoration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Super-Resolution &amp; Restoration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-video-stitching-temporal-stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Video Stitching &amp; Temporal Stability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-shot-boundary-detection-pre-stitch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Shot Boundary Detection (pre-stitch)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-the-full-anime-pipeline-specification-1314-stages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. The Full Anime Pipeline Specification (13–14 stages)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="18. The Full Anime Pipeline Specification (13–14 stages)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#181-dual-channel-frame-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.1 Dual-channel frame selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-evaluation-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Evaluation &amp; Metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-failure-modes-principled-fallbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. Failure Modes &amp; Principled Fallbacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-implementation-status-in-image-toolkit-asp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. Implementation Status in Image-Toolkit (ASP)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="21. Implementation Status in Image-Toolkit (ASP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addendum-2026-07-27-literature-sweep-for-issue-21-gap-areas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Addendum (2026-07-27) — Literature Sweep for Issue #21 Gap Areas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-research-index-technique-paper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A — Research Index (technique → paper)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-recommended-reading-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B — Recommended Reading Order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-c-source-reports-consolidated-now-removable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix C — Source Reports Consolidated (now removable)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" >
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reports
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reports
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reports/ASP_Critical_Evaluation_2026-07-08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Critical Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reports/image_stitching_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image-Toolkit (parent project)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-problem-definition-taxonomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Problem Definition &amp; Taxonomy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-geometric-foundations-transformation-models-degrees-of-freedom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Geometric Foundations — Transformation Models &amp; Degrees of Freedom
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-the-two-paradigms-perfect-stitch-vs-scan-stitch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. The Two Paradigms — Perfect Stitch vs Scan Stitch
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. The Two Paradigms — Perfect Stitch vs Scan Stitch">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-perfect-stitch-homography-local-homography" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 "Perfect Stitch" (homography / local-homography)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-scan-stitch-pushbroom-crossed-slits-geometry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 "Scan Stitch" (pushbroom / Crossed-Slits geometry)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-why-apaphomography-fails-on-anime-manifolds-rank-deficiency-proof" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Why APAP/homography fails on anime manifolds (rank-deficiency proof)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-feature-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Feature Matching
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Feature Matching">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-classical-detectorsdescriptors-and-why-they-struggle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Classical detectors/descriptors (and why they struggle)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-learned-sparse-matchers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Learned sparse matchers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-detector-free-semi-dense-dense-matchers-the-anime-workhorses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Detector-free (semi-dense / dense) matchers — the anime workhorses
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-registration-outlier-rejection-sub-pixel-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Registration, Outlier Rejection &amp; Sub-Pixel Refinement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Registration, Outlier Rejection &amp; Sub-Pixel Refinement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-robust-model-fitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Robust model fitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-global-bundle-adjustment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Global bundle adjustment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-ecc-sub-pixel-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 ECC sub-pixel refinement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-phase-correlation-fourier-shift-theorem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Phase correlation (Fourier shift theorem)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-optical-flow-for-stitching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Optical Flow for Stitching
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-spatially-varying-warps-structure-preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Spatially-Varying Warps &amp; Structure Preservation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Spatially-Varying Warps &amp; Structure Preservation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-apap-moving-dlt-zaragoza-cvpr-2013" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 APAP / Moving DLT (Zaragoza, CVPR 2013)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-content-preserving-warps-tps-mls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Content-Preserving Warps, TPS, MLS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-line-preservation-the-anime-essential" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Line preservation (the anime essential)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-seam-driven-multi-hypothesis-parallax-tolerant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 Seam-driven multi-hypothesis (parallax-tolerant)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-foreground-assembly-the-core-anime-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Foreground Assembly — The Core Anime Problem
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Foreground Assembly — The Core Anime Problem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-the-motion-decomposition-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 The motion-decomposition model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-why-neither-shortcut-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Why neither shortcut works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-why-simple-stitch-wins-benchmarks-but-is-not-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Why "simple stitch" wins benchmarks but is not the answer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-production-fact-to-exploit-animation-on-twosthrees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Production fact to exploit — animation on "twos"/"threes"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-conceptual-ancestor-unwrap-mosaics-siggraph-2008" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Conceptual ancestor — Unwrap Mosaics (SIGGRAPH 2008)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-the-flow-guided-arap-regularised-assembly-stage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.6 The flow-guided, ARAP-regularised assembly stage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#87-two-channel-pose-consistency-frame-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.7 Two-channel pose-consistency frame selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#88-principled-fallback-single-coherent-pose-eden-2006" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.8 Principled fallback — single coherent pose (Eden 2006)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#89-the-hdrvsr-analogy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.9 The HDR/VSR analogy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-photometric-correction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Photometric Correction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Photometric Correction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-broadcast-dimming-reversal-harding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Broadcast dimming reversal (Harding)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-spatial-flat-fielding-basic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Spatial flat-fielding (BaSiC)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93-global-gain-compensation-brownlowe-2007" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.3 Global gain compensation (Brown–Lowe 2007)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94-colour-transfer-palette-harmonisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.4 Colour transfer &amp; palette harmonisation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-foreground-background-segmentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Foreground / Background Segmentation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-seam-finding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Seam Finding
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-blending" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Blending
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-background-reconstruction-generative-inpainting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Background Reconstruction &amp; Generative Inpainting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-deep-unified-stitching-frameworks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Deep &amp; Unified Stitching Frameworks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-super-resolution-restoration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Super-Resolution &amp; Restoration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-video-stitching-temporal-stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Video Stitching &amp; Temporal Stability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-shot-boundary-detection-pre-stitch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Shot Boundary Detection (pre-stitch)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-the-full-anime-pipeline-specification-1314-stages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. The Full Anime Pipeline Specification (13–14 stages)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="18. The Full Anime Pipeline Specification (13–14 stages)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#181-dual-channel-frame-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18.1 Dual-channel frame selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#19-evaluation-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Evaluation &amp; Metrics
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#20-failure-modes-principled-fallbacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. Failure Modes &amp; Principled Fallbacks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-implementation-status-in-image-toolkit-asp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. Implementation Status in Image-Toolkit (ASP)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="21. Implementation Status in Image-Toolkit (ASP)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#addendum-2026-07-27-literature-sweep-for-issue-21-gap-areas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Addendum (2026-07-27) — Literature Sweep for Issue #21 Gap Areas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-research-index-technique-paper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A — Research Index (technique → paper)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-recommended-reading-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B — Recommended Reading Order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-c-source-reports-consolidated-now-removable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix C — Source Reports Consolidated (now removable)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="image-stitching-comprehensive-research-reference">Image Stitching — Comprehensive Research Reference</h1>
+<p><em>Consolidated 2026-06-03. This document is the single, complete reference for image-stitching research in Image-Toolkit. It covers the entire field — geometric foundations, feature matching, registration, spatially-varying warps, photometric correction, segmentation, seam-finding, blending, background reconstruction, deep/unified frameworks, super-resolution, video stitching, evaluation — with deep, dedicated sections on the hardest case the project targets: </em><em>panoramic and full-character reconstruction from sequential 2D cel-animation (anime) frames.</em><em> It replaces the 14 prior stitching reports listed in Appendix C; read this instead of them.</em></p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li>Problem Definition &amp; Taxonomy</li>
+<li>Geometric Foundations (transformation models &amp; DoF)</li>
+<li>The Two Paradigms — Perfect Stitch vs Scan Stitch (with the anime mathematical audit)</li>
+<li>Feature Matching (classical → learned → detector-free)</li>
+<li>Registration, Outlier Rejection &amp; Sub-Pixel Refinement</li>
+<li>Optical Flow for Stitching (incl. flat-shaded domains)</li>
+<li>Spatially-Varying Warps &amp; Structure Preservation</li>
+<li><strong>Foreground Assembly — The Core Anime Problem</strong> (motion decomposition, ARAP, midpoint warp)</li>
+<li>Photometric Correction (broadcast dimming, flat-fielding, gain, color transfer)</li>
+<li>Foreground/Background Segmentation</li>
+<li>Seam Finding (graph-cut, MRF, learned)</li>
+<li>Blending (multi-band, Poisson/MPB, soft-seam diffusion)</li>
+<li>Background Reconstruction &amp; Generative Inpainting</li>
+<li>Deep &amp; Unified Stitching Frameworks</li>
+<li>Super-Resolution &amp; Restoration</li>
+<li>Video Stitching &amp; Temporal Stability</li>
+<li>Shot Boundary Detection (pre-stitch)</li>
+<li>The Full Pipeline Specification (anime, 13–14 stages)</li>
+<li>Evaluation &amp; Metrics</li>
+<li>Failure Modes &amp; Principled Fallbacks</li>
+<li>Implementation Status in Image-Toolkit (ASP)</li>
+<li>Appendices — research index, paper list, source reports</li>
+</ol>
+<hr />
+<h2 id="1-problem-definition-taxonomy">1. Problem Definition &amp; Taxonomy</h2>
+<p>Image stitching fuses a set of partially-overlapping images into one larger, coherent image. The classical pipeline is <strong>registration → warping → seam-finding → blending → (rectangling)</strong>. Stitching subdivides by:</p>
+<ul>
+<li><strong>Input geometry:</strong> rotational pano (camera rotates about optical centre), translational scan (camera/scene translates in a plane), general 6-DoF with parallax.</li>
+<li><strong>Scene dynamics:</strong> static scene vs. <strong>dynamic scene with moving objects</strong> (ghosting risk).</li>
+<li><strong>Content domain:</strong> natural photo (rich texture, continuous depth, realistic lighting) vs. <strong>2D cel animation</strong> (flat colour, sparse high-frequency line art, multi-plane parallax, broadcast-dimmed exposure, independently animating foreground).</li>
+</ul>
+<p><strong>Anime is the hardest combination:</strong> translational/curvilinear pans over multi-plane backgrounds, textureless interiors, crisp line art that makes any misalignment visible as "edge doubling," exposure that shifts frame-to-frame from broadcast dimming, and a foreground character that <strong>animates while the camera pans</strong>. The three "perfect stitch" conditions for anime are: (1) no stacking/tearing/line-bending from forcing global transforms onto multi-plane scenes; (2) no lighting mismatch / visible seams; (3) no ghosting/double-images from temporally-averaged moving foreground.</p>
+<p>The project's objective is a superset of classical anime mosaicking: not only <strong>background reconstruction</strong> (clean panoramic plate, character erased) but <strong>full foreground assembly</strong> (a complete articulated character body pieced from frames where it never fully fits and changes pose). §8 treats this.</p>
+<hr />
+<h2 id="2-geometric-foundations-transformation-models-degrees-of-freedom">2. Geometric Foundations — Transformation Models &amp; Degrees of Freedom</h2>
+<p>The geometric relationship between two overlapping frames is a transformation matrix; choosing the right model is the single most consequential decision for anime.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>DoF</th>
+<th>Preserves parallel lines</th>
+<th>Use case</th>
+<th>Vertical-drift risk</th>
+<th>Top/bottom crop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Homography (projective)</strong></td>
+<td>8</td>
+<td>No</td>
+<td>3-D natural scenes, rotational pans</td>
+<td>High (compounds iteratively)</td>
+<td>Severe</td>
+</tr>
+<tr>
+<td><strong>Affine</strong></td>
+<td>6</td>
+<td>Yes</td>
+<td>2-D document scan, anime slides</td>
+<td>Low</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td><strong>Similarity (SRT)</strong></td>
+<td>4</td>
+<td>Yes (+ isotropic scale, rotation)</td>
+<td>Handheld pan+zoom</td>
+<td>Low</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td><strong>Pure translation</strong></td>
+<td>2</td>
+<td>Yes</td>
+<td>Perfect 2-D digital pans</td>
+<td>None</td>
+<td>Zero</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The anime argument.</strong> A homography's 8 DoF let parallel lines converge. Micro-inconsistencies — MPEG macroblock noise, subtle character motion, dust — make the estimator hallucinate perspective where none exists; over a long sequence these microscopic errors <strong>compound logarithmically</strong>, drifting/skewing the panorama and guaranteeing data loss at the final crop. Downgrading to <strong>affine (6 DoF)</strong> preserves parallel lines; constraining further to <strong>pure translation (2 DoF)</strong> for linear pans preserves full source height and prevents warping entirely. In OpenCV this is the shift from <code>PANORAMA</code> to <code>SCANS</code> mode (bypasses spherical projection; bundle adjustment minimises translation cost, not ray-reprojection cost). The project's ASP uses a <strong>translation-only (2 DoF) bundle adjustment</strong> for exactly this reason.</p>
+<p><strong>Homogeneous-coordinate DLT.</strong> A homography <code>H</code> is solved from ≥4 correspondences via the Direct Linear Transform: stack <code>A h = 0</code> where each correspondence contributes rows from the cross-product <code>x' × Hx = 0</code>; the solution is the right singular vector of the smallest singular value of <code>A</code> (SVD). Rank deficiency of <code>A</code> (collinear points) is the failure mode on anime line art (§3.3).</p>
+<hr />
+<h2 id="3-the-two-paradigms-perfect-stitch-vs-scan-stitch">3. The Two Paradigms — Perfect Stitch vs Scan Stitch</h2>
+<h3 id="31-perfect-stitch-homography-local-homography">3.1 "Perfect Stitch" (homography / local-homography)</h3>
+<p>Aligns by minimising reprojection error of matched features under a perspective transform; foundational for satellite/medical/consumer panoramas. For local variation/parallax it is extended by <strong>As-Projective-As-Possible (APAP)</strong> warping via <strong>Moving DLT</strong> (§7.1).</p>
+<h3 id="32-scan-stitch-pushbroom-crossed-slits-geometry">3.2 "Scan Stitch" (pushbroom / Crossed-Slits geometry)</h3>
+<p>Abandons projective warping. Models the virtual camera as a <strong>linear pushbroom</strong> or <strong>Crossed-Slits (X-Slits)</strong> sensor: extract a narrow central strip (slit) from each consecutive frame and concatenate. Formally, treat the sequence as a 3-D spatio-temporal volume <code>V(x, y, t)</code>; for a horizontal pan at velocity <code>s</code>, the panorama is a slice taking the central column of each frame, projecting orthographically along the pan axis. Sub-pixel inter-frame translation is recovered by <strong>Phase Correlation</strong> (§5.4) to 1/50-px precision.</p>
+<p><strong>Why Scan Stitch is mathematically superior for anime:</strong>
+1. <strong>Affine-property preservation</strong> — no homography is computed, so lines stay parallel and stroke aspect ratio is exact; spherical bulging is impossible.
+2. <strong>Robustness to foreground occlusion</strong> — sampling only a thin central slit minimises the moving character's footprint; over time the slit "looks past" a character moving at a different velocity than the background, sampling the true background as it crosses centre.
+3. <strong>Inherent multi-perspective unwrapping</strong> — for curvilinear "banana pans" (artist-drawn shifting vanishing points), a global homography forces an impossible consensus across contradictory vanishing points; Scan Stitch samples the artist's intended local viewpoint at each <code>t</code>, unwrapping the multi-perspective drawing onto a Euclidean plane without global geometric consensus.</p>
+<h3 id="33-why-apaphomography-fails-on-anime-manifolds-rank-deficiency-proof">3.3 Why APAP/homography <em>fails</em> on anime manifolds (rank-deficiency proof)</h3>
+<p>Anime backgrounds are vast homogeneous flat-colour regions bordered by sharp strokes. For a pixel <code>x*</code> inside a flat region, the distance to the nearest reliable feature is large; APAP's offset-Gaussian weights <code>w_i(x*) = max(exp(-‖p_i - x*‖²/σ²), γ)</code> decay to the floor <code>γ</code>, so the weighted design matrix becomes <strong>ill-conditioned</strong>. Minor aliasing noise in distant line-art keypoints then induces massive fluctuations in the local homography → wavy distortion, localised tearing, geometric bulging. Providing 8 DoF <em>per pixel</em> over-parameterises a medium that is a synthetically-manipulated 2-D plane lacking dense texture — a violation of parsimony. <strong>Conclusion:</strong> translation/affine + Scan Stitch geometry is the correct geometric prior; spatially-varying projective warps are reserved for genuine multi-plane background parallax (§7), never for the foreground.</p>
+<hr />
+<h2 id="4-feature-matching">4. Feature Matching</h2>
+<p>The background <code>T_camera</code> is recovered from correspondences in <strong>background-only</strong> regions (foreground masked, §10). Matching must survive textureless flat colour and exposure shifts.</p>
+<h3 id="41-classical-detectorsdescriptors-and-why-they-struggle">4.1 Classical detectors/descriptors (and why they struggle)</h3>
+<ul>
+<li><strong>SIFT</strong> — DoG scale-space extrema + 128-D gradient-histogram descriptors. Robust on natural texture; on anime it fires thousands of indistinguishable keypoints along a single ink line and <strong>zero</strong> in flat sky/skin/cloth → biased, near-collinear distribution → ill-conditioned RANSAC → singular/unstable homography → "homography estimation failed."</li>
+<li><strong>SURF/ORB/BRISK</strong> — faster; ORB/BRISK are intensity-pattern binary descriptors, fragile under exposure change (relevant across broadcast-dimmed/scene-cut frames).</li>
+<li><strong>AKAZE</strong> — features in a <strong>nonlinear diffusion scale-space</strong> (PDE-based) that respects edges instead of blurring across them; M-LDB binary descriptors. Empirically the <strong>best classical detector for cartoon edges</strong>.</li>
+<li><strong>MSER</strong> — Maximally Stable Extremal Regions detect flat-colour blobs — exactly anime's dominant feature — complementing line/corner detectors.</li>
+</ul>
+<h3 id="42-learned-sparse-matchers">4.2 Learned sparse matchers</h3>
+<ul>
+<li><strong>SuperPoint</strong> (CVPRW 2018) — self-supervised CNN keypoints; far denser in low-texture regions than SIFT.</li>
+<li><strong>SuperGlue</strong> (CVPR 2020) — GNN matcher with self/cross-attention + Sinkhorn assignment; joint matching + outlier rejection. Outdoor weights generalise surprisingly well to non-photographic content; fine-tuning on anime pairs (ATD-12K, AnimeRun, PaintBucket-Character) recommended.</li>
+<li><strong>LightGlue</strong> (ICCV 2023) — adaptive-depth (early-exit) SuperGlue successor, 40–60% cheaper. Native ALIKED/DISK/SIFT backends. <em>LightGlue + Agglomerative Clustering</em> empirically gives <strong>+26.2% matching efficiency</strong> on broadcast-artifact anime.</li>
+<li><strong>ALIKED</strong> (IEEE TIM 2023) — Sparse Deformable Descriptor Head (SDDH) positions sampling adaptively around each keypoint → keypoints on anime line-art edges SIFT misses. Pair with LightGlue.</li>
+<li><strong>XFeat</strong> (CVPR 2024) — CPU-real-time sparse + semi-dense; emergency GPU-free fallback.</li>
+</ul>
+<h3 id="43-detector-free-semi-dense-dense-matchers-the-anime-workhorses">4.3 Detector-free (semi-dense / dense) matchers — the anime workhorses</h3>
+<ul>
+<li><strong>LoFTR</strong> (CVPR 2021) — detector-free coarse-to-fine Transformer matching; produces matches in flat regions where detectors fail entirely. <em>The single most relevant matcher for anime.</em> Caveat from the project's legacy implementation: a fixed internal resolution (e.g. 480²) imposes ~27% aspect distortion on 16:9 frames and degrades localisation; outdoor (MegaDepth) weights are out-of-distribution for flat art.</li>
+<li><strong>EfficientLoFTR</strong> (CVPR 2024, 2403.04765) — two-stage adaptive-span coarse attention + fine local refinement; <strong>2.5× faster</strong> at equal/better AUC; drop-in replacement. The project's primary matcher.</li>
+<li><strong>RoMa v2</strong> (2511.15706) — dense warp on <strong>frozen DINOv2 features</strong> (style-agnostic) + fine ConvNet features, per-pixel reliability. Correspondences on flat-shaded art where keypoint detectors yield nothing. Dense last-resort matcher.</li>
+<li><strong>JamMa</strong> (CVPR 2025, 2503.03437) — O(N) Mamba joint-scan replaces O(N²) attention; 4K matching without tiling.</li>
+<li><strong>EDM</strong> (ICCV 2025, 2503.05122) — correlation-injection + axis-based subpixel regression head; strong quality/speed.</li>
+<li><strong>Region-wise correspondence</strong> (e.g. manga line-art region prediction, 2509.09501) — matches at the <strong>segment</strong> level, the natural unit for anime; pairs with palette/positional rules for unmatched regions.</li>
+</ul>
+<p><strong>Pragmatic recipe:</strong> EfficientLoFTR (dense) → ALIKED+LightGlue (sparse fallback) → template / phase-correlation → RoMa v2 (dense last resort), with background masking throughout and translation-only fitting.</p>
+<hr />
+<h2 id="5-registration-outlier-rejection-sub-pixel-refinement">5. Registration, Outlier Rejection &amp; Sub-Pixel Refinement</h2>
+<h3 id="51-robust-model-fitting">5.1 Robust model fitting</h3>
+<ul>
+<li><strong>RANSAC / MAGSAC++</strong> — consensus estimation; MAGSAC++ removes the inlier-threshold tuning via marginalisation, more robust at high outlier ratios. Use a translation/affine model for anime (not homography).</li>
+<li><strong>Rank-deficiency guard</strong> — reject solutions when matched points are near-collinear (anime line-art clustering).</li>
+</ul>
+<h3 id="52-global-bundle-adjustment">5.2 Global bundle adjustment</h3>
+<p>Translation-only (2 DoF) LM (<code>scipy.optimize.least_squares</code>) minimising <code>Σ_(i,j∈overlaps) Σ_k ‖(x_k^i + t_i) − (x_k^j + t_j)‖²</code>. <strong>2-pronged outlier rejection:</strong> after the initial solve, prune edges whose per-edge residual exceeds 3× the median, then re-solve; additionally drop near-zero / wrong-direction edges. <strong>Robust loss upgrade:</strong> swap L2 for Cauchy/Geman-McClure (<code>loss='cauchy'</code>) — Graduated-Non-Convexity guarantees up to 70–80% outlier tolerance, eliminating single-catastrophic-edge failures. <strong>Trajectory regularisation (StabStitch):</strong> add a second-order temporal-smoothness term <code>‖t_{i+1} − 2t_i + t_{i-1}‖²</code> to suppress per-frame warping shake.</p>
+<h3 id="53-ecc-sub-pixel-refinement">5.3 ECC sub-pixel refinement</h3>
+<p>Enhanced Correlation Coefficient maximisation (<code>cv2.findTransformECC</code>) on image gradients via ZNCC, over a 4-level pyramid, to ~1/N-px precision. <strong>Limitation:</strong> ECC needs non-zero gradients; anime's flat regions make its Hessian near-singular → divergence (caught by an 80-px drift guard, but ~30% of flat-region pairs gain nothing). Prefer learned flow (§6) for sub-pixel on flat content.</p>
+<h3 id="54-phase-correlation-fourier-shift-theorem">5.4 Phase correlation (Fourier shift theorem)</h3>
+<p>For <code>f_2(x) = f_1(x − d)</code>, <code>F_2 = F_1 e^{-i2π(...)}</code>. The normalised cross-power spectrum <code>R = (F_1 F_2*)/|F_1 F_2*|</code> isolates the phase; its IDFT is a localised pulse whose peak (2-D Gaussian fit) gives sub-pixel <code>d</code> to ~1/50 px. Discards amplitude (the flat-colour data that confuses spatial matchers) → ideal translational estimator and Scan-Stitch slit-alignment tool; also the project's tertiary matching fallback.</p>
+<hr />
+<h2 id="6-optical-flow-for-stitching">6. Optical Flow for Stitching</h2>
+<p>Dense flow drives both background sub-pixel refinement and <strong>foreground residual extraction</strong> (§8). Two anime-specific obstacles: the <strong>aperture problem</strong> inside flat colour (no interior gradient → arbitrary vectors), and exaggerated, non-linear, large motions that break temporal-smoothness/small-displacement assumptions.</p>
+<ul>
+<li><strong>RAFT</strong> (ECCV 2020) — per-pixel features + multi-scale 4-D all-pairs correlation volumes; a GRU iteratively refines a high-res flow field. Tracks anime structure via line-art motion even over textureless interiors. Backbone of <strong>ProPainter</strong> inpainting (§13).</li>
+<li><strong>SEA-RAFT</strong> (ECCV 2024 Oral, 2405.14793) — Mixture-of-Laplace loss + <strong>direct initial-flow regression</strong> (fast convergence) + <strong>rigid-motion pretraining</strong> (confident flow over flat regions; ideal for pure-translation pans). 2.3× faster, 3.69 EPE. The recommended flow backbone; run on overlap-zone crops, take the background-pixel trimmed mean for sub-pixel translation.</li>
+<li><strong>AnimeInterp</strong> (CVPR 2021, 2104.02495) — domain-specific. <strong>Segment-Guided Matching (SGM):</strong> flow over piece-wise-coherent colour segments (hair/skin/shirt as blocks) bypasses the aperture problem. <strong>Recurrent Flow Refinement (RFR):</strong> resolves large non-linear displacements. The flat-region flow method of choice.</li>
+<li><strong>GMFlow</strong> (CVPR 2022), <strong>MambaFlow</strong> (2503.07046, O(N) for 4K), <strong>EpicFlow</strong> (sparse-to-dense edge-aware interpolation — accepts user/detector matches as seeds).</li>
+<li><strong>Datasets:</strong> <strong>AnimeRun</strong>, <strong>LinkTo-Anime</strong> (2506.02733, cel-rendered GT flow from 3-D models) — for fine-tuning SEA-RAFT/EfficientLoFTR to anime; off-the-shelf Sintel/KITTI models degrade on flat cels.</li>
+</ul>
+<hr />
+<h2 id="7-spatially-varying-warps-structure-preservation">7. Spatially-Varying Warps &amp; Structure Preservation</h2>
+<p>For genuine <strong>multi-plane background parallax</strong> (multiplaning: foreground/mid/back layers slide at different velocities), a single transform cannot align all planes. Spatially-varying warps help — but must protect line art.</p>
+<h3 id="71-apap-moving-dlt-zaragoza-cvpr-2013">7.1 APAP / Moving DLT (Zaragoza, CVPR 2013)</h3>
+<p>Per-vertex local homography on a mesh; Moving DLT weights each correspondence by an offset-Gaussian of spatial distance to the cell. Absorbs parallax where texture is soft. <strong>Risk:</strong> straight lines bend in non-overlap regions (each cell warps slightly differently). <strong>AANAP</strong> linearises toward a global similarity in non-overlap regions to curb extrapolation distortion. Reference impl: <code>EadCat/APAP-Image-Stitching</code>.</p>
+<h3 id="72-content-preserving-warps-tps-mls">7.2 Content-Preserving Warps, TPS, MLS</h3>
+<ul>
+<li><strong>Thin-Plate Splines (TPS):</strong> minimise bending energy subject to interpolation <code>f(p_i)=q_i</code>; affine part + radial basis <code>U(r)=r² log r</code>; soft (regularised) variant trades exact interpolation for <code>min Σ‖f(p_i)−q_i‖² + λ J(f)</code> — ideal for user-pinned warps.</li>
+<li><strong>Moving Least Squares (MLS)</strong> (Schaefer 2006) — closed-form affine/similarity/rigid deformations from control points; Rust crate <code>mpizenberg/rust_mls</code>.</li>
+<li><strong>Content-Preserving Warps (CPW)</strong> (Liu 2009) — mesh warp regularised by a similarity prior; the base of many video-stabilisation/stitching warps.</li>
+</ul>
+<h3 id="73-line-preservation-the-anime-essential">7.3 Line preservation (the anime essential)</h3>
+<p>Mesh warping bends straight strokes — instantly visible in line art. Inject a <strong>Line-Segment-Detector (LSD)</strong> collinearity energy <code>E_line</code> into the warp objective:
+<code>E = α_d Σ‖T_k V̂ − q_k‖² + α_s E_sim + α_l E_line + α_g E_grid (+ α_h hard pins)</code>
+<code>E_line</code> penalises any warp that breaks the collinearity of detected segments; <code>E_grid</code> prevents uneven mesh-slope skew. (Line-Point Consistency, CVPR 2021; "Line Meets APAP with Moving DLT.") Solved as a sparse SPD QP (Cholesky). Guarantees straight strokes stay straight while flat regions flex to absorb parallax.</p>
+<h3 id="74-seam-driven-multi-hypothesis-parallax-tolerant">7.4 Seam-driven multi-hypothesis (parallax-tolerant)</h3>
+<p>Generate <code>K</code> warp hypotheses (global homography, APAP, dual-homography for distant+ground planes per Gao 2011), seam-cut each (§11), keep the lowest-seam-cost warp. <strong>SEAGULL</strong> (ECCV 2016) iterates between seam estimation and local mesh refinement.</p>
+<hr />
+<h2 id="8-foreground-assembly-the-core-anime-problem">8. Foreground Assembly — The Core Anime Problem</h2>
+<blockquote>
+<p>This is the project's central, hardest problem and the dominant source of visible artifacts. It warrants the deepest treatment.</p>
+</blockquote>
+<h3 id="81-the-motion-decomposition-model">8.1 The motion-decomposition model</h3>
+<p>The background moves rigidly with the camera (<code>T_camera</code>); the foreground character moves with both the camera <strong>and</strong> its own drawn articulated deformation. The total foreground displacement is
+<code>F_fg(x,y) = T_camera + A_animation(x,y)</code>.
+Classical pipelines assume <code>A_animation = 0</code>. When a rigid transform aligns the <strong>backgrounds</strong>, the residual <code>A_animation</code> is unresolved; a hard seam through the overlap <strong>bisects two different poses</strong> → limb tearing, severed sleeves, doubled line-art edges. The fix: <strong>measure <code>F_fg</code> with dense optical flow, subtract the isolated <code>T_camera</code>, and warp out the residual <code>A_animation</code></strong> before seam blending.</p>
+<h3 id="82-why-neither-shortcut-works">8.2 Why neither shortcut works</h3>
+<ul>
+<li><strong>Erasing the character (temporal median only)</strong> defeats the goal — we want the body, not a clean plate.</li>
+<li><strong>Single-frame foreground</strong> fails — no single frame contains the full body (the camera pans across it).
+  So the foreground must be <strong>assembled from multiple frames whose poses are first reconciled.</strong></li>
+</ul>
+<h3 id="83-why-simple-stitch-wins-benchmarks-but-is-not-the-answer">8.3 Why "simple stitch" wins benchmarks but is not the answer</h3>
+<p>OpenCV SCANS stitches only temporally-adjacent frames (~42 ms apart); over 42 ms <code>A_animation ≈ 0</code>, so the foreground looks aligned. But chaining hundreds of micro-stitches to cover a long pan accumulates global drift, exposure banding, and edge distortion; widening the baseline (300–800 ms) to cover distance faster re-exposes <code>A_animation</code>. Simple stitch <em>avoids</em> the problem; it does not solve it.</p>
+<h3 id="84-production-fact-to-exploit-animation-on-twosthrees">8.4 Production fact to exploit — animation on "twos"/"threes"</h3>
+<p>Anime is usually animated on twos/threes (8–12 drawings/s) while the camera pans every frame at 24 fps. Across 2–3 frames the background moves but the <strong>character is frozen</strong>. An optimised selector prefers frames within the same animation phase, minimising the warp burden.</p>
+<h3 id="85-conceptual-ancestor-unwrap-mosaics-siggraph-2008">8.5 Conceptual ancestor — Unwrap Mosaics (SIGGRAPH 2008)</h3>
+<p>Rav-Acha et al. reconstruct a continuous 2-D representation of a <strong>deforming object</strong> (not the background), modelling image formation as a 2-D-texture→render transform modulated by an occlusion mask, recovering a flattened "unwrap" of the object. The blueprint: treat the character as an independent deforming entity to track, unwrap to a stable pose, and re-composite.</p>
+<h3 id="86-the-flow-guided-arap-regularised-assembly-stage">8.6 The flow-guided, ARAP-regularised assembly stage</h3>
+<ol>
+<li><strong>Mask</strong> the character (BiRefNet/ToonOut/SAM-2) in the overlap zone.</li>
+<li><strong>Dense flow</strong> between the two canvas-aligned frames over the masked overlap (SEA-RAFT; AnimeInterp SGM for flat regions). Because the frames are already background-aligned, the residual foreground flow <strong>is</strong> <code>A_animation</code> (no explicit subtraction needed).</li>
+<li><strong>Symmetric midpoint warp</strong> — warp frame <code>i</code>'s foreground by <code>+½·A</code> and frame <code>i+1</code>'s by <code>−½·A</code>, meeting at the interpolated midpoint pose. This <strong>halves</strong> the maximum distortion on either frame (StabStitch++ bidirectional principle) and reduces tearing risk.</li>
+<li><strong>ARAP + LSD regularisation</strong> — apply the flow not as raw pixel warp (which tears line art into fluid smears) but as attraction forces in a <strong>Sýkora As-Rigid-As-Possible</strong> lattice (NPAR 2009): embed the image in a coarse square control mesh; oscillate a <strong>Push phase</strong> (decoupled block-matching by SAD — points jump arbitrarily to escape the local minima that paralyse gradient methods) and a <strong>Regularise phase</strong> (per-square optimal rigid transform + centroid update). Local rigidity is preserved while global articulation is allowed — the body bends at joints, not like fluid. Convergence is monitored by control-point displacement (not SAD, constant over non-overlapping background). The LSD <code>E_line</code> term holds straight strokes rigid through the interpolation. ARAP's coarse lattice caps sub-pixel precision → finish with a dense flow refiner.</li>
+<li><strong>Composite</strong> the re-posed foreground onto a background-only temporal-median plate (§13), with semantic graph-cut seam routing (§11) and soft-seam blending (§12).</li>
+</ol>
+<h3 id="87-two-channel-pose-consistency-frame-selection">8.7 Two-channel pose-consistency frame selection</h3>
+<p>Whole-frame phase correlation conflates camera pan with animation (a "50-px displacement" can be 5-px camera + 45-px limb swing). Use <strong>two channels:</strong> (1) <strong>camera</strong> — background-only displacement; select when <code>d_camera ≥ min_step</code> (canvas progress); (2) <strong>animation</strong> — among camera-qualifying candidates pick the one minimising foreground residual <code>‖A_animation‖</code> (most pose-consistent, exploiting on-twos/threes). This reduces at selection time the quantity §8.6 corrects at warp time — defence in depth.</p>
+<p><strong>Implementation status (2026-06-03):</strong> A two-pass selector is built in <code>backend/src/animation/frame_selection.py</code>. Pass 1 runs the standard greedy first-past-threshold. Pass 2 checks ±2 frames around each v1-selected frame for a better pose-similarity candidate. The pose metric <code>_fg_center_diff()</code> currently uses <strong>gradient-magnitude L1 on the central 50% crop</strong>, which proved unreliable: Sobel gradients in the central region include background edges (lockers, walls) that change as the camera pans, confounding pose similarity with scroll-position similarity. Disabled by default (<code>ASP_POSE_WINDOW_PX=0</code>). The architecture is ready for a proper pose metric — foreground-only RAFT flow (BiRefNet mask applied before comparison) or DWPose/ViTPose joint coordinates.</p>
+<h3 id="88-principled-fallback-single-coherent-pose-eden-2006">8.8 Principled fallback — single coherent pose (Eden 2006)</h3>
+<p>When flow confidence collapses (fast action, motion blur, huge pose gap), <strong>abort the warp.</strong> Per connected foreground component, select one coherent pose (one frame) and route the seam entirely around it through background via graph cut. A skipped animation frame is always better than a torn average. <strong>Never average two conflicting poses.</strong></p>
+<h3 id="89-the-hdrvsr-analogy">8.9 The HDR/VSR analogy</h3>
+<p>Foreground assembly is structurally identical to <strong>ghost-free HDR</strong> (DDFNet: flow-warp moving content to a reference, attention-fuse) and <strong>video super-resolution alignment</strong> (FDAN: flow-warp then deformable-conv refine; SMURF: multi-frame RAFT with full-image warping). The whole field converged on <em>flow → warp-to-reference → fuse</em> — the same recipe applied here to the foreground.</p>
+<hr />
+<h2 id="9-photometric-correction">9. Photometric Correction</h2>
+<h3 id="91-broadcast-dimming-reversal-harding">9.1 Broadcast dimming reversal (Harding)</h3>
+<p>Post-1997 "Pokémon Shock," Japanese broadcasters auto-dim/ghost high-contrast/flashing/fast-pan scenes to pass the <strong>Harding Flash-and-Pattern</strong> test (measures flash luminance, screen area, temporal frequency). Consecutive extracted frames therefore have varying global luminance — a massive exposure gradient at seams. <strong>Reverse-dimming</strong> restores each frame's luminance (per-frame piecewise-linear/scalar multiplication, e.g. <code>L_true = L_observed · (L_max_pre / L_max_dimmed(t))</code>) before registration so pixel-wise alignment sees consistent illumination. (Refs: <code>anime-undimmer</code>, VapourSynth <code>pvsfunc</code>.)</p>
+<h3 id="92-spatial-flat-fielding-basic">9.2 Spatial flat-fielding (BaSiC)</h3>
+<p>Model <code>I_i(x) = S(x)·O_i(x) + B_i</code> (static flat-field <code>S</code>, temporal baseline <code>B_i</code>). Apply the <strong>spatial flat-field <code>S</code> only</strong>, deliberately omitting the per-frame baseline <code>B_i</code> to preserve the animator's intended brightness transitions. <strong>Trade-off:</strong> skipping baseline harmonisation leaves frame-to-frame brightness differences that blotch the temporal median into horizontal exposure banding — hence the background-only scalar gain in §9.3 at composite time.</p>
+<h3 id="93-global-gain-compensation-brownlowe-2007">9.3 Global gain compensation (Brown–Lowe 2007)</h3>
+<p>For images <code>i=1…n</code>, overlaps <code>R_ij</code>, scalar gains <code>g_i</code>, minimise
+<code>E(g) = Σ_(i,j) Σ_(p∈R_ij) (g_i I_i(p) − g_j I_j(p))²/(2σ_N²) + Σ_i (1−g_i)²/(2σ_g²)</code>
+(second term is a Gaussian prior toward <code>g=1</code>, preventing the trivial all-zero solution). A tiny linear system. Per-channel → colour correction; per-channel-per-block → <code>BlocksGainCompensator</code> for spatially-varying drift. <strong>Anime rule (empirical):</strong> apply gain from <strong>background pixels only</strong>, <strong>scalar luminance</strong> (BT.601), <strong>tightly clamped</strong> (±7%; widen to <code>[0.80, 1.25]</code> only when <code>ref_lum &lt; 80</code>). Per-channel/full-frame gain shifts hue and bands flat surfaces — avoid.</p>
+<h3 id="94-colour-transfer-palette-harmonisation">9.4 Colour transfer &amp; palette harmonisation</h3>
+<ul>
+<li><strong>Reinhard 2001</strong> (<code>lαβ</code> mean/std matching) works for natural images but <strong>not anime</strong> (bimodal histograms, background-dominated stats). Fixes: <strong>region-stratified Reinhard</strong> (k-means clusters in Lab, greedy cluster match, per-pair Reinhard); <strong>CDF histogram matching</strong> over user-selected reference regions.</li>
+<li><strong>Palette harmonisation (anime-specific):</strong> trapped-ball segmentation → per-region palette mode → bipartite (Hungarian, Lab) palette matching across frames → per-region constant offsets. Far more faithful than continuous colour transfer for cel paint.</li>
+<li><strong>Smooth lighting field:</strong> model per-image lighting as a low-order polynomial/RBF surface <code>L_i(x,y)</code>; jointly solve <code>{g_i, L_i}</code> over overlap discrepancy (generalised vignetting/exposure calibration, Goldman–Chen 2005).</li>
+</ul>
+<hr />
+<h2 id="10-foreground-background-segmentation">10. Foreground / Background Segmentation</h2>
+<ul>
+<li><strong>BiRefNet</strong> — Dichotomous Image Segmentation; ViT Localisation Module (ASPP global context) + Reconstruction Module (Sobel gradient-prior aligns the mask to 1-px line art). The ASP's masker. Apply ~16-px dilation as a safety buffer for flyaway hair/motion-blur — but over-dilation in low-res/crowded scenes erodes too much background, starving the matcher.</li>
+<li><strong>ToonOut</strong> — BiRefNet fine-tuned on anime; <strong>95.3% → 99.5%</strong> pixel accuracy. Best clean fg/bg split at hair wisps, transparent FX.</li>
+<li><strong>SAM-2</strong> — promptable segmentation; full-object contours for semantic seam routing.</li>
+<li><strong>Trapped-ball segmentation</strong> (Zhang 2009; SIGGRAPH Asia 2024 leak-resistant variant) — clean line-art region IDs for palette work.</li>
+<li><strong>Anime instance/semantic seg</strong> — SkyTNT ISNet, CartoonSegmentation Mask-R-CNN, AniSeg — per-frame foreground masks for exclusion/median-stacking.</li>
+</ul>
+<p>Note: classical background subtraction (GMM, temporal median over raw frames) is invalid for <strong>panning</strong> shots because background pixels are not stationary in the temporal axis — alignment must precede median.</p>
+<hr />
+<h2 id="11-seam-finding">11. Seam Finding</h2>
+<p>Optimal seam = a path through the overlap where inter-image pixel differences are minimal, making the cut invisible.</p>
+<ul>
+<li><strong>MRF / graph-cut (Boykov–Kolmogorov max-flow; α-expansion for &gt;2 sources).</strong> Energy <code>E(L) = Σ_p C_d(p,L(p)) + Σ_(p,q∈N) C_i(p,q,L(p),L(q))</code>. Data term <code>C_d</code> = source-assignment cost (incl. user "image objectives"); interaction term <code>C_i</code> = seam cost, e.g. <code>‖I_a(p)−I_b(p)‖ + ‖I_a(q)−I_b(q)‖</code> (color match) or the gradient-augmented Graphcut-Textures form. The seam routes around salient objects through flat regions. <strong>Hard constraints:</strong> "pixel must come from frame k" = <code>t-link=∞</code>; "seam must/avoid curve" = <code>n-link</code> capacity 0/∞; "exclude this moving character" = paint mask → <code>t-link=∞</code> to the other source (Boykov–Jolly 2001; Davis 1998; Eden 2006). This is the <strong>single-pose fallback</strong> mechanism (§8.8).</li>
+<li><strong>Semantic seam routing</strong> — <strong>SemanticStitch</strong> (Vis. Comp. 2025) and <strong>OBJ-GSP</strong> (AAAI 2025, SAM-based) penalise seams crossing foreground contours; feed BiRefNet/SAM-2 edge-confidence as <code>sem_cost</code> so the ASP seam never bisects a character.</li>
+<li><strong>DSeam (Deep Seam Prediction)</strong> — a network predicts the seam as a mask via a selection-consistency loss; ~15× faster than graph-cut at comparable quality, real-time.</li>
+<li><strong>Anime line-art rule:</strong> weight <code>C_i</code> by <code>(1 − edge_strength)</code> so seams run cheaply <em>along</em> strong edges (where doubling is invisible) and expensively across flat colour (where any tear shows).</li>
+</ul>
+<hr />
+<h2 id="12-blending">12. Blending</h2>
+<ul>
+<li><strong>Feathering/alpha</strong> — fast; blurs and ghosts under parallax.</li>
+<li><strong>Multi-band (Laplacian-pyramid) blending</strong> (Burt–Adelson 1983) — blend low frequencies over wide zones (lighting drift) and high frequencies over narrow zones (sharp line art). OpenCV <code>MultiBandBlender</code>. Can halo at anime's high-contrast edges.</li>
+<li><strong>Poisson / gradient-domain</strong> (Pérez 2003) — solve <code>Δf = div v</code> over Ω with Dirichlet boundary <code>f|∂Ω = f*|∂Ω</code>; copies the source gradient field so colour shifts smoothly to match. <strong>Color bleeding</strong> on stark flat colours because Dirichlet conditions use only target boundary pixels.</li>
+<li><strong>Modified Poisson Blending (MPB)</strong> — PDE depends on <strong>both</strong> source and target boundary pixels; Mean-Value-Coordinates / multi-spline solve + alpha-compositing step restricts colour propagation → no bleeding on flat cels. Accelerated by <strong>MTOR</strong> (Modified Two-parameter Over-Relaxation) for fast PDE convergence on large panoramas.</li>
+<li><strong>Soft-seam diffusion (DSFN, NeurIPS 2025)</strong> — replaces the hard graph-cut partition with a confidence-weighted diffused soft-seam zone, absorbing residual misalignment and eliminating micro-tearing at the boundary.</li>
+<li><strong>Seamless-Through-Breaking (ACCV 2024)</strong> — when alignment and warp-continuity are mutually exclusive, intentionally tear holes to force perfect foreground alignment, then inpaint the holes (foreground-first compositing).</li>
+</ul>
+<hr />
+<h2 id="13-background-reconstruction-generative-inpainting">13. Background Reconstruction &amp; Generative Inpainting</h2>
+<ul>
+<li><strong>Temporal median, foreground-excluded</strong> — a moving character occupies any pixel &lt;50% of the time; the median over <strong>aligned</strong> frames recovers the static background. <strong>Exclude the foreground mask from the median</strong> or varying poses average into a translucent ghost. Needs high overlap (&gt;95%) for full coverage.</li>
+<li><strong>ProPainter (RAFT-guided video inpainting)</strong> — propagates background pixels from distant unoccluded frames into masked voids via flow; dual-domain spatiotemporal Transformers synthesise remaining context-aware texture/line art. For narrow occlusion voids.</li>
+<li><strong>Generative panoramic outpainting (latent diffusion)</strong> — for massive missing regions (4:3→16:9, out-of-frame). Estimate the coarse layout of references on a global canvas; fine-tune a diffusion model to outpaint missing regions <strong>conditioned on positional encodings</strong> of each view's location, iteratively outpainting while staying faithful to the cel-shading palette and perspective. <strong>VidPanos</strong> (SIGGRAPH Asia 2024) conditions video generation on known canvas regions to complete dynamic panoramic video.</li>
+</ul>
+<hr />
+<h2 id="14-deep-unified-stitching-frameworks">14. Deep &amp; Unified Stitching Frameworks</h2>
+<p>Staged pipelines suffer <strong>cascading error</strong> (registration error compounds through fusion + rectangling). Unified neural frameworks collapse the stages:
+- <strong>UDIS / UDIS++</strong> (ICCV 2023) — unsupervised deep stitching; cascaded warp + multi-scale seam prediction; trained on UDIS-D. Domain shift on anime (trained on natural images) → fine-tune.
+- <strong>Implicit Neural Image Stitching (NIS, 2309.01409)</strong> — estimates Fourier coefficients to produce quality-enhancing warps and blends colour/exposure/sub-pixel mismatch <strong>in latent feature space</strong>, decoding back to RGB; preserves high-frequency line art via arbitrary-scale-SR theory.
+- <strong>SRStitcher</strong> (NeurIPS 2024) — treats fusion + rectangling as one <strong>diffusion inpainting</strong> pass guided by weighted masks; <strong>zero-shot</strong>, no fine-tuning, robust to registration error. An anime-diffusion backbone (Illustrious/Pony/Anything-v5) yields style-consistent seam/border synthesis.
+- <strong>UniStitch / SuperUDIS</strong> — latent-space unsupervised stitching shifting focus to reliable features where matching fails.</p>
+<hr />
+<h2 id="15-super-resolution-restoration">15. Super-Resolution &amp; Restoration</h2>
+<ul>
+<li><strong>Real-ESRGAN anime_6B</strong> — trained on anime degradation (JPEG blocks, cel-gradient loss, line thinning); preserves outlines where photo-SR over-smooths; built-in tile-and-stitch. 2× for sharp inputs, 4× for blurry sources. Shared by the ASP SR stage and the generation pipeline.</li>
+<li><strong>APISR (Anime Production-inspired SR)</strong> — replicates multi-frame video-compression degradation (JPEG/WebP/AVIF/H.264-H.265 intra-prediction) in a prediction-oriented degradation model; inverts non-linear degradation while preserving 2-D topology (no photoreal hallucination in flat regions).</li>
+</ul>
+<hr />
+<h2 id="16-video-stitching-temporal-stability">16. Video Stitching &amp; Temporal Stability</h2>
+<ul>
+<li><strong>Warping shake (StabStitch, ECCV 2024)</strong> — per-frame independent alignment produces micro-jitter in warped non-overlap regions even on stable input. StabStitch jointly optimises spatial alignment + temporal smoothness via a warp-trajectory model (unsupervised, no poses). Add its second-order trajectory term to the ASP bundle adjustment (§5.2).</li>
+<li><strong>StabStitch++ (TPAMI 2025)</strong> — <strong>bidirectional midplane projection:</strong> project both frames onto a virtual midplane (average position) instead of warping all into frame 0's frame, distributing distortion symmetrically. The principle behind the §8.6 symmetric midpoint warp; halves max per-frame distortion on long pans.</li>
+<li><strong>Unwrap Mosaics</strong> (§8.5) — the deforming-object representation.</li>
+</ul>
+<hr />
+<h2 id="17-shot-boundary-detection-pre-stitch">17. Shot Boundary Detection (pre-stitch)</h2>
+<p>A continuous stream must be parsed into coherent shots first. Anime breaks frame-differencing/3-D-CNN cut detectors (variable pacing, "sudden jumps" without formal cuts). <strong>OmniShotCut</strong> treats parsing as structured relational prediction: spatio-temporal Transformer encoder (3-D positional embeddings, ResNet18 backbone) + a decoder with 24 learnable shot-query tokens (cross-attention) jointly estimating shot ranges + continuity relations. Trained on synthetic <strong>OmniShotCutBench</strong> (300k videos, 11.9M parameterised transitions). Range prediction uses a differentiable 1-D <strong>Wasserstein (Earth Mover's) distance</strong> over temporal CDFs (instead of orthogonal-class cross-entropy) so gradients scale with temporal error. Pair with FFmpeg/PySceneDetect extraction.</p>
+<hr />
+<h2 id="18-the-full-anime-pipeline-specification-1314-stages">18. The Full Anime Pipeline Specification (13–14 stages)</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Operation</th>
+<th>Key detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Shot detection (OmniShotCut)</td>
+<td>parse stream → coherent pan shots</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Load &amp; dark-border trim</td>
+<td>temporal-variance border detection (not intensity threshold); strip logos/subs/timecodes</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Width/height normalisation</td>
+<td>Lanczos-4 to a shared target (min adjacent height); guards anamorphic ref-frame distortion</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BaSiC flat-field + reverse-dimming</td>
+<td>spatial flat-field only; undo Harding dimming before registration</td>
+</tr>
+<tr>
+<td>4</td>
+<td>BiRefNet/ToonOut/SAM-2 masking</td>
+<td>DIS mask + ~16-px safety dilation; fg isolation for exclusion + assembly</td>
+</tr>
+<tr>
+<td>4.5</td>
+<td>Background photometric normalisation</td>
+<td>bg-only, scalar luminance, clamp ±7% (or <code>[0.80,1.25]</code> dark)</td>
+</tr>
+<tr>
+<td>5–6</td>
+<td>EfficientLoFTR match → edge filter</td>
+<td>translation-only; reject affine; geom-consistency + direction-consensus + min-step + velocity filters; fallbacks: template NCC → phase correlation → RoMa</td>
+</tr>
+<tr>
+<td>Post-6</td>
+<td>Spatial dedup</td>
+<td>drop adjacent frames with displacement &lt;25 px (iterative)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Translation-only bundle adjustment + affine-health gate</td>
+<td>LM; 2-pronged outlier rejection (+ Cauchy loss upgrade); ratio/min-gap/rotation/scale validation; 3-tier retry → SCANS fallback</td>
+</tr>
+<tr>
+<td>8</td>
+<td>SEA-RAFT sub-pixel refine</td>
+<td>overlap-zone crops; bg-pixel trimmed mean (replaces gradient-divergent ECC on flat regions)</td>
+</tr>
+<tr>
+<td><strong>8.5</strong></td>
+<td><strong>Foreground pose registration</strong></td>
+<td>mask → dense flow → residual <code>A_animation</code> → <strong>symmetric midpoint warp</strong> → <strong>ARAP+LSD</strong> regularise (§8.6)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Canvas construction + bidirectional midplane</td>
+<td>symmetric distortion; global offset</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Foreground-excluded</strong> temporal median</td>
+<td>background plate only; or Laplacian/Poisson render</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Foreground assembly composite</td>
+<td>semantic graph-cut seam (BiRefNet/SAM cost) → DSFN soft-seam → MPB/MTOR blend; bg-only scalar gain</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Background inpainting</td>
+<td>ProPainter (narrow voids) / latent-diffusion outpaint (large)</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Largest-inscribed-rectangle crop / RecDiffusion rectangling</td>
+<td>clean aspect; generative corner fill</td>
+</tr>
+<tr>
+<td>opt</td>
+<td>Real-ESRGAN anime_6B / APISR SR; ToonCrafter ghost-fill</td>
+<td>final-quality mode</td>
+</tr>
+</tbody>
+</table>
+<h3 id="181-dual-channel-frame-selection">18.1 Dual-channel frame selection</h3>
+<p>Replaces whole-frame phase correlation with the two-channel (camera vs animation) selector of §8.7.</p>
+<hr />
+<h2 id="19-evaluation-metrics">19. Evaluation &amp; Metrics</h2>
+<ul>
+<li><strong>Laplacian-variance "sharpness" is actively misleading</strong> — hard seam edges and color-band discontinuities <em>inflate</em> it, so a torn stitch can outscore a clean one. Do not rank by sharpness.</li>
+<li><strong>Ground-truth SSIM / PSNR</strong> against reference panoramas — the valid quality signal when GT exists.</li>
+<li><strong>Seam coherence</strong> = std of per-row mean luminance; high → horizontal colour banding. A reliable banding detector.</li>
+<li><strong>Strip-banding score</strong> = max adjacent-strip luminance jump.</li>
+<li><strong>Coverage</strong> = non-black fraction (crop completeness).</li>
+<li><strong>Ghosting</strong> = 2nd-order vertical-derivative energy (proxy; partly conflated with content).</li>
+<li><strong>Render quality gate</strong> — measure seam-coherence/strip-banding on the temporal render <em>before</em> compositing; fall back to SCANS if already banded.</li>
+</ul>
+<hr />
+<h2 id="20-failure-modes-principled-fallbacks">20. Failure Modes &amp; Principled Fallbacks</h2>
+<table>
+<thead>
+<tr>
+<th>Failure</th>
+<th>Symptom</th>
+<th>Fallback</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flow fails (fast action/blur/huge pose gap)</td>
+<td>mangled warp</td>
+<td>Single-pose graph-cut around one frame's character (Eden 2006); skip a frame</td>
+</tr>
+<tr>
+<td>&gt;40% bad matches / catastrophic BA</td>
+<td>ratio/min-gap gate fails</td>
+<td>3-tier retry → SCANS on original (pre-ML) frames</td>
+</tr>
+<tr>
+<td>Multi-plane background parallax</td>
+<td>mid-ground tearing</td>
+<td>APAP/Moving-DLT + LSD background warp (not foreground)</td>
+</tr>
+<tr>
+<td>Flat-region flow chaos</td>
+<td>arbitrary interior vectors</td>
+<td>AnimeInterp SGM (segment-level flow)</td>
+</tr>
+<tr>
+<td>Permanent occlusion / diagonal corners</td>
+<td>black canvas gaps</td>
+<td>ProPainter / latent-diffusion outpaint / VidPanos</td>
+</tr>
+<tr>
+<td>ECC divergence on flat regions</td>
+<td>zero sub-pixel gain</td>
+<td>SEA-RAFT flow refine</td>
+</tr>
+<tr>
+<td>Color bleeding at seam</td>
+<td>Poisson interior discoloration</td>
+<td>Modified Poisson Blending + MTOR</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Master principle:</strong> never average two conflicting poses — warp to agreement (ARAP midpoint) or select one (graph-cut). A skipped frame beats a torn average.</p>
+<hr />
+<h2 id="21-implementation-status-in-image-toolkit-asp">21. Implementation Status in Image-Toolkit (ASP)</h2>
+<ul>
+<li><strong>Pipeline modules:</strong> <code>backend/src/animation/</code> — <code>pipeline.py</code> (orchestrator), <code>matching.py</code>, <code>bundle_adjust.py</code>, <code>validation.py</code>, <code>canvas.py</code>, <code>ecc.py</code>, <code>flow_refine.py</code> (SEA-RAFT), <code>rendering.py</code> (temporal median), <code>compositing.py</code> (Stage 11), <code>fg_register.py</code> (Stage 8.5 — <strong>shipped prototype:</strong> DIS dense flow → residual → symmetric midpoint warp, integrated into compositing; validated on test09), <code>masking.py</code>, <code>photometric.py</code>, <code>mfsr/</code>, <code>sr_stitcher.py</code>, <code>super_res.py</code>, <code>anim_fill.py</code> (ToonCrafter).</li>
+<li><strong>Model wrappers:</strong> EfficientLoFTR, LoFTR, ALIKED+LightGlue, RoMa, JamMa, BiRefNet, BaSiC.</li>
+<li><strong>Benchmark:</strong> <code>backend/benchmark/bench_anime_stitch.py</code> — 96-test corpus, 55 with ground truth; GT-SSIM + seam-coherence metrics; render quality gate; selective runner.</li>
+<li><strong>Current GT baseline:</strong> ASP 0.669 vs simple-stitch 0.695 SSIM-vs-GT — the foreground-assembly track (§8) is the path to surpass it.</li>
+<li><strong>Roadmap:</strong> <code>docs/moon/roadmaps/asp.md</code> Phase 0 (foreground assembly: A1 SEA-RAFT engine, A3 full ARAP+LSD, A5 bg-only median, A6 single-pose fallback, two-channel selection, segment-guided flow).</li>
+</ul>
+<h3 id="addendum-2026-07-27-literature-sweep-for-issue-21-gap-areas">Addendum (2026-07-27) — Literature Sweep for Issue #21 Gap Areas</h3>
+<p>Targeted web search across the four gap areas the issue flagged as needing a fresh look, rather than a general resurvey of the whole field:</p>
+<ul>
+<li><strong>Animation-phase clustering</strong> (grouping frames by shared background/pose phase before stitching, per <code>asp.md</code>'s phase-clustering diagnostics work): still genuinely uncovered in the literature. The only tangential hit is DBSCAN-based trajectory clustering used for a different purpose (motion-path segmentation in live-action video stabilization, not phase-boundary detection in cel animation). No paper addresses the specific problem ASP's own §2.2 diagnostics work had to solve from scratch.</li>
+<li><strong>LinkTo-Anime's fine-tuned RAFT checkpoint</strong> (2506.02733, already cited in Appendix A for its dataset): public availability of the actual fine-tuned optical-flow weights (as opposed to the dataset) is inconclusive from search — the paper's project page references code/data release but no direct confirmation of a downloadable checkpoint was found. Treat as unavailable until directly verified against the repo, not as a ready-to-use asset.</li>
+<li><strong>Joint seam+exposure optimization</strong> (a single joint objective over seam placement and photometric gain, vs. ASP's current sequential Brown-Lowe-then-seam approach): no strong new 2024-2025 result beyond what's already in §9/§11. The closest hit, <strong>JoPano</strong> (Dec 2025), is tangential — it's a generative panorama-synthesis method (diffusion-based), not classical multi-image stitching, so its joint objective doesn't transfer directly. Its <strong>Seam-SSIM</strong> and <strong>Seam-Sobel</strong> metrics (measuring seam quality independent of the generation method) are a usable idea for <code>bench_anime_stitch.py</code>'s own metric suite even though the generation approach itself isn't applicable.</li>
+<li><strong>Ghost-free fusion</strong> (deghosting for a moving foreground during background-plate reconstruction, ASP's hardest sub-problem per §8): genuinely new relevant work exists — <strong>UltraFusion</strong> and <strong>IFT</strong> (both 2024-2025) both target exposure-fusion deghosting more directly than the HDR-deghosting literature already cited (DDFNet, Sensors 2022). Worth a closer read before the next foreground-assembly iteration; not yet integrated into ASP.</li>
+<li><strong>ToonCrafter's current successor</strong>: <strong>LayerInbetween</strong> (ACM Transactions on Graphics, July 2026) supersedes ToonCrafter (already cited in §13 for <code>anim_fill.py</code>'s generative inpainting) — layer-aware anime inbetweening, published after <code>anim_fill.py</code> was originally built against ToonCrafter. Not yet evaluated against ASP's actual failure cases; flagged as the module to re-benchmark against if/when <code>anim_fill.py</code> is revisited.</li>
+</ul>
+<p>None of the above required or received a code change — this is a research-currency update only, keeping Appendix A/B's citation set from going stale on the four areas issue #21 specifically asked about.</p>
+<hr />
+<h2 id="appendix-a-research-index-technique-paper">Appendix A — Research Index (technique → paper)</h2>
+<p>Geometry: APAP/Moving-DLT (Zaragoza CVPR 2013); AANAP; X-Slits/pushbroom; Unwrap Mosaics (SIGGRAPH 2008). Matching: SIFT, SURF, ORB, AKAZE, MSER; SuperPoint (2018), SuperGlue (2020), LightGlue (ICCV 2023), ALIKED (TIM 2023), XFeat (CVPR 2024); LoFTR (CVPR 2021), EfficientLoFTR (CVPR 2024, 2403.04765), RoMa v2 (2511.15706), JamMa (CVPR 2025, 2503.03437), EDM (ICCV 2025, 2503.05122). Flow: RAFT (ECCV 2020), SEA-RAFT (ECCV 2024, 2405.14793), AnimeInterp (CVPR 2021, 2104.02495), GMFlow (CVPR 2022), MambaFlow (2503.07046), EpicFlow (CVPR 2015); datasets AnimeRun, LinkTo-Anime (2506.02733), ATD-12K, PaintBucket-Character. Warps: TPS, MLS (Schaefer 2006), CPW (Liu 2009), Line-Point Consistency (CVPR 2021), SEAGULL (ECCV 2016). Foreground: Sýkora ARAP (NPAR 2009); DDFNet HDR-deghost (Sensors 2022); FDAN/SMURF VSR (2021). Photometric: Brown–Lowe gain (2007), Reinhard (2001), BaSiC, Harding/anime-undimmer, Goldman–Chen vignetting (2005). Segmentation: BiRefNet, ToonOut, SAM-2, trapped-ball (2009 / SIGGRAPH Asia 2024). Seam: Boykov–Jolly (2001), Agarwala Photomontage (2004), Eden (CVPR 2006), DSeam, SemanticStitch (2025), OBJ-GSP (AAAI 2025), DSFN (NeurIPS 2025), Seamless-Through-Breaking (ACCV 2024). Blend: Burt–Adelson (1983), Pérez Poisson (2003), Modified Poisson + MTOR. Inpaint/complete: ProPainter, VidPanos (SIGGRAPH Asia 2024), generative panoramic latent diffusion, RecDiffusion (CVPR 2024). Unified: UDIS/UDIS++ (ICCV 2023), NIS (2309.01409), SRStitcher (NeurIPS 2024). SR: Real-ESRGAN anime_6B, APISR. Video: StabStitch/++ (ECCV 2024 / TPAMI 2025). Shot detection: OmniShotCut.</p>
+<h2 id="appendix-b-recommended-reading-order">Appendix B — Recommended Reading Order</h2>
+<p>Brown–Lowe (2007) → Agarwala (2004) → Pérez (2003) → Burt–Adelson (1983) → Boykov–Jolly (2001) → Schaefer MLS (2006) → Zaragoza APAP (2013) → Lin SEAGULL (2016) → Sun LoFTR (2021) → Sarlin SuperGlue (2020) → Sýkora ARAP (2009) → Eden (2006) → SEA-RAFT (2024) → AnimeInterp (2021). The math composes cleanly across these — read before the recent learned work.</p>
+<h2 id="appendix-c-source-reports-consolidated-now-removable">Appendix C — Source Reports Consolidated (now removable)</h2>
+<p>This document replaces: <em>Anime Frame Stitching Pipeline Research</em>; <em>ASP_CV_Research_and_Improvement_Plan</em>; <em>ASP_Foreground_Assembly_Research</em>; <em>Advanced Methodologies for Flawless Image Stitching in Digital Animation</em>; <em>Anime Image Stitching Pipeline Analysis</em>; <em>Anime Image Stitching: Methods and Challenges</em>; <em>Anime Screenshot Stitching Improvement Research</em>; <em>Anime Stitching Pipeline Optimization Report</em>; <em>Image Stitching Methods for Anime Screenshots</em>; <em>Image Stitching Pipeline Optimization Research</em>; <em>Image Stitching: Methods and Artifacts</em>; <em>Semi-Interactive Image Stitching for Anime Frame Imagery</em>; <em>AI_OR Research Assistant for Anime Stitching</em>; <em>AI_OR Research Assistant Pipeline Development</em> (the extraction/augmentation/segmentation/stitching audit — its shot-detection, BaSiC, and APISR material is folded into §3, §9, §15, §17).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

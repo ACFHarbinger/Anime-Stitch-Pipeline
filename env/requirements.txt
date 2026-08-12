@@ -1,5 +1,0 @@
-# Runtime dependencies. Prefer `python/pyproject.toml` + `uv` for the
-# python/ module itself — this file is for environments (conda, system
-# Python) that install outside of uv.
-python-dotenv
-requests
