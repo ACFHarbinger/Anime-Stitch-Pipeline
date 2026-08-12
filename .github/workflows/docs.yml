@@ -35,6 +35,7 @@ jobs:
         working-directory: docs/website
         env:
           SITE_BASE: /${{ github.event.repository.name }}/app/
+      - run: mkdir -p build/gen/site && cp -r site/. build/gen/site/
       - run: mkdir -p build/gen/site/app && cp -r docs/website/dist/. build/gen/site/app/
 
       - name: Deploy to GitHub Pages
