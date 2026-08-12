@@ -23,8 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
-      - run: uv pip install --system --break-system-packages mkdocs-material mkdocstrings[python] mkdocs-jupyter
-      - run: mkdocs build --config-file docs/mkdocs.yml --strict
+      - run: uv venv .venv
+      - run: uv pip install --python .venv/bin/python mkdocs-material mkdocstrings[python] mkdocs-jupyter
+      - run: .venv/bin/mkdocs build --config-file docs/mkdocs.yml
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
