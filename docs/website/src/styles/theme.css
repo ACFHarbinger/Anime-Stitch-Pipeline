@@ -1,0 +1,121 @@
+:root {
+  --bg: #ffffff;
+  --surface: #f6f7f9;
+  --surface-hover: #eceef1;
+  --border: #e3e5e9;
+  --text: #17181c;
+  --text-muted: #5b5f6b;
+  --accent: #4f46e5;
+  --accent-2: #06b6d4;
+  --code-bg: #f2f3f6;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0e0f13;
+  --surface: #16181d;
+  --surface-hover: #1e2128;
+  --border: #262932;
+  --text: #e7e9ee;
+  --text-muted: #9aa0ac;
+  --accent: #818cf8;
+  --accent-2: #22d3ee;
+  --code-bg: #14161b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0f13;
+    --surface: #16181d;
+    --surface-hover: #1e2128;
+    --border: #262932;
+    --text: #e7e9ee;
+    --text-muted: #9aa0ac;
+    --accent: #818cf8;
+    --accent-2: #22d3ee;
+    --code-bg: #14161b;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+  color: inherit;
+}
+
+.container {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+.btn-secondary {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.section-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 0 1.25rem;
+}
