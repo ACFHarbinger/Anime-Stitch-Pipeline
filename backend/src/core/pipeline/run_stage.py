@@ -236,6 +236,14 @@ class _RunStageMixin(_Base):
             f"[Stitch] Stage 4 complete: foreground masks ready "
             f"({'BiRefNet' if self.use_birefnet else 'None'})."
         )
+        _mask_ov = session.pause(
+            "masks",
+            {"image_paths": list(image_paths), "n_frames": N},
+        )
+        if _mask_ov.get("bg_masks") is not None and len(_mask_ov["bg_masks"]) == N:
+            bg_masks = _mask_ov["bg_masks"]
+        if _mask_ov.get("exclusion_masks"):
+            self.exclusion_masks = _mask_ov["exclusion_masks"]
 
         # ── Stage 4.5/4.5b: Photometric normalisation ─────────────────────────
         frames = _apply_background_photometric_normalization(frames, bg_masks, N)

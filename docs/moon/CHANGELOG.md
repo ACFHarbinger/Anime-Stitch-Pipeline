@@ -26,6 +26,12 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **M1c GUI adapter (2026-08-15, #29):** `_ProgressPipeline.run()`
+  defaults to canonical `AnimeStitchPipeline.run()`, forwarding
+  `exclusion_masks`, `motion_model`, and HITL `pause_hook`. The three
+  legacy-fork `_composite_foreground` calls now pass `exclusion_masks`.
+  `ASP_GUI_LEGACY=1` keeps the HITL override fork. Headless parity:
+  `backend/test/core/test_entry_parity.py`.
 - **M1b canonical bench adapter (2026-08-15, #28):** default
   `process_dataset` path is `run_canonical_asp()` — product
   `AnimeStitchPipeline.run()` then `SafeAspPolicy`. A `raw_asp`

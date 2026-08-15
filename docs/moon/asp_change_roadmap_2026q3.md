@@ -3,8 +3,8 @@
 **Status:** Signed off. Issues filed (ASP #24–#40, Image-Toolkit #370–#371).
 M1a (`PipelineSession` / stage protocol) landed 2026-08-15 — extraction
 only, no pixel-path change. M1b adapter landed 2026-08-15 (canonical
-`run()` + policy; `ASP_BENCH_LEGACY=1` keeps the old fork). M1c not
-started.
+`run()` + policy; `ASP_BENCH_LEGACY=1` keeps the old fork). M1c GUI
+adapter landed 2026-08-15 (`ASP_GUI_LEGACY=1` keeps the HITL fork).
 **Created:** 2026-08-15
 **Scope:** ASP correctness, product-pipeline convergence, measurement, and the
 artist review workflow. The visual redesign is recorded as future work and is

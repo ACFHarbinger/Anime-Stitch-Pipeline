@@ -122,6 +122,47 @@ class _ProgressPipeline(AnimeStitchPipeline):
         image_paths: list[str],
         output_path: str,
         hires_keyframes: dict[int, str] | None = None,
+    ):
+        """Default: canonical ``AnimeStitchPipeline.run()`` (M1c).
+
+        ``ASP_GUI_LEGACY=1`` restores the pre-M1c HITL fork. Exclusion
+        masks, motion_model, and pause_hook are forwarded on the
+        canonical path; ``run_stage.py`` already passes
+        ``self.exclusion_masks`` into ``_composite_foreground``.
+        """
+        if os.environ.get("ASP_GUI_LEGACY", "0") == "1":
+            return self._run_legacy(image_paths, output_path, hires_keyframes)
+        return self._run_canonical(image_paths, output_path, hires_keyframes)
+
+    def _run_canonical(
+        self,
+        image_paths: list[str],
+        output_path: str,
+        hires_keyframes: dict[int, str] | None = None,
+    ):
+        self._check_cancel()
+        self.pause_hook = self._hitl_pause
+        out = super().run(
+            image_paths,
+            output_path,
+            hires_keyframes,
+            pause_hook=self._hitl_pause,
+        )
+        session = getattr(self, "last_session", None)
+        if session is not None:
+            for idx, rec in enumerate(session.stages, start=1):
+                label = rec.name
+                if idx <= len(_STAGE_LABELS):
+                    label = _STAGE_LABELS[idx - 1]
+                self._progress_cb(min(idx, _TOTAL_STAGES), label)
+                self._log_cb(f"[Stage {min(idx, _TOTAL_STAGES)}/{_TOTAL_STAGES}] {label}")
+        return out
+
+    def _run_legacy(
+        self,
+        image_paths: list[str],
+        output_path: str,
+        hires_keyframes: dict[int, str] | None = None,
     ):  # noqa: C901
         out_abs = os.path.abspath(output_path)
         image_paths = [p for p in image_paths if os.path.abspath(p) != out_abs]
@@ -666,6 +707,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
                 bg_masks,
                 preset_boundaries=_preset_boundaries,
                 seam_meta_out=_seam_meta,
+                exclusion_masks=self.exclusion_masks or None,
             )
             _prev_sc46 = min(1.0, 600 / max(canvas_h, 1))
             # pyrefly: ignore [no-matching-overload]
@@ -709,6 +751,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
                     preset_boundaries=_preset_boundaries,
                     seam_overrides=_seam_overrides,
                     seam_meta_out=_seam_meta,
+                    exclusion_masks=self.exclusion_masks or None,
                 )
                 self._log_cb(
                     f"[HITL] Re-composited with {len(_seam_overrides)} seam override(s)."
@@ -731,6 +774,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
                         preset_boundaries=_preset_boundaries,
                         paint_mask=_paint_mask,
                         seam_overrides=_seam_overrides,
+                        exclusion_masks=self.exclusion_masks or None,
                     )
                 _cp45_iter += 1
                 _prev_sc45 = min(1.0, 600 / max(canvas_h, 1))
