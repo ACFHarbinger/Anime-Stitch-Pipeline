@@ -22,6 +22,7 @@ Split by role:
                               point (see its own module docstring for why
                               this is the one file left over 500 lines)
   manager.py                 -- AnimeStitchPipeline, composed from all mixins
+  session.py                 -- M1a PipelineSession / stage protocol (no pixels)
 """
 
 import logging
@@ -44,11 +45,23 @@ from ._frame_utils import (
 from ._manual_edges import _build_landmark_affine, _build_manual_edge
 from ._probes import _ALIKED_OK, _BIREFNET_OK, _DY_CV_MAX, _ELOFTR_OK, _LOFTR_OK, _USE_SAM2
 from .manager import AnimeStitchPipeline
+from .session import (
+    HitlCheckpoint,
+    PipelineSession,
+    PipelineStage,
+    ResultIdentity,
+    snapshot_pipeline_config,
+)
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
     "AnimeStitchPipeline",
+    "HitlCheckpoint",
+    "PipelineSession",
+    "PipelineStage",
+    "ResultIdentity",
+    "snapshot_pipeline_config",
     "_ALIKED_OK",
     "_BIREFNET_OK",
     "_DY_CV_MAX",

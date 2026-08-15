@@ -10,10 +10,13 @@ self-contained, no-early-return-coupling blocks were extracted to their own
 files (_photometric_stage.py, _content_trim.py, _dedup_stage.py's single
 early-return uses a sentinel-return to preserve exact control flow,
 _matcher_selection.py as a mixin method since it mutates self state) --
-pure code motion, no logic change. Fully decomposing the remaining ~650
-lines would require introducing a stateful context object threaded through
-every stage, which is a materially larger structural change with no fast
-test to catch a mistake; not attempted here.
+pure code motion, no logic change.
+
+M1a adds a ``PipelineSession`` bookkeeping object (see ``session.py``)
+alongside the existing control flow. Stage marks and fallback labels are
+appended next to the original log/return sites; they do not change which
+function writes pixels. Full decomposition of ``run()`` into session-driven
+stage functions is M1b/M1c.
 """
 
 from __future__ import annotations
@@ -68,6 +71,12 @@ from ._frame_utils import (
 from ._photometric_stage import _apply_background_photometric_normalization
 from ._pipeline_protocol import _PipelineHost
 from ._probes import _DY_CV_MAX, BaSiCWrapper, Image, torch
+from .session import (
+    PipelineSession,
+    PipelineStage,
+    ResultIdentity,
+    snapshot_pipeline_config,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +119,9 @@ class _RunStageMixin(_Base):
         image_paths: list[str],
         output_path: str,
         hires_keyframes: dict[int, str] | None = None,
+        *,
+        session: PipelineSession | None = None,
+        pause_hook=None,
     ) -> Image.Image:
         """
         Execute the full stitching pipeline.
@@ -124,6 +136,11 @@ class _RunStageMixin(_Base):
             replaced by their hires counterparts and affines are scaled accordingly.
             Frame indices not listed are bicubic-upscaled from the proxy.
             The final panorama is rendered at the hires resolution.
+        session : optional M1a ``PipelineSession``. When omitted, one is created.
+            Bookkeeping only — does not change image operations.
+        pause_hook : optional HITL callback ``(event, data) -> overrides``.
+            Stored on the session; canonical ``run()`` does not insert new
+            checkpoints (M1c).
 
         Returns
         -------
@@ -136,6 +153,19 @@ class _RunStageMixin(_Base):
         # §1.63: Sort frame paths by numeric suffix so glob-discovered frames are
         # always in temporal order, regardless of OS directory-entry order.
         image_paths = _sort_frames_by_index(image_paths)
+
+        if session is None:
+            session = PipelineSession.create(
+                image_paths,
+                output_path,
+                hires_keyframes,
+                config=snapshot_pipeline_config(self),
+                pause_hook=pause_hook or getattr(self, "pause_hook", None),
+            )
+        elif pause_hook is not None and session.pause_hook is None:
+            session.pause_hook = pause_hook
+        self.last_session = session
+        session.record_artifact("output_path", output_path)
 
         logger.info(
             f"[Stitch] Starting AnimeStitchPipeline on {len(image_paths)} frames."
@@ -150,7 +180,12 @@ class _RunStageMixin(_Base):
         frames = _load_frames(image_paths)
         N = len(frames)
         if N < 2:
+            session.finish(
+                success=False,
+                error="Need at least 2 valid frames to stitch.",
+            )
             raise PipelineError("Need at least 2 valid frames to stitch.")
+        session.mark(PipelineStage.LOAD, n=N)
         logger.info(f"[Stitch] Stage 1 complete: {N} frames loaded.")
 
         phase_ids: list[int] | None = None
@@ -159,6 +194,7 @@ class _RunStageMixin(_Base):
         frames = _normalise_widths(frames)
         H, W = frames[0].shape[:2]
         scans_frames = list(frames)
+        session.mark(PipelineStage.NORMALISE, width=W, height=H)
         logger.info(f"[Stitch] Stage 2 complete: all frames at {W}×{H}.")
 
         # ── Stage 3: BaSiC photometric correction ────────────────────────────
@@ -168,10 +204,12 @@ class _RunStageMixin(_Base):
             frames, baselines = _apply_basic(frames, self._basic)
             self._baselines = baselines
             frames = _correct_vignetting(frames)
+            session.mark(PipelineStage.PHOTOMETRIC_BASIC)
             logger.info(
                 "[Stitch] Stage 3 complete: BaSiC + Vignette correction applied."
             )
         else:
+            session.mark(PipelineStage.PHOTOMETRIC_BASIC, skipped=True)
             logger.info("[Stitch] Stage 3 skipped (use_basic=False).")
 
         # ── Stage 4: Foreground masking ──────────────────────────────────────
@@ -190,6 +228,10 @@ class _RunStageMixin(_Base):
             with contextlib.suppress(Exception):
                 self._birefnet.unload()
             self._birefnet = None
+        session.mark(
+            PipelineStage.MASK,
+            use_birefnet=bool(self.use_birefnet),
+        )
         logger.debug(
             f"[Stitch] Stage 4 complete: foreground masks ready "
             f"({'BiRefNet' if self.use_birefnet else 'None'})."
@@ -197,6 +239,7 @@ class _RunStageMixin(_Base):
 
         # ── Stage 4.5/4.5b: Photometric normalisation ─────────────────────────
         frames = _apply_background_photometric_normalization(frames, bg_masks, N)
+        session.mark(PipelineStage.PHOTOMETRIC_BG)
 
         # ── Pre-stage 5: Deduplicate near-static consecutive frames ─────────
         _early, frames, scans_frames, bg_masks, image_paths, N = (
@@ -205,7 +248,11 @@ class _RunStageMixin(_Base):
             )
         )
         if _early is not None:
+            session.record_fallback(ResultIdentity.SCANS, "dedup_too_few_frames")
+            session.record_artifact("scans_path", output_path)
+            session.finish(success=True, identity=ResultIdentity.SCANS)
             return _early
+        session.mark(PipelineStage.DEDUP, n=N)
 
         # ── Stage 5-6: Pairwise matching (+ skip-pair edges) ────────────────
         # ── Matcher selection (P1.4 EfficientLoFTR / P3.2 JamMa) ───────────────
@@ -240,8 +287,12 @@ class _RunStageMixin(_Base):
                 )
                 N = len(frames)
                 if N < 2:
+                    session.record_fallback(ResultIdentity.SCANS, "spatial_dedup_too_few_frames")
+                    session.record_artifact("scans_path", output_path)
+                    session.finish(success=True, identity=ResultIdentity.SCANS)
                     _sf = scans_frames or _reload_scans_frames(image_paths)
                     return _scan_stitch_fallback(_sf, output_path)
+        session.mark(PipelineStage.SPATIAL_DEDUP, dropped=_total_spa_dropped)
         if _total_spa_dropped:
             logger.debug(
                 f"[Stitch]   Spatial dedup complete: {_total_spa_dropped} frames "
@@ -256,6 +307,7 @@ class _RunStageMixin(_Base):
         # by index, which would desync a phase_ids list computed earlier.
         try:
             phase_ids = detect_animation_phases(image_paths)
+            session.mark(PipelineStage.PHASE, n_phases=len(set(phase_ids)))
             logger.info(
                 f"[Stitch] {len(set(phase_ids))} animation phase(s) "
                 f"detected across {N} frames."
@@ -266,8 +318,10 @@ class _RunStageMixin(_Base):
                 "phase-consistent compositing disabled for this run."
             )
             phase_ids = None
+            session.mark(PipelineStage.PHASE, skipped=True, error=str(_phase_exc))
 
         edges = self._filter_edges(edges, image_paths, H, W, frames, bg_masks)
+        session.mark(PipelineStage.FILTER_EDGES, n_edges=len(edges))
 
         # §3.16B: apply HITL drop_edges after filter
         if _hitl_pipeline_state.get("boundaries"):
@@ -290,9 +344,13 @@ class _RunStageMixin(_Base):
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
         gc.collect()
+        session.mark(PipelineStage.MATCH, n_edges=len(edges))
         logger.info(f"[Stitch] Stages 5-6 complete: {len(edges)} valid edges found.")
         if not edges:
             warnings.warn("[Stitch] No valid edges — falling back to scan stitch.", stacklevel=2)
+            session.record_fallback(ResultIdentity.SCANS, "no_valid_edges")
+            session.record_artifact("scans_path", output_path)
+            session.finish(success=True, identity=ResultIdentity.SCANS)
             _sf = scans_frames or _reload_scans_frames(image_paths)
             return _scan_stitch_fallback(_sf, output_path)
 
@@ -306,6 +364,9 @@ class _RunStageMixin(_Base):
                 len(edges),
                 N,
             )
+            session.record_fallback(ResultIdentity.SCANS, "disconnected_edge_graph")
+            session.record_artifact("scans_path", output_path)
+            session.finish(success=True, identity=ResultIdentity.SCANS)
             _sf = scans_frames or _reload_scans_frames(image_paths)
             return _scan_stitch_fallback(_sf, output_path)
 
@@ -318,6 +379,7 @@ class _RunStageMixin(_Base):
             use_affine=use_affine_ba,
             motion_model=_motion_model,
         )
+        session.mark(PipelineStage.BUNDLE_ADJUST, motion_model=_motion_model)
         logger.debug(
             f"[Stitch] Stage 7 complete: bundle adjustment done "
             f"(mode={_motion_model})."
@@ -360,7 +422,19 @@ class _RunStageMixin(_Base):
                 # translation-only validation rejects; try before SCANS.
                 try:
                     _sf = scans_frames or _reload_scans_frames(image_paths)
-                    return _panorama_stitch_fallback(_sf, output_path)
+                    _pano = _panorama_stitch_fallback(_sf, output_path)
+                    # PANORAMA is a safe-policy fallback algorithm, not a
+                    # fourth output identity. Raw/Safe/SCANS stay disjoint for
+                    # the M0 result schema and future parity comparisons.
+                    session.record_fallback(
+                        ResultIdentity.SAFE_ASP,
+                        str(health.reason),
+                        algorithm="panorama",
+                    )
+                    session.record_artifact("safe_asp_path", output_path)
+                    session.record_artifact("fallback_algorithm", "panorama")
+                    session.finish(success=True, identity=ResultIdentity.SAFE_ASP)
+                    return _pano
                 except Exception as _pano_e:
                     logger.info(
                         f"[Stitch]   PANORAMA fallback failed ({_pano_e}); using SCANS."
@@ -369,11 +443,20 @@ class _RunStageMixin(_Base):
                     f"[Stitch] Affine validation FAILED ({health.reason}) after retries. "
                     f"Falling back to SCANS stitch.", stacklevel=2
                 )
+                session.record_fallback(ResultIdentity.SCANS, f"affine_invalid:{health.reason}")
+                session.record_artifact("scans_path", output_path)
+                session.finish(success=True, identity=ResultIdentity.SCANS)
                 _sf = scans_frames or _reload_scans_frames(image_paths)
                 return _scan_stitch_fallback(_sf, output_path)
+        session.mark(
+            PipelineStage.AFFINE_VALIDATE,
+            valid=bool(health.valid),
+            reason=getattr(health, "reason", None),
+        )
 
         # ── Stage 8: Sub-pixel refinement ────────────────────────────────────
         affines = self._refine_subpixel(frames, affines, bg_masks)
+        session.mark(PipelineStage.REFINE)
 
         # ── Stage 8.8: Hires keyframe substitution (§9C — Sprint 8) ────────
         # All heavy computation above ran on proxy (1080p) frames. If the caller
@@ -383,6 +466,7 @@ class _RunStageMixin(_Base):
             _n_hires, frames, affines, bg_masks = _apply_hires_keyframes(
                 frames, affines, bg_masks, hires_keyframes
             )
+            session.mark(PipelineStage.HIRES, n_hires=_n_hires)
             if _n_hires > 0:
                 logger.info(
                     f"[Stitch] Stage 8.8: substituted {_n_hires} hires frame(s); "
@@ -393,6 +477,8 @@ class _RunStageMixin(_Base):
                     "[Stitch] Stage 8.8: hires_keyframes provided but no valid paths "
                     "could be loaded — continuing at proxy resolution."
                 )
+        else:
+            session.mark(PipelineStage.HIRES, skipped=True)
 
         # ── Stage 9: Canvas construction ────────────────────────────────────
         canvas_h, canvas_w, T_global = _compute_canvas(frames, affines)
@@ -419,6 +505,8 @@ class _RunStageMixin(_Base):
         for i in range(N):
             affines[i][0, 2] += T_global2[0]
             affines[i][1, 2] += T_global2[1]
+        session.mark(PipelineStage.CANVAS, width=canvas_w, height=canvas_h)
+        session.record_artifact("canvas_size", [canvas_w, canvas_h])
         logger.debug(
             f"[Stitch] Stage 9 complete: midplane shift ({T_mid_x:.1f}, {T_mid_y:.1f}), "
             f"canvas {canvas_w}×{canvas_h}."
@@ -434,6 +522,9 @@ class _RunStageMixin(_Base):
                 "[Stitch] Horizontal scroll (tx_range >> ty_range) — vertical-strip "
                 "compositing not applicable; falling back to SCANS."
             )
+            session.record_fallback(ResultIdentity.SCANS, "horizontal_scroll")
+            session.record_artifact("scans_path", output_path)
+            session.finish(success=True, identity=ResultIdentity.SCANS)
             return _scan_stitch_fallback(scans_frames, output_path)
 
         # ── §4.7: dy_cv pre-detection gate ───────────────────────────────────
@@ -450,6 +541,9 @@ class _RunStageMixin(_Base):
                     _dy_cv_adaptive_max,
                     N,
                 )
+                session.record_fallback(ResultIdentity.SCANS, "dy_cv_gate")
+                session.record_artifact("scans_path", output_path)
+                session.finish(success=True, identity=ResultIdentity.SCANS)
                 _sf = scans_frames or _reload_scans_frames(image_paths)
                 return _scan_stitch_fallback(_sf, output_path)
 
@@ -487,7 +581,11 @@ class _RunStageMixin(_Base):
                     f"> {_align_dx_limit:.0f}px limit — extreme 2D motion, "
                     f"falling back to SCANS."
                 )
+                session.record_fallback(ResultIdentity.SCANS, "align_dx_gate")
+                session.record_artifact("scans_path", output_path)
+                session.finish(success=True, identity=ResultIdentity.SCANS)
                 return _scan_stitch_fallback(scans_frames, output_path)
+        session.mark(PipelineStage.ALIGN_GATES, scroll_axis=scroll_axis)
 
         # ── Stage 10: Temporal renderer ─────────────────────────────────────
         # P1.2 — Variable-step renderer switch (W2 fix for test16).
@@ -520,6 +618,7 @@ class _RunStageMixin(_Base):
             baselines=self._baselines,
             confidence_weights=_frame_confs,
         )
+        session.mark(PipelineStage.RENDER, renderer=effective_renderer)
         logger.info("[Stitch] Stage 10 complete: temporal render done.")
 
         # ── Stage 10.5: Multi-frame canvas coverage gate (§0 item 2) ─────────
@@ -553,7 +652,15 @@ class _RunStageMixin(_Base):
                     f"{_cov_min_pct:.0%} threshold, temporal median insufficient "
                     f"for deghosting → SCANS fallback."
                 )
+                session.record_fallback(ResultIdentity.SCANS, "coverage_gate")
+                session.record_artifact("scans_path", output_path)
+                session.finish(success=True, identity=ResultIdentity.SCANS)
                 return _scan_stitch_fallback(scans_frames, output_path)
+        session.mark(
+            PipelineStage.COVERAGE_GATE,
+            pct_multi=_pct_cov_multi,
+            median=_cov_median,
+        )
 
         # ── Stage 11: Foreground composite ──────────────────────────────────
         if self.composite_fg and self.use_birefnet:
@@ -571,7 +678,10 @@ class _RunStageMixin(_Base):
                 exclusion_masks=self.exclusion_masks or None,
                 phase_ids=phase_ids,
             )
+            session.mark(PipelineStage.COMPOSITE)
             logger.info("[Stitch] Stage 11 complete: foreground composited.")
+        else:
+            session.mark(PipelineStage.COMPOSITE, skipped=True)
 
         # ── Stage 12: Remaining seam blend (handled inside _render). ────────
 
@@ -579,6 +689,7 @@ class _RunStageMixin(_Base):
         canvas, valid_mask = _trim_content_crop(
             canvas, valid_mask, affines, bg_masks, N, canvas_h, canvas_w
         )
+        session.mark(PipelineStage.CONTENT_TRIM)
 
         # ── Stage 13: Morphological boundary crop ───────────────────────────
         canvas = _crop_to_valid(canvas, valid_mask)
@@ -586,6 +697,7 @@ class _RunStageMixin(_Base):
             ec = self.edge_crop
             if ec * 2 < canvas.shape[0] and ec * 2 < canvas.shape[1]:
                 canvas = canvas[ec:-ec, ec:-ec]
+        session.mark(PipelineStage.CROP)
         logger.info("[Stitch] Stage 13 complete: boundary crop done.")
 
         # P1.8 — Auto-trigger diffusion inpainting for coverage gaps (W4 fix).
@@ -601,17 +713,24 @@ class _RunStageMixin(_Base):
             )
             try:
                 canvas = _telea_fill_gaps(canvas, _gap_mask)
+                session.mark(PipelineStage.INPAINT)
                 logger.info("[Stitch]   TELEA border fill complete.")
             except Exception as _telea_e:
+                session.mark(PipelineStage.INPAINT, skipped=True, error=str(_telea_e))
                 logger.info(
                     f"[Stitch]   TELEA border fill failed ({_telea_e}); keeping canvas as-is."
                 )
+        else:
+            session.mark(PipelineStage.INPAINT, skipped=True)
 
         # ── Save ─────────────────────────────────────────────────────────────
         rgb = cv2.cvtColor(canvas, cv2.COLOR_BGR2RGB)
         out = Image.fromarray(rgb)
         out.save(output_path)
         gc.collect()
+        session.mark(PipelineStage.SAVE)
+        session.record_artifact("raw_asp_path", output_path)
+        session.finish(success=True, identity=ResultIdentity.RAW_ASP)
         logger.info(f"[Stitch] Done. Saved to '{output_path}'.")
 
         return out

@@ -42,6 +42,8 @@ from __future__ import annotations
 # --------------------------------
 import logging
 import os
+import shutil
+import tempfile
 
 import cv2
 import numpy as np
@@ -337,36 +339,60 @@ class VideoIngestionStream:
             return [proxy_subset[p] for p in chosen_positions]
 
         if self.mode == "smart":
-            try:
-                # relocated: from asp_backend.ingestion.frame_selection import smart_select_frames
-                proxy_imgs = [self._proxy_frames[i][1] for i in proxy_subset]
-                # smart_select_frames returns list of BGR ndarrays; we need indices
-                selected_imgs = smart_select_frames(proxy_imgs, target_n=want)
-                # Map back to indices by identity
-                img_id_to_idx = {
-                    id(self._proxy_frames[i][1]): pos
-                    for pos, i in enumerate(proxy_subset)
-                }
-                selected_proxy_pos = [
-                    img_id_to_idx.get(id(img), -1) for img in selected_imgs
-                ]
-                valid = [proxy_subset[p] for p in selected_proxy_pos if p >= 0]
-                if valid:
-                    return valid
-            except Exception as e:
-                logger.warning(
-                    f"[VideoIngestion] smart_select_frames failed ({e}); falling back to uniform."
-                )
-            # Fall back to uniform
-            chosen_positions = _uniform_select(n, want)
-            return [proxy_subset[p] for p in chosen_positions]
+            # ASP #27: the real selector takes frame *paths* and has no
+            # target_n. The previous ndarray + target_n call TypeError'd
+            # and a bare `except Exception` swallowed it into uniform, so
+            # smart mode never actually ran. Hard-fail instead.
+            return self._smart_select(proxy_subset, want)
 
         # Unknown mode — uniform fallback
         chosen_positions = _uniform_select(n, want)
         return [proxy_subset[p] for p in chosen_positions]
 
+    def _smart_select(self, proxy_subset: list[int], want: int) -> list[int]:
+        """Run ``smart_select_frames`` on on-disk proxy paths; never fall back.
 
-# ── convenience function ──────────────────────────────────────────────────────
+        ``selector.smart_select_frames`` accepts ``frames_paths: list[str]``
+        and returns a subset of those paths. It does not take ``target_n``.
+        A ``TypeError`` (the historical bug) or an empty selection is a
+        hard failure so callers can see that smart mode did not run.
+        """
+        tmp_dir = tempfile.mkdtemp(prefix="asp_smart_select_")
+        try:
+            paths: list[str] = []
+            for pos, proxy_i in enumerate(proxy_subset):
+                img = self._proxy_frames[proxy_i][1]
+                path = os.path.join(tmp_dir, f"proxy_{pos:04d}.png")
+                if not cv2.imwrite(path, img):
+                    raise RuntimeError(
+                        f"smart mode could not write proxy frame to {path}"
+                    )
+                paths.append(path)
+
+            selected_paths = smart_select_frames(paths, verbose=False)
+            path_to_pos = {path: pos for pos, path in enumerate(paths)}
+            selected_pos = [
+                path_to_pos[path]
+                for path in selected_paths
+                if path in path_to_pos
+            ]
+            if not selected_pos:
+                raise RuntimeError(
+                    "smart_select_frames returned no usable frames; "
+                    "refusing to silently fall back to uniform."
+                )
+            if len(selected_pos) > want:
+                keep = _uniform_select(len(selected_pos), want)
+                selected_pos = [selected_pos[i] for i in keep]
+            return [proxy_subset[pos] for pos in selected_pos]
+        except TypeError as exc:
+            raise TypeError(
+                "smart_select_frames API mismatch; video smart mode "
+                "cannot silently fall back to uniform: "
+                f"{exc}"
+            ) from exc
+        finally:
+            shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
 def ingest_video(

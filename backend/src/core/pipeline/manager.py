@@ -21,6 +21,7 @@ from ._probes import (
 )
 from ._thin_wrappers_mixin import _ThinWrappersMixin
 from .run_stage import _RunStageMixin
+from .session import PipelineSession
 
 if TYPE_CHECKING:
     from asp_backend.models.stitch_net import AnimeStitchNet
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
     from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
     from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
     from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
+    from .session import PauseHook
 
 
 class AnimeStitchPipeline(
@@ -109,6 +111,10 @@ class AnimeStitchPipeline(
         self._roma = None
         self._sea_raft = None
         self._stitch_net: AnimeStitchNet | None = None
+
+        # M1a: last run's stage protocol (bookkeeping only; no pixel effect)
+        self.pause_hook: PauseHook | None = kwargs.get("pause_hook")
+        self.last_session: PipelineSession | None = None
 
 
 __all__ = ["AnimeStitchPipeline"]

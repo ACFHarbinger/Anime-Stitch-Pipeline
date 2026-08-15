@@ -40,6 +40,8 @@ class _PipelineHost(Protocol):
 
     # ── flags set in __init__ ────────────────────────────────────────────
     kwargs: dict
+    last_session: object | None
+    pause_hook: object | None
     use_basic: bool
     use_birefnet: bool
     use_loftr: bool

@@ -195,3 +195,73 @@ class TestVideoIngestionStreamWithAv:
         frames, _ = stream.ingest(str(tmp_path / "tc_frames"))
         # With telecine dedup we should get fewer than 10
         assert len(frames) <= 10
+
+
+# ── ASP #27: video smart-select must call the real path API ───────────────────
+
+
+class TestSmartSelectDoesNotSilentlyFallBack:
+    """Issue 27: smart mode used to TypeError (ndarrays + target_n) and
+    swallow it into uniform. These tests do not need pyav or a real video
+    decode — they drive ``_select`` after injecting proxy frames."""
+
+    def _stream(self, tmp_path, n_frames=3):
+        dummy = tmp_path / "fake.mp4"
+        dummy.write_bytes(b"not-a-real-video")
+        stream = VideoIngestionStream(
+            str(dummy), n_frames=n_frames, mode="smart", telecine=False
+        )
+        stream._proxy_frames = _make_proxy_frames(8)
+        return stream
+
+    def test_selector_signature_has_no_target_n(self):
+        import inspect
+
+        from asp_backend.ingestion.frame_selection import smart_select_frames
+
+        params = inspect.signature(smart_select_frames).parameters
+        assert "frames_paths" in params
+        assert "target_n" not in params
+
+    def test_smart_mode_passes_paths_not_ndarrays(self, tmp_path, monkeypatch):
+        import asp_backend.ingestion.video_ingestion as vi
+
+        seen: dict = {}
+
+        def fake_smart(frames_paths, **kwargs):
+            seen["paths"] = list(frames_paths)
+            seen["kwargs"] = dict(kwargs)
+            assert all(isinstance(p, str) for p in frames_paths)
+            assert all(os.path.isfile(p) for p in frames_paths)
+            assert "target_n" not in kwargs
+            return frames_paths[:3]
+
+        monkeypatch.setattr(vi, "smart_select_frames", fake_smart)
+        chosen = self._stream(tmp_path, n_frames=3)._select(list(range(8)))
+        assert seen["paths"], "smart_select_frames was not called"
+        assert chosen == [0, 1, 2]
+
+    def test_smart_mode_typeerror_does_not_fall_back_to_uniform(
+        self, tmp_path, monkeypatch
+    ):
+        import asp_backend.ingestion.video_ingestion as vi
+
+        def fake_smart(*_args, **_kwargs):
+            raise TypeError(
+                "smart_select_frames() got an unexpected keyword argument 'target_n'"
+            )
+
+        monkeypatch.setattr(vi, "smart_select_frames", fake_smart)
+        stream = self._stream(tmp_path, n_frames=3)
+        with pytest.raises(TypeError, match="cannot silently fall back"):
+            stream._select(list(range(8)))
+
+    def test_smart_mode_empty_selection_does_not_fall_back(
+        self, tmp_path, monkeypatch
+    ):
+        import asp_backend.ingestion.video_ingestion as vi
+
+        monkeypatch.setattr(vi, "smart_select_frames", lambda *a, **k: [])
+        stream = self._stream(tmp_path, n_frames=3)
+        with pytest.raises(RuntimeError, match="no usable frames"):
+            stream._select(list(range(8)))
