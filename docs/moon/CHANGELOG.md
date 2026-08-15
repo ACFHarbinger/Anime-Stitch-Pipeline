@@ -26,6 +26,21 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **M0 case-provenance schema (Claude, 2026-08-15, partial #24/#41):** new
+  `backend/benchmark/evaluation/other/provenance.py` — `CaseProvenance`
+  dataclass for case-level fields (`corpus_id`, source URL/board, licence,
+  `web_redistribution_ok`, `source_work_nsfw` as a real three-state
+  bool/None, `content_tags`, `safety_tier`, `gt_known_defects`), plus C0.5's
+  append-only `SafetyObservation`/`SafetyAdjudication` records implementing
+  the actual dual-veto logic (`minor_presenting_high_risk`/
+  `minor_presenting_includable` — OR to exclude, AND with a human `clear`
+  specifically to include). New `RESULT_*`/`CONTENT_TAGS`/`SAFETY_TIERS`/
+  `MINOR_RISK_VERDICTS` constants. Does not yet cover the raw_asp/safe_asp/
+  scans extension to `RatingEntry` or the actual 2026-08-07 data relabeling
+  — those remain open. Found (pre-existing, not caused by this change) a
+  `conftest.py` package-aliasing issue blocking direct pytest invocation in
+  this environment; verified correctness via a standalone harness instead.
+
 - **Phase 3 telemetry lock (Harbinger 2026-08-15):** A+B —
   `TelemetrySink` + opt-in Rerun `.rrd` sidecar (`desktop_quality`) +
   OTel spans/metrics (local OTLP/stdout first). Rerun WASM in
