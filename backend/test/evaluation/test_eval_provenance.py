@@ -132,6 +132,44 @@ class TestDualVetoGate:
         # separate record, never a rewrite
         assert len(entry.safety_observations) == 1
         assert entry.safety_observations[0].verdict == "uncertain"
+
+    def test_controlled_one_sided_acceptance_with_reasoned_adjudication_includes(self):
+        """The path C0.5's decision rule calls out explicitly: one assessor
+        merely `uncertain` (not `clear`), but a reasoned adjudication with
+        real supporting provenance (e.g. a PEGI-3 source rating) clears the
+        case -- this is the gap Chat/Codex's review caught: adjudications
+        existed as a data structure but were never consulted by the
+        inclusion decision."""
+        entry = CaseProvenance(case_id="x")
+        entry.add_observation(SafetyObservation(source=SOURCE_HUMAN, verdict="uncertain"))
+        entry.add_adjudication(
+            SafetyAdjudication(
+                decision="clear",
+                reason="PEGI-3 official source rating on file, see provenance link",
+                adjudicated_by="harbinger",
+            )
+        )
+        assert entry.minor_presenting_includable() is True
+
+    def test_one_sided_acceptance_requires_a_real_reason_not_a_bare_decision(self):
+        """An adjudication with no reason is indistinguishable from a rubber
+        stamp -- must not satisfy inclusion on its own."""
+        entry = CaseProvenance(case_id="x")
+        entry.add_observation(SafetyObservation(source=SOURCE_HUMAN, verdict="uncertain"))
+        entry.add_adjudication(SafetyAdjudication(decision="clear", reason=""))
+        assert entry.minor_presenting_includable() is False
+        entry.add_adjudication(SafetyAdjudication(decision="clear", reason="   "))
+        assert entry.minor_presenting_includable() is False  # whitespace-only doesn't count either
+
+    def test_high_risk_still_vetoes_despite_a_one_sided_acceptance_adjudication(self):
+        """The hard veto is checked before the one-sided-acceptance path --
+        an adjudication cannot launder around a high_risk finding."""
+        entry = CaseProvenance(case_id="x")
+        entry.add_observation(SafetyObservation(source="commercial_endpoint", verdict="high_risk"))
+        entry.add_adjudication(
+            SafetyAdjudication(decision="clear", reason="reviewed and disagree with the flag")
+        )
+        assert entry.minor_presenting_includable() is False
         assert len(entry.safety_adjudications) == 1
         assert entry.safety_adjudications[0].decision == "clear"
 

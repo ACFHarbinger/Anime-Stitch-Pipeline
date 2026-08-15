@@ -160,17 +160,31 @@ class CaseProvenance:
         )
 
     def minor_presenting_includable(self) -> bool:
-        """AND-logic for acceptance, per C0.5's decision rule: inclusion
-        requires no unresolved high_risk from any source, AND a human
-        `clear` observation specifically -- an automated ensemble member
-        cannot clear a case on its own, only veto or abstain (`uncertain`).
+        """Inclusion logic per C0.5's decision rule (roadmap §C0.5): no
+        unresolved high_risk from any source (hard veto, checked first),
+        AND either (a) a human `clear` observation specifically -- an
+        automated ensemble member cannot clear a case on its own, only veto
+        or abstain -- or (b) a controlled one-sided acceptance: an explicit,
+        reasoned `SafetyAdjudication` clearing the case on adequate
+        supporting provenance (e.g. a PEGI-3 source rating) when the
+        observations alone aren't enough (one assessor `uncertain`, not
+        `clear`). Path (b) requires a real justification, not a bare
+        decision -- an adjudication with an empty `reason` does not count,
+        since that would be indistinguishable from a rubber stamp.
         """
         if self.minor_presenting_high_risk():
             return False
-        return any(
+        human_cleared = any(
             obs.source == SOURCE_HUMAN and obs.verdict == MINOR_RISK_CLEAR
             for obs in self.safety_observations
         )
+        if human_cleared:
+            return True
+        one_sided_acceptance = any(
+            adj.decision == MINOR_RISK_CLEAR and adj.reason.strip()
+            for adj in self.safety_adjudications
+        )
+        return one_sided_acceptance
 
     def touch(self) -> None:
         self.updated_at = _now()
