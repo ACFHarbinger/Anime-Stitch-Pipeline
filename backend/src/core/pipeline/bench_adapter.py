@@ -30,6 +30,32 @@ def bench_legacy_enabled() -> bool:
     return os.environ.get("ASP_BENCH_LEGACY", "0") == "1"
 
 
+def bench_ungated_enabled() -> bool:
+    """#30: keep Raw ASP as the published result; still record Safe/SCANS."""
+    return os.environ.get("ASP_BENCH_UNGATED", "0") == "1"
+
+
+# Env knobs that, when left at product defaults, replace Raw ASP with SCANS
+# inside run() or the Safe ASP policy. setdefault so a caller can still
+# override. Geometric no-edge / affine-invalid fallbacks stay — there is
+# no raw composite to keep in those cases.
+_UNGATED_GATE_ENV = {
+    "ASP_ALIGN_GATE_DX": "9999",
+    "ASP_COV_MIN_MULTI_PCT": "0",
+    "ASP_GATE_SC": "999",
+    "ASP_GATE_SB": "999",
+    "ASP_GATE_GHOST": "99",
+    "ASP_GATE_SEAM_VIS": "99",
+}
+
+
+def apply_ungated_gate_env() -> None:
+    if not bench_ungated_enabled():
+        return
+    for key, value in _UNGATED_GATE_ENV.items():
+        os.environ.setdefault(key, value)
+
+
 @dataclass
 class CanonicalStitchResult:
     """Raw / Safe / SCANS paths after one adapter call."""
@@ -116,10 +142,18 @@ def run_canonical_asp(
         fallback_reason = str(session.fallbacks[-1].get("reason") or "")
 
     policy = policy or default_benchmark_policy()
+    ungated = bench_ungated_enabled()
 
     # Only a true Raw ASP composite is eligible for the output-safety policy.
     # Internal run() fallbacks already chose SCANS/panorama.
-    if raw_available and raw_img is not None and scans_img is not None:
+    # Ungated (#30): still evaluate the policy for telemetry, but never
+    # replace the published file with SCANS — Raw ASP is the baseline.
+    if (
+        raw_available
+        and raw_img is not None
+        and scans_img is not None
+        and not ungated
+    ):
         affines = _affines_from_session(session)
         for decision in (
             policy.evaluate_composite(raw_img, scans_img, affines or None),
@@ -148,6 +182,27 @@ def run_canonical_asp(
                     extra={"gate": decision.name},
                 )
 
+    ungated_extra: dict[str, Any] = {}
+    if ungated and raw_available and raw_img is not None and scans_img is not None:
+        affines = _affines_from_session(session)
+        for decision in (
+            policy.evaluate_composite(raw_img, scans_img, affines or None),
+            policy.evaluate_ghost(raw_img, scans_img),
+            policy.evaluate_seam_vis(raw_img, scans_img),
+        ):
+            if decision.log_line:
+                print(decision.log_line)
+            if not decision.accept:
+                print(
+                    "  [Ungated] Safe ASP policy would reject "
+                    f"({decision.reason}); keeping Raw ASP as the published baseline."
+                )
+                ungated_extra = {
+                    "policy_would_reject": decision.reason,
+                    "gate": decision.name,
+                }
+                break
+
     if os.path.isfile(work_path):
         shutil.copy2(work_path, safe_asp_path)
     session.record_artifact("safe_asp_path", safe_asp_path)
@@ -161,11 +216,14 @@ def run_canonical_asp(
         session=session,
         pipeline=pipe,
         raw_asp_available=raw_available,
+        extra=ungated_extra,
     )
 
 
 __all__ = [
     "CanonicalStitchResult",
+    "apply_ungated_gate_env",
     "bench_legacy_enabled",
+    "bench_ungated_enabled",
     "run_canonical_asp",
 ]

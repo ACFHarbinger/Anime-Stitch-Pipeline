@@ -75,6 +75,7 @@ from asp_backend.core.pipeline.safety_metrics import (  # noqa: E402
     strip_banding_score as _strip_banding_score,
 )
 from asp_backend.core.pipeline.bench_adapter import (  # noqa: E402
+    apply_ungated_gate_env,
     bench_legacy_enabled,
     run_canonical_asp,
 )
@@ -1104,6 +1105,7 @@ def _process_dataset_canonical(
     hugin_path: str,
 ) -> dict:
     """M1b: selected frames → product ``run()`` → Safe ASP policy → report."""
+    apply_ungated_gate_env()
     raw_asp_path = os.path.join(stage_dir, "raw_asp.png")
     scans_path = simple_stitch_path if simple_ok else None
     _log_resource("before_canonical_run", store=stage_memory_rss_mb)

@@ -47,6 +47,27 @@ asp-benchmark *ARGS:
     cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
         backend/benchmark/bench_anime_stitch.py --data-dir dump {{ARGS}}
 
+# Post-M1 ungated Raw ASP 97-run (#30). Publishes Raw ASP as the baseline;
+# still writes SCANS and records what Safe ASP *would* have picked.
+# Needs CUDA + dump/. ~2.5-3h on a 3090. Do not mix with ASP_BENCH_LEGACY=1.
+asp-benchmark-ungated *ARGS:
+    cd ../.. && \
+        ASP_BENCH_UNGATED=1 \
+        ASP_EXPERIMENT_LABEL="${ASP_EXPERIMENT_LABEL:-post_m1_ungated}" \
+        ASP_BENCH_THREAD_CAP="${ASP_BENCH_THREAD_CAP:-4}" \
+        PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/bench_anime_stitch.py --data-dir dump {{ARGS}}
+
+# 5-test smoke for the ungated harness (same slice as asp-benchmark-verify)
+asp-benchmark-ungated-verify:
+    cd ../.. && \
+        ASP_BENCH_UNGATED=1 \
+        ASP_EXPERIMENT_LABEL="${ASP_EXPERIMENT_LABEL:-post_m1_ungated_verify}" \
+        ASP_BENCH_THREAD_CAP="${ASP_BENCH_THREAD_CAP:-4}" \
+        PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/bench_anime_stitch.py --data-dir dump \
+        --tests asp_test04 asp_test08 asp_test09 asp_test27 asp_test57
+
 # 5-test rapid subset (asp_test04/08/09/27/57) -- run before any default-flag flip
 asp-benchmark-verify:
     cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \

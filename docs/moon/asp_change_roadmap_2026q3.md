@@ -246,6 +246,12 @@ Exit criteria:
 - After adapters land, run one ungated Raw ASP 97-case corpus (all three
   artifacts retained) and freeze it as the M2+ baseline. This is the first
   true Raw ASP scorecard; do not start M3 until it exists.
+  **Harness 2026-08-15:** `ASP_BENCH_UNGATED=1` +
+  `just bench::asp-benchmark-ungated`. Disables Composite/Ghost/SeamVis
+  replacement and the env-gated align/coverage floors. Geometric
+  no-edge/affine-invalid cases still have no raw file
+  (`raw_asp_available=false`). The GPU 97-run itself is the remaining
+  #30 work.
 
 No new default image-quality algorithm is introduced in M1.
 

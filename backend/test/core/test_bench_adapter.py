@@ -148,3 +148,37 @@ class TestRunCanonicalAsp:
         published = cv2.imread(safe_path)
         assert published is not None
         assert int(published.mean()) < 20
+
+    def test_ungated_keeps_raw_even_when_policy_would_reject(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("ASP_BENCH_UNGATED", "1")
+        raw_path = str(tmp_path / "raw.png")
+        safe_path = str(tmp_path / "safe.png")
+        scans = np.full((80, 48, 3), 128, dtype=np.uint8)
+        scans_path = str(tmp_path / "scans.png")
+        cv2.imwrite(scans_path, scans)
+        frames = [
+            _write_png(tmp_path / "a.png", 40),
+            _write_png(tmp_path / "b.png", 80),
+        ]
+        pipe = _FakePipeline(_banded())
+        policy = SafeAspPolicy(
+            composite_sc_floor=5.0,
+            composite_sb_floor=5.0,
+            ghost_ratio=99,
+            seam_vis_ratio=99,
+        )
+        result = run_canonical_asp(
+            frames,
+            raw_asp_path=raw_path,
+            safe_asp_path=safe_path,
+            scans_path=scans_path,
+            policy=policy,
+            pipeline=pipe,
+        )
+        assert result.raw_asp_available
+        assert result.identity == ResultIdentity.RAW_ASP
+        assert result.extra.get("policy_would_reject", "").startswith("composite_gate_")
+        raw = cv2.imread(raw_path)
+        published = cv2.imread(safe_path)
+        assert raw is not None and published is not None
+        assert int(raw.mean()) == int(published.mean())

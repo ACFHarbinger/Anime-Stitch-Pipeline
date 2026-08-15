@@ -26,6 +26,12 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#30 ungated Raw ASP harness (2026-08-15):** `ASP_BENCH_UNGATED=1`
+  publishes Raw ASP as the baseline (policy still evaluated for
+  telemetry: `policy_would_reject`). Internal no-edge / affine-invalid
+  fallbacks still have no raw composite. Recipes:
+  `just bench::asp-benchmark-ungated` (97-case) and
+  `just bench::asp-benchmark-ungated-verify` (5-test smoke).
 - **M1c GUI adapter (2026-08-15, #29):** `_ProgressPipeline.run()`
   defaults to canonical `AnimeStitchPipeline.run()`, forwarding
   `exclusion_masks`, `motion_model`, and HITL `pause_hook`. The three
