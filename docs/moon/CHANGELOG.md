@@ -34,6 +34,14 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   VRAM / 32 GB RAM laptop profile; and records the optional artist review screen
   plus visual redesign as later work. The historical `ROADMAP.md` now links to
   this active change plan.
+- **Grok SFW/M2.5 feasibility (2026-08-15):** reviewed
+  `ASP_SFW_CORPUS_ROADMAP_2026Q3.md`, parent §4.18, and M2.5. Harbinger
+  locked a separate `dump_sfw/` root with local `asp_testNN` names;
+  C0 now / C1 harvest now, register on M0 / C2 after M1 only (not M2.5);
+  Safebooru waits on a native C++ name after `base` rebuilds; this §4.18
+  pass is Rating-on-Danbooru/Gelbooru; M2.5 splits into analytics vs a
+  post-M1 proxy spike.
+
 - **Grok feasibility pass (2026-08-15):** reviewed the Q3 roadmap against
   current source and the completed 97-case file. Locked incremental M1
   (protocol → bench adapter → GUI hooks), a discriminating Safe ASP exit,
@@ -59,7 +67,9 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   `docs/tutorials` contain no NSFW material. Depends on the parent
   Image-Toolkit repo's `new_features.md` §4.18 (crawler rating filter +
   Safebooru board). Frame-sequence auto-detection is explicitly deferred to
-  this roadmap's M2.5, not duplicated as a one-off tool.
+  this roadmap's M2.5, not duplicated as a one-off tool. C2 now includes a
+  blinded, representative 8–10-case human coherence screen; it remains
+  informational and does not gate M0–M6 or default promotion.
 
 - **C/D investigation baseline (2026-08-11):** ran the combined existing
   pose-window, phase-composite, and joint-gain candidates on the five-test

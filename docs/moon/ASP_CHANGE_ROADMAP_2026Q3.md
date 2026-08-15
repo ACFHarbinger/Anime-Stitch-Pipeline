@@ -260,6 +260,16 @@ like `ghosting=69` cannot be attributed to a specific artifact today). Starts
 once M0 lands; runs in parallel with M1-M4. Analysis- and tooling-only — it
 does not change any Raw ASP/Safe ASP algorithm default.
 
+File as **two issues**, not one: **(a)** per-output defect analytics +
+anime-adapted CV diagnostics + subset selection; **(b)** learned-proxy
+feasibility spike. (b) waits for M0 **and** the post-M1 ungated Raw ASP
+labels so fallbacks are not trained as ASP. `AnimeStitchNet` is a 4-DoF
+alignment regressor, not a quality model — do not reuse it as the proxy.
+Rerun.io / large stage dumps are opt-in developer artifacts, never a
+`laptop_balanced` required dependency. Parent analytics Phase 2 still
+describes deleted RLHF reward models; correct that document separately,
+do not inherit those claims here.
+
 Deliverables:
 
 - **Per-defect-category correlation/impact analysis.** Extend the existing
@@ -543,10 +553,11 @@ result to the agent bus, and tells Claude what is safe to delegate next.
 8. M2 safety-policy extraction, inverse-metric demotion, default-profile
    surface of ~20 keys plus an Advanced configuration control, register-or-
    delete `ASP_HOLD_BG_SUB`.
-9. M2.5 per-defect-category correlation/impact analysis, anime-adapted CV
-   metrics, non-gating learned proxy metric, and data-driven subset-selection
-   tooling. Starts once M0's schema lands; runs in parallel with M1–M4, does
-   not block them and does not gate on them beyond M0.
+9. M2.5a per-defect-category correlation/impact analysis, anime-adapted CV
+   diagnostics, and data-driven subset-selection tooling. Starts once M0's
+   schema lands; runs in parallel with M1–M4. M2.5b learned-proxy spike
+   only after the post-M1 ungated Raw ASP labels exist. Neither issue
+   changes a default or gates C2.
 10. M3 default-off BiRefNet single-pose / §9.2 compositor candidate.
 11. M4 motion-compensated hold/selection, test-14 oracle, repair-or-remove
     translation+scale and the unused DP selector. C++ items stay blocked
@@ -899,6 +910,38 @@ Decisions locked:
 
 Full M2.5 deliverables and exit criteria are in §5. This closes the open
 questions from this review round; Claude proceeds to file the §9 issues next.
+
+## 19. Interactive Dev Tool, 2.5D/3D Telemetry & Visual Diagnostics Architecture (Brainstormed with Harbinger 2026-08-15)
+
+Harbinger and Gemini brainstormed the interactive dev tool, visualization methods, and telemetry architecture to guide M6 (Artist Review Workflow) and M2.5/Analytics tooling.
+
+### 19.1 Core Interactive Controls & Dual UI Architecture
+- **Dual P0 HITL Controls (Pose + Seam):** Both the **Cel-Pose Thumbnail Swapper** (1-click pose candidate selection per overlap zone) and the **Draggable Seam Corridor / Exclusion Barrier Brush** (spline node editing and `1e6` barrier painting) are locked as top-priority interactive controls for M6.
+- **Stage-by-Stage Visual Pipeline Stepper:** Step-by-step interactive breadcrumb allowing developers and artists to inspect intermediate visual states (e.g. viewing the reconstructed clean background plate *before* foreground cels are placed).
+- **Core Interaction Patterns:**
+  - **Hover & Tooltips:** Instant display of provenance metadata (source frame ID, timestamp, optical flow vector, gain residual) on cursor hover without canvas clutter.
+  - **Filtering & Slicing:** Multi-dimensional slicers and sliders for defect tags, confidence thresholds, and benchmark runs.
+  - **Drill-Down & Roll-Up:** Click on an aggregate pipeline stage or failure cluster to drill down into frame pairs, LoFTR match rays, and per-pixel seam cost surfaces.
+  - **Brushing & Linking:** Selecting a cluster of outlier points in a telemetry chart (e.g. high gain mismatch) automatically highlights the corresponding frame strips on the canvas.
+  - **Panning & Zooming:** High-performance synced multi-canvas viewports (Raw ASP vs. Safe ASP vs. SCANS) with a floating "Diff Loupe" (localized magnifier showing optical flow / pixel delta).
+  - **Scroll-Triggered Storytelling:** Progressive visual breakdowns explaining how specific pipeline failures (e.g. test 06 torn anatomy) occur and how candidates resolve them.
+
+### 19.2 2.5D Parallax Game Simulator (PMF Parity & Re-use)
+- Built-in **2.5D Parallax Viewport** in both the PySide6 dialog and web dev tool:
+  - Interactive virtual camera dolly across the canvas.
+  - Multi-plane depth rendering: clean background panorama plate at depth $Z=0$ and segmented character sprite cels at depth $Z=1$ with dynamic parallax offset.
+  - Validates game asset suitability directly within the tool for 2.5D mobile game development.
+
+### 19.3 Decoupled Telemetry Architecture (OpenTelemetry Standards)
+- **OTel Standardized Spans & Metrics:** Decouple telemetry data collection from visualization. Python and C++ pipeline emit standardized OTel traces, metrics, and logs (`asp.stage.duration_ms`, `asp.vram.peak_bytes`, `asp.gain.clamp_residual`, `asp.seam.cut_energy`).
+- **Unified Observability Backends:** Standard OTel exports allow seamless integration with Prometheus/Grafana (unified metrics/dashboards), Jaeger (distributed tracing across stages), and Honeycomb.
+- **Honeycomb "BubbleUp"-Style Anomaly Discovery:** Automated failure analysis comparing outlier runs/test cases against successful runs to isolate common root-cause factors (e.g. luminance gradient $>20\text{ units}$, inter-frame camera motion $>100\text{px}$).
+
+### 19.4 Interactive 3D Web Models & Visualizations (`@react-three/fiber` / `.glb`)
+- **3D Exploded-View Layer Stack:** Interactive WebGL 3D view in `docs/website/` showing the warped background mesh, seam boundary planes, and floating segmented character cels with orbit controls.
+- **3D Feature Match Point Clouds:** Interactive particle graph visualizing LoFTR keypoint correspondences in 3D feature space.
+- **Lightweight 3D Mascots & Viewfinders:** Fast-loading `.glb` interactive assets for the web portal adhering to the Optic Lab / Blueprint theme.
+
 
 
 

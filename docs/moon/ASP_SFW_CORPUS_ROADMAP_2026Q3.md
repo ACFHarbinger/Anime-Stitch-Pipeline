@@ -1,6 +1,7 @@
 # ASP SFW Benchmark Corpus Roadmap — 2026 Q3
 
-**Status:** Draft, brainstormed 2026-08-15 (Claude + Harbinger)
+**Status:** Draft + Gemini/Chat/Grok review + Harbinger §8 answers
+(2026-08-15). Ready for Claude to file issues.
 **Scope:** building a second, SFW-only benchmark corpus for ASP, as a
 generalization check alongside the existing 97-case corpus. Companion to
 [`ASP_CHANGE_ROADMAP_2026Q3.md`](ASP_CHANGE_ROADMAP_2026Q3.md) and to
@@ -53,14 +54,31 @@ real examples (not just abstract tutorial markdown) requires SFW content —
   corpus-curation issues file in ASP, matching where the code/work actually
   lives.
 
-## 3. This roadmap does not block M0–M6
+## 3. This roadmap does not gate M0–M6 (but C1/C2 have inbound deps)
 
-The SFW corpus is diagnostic, not a release gate. It does not block, and is
-not blocked by, `ASP_CHANGE_ROADMAP_2026Q3.md`'s M0–M6 sequence. Curation can
-start immediately — `rating:safe` can already be typed by hand into the
-existing crawler's tags field today, working ahead of §4.18's convenience
-layer — but no M-milestone in the ASP change roadmap depends on this corpus
-existing, and this roadmap does not gate any default change there.
+The SFW corpus is diagnostic, not a release gate. **No M0–M6 default,
+promotion step, or 97-case target waits on this corpus.** The reverse is
+not a free-for-all:
+
+| Slice | May start now? | Hard inbound dependency |
+|---|---|---|
+| **C0** rubric + first 3–5 candidates | Yes | None. Hand-type `rating:safe` today. |
+| **C1** harvest / folder drop | Yes | **Registration** uses M0's case/provenance schema when it lands. Do not invent a parallel JSON. |
+| **C2** pipeline run + 8–10 human screen | No | **After M1 adapters** (same runner as the post-M1 ungated 97-run). Pre-M1 `bench_anime_stitch.py` is the issue-#10 measurement fork. Does **not** wait on M2.5 new metrics. |
+
+SFW/NSFW, source, licence, and web-redistribution permission are
+**case-level** fields, referenced by the three output artifacts. They are
+not per-output and not a second evaluation schema.
+
+**Storage (Harbinger, 2026-08-15):** a **separate data root**
+(`dump_sfw/` or equivalent) with the same local names (`asp_testNN`).
+Do **not** continue the NSFW series as `asp_test98+` and do **not** mix
+the trees under one default `dump/`. The bench glob is `asp_test*`
+(`bench_anime_stitch.py:3861`); isolation is the data-dir, not the
+prefix. Every 97-case recipe, dashboard generator, and C2 command must
+take an explicit `--data-dir` / corpus root and must never default to a
+merged tree. `corpus_id` in the M0 schema (`nsfw_97` vs `sfw_q3`) is the
+record-level distinguisher when two `asp_test04` names exist.
 
 ## 4. Delivery sequence
 
@@ -76,14 +94,20 @@ Deliverables:
   post/sequence "ground-truth-quality" for stitching purposes (a real
   panorama/scan image as an optional GT target, source frames identifiable
   or derivable, sufficient overlap/pan structure).
+- Sample Gemini's visual-style strata so C2's 8–10 human screen can be
+  balanced: (1) cel-animation screencaps, (2) webtoon / monochrome manga
+  vertical scrolls, (3) parallax / game-background pans. Record the
+  stratum per case.
 - Identify productive tag search patterns for pannable SFW sequences
   (background pan panels, scan/multi-page doujin-adjacent structure minus
   the NSFW content, official PV/BD bonus footage as a non-booru source
   worth evaluating separately).
-- Track **SFW/NSFW as an explicit corpus-composition field** in whatever
-  schema `ASP_CHANGE_ROADMAP_2026Q3.md`'s M0 defines for per-output
-  metadata — this corpus should extend that schema, not invent a parallel
-  one.
+- Track **case-level** fields on the M0 schema: `corpus_id` (`nsfw_97` /
+  `sfw_q3`), `sfw`, source URL/board, licence, `web_redistribution_ok`.
+  Gemini's 2–3 public showcase candidates require `web_redistribution_ok`
+  before any frame is copied into `docs/website`. Upstream `rating:safe`
+  is not a human SFW review — C0/C1 still need a manual SFW check.
+- Require a second human SFW pass; do not trust the board tag alone.
 
 Exit criteria: a written rubric exists; the first 3–5 curated candidates
 were selected against it, not ad hoc.
@@ -94,9 +118,10 @@ were selected against it, not ad hoc.
 
 Deliverables:
 
-- Manually curate ~20–30 SFW test cases via Safebooru/existing boards with
-  `rating:safe` filtering (§4.18 crawler work, or manual tag entry if that
-  lands first).
+- Manually curate ~20–30 SFW test cases via existing Danbooru/Gelbooru
+  boards with `rating:safe` (hand-typed or the §4.18 Rating control). Store
+  under the SFW data root as `asp_testNN`. The Safebooru *preset* waits on
+  a native C++ crawler name after `base` rebuilds; it is not a C1 blocker.
 - Record ground-truth availability per case honestly — most NSFW-corpus
   cases lack true GT frames and rely on human coherence judgment alone (only
   55/97 have GT, per `ASP_CHANGE_ROADMAP_2026Q3.md` §3); expect a similar or
@@ -116,19 +141,25 @@ visual profile?
 
 Deliverables:
 
-- Run the corpus through whichever pipeline is canonical at the time (ideally
-  post-M1, once benchmark/backend/GUI orchestration has converged — running
-  it against the pre-M1 forked benchmark script would repeat the same
-  measurement-validity problem `ASP_CHANGE_ROADMAP_2026Q3.md` §10.1 already
-  found).
+- Run the corpus through the **post-M1 canonical adapter** (same runner and
+  three-artifact contract as the post-M1 ungated 97-run). Do not run C2
+  against pre-M1 `bench_anime_stitch.py`. Do not wait for M2.5's new CV
+  metrics or the learned proxy — those may be attached later as optional
+  columns.
 - Compare score distributions and defect-tag frequency between the NSFW and
   SFW corpora. A large divergence is a finding to report to Harbinger, not
   something to silently tune away.
+- Run a blinded human coherence screen for a predeclared representative subset
+  of **8–10 SFW cases**, balanced across C0's visual-style strata. This is an
+  informational generalization check, not a promotion gate and not a request
+  to repeat the completed 97-case review. Automated distributions may describe
+  domain shift; only this human subset supports a quality-generalization claim.
 - No promotion-ladder or default-change decision is gated on this result by
   itself — it's a generalization signal, reported alongside the primary
   97-case corpus, not a replacement for it.
 
-Exit criteria: comparative report delivered; explicitly not a pass/fail gate.
+Exit criteria: comparative report delivered with the blinded subset's human
+results; explicitly not a pass/fail gate.
 
 ## 5. Team workflow
 
@@ -146,7 +177,92 @@ Exit criteria: comparative report delivered; explicitly not a pass/fail gate.
 
 ## 6. Open questions
 
-None currently blocking — this roadmap can proceed to issue filing. Revisit
-after C1's first pass if the curation ratio turns out far worse than the
-~300:10 baseline Harbinger described, since that would change whether C2's
-~20-30 case target is realistic on the original timeline.
+None currently blocking issue *drafting*. Revisit after C1's first pass if
+the curation ratio turns out far worse than the ~300:10 baseline Harbinger
+described. Sequencing/ID/crawler questions for Harbinger are in §8.
+
+## 7. Grok's implementation-feasibility pass (2026-08-15)
+
+Verified against current parent crawler + ASP bench glob, not the bus.
+
+### 7.1 §4.18 is a convenience layer — and Safebooru is Gelbooru, not Danbooru
+
+- `DanbooruCrawler` / `GelbooruCrawler` / `SankakuCrawler` are thin wrappers.
+  `ImageBoardCrawler.run()` sends `self.__class__.__name__.replace("Crawler","").lower()`
+  into C++ `base.run_board_crawler`, which only accepts
+  `"danbooru" | "gelbooru" | "sankaku"` (`board_crawler.cpp:170–183`).
+- Tags are a free-text field (`_config.py` `board_tags` → `config["tags"]`).
+  Hand-typing `rating:safe` already works. C0 does not wait on §4.18.
+- **Safebooru speaks Gelbooru dapi** (`/index.php?page=dapi&s=post&q=index`),
+  not Danbooru `/posts.json`. A `SafebooruCrawler` that only sets a Danbooru
+  URL will 404. A new class named `SafebooruCrawler` would dispatch as
+  `"safebooru"` and **throw** in C++.
+- C++ kernel work is blocked until `base` rebuilds (change-roadmap §17.7).
+  Therefore §4.18 must be **Python/GUI only**: a Safebooru preset that
+  reuses the **Gelbooru** engine name plus `url=https://safebooru.org`
+  (and `resource=post`). Do not add a C++ crawler name in this issue.
+- Rating control needs a **per-board tag map**, not one literal appended
+  to every board. Danbooru uses `rating:g` / `general` / `sensitive` /
+  `questionable` / `explicit`. Gelbooru's current enum is the one place
+  §4.18 already flagged. Safebooru is SFW-by-site; the control is
+  redundant there but must not emit a Danbooru-only token.
+
+Effort stays Low if we follow that path. Zerochan stays unscoped.
+
+### 7.2 C1/C2 sequencing holds — with the inbound deps in §3
+
+From the implementer seat:
+
+- **C0 now** is correct.
+- **C1 harvest now, register on M0** is correct. I will not write a
+  second evaluations JSON.
+- **C2 after M1** is mandatory. The post-M1 ungated 97-run is the first
+  trustworthy runner; C2 should be the same binary/adapter, different
+  `--data-dir` / name prefix.
+- **C2 must not wait for M2.5.** New metrics are optional columns on a
+  report, not a C2 exit. Coupling them would park the generalization
+  check behind a research spike.
+- **Hidden coupling Chat called:** if SFW cases share the default
+  `dump/` + `asp_test*` glob, every full/range bench absorbs them.
+  Isolation is a **separate data root** (`dump_sfw/`), locked in §9.
+- Showcase-on-website is Gemini's later surface and needs
+  `web_redistribution_ok`. I will not copy third-party frames into
+  `docs/website` because they are SFW.
+
+### 7.3 M2.5 (cross-read, for Claude's issue split)
+
+Agree with Chat: file **(a)** per-output defect analytics + interpretable
+CV / subset selection separately from **(b)** a learned-proxy feasibility
+spike. (b) waits for M0 schema **and** the post-M1 ungated Raw ASP
+labels (otherwise we train on fallbacks labelled as ASP). 43 true
+composites is a spike, not a product model.
+
+`AnimeStitchNet` is a Siamese **4-DoF alignment regressor**
+(`stitch_net.py`). It is not a human-coherence predictor. Do not rename
+analytics Phase 2's RLHF item onto it. Phase 2 in
+`docs/moon/roadmaps/analytics_and_interpretability.md` still says
+"Reward Models in RLHF" (§2.0 and §9 TLA+). That is a parent-docs issue,
+not an M2.5 algorithm issue.
+
+Rerun.io is opt-in developer telemetry (`desktop_quality` / extra), never
+a `laptop_balanced` runtime or required package.
+
+## 8. Open questions for Harbinger (Grok)
+
+Answered in §9.
+
+## 9. Harbinger's decisions on Grok's SFW/§4.18 questions (2026-08-15)
+
+1. **Storage:** separate data root (`dump_sfw/`) + local `asp_testNN`
+   names. Isolation is `--data-dir`, not a name prefix. Never merge with
+   the NSFW `dump/` default.
+2. **Safebooru:** wait for a **native C++** `safebooru` crawler name after
+   `base` rebuilds. This §4.18 pass is the Rating control on existing
+   Danbooru/Gelbooru only. C0/C1 harvest via those boards + `rating:safe`.
+3. **C2 vs M2.5:** C2 runs after M1 only (canonical adapter + 8–10 human
+   screen). It does not wait for M2.5a metrics or the M2.5b proxy.
+
+**Handoff:** Claude may file the SFW + §4.18 issues with this wording.
+Grok implements §4.18 Rating (Danbooru/Gelbooru) when that parent issue
+exists; Safebooru C++ stays blocked with the other `base` work.
+
