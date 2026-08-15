@@ -1386,10 +1386,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-this-roadmap-does-not-block-m0m6" class="md-nav__link">
+  <a href="#3-this-roadmap-does-not-gate-m0m6-but-c1c2-have-inbound-deps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. This roadmap does not block M0–M6
+        3. This roadmap does not gate M0–M6 (but C1/C2 have inbound deps)
       
     </span>
   </a>
@@ -1468,6 +1468,78 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#7-groks-implementation-feasibility-pass-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Grok's implementation-feasibility pass (2026-08-15)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Grok&#39;s implementation-feasibility pass (2026-08-15)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-418-is-a-convenience-layer-and-safebooru-is-gelbooru-not-danbooru" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 §4.18 is a convenience layer — and Safebooru is Gelbooru, not Danbooru
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-c1c2-sequencing-holds-with-the-inbound-deps-in-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 C1/C2 sequencing holds — with the inbound deps in §3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-m25-cross-read-for-claudes-issue-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 M2.5 (cross-read, for Claude's issue split)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-open-questions-for-harbinger-grok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Open questions for Harbinger (Grok)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-harbingers-decisions-on-groks-sfw418-questions-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Harbinger's decisions on Grok's SFW/§4.18 questions (2026-08-15)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1489,7 +1561,8 @@
 
 
 <h1 id="asp-sfw-benchmark-corpus-roadmap-2026-q3">ASP SFW Benchmark Corpus Roadmap — 2026 Q3</h1>
-<p><strong>Status:</strong> Draft, brainstormed 2026-08-15 (Claude + Harbinger)
+<p><strong>Status:</strong> Draft + Gemini/Chat/Grok review + Harbinger §8 answers
+(2026-08-15). Ready for Claude to file issues.
 <strong>Scope:</strong> building a second, SFW-only benchmark corpus for ASP, as a
 generalization check alongside the existing 97-case corpus. Companion to
 <a href="../ASP_CHANGE_ROADMAP_2026Q3/"><code>ASP_CHANGE_ROADMAP_2026Q3.md</code></a> and to
@@ -1537,13 +1610,48 @@ real examples (not just abstract tutorial markdown) requires SFW content —
   corpus-curation issues file in ASP, matching where the code/work actually
   lives.</li>
 </ul>
-<h2 id="3-this-roadmap-does-not-block-m0m6">3. This roadmap does not block M0–M6</h2>
-<p>The SFW corpus is diagnostic, not a release gate. It does not block, and is
-not blocked by, <code>ASP_CHANGE_ROADMAP_2026Q3.md</code>'s M0–M6 sequence. Curation can
-start immediately — <code>rating:safe</code> can already be typed by hand into the
-existing crawler's tags field today, working ahead of §4.18's convenience
-layer — but no M-milestone in the ASP change roadmap depends on this corpus
-existing, and this roadmap does not gate any default change there.</p>
+<h2 id="3-this-roadmap-does-not-gate-m0m6-but-c1c2-have-inbound-deps">3. This roadmap does not gate M0–M6 (but C1/C2 have inbound deps)</h2>
+<p>The SFW corpus is diagnostic, not a release gate. <strong>No M0–M6 default,
+promotion step, or 97-case target waits on this corpus.</strong> The reverse is
+not a free-for-all:</p>
+<table>
+<thead>
+<tr>
+<th>Slice</th>
+<th>May start now?</th>
+<th>Hard inbound dependency</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>C0</strong> rubric + first 3–5 candidates</td>
+<td>Yes</td>
+<td>None. Hand-type <code>rating:safe</code> today.</td>
+</tr>
+<tr>
+<td><strong>C1</strong> harvest / folder drop</td>
+<td>Yes</td>
+<td><strong>Registration</strong> uses M0's case/provenance schema when it lands. Do not invent a parallel JSON.</td>
+</tr>
+<tr>
+<td><strong>C2</strong> pipeline run + 8–10 human screen</td>
+<td>No</td>
+<td><strong>After M1 adapters</strong> (same runner as the post-M1 ungated 97-run). Pre-M1 <code>bench_anime_stitch.py</code> is the issue-#10 measurement fork. Does <strong>not</strong> wait on M2.5 new metrics.</td>
+</tr>
+</tbody>
+</table>
+<p>SFW/NSFW, source, licence, and web-redistribution permission are
+<strong>case-level</strong> fields, referenced by the three output artifacts. They are
+not per-output and not a second evaluation schema.</p>
+<p><strong>Storage (Harbinger, 2026-08-15):</strong> a <strong>separate data root</strong>
+(<code>dump_sfw/</code> or equivalent) with the same local names (<code>asp_testNN</code>).
+Do <strong>not</strong> continue the NSFW series as <code>asp_test98+</code> and do <strong>not</strong> mix
+the trees under one default <code>dump/</code>. The bench glob is <code>asp_test*</code>
+(<code>bench_anime_stitch.py:3861</code>); isolation is the data-dir, not the
+prefix. Every 97-case recipe, dashboard generator, and C2 command must
+take an explicit <code>--data-dir</code> / corpus root and must never default to a
+merged tree. <code>corpus_id</code> in the M0 schema (<code>nsfw_97</code> vs <code>sfw_q3</code>) is the
+record-level distinguisher when two <code>asp_test04</code> names exist.</p>
 <h2 id="4-delivery-sequence">4. Delivery sequence</h2>
 <h3 id="c0-curation-workflow-and-rubric">C0 — Curation workflow and rubric</h3>
 <p><strong>Purpose:</strong> define what counts as a usable SFW test case before spending
@@ -1555,14 +1663,20 @@ written down (confirmed absent from <code>ROADMAP.md</code>/<code>CHANGELOG.md</
   post/sequence "ground-truth-quality" for stitching purposes (a real
   panorama/scan image as an optional GT target, source frames identifiable
   or derivable, sufficient overlap/pan structure).</li>
+<li>Sample Gemini's visual-style strata so C2's 8–10 human screen can be
+  balanced: (1) cel-animation screencaps, (2) webtoon / monochrome manga
+  vertical scrolls, (3) parallax / game-background pans. Record the
+  stratum per case.</li>
 <li>Identify productive tag search patterns for pannable SFW sequences
   (background pan panels, scan/multi-page doujin-adjacent structure minus
   the NSFW content, official PV/BD bonus footage as a non-booru source
   worth evaluating separately).</li>
-<li>Track <strong>SFW/NSFW as an explicit corpus-composition field</strong> in whatever
-  schema <code>ASP_CHANGE_ROADMAP_2026Q3.md</code>'s M0 defines for per-output
-  metadata — this corpus should extend that schema, not invent a parallel
-  one.</li>
+<li>Track <strong>case-level</strong> fields on the M0 schema: <code>corpus_id</code> (<code>nsfw_97</code> /
+  <code>sfw_q3</code>), <code>sfw</code>, source URL/board, licence, <code>web_redistribution_ok</code>.
+  Gemini's 2–3 public showcase candidates require <code>web_redistribution_ok</code>
+  before any frame is copied into <code>docs/website</code>. Upstream <code>rating:safe</code>
+  is not a human SFW review — C0/C1 still need a manual SFW check.</li>
+<li>Require a second human SFW pass; do not trust the board tag alone.</li>
 </ul>
 <p>Exit criteria: a written rubric exists; the first 3–5 curated candidates
 were selected against it, not ad hoc.</p>
@@ -1570,9 +1684,10 @@ were selected against it, not ad hoc.</p>
 <p><strong>Purpose:</strong> the actual corpus-building work.</p>
 <p>Deliverables:</p>
 <ul>
-<li>Manually curate ~20–30 SFW test cases via Safebooru/existing boards with
-  <code>rating:safe</code> filtering (§4.18 crawler work, or manual tag entry if that
-  lands first).</li>
+<li>Manually curate ~20–30 SFW test cases via existing Danbooru/Gelbooru
+  boards with <code>rating:safe</code> (hand-typed or the §4.18 Rating control). Store
+  under the SFW data root as <code>asp_testNN</code>. The Safebooru <em>preset</em> waits on
+  a native C++ crawler name after <code>base</code> rebuilds; it is not a C1 blocker.</li>
 <li>Record ground-truth availability per case honestly — most NSFW-corpus
   cases lack true GT frames and rely on human coherence judgment alone (only
   55/97 have GT, per <code>ASP_CHANGE_ROADMAP_2026Q3.md</code> §3); expect a similar or
@@ -1589,19 +1704,25 @@ ASP's current behavior generalize, or is it overfit to the NSFW corpus's
 visual profile?</p>
 <p>Deliverables:</p>
 <ul>
-<li>Run the corpus through whichever pipeline is canonical at the time (ideally
-  post-M1, once benchmark/backend/GUI orchestration has converged — running
-  it against the pre-M1 forked benchmark script would repeat the same
-  measurement-validity problem <code>ASP_CHANGE_ROADMAP_2026Q3.md</code> §10.1 already
-  found).</li>
+<li>Run the corpus through the <strong>post-M1 canonical adapter</strong> (same runner and
+  three-artifact contract as the post-M1 ungated 97-run). Do not run C2
+  against pre-M1 <code>bench_anime_stitch.py</code>. Do not wait for M2.5's new CV
+  metrics or the learned proxy — those may be attached later as optional
+  columns.</li>
 <li>Compare score distributions and defect-tag frequency between the NSFW and
   SFW corpora. A large divergence is a finding to report to Harbinger, not
   something to silently tune away.</li>
+<li>Run a blinded human coherence screen for a predeclared representative subset
+  of <strong>8–10 SFW cases</strong>, balanced across C0's visual-style strata. This is an
+  informational generalization check, not a promotion gate and not a request
+  to repeat the completed 97-case review. Automated distributions may describe
+  domain shift; only this human subset supports a quality-generalization claim.</li>
 <li>No promotion-ladder or default-change decision is gated on this result by
   itself — it's a generalization signal, reported alongside the primary
   97-case corpus, not a replacement for it.</li>
 </ul>
-<p>Exit criteria: comparative report delivered; explicitly not a pass/fail gate.</p>
+<p>Exit criteria: comparative report delivered with the blinded subset's human
+results; explicitly not a pass/fail gate.</p>
 <h2 id="5-team-workflow">5. Team workflow</h2>
 <ul>
 <li><strong>Harbinger:</strong> curates candidates (has the domain fluency this requires)
@@ -1617,10 +1738,83 @@ visual profile?</p>
   C0–C2.</li>
 </ul>
 <h2 id="6-open-questions">6. Open questions</h2>
-<p>None currently blocking — this roadmap can proceed to issue filing. Revisit
-after C1's first pass if the curation ratio turns out far worse than the
-~300:10 baseline Harbinger described, since that would change whether C2's
-~20-30 case target is realistic on the original timeline.</p>
+<p>None currently blocking issue <em>drafting</em>. Revisit after C1's first pass if
+the curation ratio turns out far worse than the ~300:10 baseline Harbinger
+described. Sequencing/ID/crawler questions for Harbinger are in §8.</p>
+<h2 id="7-groks-implementation-feasibility-pass-2026-08-15">7. Grok's implementation-feasibility pass (2026-08-15)</h2>
+<p>Verified against current parent crawler + ASP bench glob, not the bus.</p>
+<h3 id="71-418-is-a-convenience-layer-and-safebooru-is-gelbooru-not-danbooru">7.1 §4.18 is a convenience layer — and Safebooru is Gelbooru, not Danbooru</h3>
+<ul>
+<li><code>DanbooruCrawler</code> / <code>GelbooruCrawler</code> / <code>SankakuCrawler</code> are thin wrappers.
+  <code>ImageBoardCrawler.run()</code> sends <code>self.__class__.__name__.replace("Crawler","").lower()</code>
+  into C++ <code>base.run_board_crawler</code>, which only accepts
+  <code>"danbooru" | "gelbooru" | "sankaku"</code> (<code>board_crawler.cpp:170–183</code>).</li>
+<li>Tags are a free-text field (<code>_config.py</code> <code>board_tags</code> → <code>config["tags"]</code>).
+  Hand-typing <code>rating:safe</code> already works. C0 does not wait on §4.18.</li>
+<li><strong>Safebooru speaks Gelbooru dapi</strong> (<code>/index.php?page=dapi&amp;s=post&amp;q=index</code>),
+  not Danbooru <code>/posts.json</code>. A <code>SafebooruCrawler</code> that only sets a Danbooru
+  URL will 404. A new class named <code>SafebooruCrawler</code> would dispatch as
+  <code>"safebooru"</code> and <strong>throw</strong> in C++.</li>
+<li>C++ kernel work is blocked until <code>base</code> rebuilds (change-roadmap §17.7).
+  Therefore §4.18 must be <strong>Python/GUI only</strong>: a Safebooru preset that
+  reuses the <strong>Gelbooru</strong> engine name plus <code>url=https://safebooru.org</code>
+  (and <code>resource=post</code>). Do not add a C++ crawler name in this issue.</li>
+<li>Rating control needs a <strong>per-board tag map</strong>, not one literal appended
+  to every board. Danbooru uses <code>rating:g</code> / <code>general</code> / <code>sensitive</code> /
+  <code>questionable</code> / <code>explicit</code>. Gelbooru's current enum is the one place
+  §4.18 already flagged. Safebooru is SFW-by-site; the control is
+  redundant there but must not emit a Danbooru-only token.</li>
+</ul>
+<p>Effort stays Low if we follow that path. Zerochan stays unscoped.</p>
+<h3 id="72-c1c2-sequencing-holds-with-the-inbound-deps-in-3">7.2 C1/C2 sequencing holds — with the inbound deps in §3</h3>
+<p>From the implementer seat:</p>
+<ul>
+<li><strong>C0 now</strong> is correct.</li>
+<li><strong>C1 harvest now, register on M0</strong> is correct. I will not write a
+  second evaluations JSON.</li>
+<li><strong>C2 after M1</strong> is mandatory. The post-M1 ungated 97-run is the first
+  trustworthy runner; C2 should be the same binary/adapter, different
+  <code>--data-dir</code> / name prefix.</li>
+<li><strong>C2 must not wait for M2.5.</strong> New metrics are optional columns on a
+  report, not a C2 exit. Coupling them would park the generalization
+  check behind a research spike.</li>
+<li><strong>Hidden coupling Chat called:</strong> if SFW cases share the default
+  <code>dump/</code> + <code>asp_test*</code> glob, every full/range bench absorbs them.
+  Isolation is a <strong>separate data root</strong> (<code>dump_sfw/</code>), locked in §9.</li>
+<li>Showcase-on-website is Gemini's later surface and needs
+  <code>web_redistribution_ok</code>. I will not copy third-party frames into
+  <code>docs/website</code> because they are SFW.</li>
+</ul>
+<h3 id="73-m25-cross-read-for-claudes-issue-split">7.3 M2.5 (cross-read, for Claude's issue split)</h3>
+<p>Agree with Chat: file <strong>(a)</strong> per-output defect analytics + interpretable
+CV / subset selection separately from <strong>(b)</strong> a learned-proxy feasibility
+spike. (b) waits for M0 schema <strong>and</strong> the post-M1 ungated Raw ASP
+labels (otherwise we train on fallbacks labelled as ASP). 43 true
+composites is a spike, not a product model.</p>
+<p><code>AnimeStitchNet</code> is a Siamese <strong>4-DoF alignment regressor</strong>
+(<code>stitch_net.py</code>). It is not a human-coherence predictor. Do not rename
+analytics Phase 2's RLHF item onto it. Phase 2 in
+<code>docs/moon/roadmaps/analytics_and_interpretability.md</code> still says
+"Reward Models in RLHF" (§2.0 and §9 TLA+). That is a parent-docs issue,
+not an M2.5 algorithm issue.</p>
+<p>Rerun.io is opt-in developer telemetry (<code>desktop_quality</code> / extra), never
+a <code>laptop_balanced</code> runtime or required package.</p>
+<h2 id="8-open-questions-for-harbinger-grok">8. Open questions for Harbinger (Grok)</h2>
+<p>Answered in §9.</p>
+<h2 id="9-harbingers-decisions-on-groks-sfw418-questions-2026-08-15">9. Harbinger's decisions on Grok's SFW/§4.18 questions (2026-08-15)</h2>
+<ol>
+<li><strong>Storage:</strong> separate data root (<code>dump_sfw/</code>) + local <code>asp_testNN</code>
+   names. Isolation is <code>--data-dir</code>, not a name prefix. Never merge with
+   the NSFW <code>dump/</code> default.</li>
+<li><strong>Safebooru:</strong> wait for a <strong>native C++</strong> <code>safebooru</code> crawler name after
+   <code>base</code> rebuilds. This §4.18 pass is the Rating control on existing
+   Danbooru/Gelbooru only. C0/C1 harvest via those boards + <code>rating:safe</code>.</li>
+<li><strong>C2 vs M2.5:</strong> C2 runs after M1 only (canonical adapter + 8–10 human
+   screen). It does not wait for M2.5a metrics or the M2.5b proxy.</li>
+</ol>
+<p><strong>Handoff:</strong> Claude may file the SFW + §4.18 issues with this wording.
+Grok implements §4.18 Rating (Danbooru/Gelbooru) when that parent issue
+exists; Safebooru C++ stays blocked with the other <code>base</code> work.</p>
 
 
 

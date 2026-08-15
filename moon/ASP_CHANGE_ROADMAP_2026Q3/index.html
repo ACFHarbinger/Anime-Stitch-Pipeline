@@ -1905,6 +1905,67 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#19-interactive-dev-tool-25d3d-telemetry-visual-diagnostics-architecture-brainstormed-with-harbinger-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19. Interactive Dev Tool, 2.5D/3D Telemetry &amp; Visual Diagnostics Architecture (Brainstormed with Harbinger 2026-08-15)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="19. Interactive Dev Tool, 2.5D/3D Telemetry &amp; Visual Diagnostics Architecture (Brainstormed with Harbinger 2026-08-15)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#191-core-interactive-controls-dual-ui-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19.1 Core Interactive Controls &amp; Dual UI Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#192-25d-parallax-game-simulator-pmf-parity-re-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19.2 2.5D Parallax Game Simulator (PMF Parity &amp; Re-use)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#193-decoupled-telemetry-architecture-opentelemetry-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19.3 Decoupled Telemetry Architecture (OpenTelemetry Standards)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#194-interactive-3d-web-models-visualizations-react-threefiber-glb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        19.4 Interactive 3D Web Models &amp; Visualizations (@react-three/fiber / .glb)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2184,6 +2245,15 @@ permanently untrustworthy.</p>
 like <code>ghosting=69</code> cannot be attributed to a specific artifact today). Starts
 once M0 lands; runs in parallel with M1-M4. Analysis- and tooling-only — it
 does not change any Raw ASP/Safe ASP algorithm default.</p>
+<p>File as <strong>two issues</strong>, not one: <strong>(a)</strong> per-output defect analytics +
+anime-adapted CV diagnostics + subset selection; <strong>(b)</strong> learned-proxy
+feasibility spike. (b) waits for M0 <strong>and</strong> the post-M1 ungated Raw ASP
+labels so fallbacks are not trained as ASP. <code>AnimeStitchNet</code> is a 4-DoF
+alignment regressor, not a quality model — do not reuse it as the proxy.
+Rerun.io / large stage dumps are opt-in developer artifacts, never a
+<code>laptop_balanced</code> required dependency. Parent analytics Phase 2 still
+describes deleted RLHF reward models; correct that document separately,
+do not inherit those claims here.</p>
 <p>Deliverables:</p>
 <ul>
 <li><strong>Per-defect-category correlation/impact analysis.</strong> Extend the existing
@@ -2447,10 +2517,11 @@ result to the agent bus, and tells Claude what is safe to delegate next.</p>
 <li>M2 safety-policy extraction, inverse-metric demotion, default-profile
    surface of ~20 keys plus an Advanced configuration control, register-or-
    delete <code>ASP_HOLD_BG_SUB</code>.</li>
-<li>M2.5 per-defect-category correlation/impact analysis, anime-adapted CV
-   metrics, non-gating learned proxy metric, and data-driven subset-selection
-   tooling. Starts once M0's schema lands; runs in parallel with M1–M4, does
-   not block them and does not gate on them beyond M0.</li>
+<li>M2.5a per-defect-category correlation/impact analysis, anime-adapted CV
+   diagnostics, and data-driven subset-selection tooling. Starts once M0's
+   schema lands; runs in parallel with M1–M4. M2.5b learned-proxy spike
+   only after the post-M1 ungated Raw ASP labels exist. Neither issue
+   changes a default or gates C2.</li>
 <li>M3 default-off BiRefNet single-pose / §9.2 compositor candidate.</li>
 <li>M4 motion-compensated hold/selection, test-14 oracle, repair-or-remove
     translation+scale and the unused DP selector. C++ items stay blocked
@@ -2886,6 +2957,39 @@ pipeline areas.</p>
 </ul>
 <p>Full M2.5 deliverables and exit criteria are in §5. This closes the open
 questions from this review round; Claude proceeds to file the §9 issues next.</p>
+<h2 id="19-interactive-dev-tool-25d3d-telemetry-visual-diagnostics-architecture-brainstormed-with-harbinger-2026-08-15">19. Interactive Dev Tool, 2.5D/3D Telemetry &amp; Visual Diagnostics Architecture (Brainstormed with Harbinger 2026-08-15)</h2>
+<p>Harbinger and Gemini brainstormed the interactive dev tool, visualization methods, and telemetry architecture to guide M6 (Artist Review Workflow) and M2.5/Analytics tooling.</p>
+<h3 id="191-core-interactive-controls-dual-ui-architecture">19.1 Core Interactive Controls &amp; Dual UI Architecture</h3>
+<ul>
+<li><strong>Dual P0 HITL Controls (Pose + Seam):</strong> Both the <strong>Cel-Pose Thumbnail Swapper</strong> (1-click pose candidate selection per overlap zone) and the <strong>Draggable Seam Corridor / Exclusion Barrier Brush</strong> (spline node editing and <code>1e6</code> barrier painting) are locked as top-priority interactive controls for M6.</li>
+<li><strong>Stage-by-Stage Visual Pipeline Stepper:</strong> Step-by-step interactive breadcrumb allowing developers and artists to inspect intermediate visual states (e.g. viewing the reconstructed clean background plate <em>before</em> foreground cels are placed).</li>
+<li><strong>Core Interaction Patterns:</strong></li>
+<li><strong>Hover &amp; Tooltips:</strong> Instant display of provenance metadata (source frame ID, timestamp, optical flow vector, gain residual) on cursor hover without canvas clutter.</li>
+<li><strong>Filtering &amp; Slicing:</strong> Multi-dimensional slicers and sliders for defect tags, confidence thresholds, and benchmark runs.</li>
+<li><strong>Drill-Down &amp; Roll-Up:</strong> Click on an aggregate pipeline stage or failure cluster to drill down into frame pairs, LoFTR match rays, and per-pixel seam cost surfaces.</li>
+<li><strong>Brushing &amp; Linking:</strong> Selecting a cluster of outlier points in a telemetry chart (e.g. high gain mismatch) automatically highlights the corresponding frame strips on the canvas.</li>
+<li><strong>Panning &amp; Zooming:</strong> High-performance synced multi-canvas viewports (Raw ASP vs. Safe ASP vs. SCANS) with a floating "Diff Loupe" (localized magnifier showing optical flow / pixel delta).</li>
+<li><strong>Scroll-Triggered Storytelling:</strong> Progressive visual breakdowns explaining how specific pipeline failures (e.g. test 06 torn anatomy) occur and how candidates resolve them.</li>
+</ul>
+<h3 id="192-25d-parallax-game-simulator-pmf-parity-re-use">19.2 2.5D Parallax Game Simulator (PMF Parity &amp; Re-use)</h3>
+<ul>
+<li>Built-in <strong>2.5D Parallax Viewport</strong> in both the PySide6 dialog and web dev tool:</li>
+<li>Interactive virtual camera dolly across the canvas.</li>
+<li>Multi-plane depth rendering: clean background panorama plate at depth $Z=0$ and segmented character sprite cels at depth $Z=1$ with dynamic parallax offset.</li>
+<li>Validates game asset suitability directly within the tool for 2.5D mobile game development.</li>
+</ul>
+<h3 id="193-decoupled-telemetry-architecture-opentelemetry-standards">19.3 Decoupled Telemetry Architecture (OpenTelemetry Standards)</h3>
+<ul>
+<li><strong>OTel Standardized Spans &amp; Metrics:</strong> Decouple telemetry data collection from visualization. Python and C++ pipeline emit standardized OTel traces, metrics, and logs (<code>asp.stage.duration_ms</code>, <code>asp.vram.peak_bytes</code>, <code>asp.gain.clamp_residual</code>, <code>asp.seam.cut_energy</code>).</li>
+<li><strong>Unified Observability Backends:</strong> Standard OTel exports allow seamless integration with Prometheus/Grafana (unified metrics/dashboards), Jaeger (distributed tracing across stages), and Honeycomb.</li>
+<li><strong>Honeycomb "BubbleUp"-Style Anomaly Discovery:</strong> Automated failure analysis comparing outlier runs/test cases against successful runs to isolate common root-cause factors (e.g. luminance gradient $&gt;20\text{ units}$, inter-frame camera motion $&gt;100\text{px}$).</li>
+</ul>
+<h3 id="194-interactive-3d-web-models-visualizations-react-threefiber-glb">19.4 Interactive 3D Web Models &amp; Visualizations (<code>@react-three/fiber</code> / <code>.glb</code>)</h3>
+<ul>
+<li><strong>3D Exploded-View Layer Stack:</strong> Interactive WebGL 3D view in <code>docs/website/</code> showing the warped background mesh, seam boundary planes, and floating segmented character cels with orbit controls.</li>
+<li><strong>3D Feature Match Point Clouds:</strong> Interactive particle graph visualizing LoFTR keypoint correspondences in 3D feature space.</li>
+<li><strong>Lightweight 3D Mascots &amp; Viewfinders:</strong> Fast-loading <code>.glb</code> interactive assets for the web portal adhering to the Optic Lab / Blueprint theme.</li>
+</ul>
 
 
 
