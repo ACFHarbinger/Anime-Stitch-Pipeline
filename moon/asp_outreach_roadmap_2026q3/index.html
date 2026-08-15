@@ -1386,10 +1386,143 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#explicitly-not-decided-yet-for-the-team-to-brainstorm" class="md-nav__link">
+  <a href="#4-proposed-architecture-design-gemini-brainstorm-2026-08-15" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Explicitly not decided yet — for the team to brainstorm
+        4. Proposed Architecture &amp; Design (Gemini Brainstorm, 2026-08-15)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Proposed Architecture &amp; Design (Gemini Brainstorm, 2026-08-15)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-platform-visual-integration-the-optic-lab-journal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Platform &amp; Visual Integration (The "Optic Lab Journal")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-distill-style-explorable-explanations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Distill-Style "Explorable Explanations"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-direct-pipeline-bridge-from-m6-review-screen" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Direct Pipeline Bridge from M6 Review Screen
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-content-safety-tiering-showcase-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Content Safety Tiering &amp; Showcase Policy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-pmf-outreach-testbed-lightweight-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 PMF Outreach Testbed &amp; Lightweight Analytics
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-delivery-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Delivery Sequence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Delivery Sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#o0-journal-framework-layout-docswebsite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O0 — Journal Framework &amp; Layout (docs/website/)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o1-foundational-article-1-the-geometry-of-cel-animation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O1 — Foundational Article #1: The Geometry of Cel Animation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o2-m6-case-study-exporter-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O2 — M6 Case Study Exporter Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o3-staged-benchmark-experiment-writeups" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O3 — Staged Benchmark &amp; Experiment Writeups
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-harbingers-locked-decisions-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Harbinger's Locked Decisions (2026-08-15)
       
     </span>
   </a>
@@ -1397,10 +1530,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#team" class="md-nav__link">
+  <a href="#7-team" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Team
+        7. Team
       
     </span>
   </a>
@@ -1428,14 +1561,14 @@
 
 
 <h1 id="asp-outreach-results-blog-2026-q3">ASP Outreach &amp; Results Blog — 2026 Q3</h1>
-<p><strong>Status:</strong> Kickoff only — goal and rationale below, <strong>design deliberately
-left open for the team brainstorm</strong>, not pre-decided by Claude. This is the
-first pass; expect this whole document to be substantially rewritten by
-Gemini/Grok/Chat-Codex before anything is locked.</p>
+<p><strong>Status:</strong> Gemini architecture + Harbinger §6 locks (2026-08-15), then
+<strong>Grok review round 2:</strong> O1 / performance-claim articles wait for a
+preregistered complementary split. Until that split exists, only Lab Notes
+(instrumentation, failures, protocol). Not a public-quality blog yet.</p>
 <h2 id="goal">Goal</h2>
 <p>An Overmix-blog-style outreach presence: write up actual results, the
 reasoning behind real decisions (the kind of thing already happening in
-<code>ASP_CHANGE_ROADMAP_2026Q3.md</code> and this repo's <code>docs/reports/</code>), not
+<code>asp_change_roadmap_2026q3.md</code> and this repo's <code>docs/reports/</code>), not
 polished marketing copy. Spillerrec's Overmix blog is the explicit
 reference point — rigorous, unusually formal methodology for this exact
 problem space (anime/game frame stitching), genuinely useful to the kind of
@@ -1447,7 +1580,7 @@ person who'd want to read it, not written to persuade.</p>
    commercially available — the audience this could attract is people who'd
    read real technical reasoning and want to contribute (PRs, ideas), not
    passive consumers. The tag/safety-tier system from
-   <code>ASP_SFW_CORPUS_ROADMAP_2026Q3.md</code> §C0.5 is directly relevant here: what
+   <code>asp_sfw_corpus_roadmap_2026q3.md</code> §C0.5 is directly relevant here: what
    gets shown publicly is tier-gated (<code>tier_g</code>/<code>tier_pg13</code> by default),
    separate from the fuller internal corpus.</li>
 <li><strong>A testbed for outreach approach, feeding a different, later project.</strong>
@@ -1458,29 +1591,107 @@ person who'd want to read it, not written to persuade.</p>
    from — not just "post things and hope," if that's achievable without
    over-engineering a small blog.</li>
 </ol>
-<h2 id="explicitly-not-decided-yet-for-the-team-to-brainstorm">Explicitly not decided yet — for the team to brainstorm</h2>
+<h2 id="4-proposed-architecture-design-gemini-brainstorm-2026-08-15">4. Proposed Architecture &amp; Design (Gemini Brainstorm, 2026-08-15)</h2>
+<h3 id="41-platform-visual-integration-the-optic-lab-journal">4.1 Platform &amp; Visual Integration (The "Optic Lab Journal")</h3>
 <ul>
-<li>Format/platform: a section of the existing <code>docs/website</code> (Optic Lab/
-  Blueprint design system already exists there), a separate static site,
-  GitHub Discussions/README-driven, something else?</li>
-<li>Cadence and content selection: what's worth writing up, how often, who
-  owns drafting vs. review.</li>
-<li>What "measuring outreach approach effectiveness" concretely means at this
-  scale (traffic/stars/PR-quality signals? something else?) without
-  building analytics infrastructure disproportionate to a personal-scale
-  project.</li>
-<li>How this relates to the already-planned M6 dual review-screen UI work
-  (<code>ASP_CHANGE_ROADMAP_2026Q3.md</code> §19) — is the blog a consumer of that
-  tooling's output, fully separate, or something in between?</li>
-<li>Whether/how this should reuse the SFW corpus's showcase-candidate concept
-  (<code>web_redistribution_ok</code>-cleared cases) as its actual example content.</li>
+<li><strong>Integrated Route in <code>docs/website/</code>:</strong> Host the journal under <code>/journal</code> (or <code>/lab-notes</code>) within the existing React 19 + Vite website.</li>
+<li><strong>Visual Identity:</strong> Reuses the established <strong>Optic Lab (Obsidian/Silver/Cyan-Magenta)</strong> and <strong>Blueprint Lab</strong> aesthetic. Articles read like high-end research lab notebooks (similar to <em>Distill.pub</em> or <em>Overmix</em>), pairing rigorous technical prose with deep slate typography.</li>
+<li><strong>Zero Additional Hosting Overhead:</strong> Bundled with the main documentation site build; version-controlled in the repository alongside source code.</li>
 </ul>
-<h2 id="team">Team</h2>
-<p>Gemini's design/content-presentation lead is the natural owner given the
-existing <code>docs/website</code> visual-identity work, but this benefits from
-Grok (what results are actually worth writing up, technical accuracy) and
-Chat/Codex (tone/accuracy review) input too — same brainstorm-then-edit
-pattern as the SFW corpus roadmap, not a solo design.</p>
+<h3 id="42-distill-style-explorable-explanations">4.2 Distill-Style "Explorable Explanations"</h3>
+<ul>
+<li>Rather than static blog posts with flat PNGs, articles feature <strong>live interactive widgets</strong>:</li>
+<li>Embedded <strong>Synced Diff Loupe</strong>: Readers can hover over composite seams to inspect pixel deltas and optical flow vectors directly in the browser.</li>
+<li>Interactive <strong>Cel-Pose Timeline Slider</strong>: Demonstrates how changing keyframe hold selection alters foreground cel composition in real time.</li>
+<li>Embedded <strong>2D Stitching Viewfinder / 3D Exploded-View</strong>: Readers can interactively orbit the 3D layer stack to understand how background plates and foreground cels separate.</li>
+</ul>
+<h3 id="43-direct-pipeline-bridge-from-m6-review-screen">4.3 Direct Pipeline Bridge from M6 Review Screen</h3>
+<ul>
+<li><strong>1-Click Case Study Exporter:</strong> The M6 Review Screen (PySide6 / Web Inspector) will support an "Export Case Study Bundle" action.</li>
+<li>Serializes only publication-approved derived assets, anonymized telemetry,
+  comparative crops, and a redacted <code>.asp-session.json</code> manifest into a
+  self-contained JSON/MDX bundle. It must not export raw corpus frames, source
+  URLs, reviewer data, or personal browsing data by default.</li>
+</ul>
+<h3 id="44-content-safety-tiering-showcase-policy">4.4 Content Safety Tiering &amp; Showcase Policy</h3>
+<ul>
+<li><strong>Default Public Baseline:</strong> Only cases tagged <code>tier_g</code> or <code>tier_pg13</code> with <code>web_redistribution_ok = True</code> are displayed publicly by default.</li>
+<li><strong>Opt-in Technical Edge Cases:</strong> For complex technical stitching challenges involving <code>tier_mature_sfw</code> content (e.g. dynamic combat sequences or stylized dark fantasy plates), the journal provides an opt-in warning banner before revealing the interactive comparison.</li>
+<li><strong>Minor-Presenting Hard Veto:</strong> Zero tolerance; cases with apparent minors are excluded unconditionally from all public journal entries.</li>
+</ul>
+<h3 id="45-pmf-outreach-testbed-lightweight-analytics">4.5 PMF Outreach Testbed &amp; Lightweight Analytics</h3>
+<ul>
+<li><strong>Goal:</strong> Learn what technical storytelling formats resonate with developer and game creator communities to build an audience playbook for the PMF mobile game.</li>
+<li><strong>Measurement Strategy (Privacy-Preserving &amp; Lightweight):</strong></li>
+<li>Track GitHub traffic referrals and star velocity correlated with journal publication dates.</li>
+<li>Track reader engagement on interactive widgets (anonymous local interaction event counts, e.g. % of readers who interact with the seam slider).</li>
+<li>Measure qualitative inbound contribution (issues, discussions, PRs citing specific article methodology).</li>
+<li>Do not identify or profile individual readers. Use aggregate, privacy-
+  preserving measures only; this work does not imply a public corpus release
+  or create an obligation to operate one.</li>
+</ul>
+<hr />
+<h2 id="5-delivery-sequence">5. Delivery Sequence</h2>
+<h3 id="o0-journal-framework-layout-docswebsite">O0 — Journal Framework &amp; Layout (<code>docs/website/</code>)</h3>
+<ul>
+<li>Implement <code>/journal</code> index and article view inside <code>docs/website/</code>.</li>
+<li>Build the markdown/MDX parser and embeddable React interactive widget harness (<code>DiffLoupe</code>, <code>TimelineScrubber</code>, <code>LayerStack3D</code>).</li>
+</ul>
+<h3 id="o1-foundational-article-1-the-geometry-of-cel-animation">O1 — Foundational Article #1: The Geometry of Cel Animation</h3>
+<ul>
+<li><strong>Topic:</strong> <em>"Why Classical Homography Fails on 2D Cel Animation: Deconstructing Pose-Mixing, Seam Tearing, and the Clean Background Plate."</em></li>
+<li>Uses SFW showcase test cases (e.g. Test 14 manual hold selection oracle) to clearly articulate the problem ASP solves.</li>
+<li><strong>Evidence gate (Harbinger, 2026-08-15 — tightened):</strong> do <strong>not</strong> publish
+  O1 or any other performance-adjacent article until a <strong>preregistered</strong>
+  subset shows a complementary split — ASP and SCANS each winning a real
+  slice, not ASP merely being less-bad on already-easy SCANS cases. The
+  current 97-case score-order (10 / 38 / 49) and the 43 true-composite
+  mean of 1.326 are the opposite of that bar.</li>
+<li><strong>Until the split exists, public writing is Lab Notes only:</strong> M1
+  session protocol, metric inversion (sharpness/ghosting anti-correlated
+  with humans), fallback-carries-the-mean, C0.5 dual-veto design. Lab
+  Notes may use synthetic layered fixtures and diagrams. They must not
+  embed third-party frames unless <code>web_redistribution_ok</code> and C0.5-clear.</li>
+<li>A complementary split is a valuable result even when ASP does not win
+  every case. Improvements on already near-perfect SCANS cases do not
+  count as that split.</li>
+</ul>
+<h3 id="o2-m6-case-study-exporter-integration">O2 — M6 Case Study Exporter Integration</h3>
+<ul>
+<li>Wire the 1-click case study export in the M6 review screen to output journal-ready interactive bundles.</li>
+</ul>
+<h3 id="o3-staged-benchmark-experiment-writeups">O3 — Staged Benchmark &amp; Experiment Writeups</h3>
+<ul>
+<li>Post-milestone deep-dives (e.g. M3 BiRefNet single-pose results, M4 motion-compensated camera trajectory findings) presenting empirical before/after evidence.</li>
+<li>Keep experiments milestone-driven and non-obligatory: no public corpus
+  release, regular marketing cadence, or outreach expansion is in scope unless
+  future circumstances create sustained niche demand and the core research work
+  remains healthy.</li>
+</ul>
+<hr />
+<h2 id="6-harbingers-locked-decisions-2026-08-15">6. Harbinger's Locked Decisions (2026-08-15)</h2>
+<ol>
+<li><strong>Interactive Focus:</strong></li>
+<li><strong>Full Explorable Explanations:</strong> Lean heavily into Distill.pub-style interactive widgets (interactive seam scrubbers, diff loupes, optical flow vectors, 3D layer stacks) rather than passive flat images.</li>
+<li><strong>Publication Cadence:</strong></li>
+<li><strong>Milestone-Driven Core + Selective Lab Notes:</strong> Primary cadence aligns with major completed milestones (M1, M3, M4, M6). Shorter "Lab Notes" are reserved for genuinely high-value intermediate breakthroughs or failure analyses that must never queue up or block core development work.</li>
+<li><strong>PMF Game Synergies:</strong></li>
+<li><strong>Careful Exploration:</strong> Explore 2.5D asset pipeline and parallax background applications where technically natural, while keeping the core technical rigor focused on the animation stitching problem.</li>
+<li><strong>M6 Case Study Exporter Formats:</strong></li>
+<li><strong>Dual Output:</strong><ol>
+<li><strong>JSON / MDX Bundle:</strong> Drop-in component and telemetry payload for direct rendering in the <code>/journal</code> web application.</li>
+<li><strong>Multi-Layer PNG + Metadata Archive:</strong> Clean static background plate + alpha-masked character cels with layer bounding boxes for external validation and 2.5D game engine importing.</li>
+</ol>
+</li>
+</ol>
+<hr />
+<h2 id="7-team">7. Team</h2>
+<ul>
+<li><strong>Gemini:</strong> Lead for visual presentation, layout, interactive widgets, and journal design.</li>
+<li><strong>Grok:</strong> Lead for technical result verification, algorithm telemetry, and M6 exporter integration.</li>
+<li><strong>Chat/Codex:</strong> Lead for factual accuracy review, tone consistency, and schema verification.</li>
+<li><strong>Harbinger:</strong> Final editorial sign-off on case study publications.</li>
+</ul>
 
 
 

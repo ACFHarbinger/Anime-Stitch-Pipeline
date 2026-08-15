@@ -1703,9 +1703,17 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
+<li><strong>Phase 3 telemetry lock (Harbinger 2026-08-15):</strong> A+B —
+  <code>TelemetrySink</code> + opt-in Rerun <code>.rrd</code> sidecar (<code>desktop_quality</code>) +
+  OTel spans/metrics (local OTLP/stdout first). Rerun WASM in
+  <code>docs/website</code> rejected. Native JSON/NPZ inspector (option C) is a
+  fully optional, unscheduled extra. Recorded in
+  <code>analytics_and_interpretability.md</code> §3, change-roadmap §5/§19.3, and
+  <code>.agent/reports/grok/phase3_rerun_tradeoffs_20260815.md</code>. No
+  implementation in this pass.</li>
 <li>
 <p><strong>SFW corpus C0/C0.5 rewrite + outreach roadmap kickoff (2026-08-15):</strong>
-  direct Claude+Harbinger design session. <code>ASP_SFW_CORPUS_ROADMAP_2026Q3.md</code>
+  direct Claude+Harbinger design session. <code>asp_sfw_corpus_roadmap_2026q3.md</code>
   C0 revised: automation/human split locked (automate bulk filtering/
   dedup/clustering, never the quality judgment itself), GT strategy changed
   to stratified-coverage-over-count with a <code>gt_known_defects</code> field
@@ -1717,12 +1725,24 @@ can follow.</p>
   appearance-based (not claimed in-universe age), dual-veto gate (either
   human or automated flag excludes a case entirely, both must clear for
   inclusion), periodic re-audit as the corpus grows. New
-  <code>ASP_OUTREACH_ROADMAP_2026Q3.md</code>: Overmix-blog-style results/reasoning
+  <code>asp_outreach_roadmap_2026q3.md</code>: Overmix-blog-style results/reasoning
   outreach, goal and rationale only, design deliberately left to a
   Gemini/Grok/Chat-Codex brainstorm round rather than pre-decided.</p>
 </li>
 <li>
-<p><strong>M1a shared stage protocol / <code>PipelineSession</code> (2026-08-15):</strong> extracted
+<p><strong>C0.5 dual-veto scoped (2026-08-15):</strong> automated half is an ensemble of
+  weak votes (board tags, official source rating, optional WD14, optional
+  later commercial API) plus a required periodic adversarial audit — not a
+  single age classifier, which this repo does not have. C0.5 applies to
+  SFW intake only, after a Harbinger <code>nsfw_97</code> provenance review
+  (<code>source_work_nsfw</code> is series-taint, not a tier). Outreach O1 waits for
+  a preregistered complementary ASP/SCANS split; Lab Notes only until then.</p>
+</li>
+<li><strong>M1 video smart-select (#27, 2026-08-15):</strong> <code>VideoIngestionStream</code> now
+  writes proxy frames to temp paths and calls <code>smart_select_frames(paths)</code>.
+  <code>TypeError</code> / empty selection hard-fail; they no longer fall back to
+  uniform. Tests in <code>test_video_ingestion.py</code>.</li>
+<li><strong>M1a shared stage protocol / <code>PipelineSession</code> (2026-08-15):</strong> extracted
   <code>backend/src/core/pipeline/session.py</code> — inputs, frozen config snapshot,
   ordered stage trace, JSON-safe artifacts, fallback/identity labels, and
   HITL pause-hook storage. Canonical <code>AnimeStitchPipeline.run()</code> creates a
@@ -1731,10 +1751,9 @@ can follow.</p>
   (M1c). No new HITL checkpoints were inserted into the canonical runner.
   Tests: <code>backend/test/core/test_pipeline_session.py</code>.
   PANORAMA is recorded as a <code>safe_asp</code> fallback with <code>algorithm=panorama</code>
-  metadata, rather than as a fourth externally visible result identity.</p>
-</li>
+  metadata, rather than as a fourth externally visible result identity.</li>
 <li><strong>ASP 2026 Q3 change roadmap (2026-08-15):</strong> added
-  <code>ASP_CHANGE_ROADMAP_2026Q3.md</code>, a concise issue-ready plan that tracks Raw ASP,
+  <code>asp_change_roadmap_2026q3.md</code>, a concise issue-ready plan that tracks Raw ASP,
   Safe ASP, and SCANS separately; prioritizes one canonical benchmark/backend/GUI
   pipeline; sequences BiRefNet single-pose compositing before heavier temporal
   segmentation; defines staged human-quality promotion gates; targets a 12 GB
@@ -1743,7 +1762,7 @@ can follow.</p>
   this active change plan.</li>
 <li>
 <p><strong>Grok SFW/M2.5 feasibility (2026-08-15):</strong> reviewed
-  <code>ASP_SFW_CORPUS_ROADMAP_2026Q3.md</code>, parent §4.18, and M2.5. Harbinger
+  <code>asp_sfw_corpus_roadmap_2026q3.md</code>, parent §4.18, and M2.5. Harbinger
   locked a separate <code>dump_sfw/</code> root with local <code>asp_testNN</code> names;
   C0 now / C1 harvest now, register on M0 / C2 after M1 only (not M2.5);
   Safebooru waits on a native C++ name after <code>base</code> rebuilds; this §4.18
@@ -1763,7 +1782,7 @@ can follow.</p>
 </li>
 <li>
 <p><strong>M2.5 quality-metrics/benchmark-analytics milestone (2026-08-15):</strong> added
-  to <code>ASP_CHANGE_ROADMAP_2026Q3.md</code> §5/§9/§18 — per-defect-category
+  to <code>asp_change_roadmap_2026q3.md</code> §5/§9/§18 — per-defect-category
   correlation/impact analysis, anime-adapted CV metrics, a non-gating learned
   human-judgment proxy (revalidated as the corpus grows), and similarity-based
   benchmark subset selection. Depends on M0's per-output schema, runs parallel
@@ -1772,7 +1791,7 @@ can follow.</p>
 </li>
 <li>
 <p><strong>ASP SFW benchmark corpus roadmap (2026-08-15):</strong> added
-  <code>ASP_SFW_CORPUS_ROADMAP_2026Q3.md</code>, a companion, non-blocking track for
+  <code>asp_sfw_corpus_roadmap_2026q3.md</code>, a companion, non-blocking track for
   building a ~20–30 case SFW benchmark corpus as a generalization check
   alongside the existing 97-case NSFW corpus. Confirmed <code>docs/website</code> and
   <code>docs/tutorials</code> contain no NSFW material. Depends on the parent
