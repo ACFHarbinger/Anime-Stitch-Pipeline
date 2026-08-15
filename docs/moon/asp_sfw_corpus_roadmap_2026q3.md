@@ -1,15 +1,14 @@
 # ASP SFW Benchmark Corpus Roadmap — 2026 Q3
 
-**Status:** Draft + Gemini/Chat/Grok review round 1 + Harbinger §8 answers
-(2026-08-15), then C0/C0.5 rewritten after a direct Claude+Harbinger design
-session (content tags, named safety tiers, minor-presenting dual-veto hard
-floor, GT strategy). **Open for one more round**: Gemini/Grok/Chat-Codex,
-ask Harbinger clarifying questions if anything in C0/C0.5 is ambiguous, then
-edit the roadmap. Final review + issue filing happens after that round, not
-before.
+**Status:** Draft + review round 1 + C0/C0.5 rewrite, then **Grok review
+round 2 (2026-08-15)**: automated dual-veto scoped as an ensemble of weak
+votes plus a periodic adversarial audit; C0.5 applies to SFW intake only
+after Harbinger's `nsfw_97` provenance sanity check (series-taint vs
+case-level content is an open policy, not a classifier output). Final
+review + issue filing still waits on Claude/Harbinger close.
 **Scope:** building a second, SFW-only benchmark corpus for ASP, as a
 generalization check alongside the existing 97-case corpus. Companion to
-[`ASP_CHANGE_ROADMAP_2026Q3.md`](ASP_CHANGE_ROADMAP_2026Q3.md) and to
+[`asp_change_roadmap_2026q3.md`](asp_change_roadmap_2026q3.md) and to
 `new_features.md` §4.18 (Image Board Crawler — Rating Filter & SFW Board
 Support) in the parent Image-Toolkit repo, which this roadmap depends on.
 
@@ -26,7 +25,7 @@ NSFW for benchmarking and research purposes; that decision is not reopened
 here.
 
 What this roadmap addresses is a real gap that decision leaves: every quality
-gate defined in `ASP_CHANGE_ROADMAP_2026Q3.md`'s M0–M6 (structural red set,
+gate defined in `asp_change_roadmap_2026q3.md`'s M0–M6 (structural red set,
 five-case smoke set, the eventual 97/97 parity milestone) is tuned and
 validated against one content distribution. A pipeline that looks good there
 could be silently overfit to that domain's specific visual characteristics
@@ -46,7 +45,7 @@ real examples (not just abstract tutorial markdown) requires SFW content —
   investing in matching scale. Cheap to validate, cheap to abandon if the
   domain gap turns out larger than expected.
 - **Frame-sequence auto-detection (similarity clustering/dedup) is deferred
-  to `ASP_CHANGE_ROADMAP_2026Q3.md`'s M2.5.** Curate manually for now, using
+  to `asp_change_roadmap_2026q3.md`'s M2.5.** Curate manually for now, using
   the same booru-tag-browsing workflow already used for the NSFW corpus.
   M2.5's Rust `graph`/`dim_reduce`/`distance` primitives are the natural fit
   for this once they exist; don't build a duplicate one-off tool first.
@@ -116,7 +115,8 @@ Deliverables:
   the NSFW content, official PV/BD bonus footage as a non-booru source
   worth evaluating separately).
 - Track **case-level** fields on the M0 schema: `corpus_id` (`nsfw_97` /
-  `sfw_q3`), source URL/board, licence, `web_redistribution_ok`. **`sfw`
+  `sfw_q3`), source URL/board, licence, `web_redistribution_ok`, and
+  `source_work_nsfw` (series-taint, distinct from `safety_tier`). **`sfw`
   (boolean) is superseded by the content-tag/safety-tier system in
   [C0.5](#c05--content-tags-safety-tiers-and-the-minor-presenting-hard-floor-2026-08-15)
   below** — do not add new `sfw: bool` writes going forward, the tier system
@@ -158,7 +158,7 @@ schema groundwork (C0) already exists to extend.
   description, not a policy judgment.
 - `safety_tier` (named, not numeric — a raw score invites false precision
   the same way an unexplained numeric site-score would, see
-  `ASP_CHANGE_ROADMAP_2026Q3.md`'s reasoning against unlabelled composite
+  `asp_change_roadmap_2026q3.md`'s reasoning against unlabelled composite
   scores): `tier_g` (no tags beyond fully benign) / `tier_pg13` (mild
   fanservice/violence, no explicit content) / `tier_mature_sfw` (suggestive,
   dark themes, not explicit) / `tier_nsfw` (explicit).
@@ -167,19 +167,28 @@ schema groundwork (C0) already exists to extend.
   further excluding `violence`/`gore` even within `tier_pg13`; a private
   showcase context may allow up to `tier_mature_sfw`. Tag content once,
   objectively; change what's shown where without re-tagging anything.
+- `safety_assessment` preserves both the intake decision and the policy it was
+  evaluated under: `content_tags`, `safety_tier`, `policy_version`, and
+  independent human/automated observations. Any later adjudication is a
+  separate record, not a rewrite of either observation. This extends M0's
+  case/provenance envelope; it is not an output-specific metric.
 
 **The minor-presenting hard floor — non-negotiable, not tier-calibrated:**
 
 - Defined by **apparent appearance, not claimed in-universe age** — an
   "actually thousands of years old" character that presents as a minor is
   still minor-presenting. No exception, no per-case override.
-- **Dual-veto gate**: a `minor_presenting_risk` flag, settable independently
-  by (a) human review and (b) an automated check. **Either** flag being set
-  **excludes the case from the corpus entirely** — not a low tier, a hard
-  drop. Both must independently clear a case for it to be included
-  (OR-logic for rejection, AND-logic for acceptance — the correct asymmetry
-  when a false negative is unacceptable and a false positive only costs one
-  test case).
+- **Evidence-based dual-veto gate**: human and automated assessments are stored
+  independently with `high_risk` / `clear` / `uncertain`, evidence, and
+  provenance. A **high-likelihood** `high_risk` finding from either assessor
+  permanently excludes the case — not a low tier, a hard drop. Uncertainty is
+  not itself a veto. Inclusion requires either both assessments to clear, or
+  the less-uncertain assessor to select a controlled one-sided acceptance
+  justification (for example, a PEGI-3 source rating) with adequate supporting
+  provenance. Remaining cases are sent to a manual-review queue or rejected by
+  an explicitly versioned strictness policy; that policy may use quality
+  thresholds such as SSIM/PSNR, but must never disguise uncertainty as a
+  confirmed risk.
 - **Periodic independent re-audit as the corpus grows**, not just a
   one-time gate at intake — labeling-pipeline failure at scale (trusted
   upstream human+automated curation missing real problems as volume grows)
@@ -189,6 +198,77 @@ schema groundwork (C0) already exists to extend.
   used in. A case cleared for `tier_mature_sfw` still must independently
   clear the minor-presenting gate — the two systems are orthogonal, not
   nested.
+
+#### C0.5 implementation scope (Grok, 2026-08-15 — Harbinger-locked)
+
+There is **no apparent-age classifier in this repo**. DINOv2 (pose
+embeddings), BiRefNet (fg masks), LoFTR (matches), and `AnimeStitchNet`
+(4-DoF alignment) cannot be renamed into one. Photo-trained age APIs
+systematically fail on stylized anime faces; treating a numeric "age 16.2"
+as evidence would be false precision of the same kind this roadmap already
+rejects for site scores.
+
+**Locked strategy: ensemble of weak votes + periodic adversarial audit.**
+Do not ship a single named "the automated half" that hard-drops from one
+unvalidated model.
+
+| Vote | What it actually is | What it is not |
+|---|---|---|
+| Upstream board tags / rating | Cheap prior (`rating:safe` plus a denylist of child-coded tags). Already available. | Not a safety guarantee. Taggers lie; style tags collide. |
+| Official source rating | PEGI / CERO / TV-Y7 / BD extras rating, stored as provenance. | Only exists for licensed stills/PV, not most booru posts. |
+| Local WD14-style tagger (SmilingWolf or successor) | Optional `desktop_quality` extra. Emits tags we already know how to denylist. | Not an age model. High-confidence child-coded tags are a *vote*, not a diagnosis. |
+| CLIP / DINOv2 nearest-neighbour prompts | Last-resort local signal. Default output is `uncertain`. | Must never emit a numeric age. |
+| Commercial anime-capable endpoint | Named later, only after a written eval on a planted holdout. | Not assumed to exist. Hive/Sightengine/Rekognition are photo-first until proven. |
+
+**Decision rule (inclusion)** — compatible with the dual-veto paragraph
+above, not a second policy:
+
+- A **high-likelihood** `high_risk` from the human assessor is a permanent
+  hard drop. No override.
+- Cheap ensemble members (board tags, WD14, CLIP) **cannot emit
+  high-likelihood `high_risk`** until that source passes the planted
+  holdout eval below. Until then they emit `uncertain` or a queue-only
+  flag. This stops a tag collision from laundering itself into a permanent
+  exclude, and it keeps "either assessor may hard-drop" from applying to
+  sensors we already know are noisy.
+- A later-validated named source (commercial endpoint after holdout, or
+  WD14 after a measured miss-rate) *may* emit high-likelihood `high_risk`
+  and then the existing dual-veto paragraph applies.
+- `uncertain` is never a veto and never stored as `high_risk`.
+- Inclusion in `dump_sfw/` requires a human `clear` and no unresolved
+  high-likelihood `high_risk`.
+- Store every vote independently under `safety_assessment.observations[]`
+  with `source`, `verdict`, `evidence`, `model_or_rule_id`,
+  `policy_version`. Later adjudication appends; it does not rewrite.
+
+**Periodic adversarial audit (required, not optional):**
+
+- Before calling C0.5 "implemented", plant a small red-team set: obvious
+  excludes, obvious adult-cast clears, and near-miss stylized cases.
+- Re-run the ensemble every N newly registered cases *and* on a calendar
+  cadence (start: every 25 cases or 90 days, whichever first).
+- Publish miss/false-drop counts into the experiment manifest. If the
+  planted-exclude miss rate is non-zero, freeze new registrations until
+  the human re-reviews the last intake window.
+- This is the actual automated safety mechanism. The models are only
+  sensors feeding it.
+
+**Where C0.5 applies (Harbinger, 2026-08-15):**
+
+- **Intake gate for the SFW corpus only** (`dump_sfw/` / `corpus_id=sfw_q3`).
+- **Not** a silent re-rate of `nsfw_97` and **not** a website/journal
+  filter by itself. Public surfaces already require
+  `web_redistribution_ok` plus a per-context policy.
+- **Blocked on a Harbinger provenance review of `nsfw_97`.** Several
+  cases may be case-level SFW (or borderline) while still coming from a
+  work that is NSFW as a series. `asp_test97`'s evaluation record has
+  quality notes only — no content-type field — so "is this truly NSFW?"
+  cannot be answered from `asp_evaluations_20260810.json`. That review
+  is human, not a Grok classifier pass.
+- Add a case-level field `source_work_nsfw` (bool | unknown), distinct
+  from `safety_tier`. Series-taint is a policy input ("enough to keep
+  this out of `dump_sfw/` / public journal") and must not be collapsed
+  into `tier_nsfw` or a dual-veto `high_risk`.
 
 ### C1 — First curated pass (~20–30 cases)
 
@@ -202,10 +282,11 @@ Deliverables:
   a native C++ crawler name after `base` rebuilds; it is not a C1 blocker.
 - Record ground-truth availability per case honestly — most NSFW-corpus
   cases lack true GT frames and rely on human coherence judgment alone (only
-  55/97 have GT, per `ASP_CHANGE_ROADMAP_2026Q3.md` §3); expect a similar or
+  55/97 have GT, per `asp_change_roadmap_2026q3.md` §3); expect a similar or
   worse ratio here and don't overstate GT coverage.
-- Store alongside the existing corpus with the SFW/NSFW field set, not in a
-  separate untracked location.
+- Store under the separate `dump_sfw/` root with C0.5 `safety_tier` /
+  `content_tags` / `source_work_nsfw` filled in. Do not write a new
+  `sfw: bool`, and do not drop files into the NSFW `dump/` tree.
 
 Exit criteria: ~20–30 cases curated and stored with correct corpus-
 composition metadata; C0's rubric applied consistently, documented
@@ -243,9 +324,9 @@ results; explicitly not a pass/fail gate.
 
 - **Harbinger:** curates candidates (has the domain fluency this requires)
   and makes final calls on rubric ambiguity.
-- **Grok:** crawler-engine implementation (§4.18, parent repo) and pipeline
-  runs for C2 once M1 lands.
-- **Claude:** schema alignment with `ASP_CHANGE_ROADMAP_2026Q3.md`'s M0, C2
+- **Grok:** crawler-engine implementation (§4.18, parent repo), C0.5
+  ensemble/audit spec (above), and pipeline runs for C2 once M1 lands.
+- **Claude:** schema alignment with `asp_change_roadmap_2026q3.md`'s M0, C2
   comparative reporting.
 - **Chat/Codex:** verifies curation rubric was actually followed and that
   corpus-composition metadata is correctly tracked before C1 is called done.
@@ -323,7 +404,8 @@ analytics Phase 2's RLHF item onto it. Phase 2 in
 not an M2.5 algorithm issue.
 
 Rerun.io is opt-in developer telemetry (`desktop_quality` / extra), never
-a `laptop_balanced` runtime or required package.
+a `laptop_balanced` runtime or required package. Parent analytics Phase 3
+is locked A+B (Rerun sidecar + OTel); a native inspector is unscheduled.
 
 ## 8. Open questions for Harbinger (Grok)
 
@@ -343,4 +425,3 @@ Answered in §9.
 **Handoff:** Claude may file the SFW + §4.18 issues with this wording.
 Grok implements §4.18 Rating (Danbooru/Gelbooru) when that parent issue
 exists; Safebooru C++ stays blocked with the other `base` work.
-

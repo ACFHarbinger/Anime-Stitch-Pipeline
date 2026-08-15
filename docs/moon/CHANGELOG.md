@@ -26,8 +26,16 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **Phase 3 telemetry lock (Harbinger 2026-08-15):** A+B —
+  `TelemetrySink` + opt-in Rerun `.rrd` sidecar (`desktop_quality`) +
+  OTel spans/metrics (local OTLP/stdout first). Rerun WASM in
+  `docs/website` rejected. Native JSON/NPZ inspector (option C) is a
+  fully optional, unscheduled extra. Recorded in
+  `analytics_and_interpretability.md` §3, change-roadmap §5/§19.3, and
+  `.agent/reports/grok/phase3_rerun_tradeoffs_20260815.md`. No
+  implementation in this pass.
 - **SFW corpus C0/C0.5 rewrite + outreach roadmap kickoff (2026-08-15):**
-  direct Claude+Harbinger design session. `ASP_SFW_CORPUS_ROADMAP_2026Q3.md`
+  direct Claude+Harbinger design session. `asp_sfw_corpus_roadmap_2026q3.md`
   C0 revised: automation/human split locked (automate bulk filtering/
   dedup/clustering, never the quality judgment itself), GT strategy changed
   to stratified-coverage-over-count with a `gt_known_defects` field
@@ -39,10 +47,21 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   appearance-based (not claimed in-universe age), dual-veto gate (either
   human or automated flag excludes a case entirely, both must clear for
   inclusion), periodic re-audit as the corpus grows. New
-  `ASP_OUTREACH_ROADMAP_2026Q3.md`: Overmix-blog-style results/reasoning
+  `asp_outreach_roadmap_2026q3.md`: Overmix-blog-style results/reasoning
   outreach, goal and rationale only, design deliberately left to a
   Gemini/Grok/Chat-Codex brainstorm round rather than pre-decided.
 
+- **C0.5 dual-veto scoped (2026-08-15):** automated half is an ensemble of
+  weak votes (board tags, official source rating, optional WD14, optional
+  later commercial API) plus a required periodic adversarial audit — not a
+  single age classifier, which this repo does not have. C0.5 applies to
+  SFW intake only, after a Harbinger `nsfw_97` provenance review
+  (`source_work_nsfw` is series-taint, not a tier). Outreach O1 waits for
+  a preregistered complementary ASP/SCANS split; Lab Notes only until then.
+- **M1 video smart-select (#27, 2026-08-15):** `VideoIngestionStream` now
+  writes proxy frames to temp paths and calls `smart_select_frames(paths)`.
+  `TypeError` / empty selection hard-fail; they no longer fall back to
+  uniform. Tests in `test_video_ingestion.py`.
 - **M1a shared stage protocol / `PipelineSession` (2026-08-15):** extracted
   `backend/src/core/pipeline/session.py` — inputs, frozen config snapshot,
   ordered stage trace, JSON-safe artifacts, fallback/identity labels, and
@@ -54,7 +73,7 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   PANORAMA is recorded as a `safe_asp` fallback with `algorithm=panorama`
   metadata, rather than as a fourth externally visible result identity.
 - **ASP 2026 Q3 change roadmap (2026-08-15):** added
-  `ASP_CHANGE_ROADMAP_2026Q3.md`, a concise issue-ready plan that tracks Raw ASP,
+  `asp_change_roadmap_2026q3.md`, a concise issue-ready plan that tracks Raw ASP,
   Safe ASP, and SCANS separately; prioritizes one canonical benchmark/backend/GUI
   pipeline; sequences BiRefNet single-pose compositing before heavier temporal
   segmentation; defines staged human-quality promotion gates; targets a 12 GB
@@ -62,7 +81,7 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   plus visual redesign as later work. The historical `ROADMAP.md` now links to
   this active change plan.
 - **Grok SFW/M2.5 feasibility (2026-08-15):** reviewed
-  `ASP_SFW_CORPUS_ROADMAP_2026Q3.md`, parent §4.18, and M2.5. Harbinger
+  `asp_sfw_corpus_roadmap_2026q3.md`, parent §4.18, and M2.5. Harbinger
   locked a separate `dump_sfw/` root with local `asp_testNN` names;
   C0 now / C1 harvest now, register on M0 / C2 after M1 only (not M2.5);
   Safebooru waits on a native C++ name after `base` rebuilds; this §4.18
@@ -80,7 +99,7 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   Advanced configuration control; C++ stays blocked until `base` rebuilds.
 
 - **M2.5 quality-metrics/benchmark-analytics milestone (2026-08-15):** added
-  to `ASP_CHANGE_ROADMAP_2026Q3.md` §5/§9/§18 — per-defect-category
+  to `asp_change_roadmap_2026q3.md` §5/§9/§18 — per-defect-category
   correlation/impact analysis, anime-adapted CV metrics, a non-gating learned
   human-judgment proxy (revalidated as the corpus grows), and similarity-based
   benchmark subset selection. Depends on M0's per-output schema, runs parallel
@@ -88,7 +107,7 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   produced §10 (Claude), §12 (Gemini), and §15 (Grok).
 
 - **ASP SFW benchmark corpus roadmap (2026-08-15):** added
-  `ASP_SFW_CORPUS_ROADMAP_2026Q3.md`, a companion, non-blocking track for
+  `asp_sfw_corpus_roadmap_2026q3.md`, a companion, non-blocking track for
   building a ~20–30 case SFW benchmark corpus as a generalization check
   alongside the existing 97-case NSFW corpus. Confirmed `docs/website` and
   `docs/tutorials` contain no NSFW material. Depends on the parent

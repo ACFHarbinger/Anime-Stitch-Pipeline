@@ -522,7 +522,7 @@ through M5 and must not change benchmark semantics.
 ### SFW benchmark corpus
 
 Tracked separately in
-[`ASP_SFW_CORPUS_ROADMAP_2026Q3.md`](ASP_SFW_CORPUS_ROADMAP_2026Q3.md) — a
+[`asp_sfw_corpus_roadmap_2026q3.md`](asp_sfw_corpus_roadmap_2026q3.md) — a
 non-blocking generalization check, not a current M0–M6 dependency. Its
 validation pass (C2) is sequenced after M1 for measurement-validity reasons,
 not as an M1 requirement.
