@@ -1,9 +1,9 @@
 # ASP Change Roadmap — 2026 Q3
 
-**Status:** Chat/Codex draft + Claude/Gemini/Grok review passes + Harbinger
-answers on §11/§13/§16 (2026-08-15). Ready for Claude's joint final review
-and issue decomposition. No implementation until that close.  
-**Created:** 2026-08-15  
+**Status:** Signed off. Issues filed (ASP #24–#40, Image-Toolkit #370–#371).
+M1a (`PipelineSession` / stage protocol) landed 2026-08-15 — extraction
+only, no pixel-path change. M1b/M1c not started.
+**Created:** 2026-08-15
 **Scope:** ASP correctness, product-pipeline convergence, measurement, and the
 artist review workflow. The visual redesign is recorded as future work and is
 not a current implementation priority.
@@ -137,6 +137,13 @@ Deliverables:
   preference disagreements and nulls without silently rewriting them.
 - Extend future annotations so score dimensions and defect tags belong to a
   specific output, not the comparison as a whole.
+- Define one versioned **case/provenance envelope** referenced by all three
+  output artifacts. It owns corpus membership, source/licence and
+  redistribution facts, GT qualifications, content/safety assessments, and
+  human/automated/adjudicated observations; result-specific metrics and defect
+  annotations remain beneath their respective `raw_asp`/`safe_asp`/`scans`
+  artifacts. SFW C0.5 extends this envelope — it must not create a parallel
+  evaluation JSON.
 - Version two development slices:
   - the existing five-case smoke set (04, 08, 09, 27, 57);
   - a structural red set covering crop loss, torn anatomy, duplicated strips,
@@ -182,12 +189,18 @@ Deliverables:
 - Land M1 in three sequential PRs, not one:
   1. **M1a** — extract a stage protocol / `PipelineSession` (inputs, config,
      traces, artifacts, pause hooks). No behavior change.
+     **Landed 2026-08-15:** `backend/src/core/pipeline/session.py`; canonical
+     `run()` records stages/fallbacks onto `pipeline.last_session`. GUI/bench
+     forks untouched.
   2. **M1b** — convert `bench_anime_stitch.py` (4045 lines; owns
      Composite/Ghost/SeamVis and its own `smart_select_frames`) into an
      adapter. First-file bugfix in this PR or immediately before it: video
      `smart_select_frames(proxy_imgs, target_n=want)` is a TypeError today
      (`selector.py` takes `frames_paths: list[str]` and has no `target_n`)
      and silently falls back to uniform.
+     **Landed 2026-08-15 as isolated #27:** video path now writes proxies
+     to temp PNGs, calls the real path API, and hard-fails on TypeError
+     or empty selection. Not bundled with M1b.
   3. **M1c** — convert GUI `_ProgressPipeline` to hooks over the same
      stages. Pass `exclusion_masks` into `_composite_foreground` (the GUI
      *does* call composite three times for HITL, but never forwards the
@@ -266,9 +279,15 @@ feasibility spike. (b) waits for M0 **and** the post-M1 ungated Raw ASP
 labels so fallbacks are not trained as ASP. `AnimeStitchNet` is a 4-DoF
 alignment regressor, not a quality model — do not reuse it as the proxy.
 Rerun.io / large stage dumps are opt-in developer artifacts, never a
-`laptop_balanced` required dependency. Parent analytics Phase 2 still
-describes deleted RLHF reward models; correct that document separately,
-do not inherit those claims here.
+`laptop_balanced` required dependency. **Phase 3 lock (Harbinger
+2026-08-15): A+B** — `TelemetrySink` on `PipelineSession`, opt-in
+`.rrd` sidecar (`desktop_quality` extra), plus OTel spans/metrics
+(local OTLP/stdout first). Caption Rerun camera/point views as 2D-canvas
+metaphor, not a pinhole reconstruct. Rerun WASM in `docs/website` is
+rejected. A native JSON/NPZ inspector in M6/`/journal` is a **fully
+optional, unscheduled** extra — not a M2.5/M6 deliverable. Parent
+analytics Phase 2 still describes deleted RLHF reward models; correct
+that document separately, do not inherit those claims here.
 
 Deliverables:
 
@@ -507,6 +526,15 @@ Tracked separately in
 non-blocking generalization check, not a current M0–M6 dependency. Its
 validation pass (C2) is sequenced after M1 for measurement-validity reasons,
 not as an M1 requirement.
+
+### Account-linked settings sync (pointer only)
+
+Not a current ASP priority — this is a parent Image-Toolkit feature. Full
+draft in the parent repo's `docs/moon/roadmaps/new_features.md` §4.19. Noted
+here only because ASP has its own settings/config surface (73 `ASP_*` flags,
+`dump_sfw/` root paths, etc.) that could plausibly want the same cross-device
+sync later — no design work has gone into that ASP-specific angle, this is
+purely a pointer so the idea isn't lost.
 
 ## 8. Team workflow and evidence handoff
 
@@ -932,16 +960,17 @@ Harbinger and Gemini brainstormed the interactive dev tool, visualization method
   - Multi-plane depth rendering: clean background panorama plate at depth $Z=0$ and segmented character sprite cels at depth $Z=1$ with dynamic parallax offset.
   - Validates game asset suitability directly within the tool for 2.5D mobile game development.
 
-### 19.3 Decoupled Telemetry Architecture (OpenTelemetry Standards)
-- **OTel Standardized Spans & Metrics:** Decouple telemetry data collection from visualization. Python and C++ pipeline emit standardized OTel traces, metrics, and logs (`asp.stage.duration_ms`, `asp.vram.peak_bytes`, `asp.gain.clamp_residual`, `asp.seam.cut_energy`).
-- **Unified Observability Backends:** Standard OTel exports allow seamless integration with Prometheus/Grafana (unified metrics/dashboards), Jaeger (distributed tracing across stages), and Honeycomb.
-- **Honeycomb "BubbleUp"-Style Anomaly Discovery:** Automated failure analysis comparing outlier runs/test cases against successful runs to isolate common root-cause factors (e.g. luminance gradient $>20\text{ units}$, inter-frame camera motion $>100\text{px}$).
+### 19.3 Decoupled Telemetry Architecture (locked A+B, 2026-08-15)
+- **Emission API:** `TelemetrySink` on `PipelineSession`. Canonical `run()` does not import `rerun` or `opentelemetry`.
+- **A — Rerun sidecar:** opt-in `run.rrd` via `rerun-sdk` (`desktop_quality` extra only). Desktop viewer. Dense tensors behind an explicit flag. 2D-affine poses must not be presented as a 3D reconstruct.
+- **B — OTel spans & metrics:** `asp.stage.duration_ms`, `asp.vram.peak_bytes`, `asp.gain.clamp_residual`, `asp.seam.cut_energy`. First backend is local OTLP file or stdout. Prometheus/Grafana/Jaeger/Honeycomb are optional collectors, not an in-repo service.
+- **Honeycomb-style BubbleUp** remains a *consumer* of B, not a second emission path.
+- **C optional / unscheduled:** a native JSON/NPZ inspector in M6/`/journal` that duplicates Rerun's spatial scrubbing. Not on the issue list, not a priority, not a blocker.
+- **D rejected:** no Rerun WASM embed in `docs/website`.
 
 ### 19.4 Interactive 3D Web Models & Visualizations (`@react-three/fiber` / `.glb`)
 - **3D Exploded-View Layer Stack:** Interactive WebGL 3D view in `docs/website/` showing the warped background mesh, seam boundary planes, and floating segmented character cels with orbit controls.
 - **3D Feature Match Point Clouds:** Interactive particle graph visualizing LoFTR keypoint correspondences in 3D feature space.
 - **Lightweight 3D Mascots & Viewfinders:** Fast-loading `.glb` interactive assets for the web portal adhering to the Optic Lab / Blueprint theme.
-
-
 
 
