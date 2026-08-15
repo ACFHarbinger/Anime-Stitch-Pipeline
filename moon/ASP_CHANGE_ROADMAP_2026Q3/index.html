@@ -1607,6 +1607,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#account-linked-settings-sync-pointer-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Account-linked settings sync (pointer only)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1940,10 +1951,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#193-decoupled-telemetry-architecture-opentelemetry-standards" class="md-nav__link">
+  <a href="#193-decoupled-telemetry-architecture-locked-ab-2026-08-15" class="md-nav__link">
     <span class="md-ellipsis">
       
-        19.3 Decoupled Telemetry Architecture (OpenTelemetry Standards)
+        19.3 Decoupled Telemetry Architecture (locked A+B, 2026-08-15)
       
     </span>
   </a>
@@ -1987,10 +1998,10 @@
 
 
 <h1 id="asp-change-roadmap-2026-q3">ASP Change Roadmap — 2026 Q3</h1>
-<p><strong>Status:</strong> Chat/Codex draft + Claude/Gemini/Grok review passes + Harbinger
-answers on §11/§13/§16 (2026-08-15). Ready for Claude's joint final review
-and issue decomposition. No implementation until that close.<br />
-<strong>Created:</strong> 2026-08-15<br />
+<p><strong>Status:</strong> Signed off. Issues filed (ASP #24–#40, Image-Toolkit #370–#371).
+M1a (<code>PipelineSession</code> / stage protocol) landed 2026-08-15 — extraction
+only, no pixel-path change. M1b/M1c not started.
+<strong>Created:</strong> 2026-08-15
 <strong>Scope:</strong> ASP correctness, product-pipeline convergence, measurement, and the
 artist review workflow. The visual redesign is recorded as future work and is
 not a current implementation priority.</p>
@@ -2130,6 +2141,13 @@ does not replace human review.</p>
   preference disagreements and nulls without silently rewriting them.</li>
 <li>Extend future annotations so score dimensions and defect tags belong to a
   specific output, not the comparison as a whole.</li>
+<li>Define one versioned <strong>case/provenance envelope</strong> referenced by all three
+  output artifacts. It owns corpus membership, source/licence and
+  redistribution facts, GT qualifications, content/safety assessments, and
+  human/automated/adjudicated observations; result-specific metrics and defect
+  annotations remain beneath their respective <code>raw_asp</code>/<code>safe_asp</code>/<code>scans</code>
+  artifacts. SFW C0.5 extends this envelope — it must not create a parallel
+  evaluation JSON.</li>
 <li>Version two development slices:</li>
 <li>the existing five-case smoke set (04, 08, 09, 27, 57);</li>
 <li>a structural red set covering crop loss, torn anatomy, duplicated strips,
@@ -2172,13 +2190,19 @@ does not replace human review.</p>
   Inheritance is not sharing. Do not treat "it subclasses" as convergence.</li>
 <li>Land M1 in three sequential PRs, not one:</li>
 <li><strong>M1a</strong> — extract a stage protocol / <code>PipelineSession</code> (inputs, config,
-     traces, artifacts, pause hooks). No behavior change.</li>
+     traces, artifacts, pause hooks). No behavior change.
+     <strong>Landed 2026-08-15:</strong> <code>backend/src/core/pipeline/session.py</code>; canonical
+     <code>run()</code> records stages/fallbacks onto <code>pipeline.last_session</code>. GUI/bench
+     forks untouched.</li>
 <li><strong>M1b</strong> — convert <code>bench_anime_stitch.py</code> (4045 lines; owns
      Composite/Ghost/SeamVis and its own <code>smart_select_frames</code>) into an
      adapter. First-file bugfix in this PR or immediately before it: video
      <code>smart_select_frames(proxy_imgs, target_n=want)</code> is a TypeError today
      (<code>selector.py</code> takes <code>frames_paths: list[str]</code> and has no <code>target_n</code>)
-     and silently falls back to uniform.</li>
+     and silently falls back to uniform.
+     <strong>Landed 2026-08-15 as isolated #27:</strong> video path now writes proxies
+     to temp PNGs, calls the real path API, and hard-fails on TypeError
+     or empty selection. Not bundled with M1b.</li>
 <li><strong>M1c</strong> — convert GUI <code>_ProgressPipeline</code> to hooks over the same
      stages. Pass <code>exclusion_masks</code> into <code>_composite_foreground</code> (the GUI
      <em>does</em> call composite three times for HITL, but never forwards the
@@ -2251,9 +2275,15 @@ feasibility spike. (b) waits for M0 <strong>and</strong> the post-M1 ungated Raw
 labels so fallbacks are not trained as ASP. <code>AnimeStitchNet</code> is a 4-DoF
 alignment regressor, not a quality model — do not reuse it as the proxy.
 Rerun.io / large stage dumps are opt-in developer artifacts, never a
-<code>laptop_balanced</code> required dependency. Parent analytics Phase 2 still
-describes deleted RLHF reward models; correct that document separately,
-do not inherit those claims here.</p>
+<code>laptop_balanced</code> required dependency. <strong>Phase 3 lock (Harbinger
+2026-08-15): A+B</strong> — <code>TelemetrySink</code> on <code>PipelineSession</code>, opt-in
+<code>.rrd</code> sidecar (<code>desktop_quality</code> extra), plus OTel spans/metrics
+(local OTLP/stdout first). Caption Rerun camera/point views as 2D-canvas
+metaphor, not a pinhole reconstruct. Rerun WASM in <code>docs/website</code> is
+rejected. A native JSON/NPZ inspector in M6/<code>/journal</code> is a <strong>fully
+optional, unscheduled</strong> extra — not a M2.5/M6 deliverable. Parent
+analytics Phase 2 still describes deleted RLHF reward models; correct
+that document separately, do not inherit those claims here.</p>
 <p>Deliverables:</p>
 <ul>
 <li><strong>Per-defect-category correlation/impact analysis.</strong> Extend the existing
@@ -2473,6 +2503,13 @@ through M5 and must not change benchmark semantics.</p>
 non-blocking generalization check, not a current M0–M6 dependency. Its
 validation pass (C2) is sequenced after M1 for measurement-validity reasons,
 not as an M1 requirement.</p>
+<h3 id="account-linked-settings-sync-pointer-only">Account-linked settings sync (pointer only)</h3>
+<p>Not a current ASP priority — this is a parent Image-Toolkit feature. Full
+draft in the parent repo's <code>docs/moon/roadmaps/new_features.md</code> §4.19. Noted
+here only because ASP has its own settings/config surface (73 <code>ASP_*</code> flags,
+<code>dump_sfw/</code> root paths, etc.) that could plausibly want the same cross-device
+sync later — no design work has gone into that ASP-specific angle, this is
+purely a pointer so the idea isn't lost.</p>
 <h2 id="8-team-workflow-and-evidence-handoff">8. Team workflow and evidence handoff</h2>
 <ul>
 <li><strong>Claude:</strong> team lead; decomposes milestones into GitHub issues, records
@@ -2978,11 +3015,14 @@ questions from this review round; Claude proceeds to file the §9 issues next.</
 <li>Multi-plane depth rendering: clean background panorama plate at depth $Z=0$ and segmented character sprite cels at depth $Z=1$ with dynamic parallax offset.</li>
 <li>Validates game asset suitability directly within the tool for 2.5D mobile game development.</li>
 </ul>
-<h3 id="193-decoupled-telemetry-architecture-opentelemetry-standards">19.3 Decoupled Telemetry Architecture (OpenTelemetry Standards)</h3>
+<h3 id="193-decoupled-telemetry-architecture-locked-ab-2026-08-15">19.3 Decoupled Telemetry Architecture (locked A+B, 2026-08-15)</h3>
 <ul>
-<li><strong>OTel Standardized Spans &amp; Metrics:</strong> Decouple telemetry data collection from visualization. Python and C++ pipeline emit standardized OTel traces, metrics, and logs (<code>asp.stage.duration_ms</code>, <code>asp.vram.peak_bytes</code>, <code>asp.gain.clamp_residual</code>, <code>asp.seam.cut_energy</code>).</li>
-<li><strong>Unified Observability Backends:</strong> Standard OTel exports allow seamless integration with Prometheus/Grafana (unified metrics/dashboards), Jaeger (distributed tracing across stages), and Honeycomb.</li>
-<li><strong>Honeycomb "BubbleUp"-Style Anomaly Discovery:</strong> Automated failure analysis comparing outlier runs/test cases against successful runs to isolate common root-cause factors (e.g. luminance gradient $&gt;20\text{ units}$, inter-frame camera motion $&gt;100\text{px}$).</li>
+<li><strong>Emission API:</strong> <code>TelemetrySink</code> on <code>PipelineSession</code>. Canonical <code>run()</code> does not import <code>rerun</code> or <code>opentelemetry</code>.</li>
+<li><strong>A — Rerun sidecar:</strong> opt-in <code>run.rrd</code> via <code>rerun-sdk</code> (<code>desktop_quality</code> extra only). Desktop viewer. Dense tensors behind an explicit flag. 2D-affine poses must not be presented as a 3D reconstruct.</li>
+<li><strong>B — OTel spans &amp; metrics:</strong> <code>asp.stage.duration_ms</code>, <code>asp.vram.peak_bytes</code>, <code>asp.gain.clamp_residual</code>, <code>asp.seam.cut_energy</code>. First backend is local OTLP file or stdout. Prometheus/Grafana/Jaeger/Honeycomb are optional collectors, not an in-repo service.</li>
+<li><strong>Honeycomb-style BubbleUp</strong> remains a <em>consumer</em> of B, not a second emission path.</li>
+<li><strong>C optional / unscheduled:</strong> a native JSON/NPZ inspector in M6/<code>/journal</code> that duplicates Rerun's spatial scrubbing. Not on the issue list, not a priority, not a blocker.</li>
+<li><strong>D rejected:</strong> no Rerun WASM embed in <code>docs/website</code>.</li>
 </ul>
 <h3 id="194-interactive-3d-web-models-visualizations-react-threefiber-glb">19.4 Interactive 3D Web Models &amp; Visualizations (<code>@react-three/fiber</code> / <code>.glb</code>)</h3>
 <ul>
