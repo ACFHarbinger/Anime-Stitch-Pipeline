@@ -26,6 +26,33 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **SFW corpus C0/C0.5 rewrite + outreach roadmap kickoff (2026-08-15):**
+  direct Claude+Harbinger design session. `ASP_SFW_CORPUS_ROADMAP_2026Q3.md`
+  C0 revised: automation/human split locked (automate bulk filtering/
+  dedup/clustering, never the quality judgment itself), GT strategy changed
+  to stratified-coverage-over-count with a `gt_known_defects` field
+  (more imperfect GT preferred over fewer "perfect" ones). New §C0.5:
+  `content_tags` + named `safety_tier` enum (`tier_g`/`tier_pg13`/
+  `tier_mature_sfw`/`tier_nsfw`, not a numeric score) replacing the `sfw`
+  boolean, with per-context policy kept as separate editable config, not
+  baked into the corpus. Non-negotiable minor-presenting hard floor:
+  appearance-based (not claimed in-universe age), dual-veto gate (either
+  human or automated flag excludes a case entirely, both must clear for
+  inclusion), periodic re-audit as the corpus grows. New
+  `ASP_OUTREACH_ROADMAP_2026Q3.md`: Overmix-blog-style results/reasoning
+  outreach, goal and rationale only, design deliberately left to a
+  Gemini/Grok/Chat-Codex brainstorm round rather than pre-decided.
+
+- **M1a shared stage protocol / `PipelineSession` (2026-08-15):** extracted
+  `backend/src/core/pipeline/session.py` — inputs, frozen config snapshot,
+  ordered stage trace, JSON-safe artifacts, fallback/identity labels, and
+  HITL pause-hook storage. Canonical `AnimeStitchPipeline.run()` creates a
+  session and records stages/fallbacks next to existing log/return sites;
+  image operations are unchanged. `_ProgressPipeline.run()` is not rewritten
+  (M1c). No new HITL checkpoints were inserted into the canonical runner.
+  Tests: `backend/test/core/test_pipeline_session.py`.
+  PANORAMA is recorded as a `safe_asp` fallback with `algorithm=panorama`
+  metadata, rather than as a fourth externally visible result identity.
 - **ASP 2026 Q3 change roadmap (2026-08-15):** added
   `ASP_CHANGE_ROADMAP_2026Q3.md`, a concise issue-ready plan that tracks Raw ASP,
   Safe ASP, and SCANS separately; prioritizes one canonical benchmark/backend/GUI

@@ -1,7 +1,12 @@
 # ASP SFW Benchmark Corpus Roadmap — 2026 Q3
 
-**Status:** Draft + Gemini/Chat/Grok review + Harbinger §8 answers
-(2026-08-15). Ready for Claude to file issues.
+**Status:** Draft + Gemini/Chat/Grok review round 1 + Harbinger §8 answers
+(2026-08-15), then C0/C0.5 rewritten after a direct Claude+Harbinger design
+session (content tags, named safety tiers, minor-presenting dual-veto hard
+floor, GT strategy). **Open for one more round**: Gemini/Grok/Chat-Codex,
+ask Harbinger clarifying questions if anything in C0/C0.5 is ambiguous, then
+edit the roadmap. Final review + issue filing happens after that round, not
+before.
 **Scope:** building a second, SFW-only benchmark corpus for ASP, as a
 generalization check alongside the existing 97-case corpus. Companion to
 [`ASP_CHANGE_ROADMAP_2026Q3.md`](ASP_CHANGE_ROADMAP_2026Q3.md) and to
@@ -88,6 +93,14 @@ record-level distinguisher when two `asp_test04` names exist.
 curation time, since the NSFW corpus's original curation criteria were never
 written down (confirmed absent from `ROADMAP.md`/`CHANGELOG.md`).
 
+**Automation/human split (locked 2026-08-15):** do not try to automate the
+quality judgment itself ("is this GT-quality") — that call is cheap and
+reliable for Harbinger and expensive/unreliable to automate well. Automate
+the bulk elimination *before* human review instead: tag-based pre-filtering,
+near-duplicate detection, and sequence clustering (reuses M2.5's
+similarity-clustering machinery once it exists) to hand Harbinger
+pre-organized candidate groups, not raw search results to assemble by hand.
+
 Deliverables:
 
 - Write down the actual selection rubric: what makes a candidate booru
@@ -103,14 +116,79 @@ Deliverables:
   the NSFW content, official PV/BD bonus footage as a non-booru source
   worth evaluating separately).
 - Track **case-level** fields on the M0 schema: `corpus_id` (`nsfw_97` /
-  `sfw_q3`), `sfw`, source URL/board, licence, `web_redistribution_ok`.
-  Gemini's 2–3 public showcase candidates require `web_redistribution_ok`
-  before any frame is copied into `docs/website`. Upstream `rating:safe`
-  is not a human SFW review — C0/C1 still need a manual SFW check.
-- Require a second human SFW pass; do not trust the board tag alone.
+  `sfw_q3`), source URL/board, licence, `web_redistribution_ok`. **`sfw`
+  (boolean) is superseded by the content-tag/safety-tier system in
+  [C0.5](#c05--content-tags-safety-tiers-and-the-minor-presenting-hard-floor-2026-08-15)
+  below** — do not add new `sfw: bool` writes going forward, the tier system
+  is the actual schema now.
+- Require a second human SFW/content pass; do not trust the board tag alone
+  — this is now formalized as one half of C0.5's dual-veto gate, not a
+  separate informal step.
+- **GT strategy**: prioritize *stratified* GT coverage (some GT in each of
+  the three visual-style strata) over raw GT count or ratio — GT is a
+  diagnostic/fast-iteration aid, not the release gate (human coherence
+  rating is), so a lower GT ratio than the NSFW corpus's ~57% is acceptable
+  as long as every stratum has some. Prefer **more GT cases with tagged
+  known defects** over fewer "perfect" ones — GT's job is validating
+  *structural* correctness (alignment, no torn anatomy/duplication), which
+  a cosmetically-flawed reference can still do. Add `gt_known_defects` per
+  case so a flawed GT is never mistaken for ground truth on a dimension it
+  can't actually validate (e.g. don't score color-shift against a GT that
+  itself has a color cast).
 
 Exit criteria: a written rubric exists; the first 3–5 curated candidates
 were selected against it, not ad hoc.
+
+### C0.5 — Content tags, safety tiers, and the minor-presenting hard floor (2026-08-15)
+
+**Why this exists:** a binary SFW/NSFW split can't answer "is this
+appropriate for a GitHub README vs. a private Discord showcase" — those are
+different questions with different acceptable content, and forcing one
+global calibration (strict all-ages vs. more permissive) for the whole
+corpus was a false choice. A binary split is a degenerate one-tag case of
+the system below, not something this competes with — building the richer
+system doesn't cost meaningfully more than the simple one, and the case-level
+schema groundwork (C0) already exists to extend.
+
+**Schema:**
+
+- `content_tags` (multi-valued enum per case): `violence`, `gore`,
+  `nudity_implicit`, `nudity_explicit`, `fanservice`, `dark_themes` (mature/
+  gray-morality content), and others added as needed — objective content
+  description, not a policy judgment.
+- `safety_tier` (named, not numeric — a raw score invites false precision
+  the same way an unexplained numeric site-score would, see
+  `ASP_CHANGE_ROADMAP_2026Q3.md`'s reasoning against unlabelled composite
+  scores): `tier_g` (no tags beyond fully benign) / `tier_pg13` (mild
+  fanservice/violence, no explicit content) / `tier_mature_sfw` (suggestive,
+  dark themes, not explicit) / `tier_nsfw` (explicit).
+- **Per-context policy is separate, editable config, not baked into the
+  corpus.** E.g. `docs/website` public examples = `tier_g`/`tier_pg13` only,
+  further excluding `violence`/`gore` even within `tier_pg13`; a private
+  showcase context may allow up to `tier_mature_sfw`. Tag content once,
+  objectively; change what's shown where without re-tagging anything.
+
+**The minor-presenting hard floor — non-negotiable, not tier-calibrated:**
+
+- Defined by **apparent appearance, not claimed in-universe age** — an
+  "actually thousands of years old" character that presents as a minor is
+  still minor-presenting. No exception, no per-case override.
+- **Dual-veto gate**: a `minor_presenting_risk` flag, settable independently
+  by (a) human review and (b) an automated check. **Either** flag being set
+  **excludes the case from the corpus entirely** — not a low tier, a hard
+  drop. Both must independently clear a case for it to be included
+  (OR-logic for rejection, AND-logic for acceptance — the correct asymmetry
+  when a false negative is unacceptable and a false positive only costs one
+  test case).
+- **Periodic independent re-audit as the corpus grows**, not just a
+  one-time gate at intake — labeling-pipeline failure at scale (trusted
+  upstream human+automated curation missing real problems as volume grows)
+  is a documented, real failure mode in this exact problem space, not a
+  hypothetical. Re-audit cadence TBD by whoever owns C0.5's implementation.
+- This floor applies regardless of `safety_tier` or which context a case is
+  used in. A case cleared for `tier_mature_sfw` still must independently
+  clear the minor-presenting gate — the two systems are orthogonal, not
+  nested.
 
 ### C1 — First curated pass (~20–30 cases)
 
