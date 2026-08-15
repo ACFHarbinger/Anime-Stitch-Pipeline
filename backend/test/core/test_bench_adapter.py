@@ -7,7 +7,10 @@ from types import SimpleNamespace
 
 import cv2
 import numpy as np
-from asp_backend.core.pipeline.bench_adapter import run_canonical_asp
+from asp_backend.core.pipeline.bench_adapter import (
+    apply_ungated_gate_env,
+    run_canonical_asp,
+)
 from asp_backend.core.pipeline.safety_policy import SafeAspPolicy
 from asp_backend.core.pipeline.session import PipelineSession, ResultIdentity
 from PIL import Image
@@ -114,6 +117,9 @@ class TestRunCanonicalAsp:
         assert result.used_fallback
         assert result.identity == ResultIdentity.SAFE_ASP
         assert result.fallback_reason.startswith("composite_gate_")
+        cf = result.extra["safe_asp_counterfactual"]
+        assert cf["would_select"] == "scans"
+        assert cf["gate"] == "composite"
         raw = cv2.imread(raw_path)
         safe = cv2.imread(safe_path)
         assert raw is not None and safe is not None
@@ -178,7 +184,51 @@ class TestRunCanonicalAsp:
         assert result.raw_asp_available
         assert result.identity == ResultIdentity.RAW_ASP
         assert result.extra.get("policy_would_reject", "").startswith("composite_gate_")
+        cf = result.extra["safe_asp_counterfactual"]
+        assert cf["would_select"] == "scans"
+        assert cf["gate"] == "composite"
+        assert cf["reason"].startswith("composite_gate_")
+        assert cf["policy"]["composite_sc_floor"] == 5.0
+        assert result.session.artifacts.get("safe_asp_counterfactual") == cf
         raw = cv2.imread(raw_path)
         published = cv2.imread(safe_path)
         assert raw is not None and published is not None
         assert int(raw.mean()) == int(published.mean())
+
+    def test_ungated_ignores_inherited_gate_env_for_counterfactual(
+        self, tmp_path, monkeypatch
+    ):
+        monkeypatch.setenv("ASP_BENCH_UNGATED", "1")
+        monkeypatch.setenv("ASP_GATE_SC", "5")
+        monkeypatch.setenv("ASP_ALIGN_GATE_DX", "50")
+        raw_path = str(tmp_path / "raw.png")
+        safe_path = str(tmp_path / "safe.png")
+        scans_path = _write_png(tmp_path / "scans.png", 128)
+        frames = [
+            _write_png(tmp_path / "a.png", 40),
+            _write_png(tmp_path / "b.png", 80),
+        ]
+        pipe = _FakePipeline(np.full((80, 48, 3), 128, dtype=np.uint8))
+        result = run_canonical_asp(
+            frames,
+            raw_asp_path=raw_path,
+            safe_asp_path=safe_path,
+            scans_path=scans_path,
+            pipeline=pipe,
+        )
+        cf = result.extra["safe_asp_counterfactual"]
+        assert cf["policy"]["composite_sc_floor"] == 38.0
+        assert result.extra["ungated_gate_config"]["ASP_ALIGN_GATE_DX"] == "9999"
+        assert os.environ["ASP_ALIGN_GATE_DX"] == "9999"
+
+
+class TestUngatedGateEnv:
+    def test_forces_over_inherited_shell_values(self, monkeypatch):
+        monkeypatch.setenv("ASP_BENCH_UNGATED", "1")
+        monkeypatch.setenv("ASP_ALIGN_GATE_DX", "50")
+        monkeypatch.setenv("ASP_COV_MIN_MULTI_PCT", "0.30")
+        effective = apply_ungated_gate_env()
+        assert effective["ASP_ALIGN_GATE_DX"] == "9999"
+        assert effective["ASP_COV_MIN_MULTI_PCT"] == "0"
+        assert os.environ["ASP_ALIGN_GATE_DX"] == "9999"
+        assert os.environ["ASP_COV_MIN_MULTI_PCT"] == "0"

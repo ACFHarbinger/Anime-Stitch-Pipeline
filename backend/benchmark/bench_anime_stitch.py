@@ -1196,6 +1196,9 @@ def _process_dataset_canonical(
     built["safe_asp_path"] = result.safe_asp_path
     built["result_identity"] = result.identity
     built["session_digest"] = result.session.digest()
+    built["raw_asp_available"] = result.raw_asp_available
+    built["safe_asp_counterfactual"] = result.extra.get("safe_asp_counterfactual")
+    built["ungated_gate_config"] = result.extra.get("ungated_gate_config")
     return built
 
 

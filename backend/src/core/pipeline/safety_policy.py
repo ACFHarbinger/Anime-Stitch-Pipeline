@@ -16,6 +16,8 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from typing import Any
+
 import numpy as np
 
 from .safety_metrics import (
@@ -254,13 +256,83 @@ class SafeAspPolicy:
         )
         session.record_artifact("safe_asp_selected", "scans")
 
+    def evaluate_all(
+        self,
+        asp_img: np.ndarray,
+        scans_img: np.ndarray | None,
+        affines: list[np.ndarray] | None,
+    ) -> list[GateDecision]:
+        return [
+            self.evaluate_composite(asp_img, scans_img, affines),
+            self.evaluate_ghost(asp_img, scans_img),
+            self.evaluate_seam_vis(asp_img, scans_img),
+        ]
+
+    def snapshot(self) -> dict[str, float]:
+        return {
+            "composite_sc_floor": self.composite_sc_floor,
+            "composite_sb_floor": self.composite_sb_floor,
+            "composite_scans_mult": self.composite_scans_mult,
+            "ghost_ratio": self.ghost_ratio,
+            "ghost_floor": self.ghost_floor,
+            "seam_vis_ratio": self.seam_vis_ratio,
+            "seam_vis_floor": self.seam_vis_floor,
+        }
+
+
+def product_safe_asp_policy() -> SafeAspPolicy:
+    """Frozen shipped defaults. Ignores inherited ``ASP_GATE_*`` env."""
+    return SafeAspPolicy()
+
 
 def default_benchmark_policy() -> SafeAspPolicy:
     return SafeAspPolicy.from_environ()
+
+
+def safe_asp_counterfactual(
+    decisions: list[GateDecision],
+    policy: SafeAspPolicy,
+    *,
+    raw_available: bool,
+    scans_available: bool,
+) -> dict[str, Any]:
+    """Typed per-case Safe ASP what-if, independent of what was published."""
+    first_reject = next((d for d in decisions if not d.accept), None)
+    if not raw_available:
+        would_select = None
+        unavailable = "raw_unavailable"
+    elif not scans_available:
+        would_select = "raw_asp"
+        unavailable = "no_scans"
+    elif first_reject is None:
+        would_select = "raw_asp"
+        unavailable = None
+    else:
+        would_select = "scans"
+        unavailable = None
+    return {
+        "would_select": would_select,
+        "gate": None if first_reject is None else first_reject.name,
+        "reason": None if first_reject is None else first_reject.reason,
+        "unavailable": unavailable,
+        "policy": policy.snapshot(),
+        "decisions": [
+            {
+                "name": d.name,
+                "accept": d.accept,
+                "skipped": d.skipped,
+                "reason": d.reason,
+                "scores": dict(d.scores),
+            }
+            for d in decisions
+        ],
+    }
 
 
 __all__ = [
     "GateDecision",
     "SafeAspPolicy",
     "default_benchmark_policy",
+    "product_safe_asp_policy",
+    "safe_asp_counterfactual",
 ]

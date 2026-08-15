@@ -26,6 +26,14 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#30 ungated provenance + deterministic gates (2026-08-15):**
+  per-case `safe_asp_counterfactual` (`would_select` / `gate` / `reason`
+  / policy snapshot / per-gate decisions) is written into the run JSON
+  and the session. Ungated run-internal knobs
+  (`ASP_ALIGN_GATE_DX=9999`, `ASP_COV_MIN_MULTI_PCT=0`) are **forced**,
+  not `setdefault`. Counterfactual uses frozen product Safe ASP defaults
+  so inherited `ASP_GATE_*` cannot change the baseline. Official
+  `just bench::asp-benchmark-ungated` recipes export the same knobs.
 - **#30 ungated Raw ASP harness (2026-08-15):** `ASP_BENCH_UNGATED=1`
   publishes Raw ASP as the baseline (policy still evaluated for
   telemetry: `policy_would_reject`). Internal no-edge / affine-invalid

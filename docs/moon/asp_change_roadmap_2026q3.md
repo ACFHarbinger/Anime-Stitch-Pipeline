@@ -252,6 +252,9 @@ Exit criteria:
   no-edge/affine-invalid cases still have no raw file
   (`raw_asp_available=false`). The GPU 97-run itself is the remaining
   #30 work.
+  **Chat review 2026-08-15:** per-case `safe_asp_counterfactual` is now
+  persisted on the run JSON. Ungated run knobs are forced (not
+  `setdefault`); the counterfactual policy is frozen product defaults.
 
 No new default image-quality algorithm is introduced in M1.
 
