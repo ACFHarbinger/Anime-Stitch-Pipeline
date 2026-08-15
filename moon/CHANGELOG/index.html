@@ -1703,6 +1703,36 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
+<li>
+<p><strong>SFW corpus C0/C0.5 rewrite + outreach roadmap kickoff (2026-08-15):</strong>
+  direct Claude+Harbinger design session. <code>ASP_SFW_CORPUS_ROADMAP_2026Q3.md</code>
+  C0 revised: automation/human split locked (automate bulk filtering/
+  dedup/clustering, never the quality judgment itself), GT strategy changed
+  to stratified-coverage-over-count with a <code>gt_known_defects</code> field
+  (more imperfect GT preferred over fewer "perfect" ones). New §C0.5:
+  <code>content_tags</code> + named <code>safety_tier</code> enum (<code>tier_g</code>/<code>tier_pg13</code>/
+  <code>tier_mature_sfw</code>/<code>tier_nsfw</code>, not a numeric score) replacing the <code>sfw</code>
+  boolean, with per-context policy kept as separate editable config, not
+  baked into the corpus. Non-negotiable minor-presenting hard floor:
+  appearance-based (not claimed in-universe age), dual-veto gate (either
+  human or automated flag excludes a case entirely, both must clear for
+  inclusion), periodic re-audit as the corpus grows. New
+  <code>ASP_OUTREACH_ROADMAP_2026Q3.md</code>: Overmix-blog-style results/reasoning
+  outreach, goal and rationale only, design deliberately left to a
+  Gemini/Grok/Chat-Codex brainstorm round rather than pre-decided.</p>
+</li>
+<li>
+<p><strong>M1a shared stage protocol / <code>PipelineSession</code> (2026-08-15):</strong> extracted
+  <code>backend/src/core/pipeline/session.py</code> — inputs, frozen config snapshot,
+  ordered stage trace, JSON-safe artifacts, fallback/identity labels, and
+  HITL pause-hook storage. Canonical <code>AnimeStitchPipeline.run()</code> creates a
+  session and records stages/fallbacks next to existing log/return sites;
+  image operations are unchanged. <code>_ProgressPipeline.run()</code> is not rewritten
+  (M1c). No new HITL checkpoints were inserted into the canonical runner.
+  Tests: <code>backend/test/core/test_pipeline_session.py</code>.
+  PANORAMA is recorded as a <code>safe_asp</code> fallback with <code>algorithm=panorama</code>
+  metadata, rather than as a fourth externally visible result identity.</p>
+</li>
 <li><strong>ASP 2026 Q3 change roadmap (2026-08-15):</strong> added
   <code>ASP_CHANGE_ROADMAP_2026Q3.md</code>, a concise issue-ready plan that tracks Raw ASP,
   Safe ASP, and SCANS separately; prioritizes one canonical benchmark/backend/GUI
