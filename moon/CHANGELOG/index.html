@@ -1703,14 +1703,32 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
-<li><strong>Phase 3 telemetry lock (Harbinger 2026-08-15):</strong> A+B —
+<li>
+<p><strong>M0 case-provenance schema (Claude, 2026-08-15, partial #24/#41):</strong> new
+  <code>backend/benchmark/evaluation/other/provenance.py</code> — <code>CaseProvenance</code>
+  dataclass for case-level fields (<code>corpus_id</code>, source URL/board, licence,
+  <code>web_redistribution_ok</code>, <code>source_work_nsfw</code> as a real three-state
+  bool/None, <code>content_tags</code>, <code>safety_tier</code>, <code>gt_known_defects</code>), plus C0.5's
+  append-only <code>SafetyObservation</code>/<code>SafetyAdjudication</code> records implementing
+  the actual dual-veto logic (<code>minor_presenting_high_risk</code>/
+  <code>minor_presenting_includable</code> — OR to exclude, AND with a human <code>clear</code>
+  specifically to include). New <code>RESULT_*</code>/<code>CONTENT_TAGS</code>/<code>SAFETY_TIERS</code>/
+  <code>MINOR_RISK_VERDICTS</code> constants. Does not yet cover the raw_asp/safe_asp/
+  scans extension to <code>RatingEntry</code> or the actual 2026-08-07 data relabeling
+  — those remain open. Found (pre-existing, not caused by this change) a
+  <code>conftest.py</code> package-aliasing issue blocking direct pytest invocation in
+  this environment; verified correctness via a standalone harness instead.</p>
+</li>
+<li>
+<p><strong>Phase 3 telemetry lock (Harbinger 2026-08-15):</strong> A+B —
   <code>TelemetrySink</code> + opt-in Rerun <code>.rrd</code> sidecar (<code>desktop_quality</code>) +
   OTel spans/metrics (local OTLP/stdout first). Rerun WASM in
   <code>docs/website</code> rejected. Native JSON/NPZ inspector (option C) is a
   fully optional, unscheduled extra. Recorded in
   <code>analytics_and_interpretability.md</code> §3, change-roadmap §5/§19.3, and
   <code>.agent/reports/grok/phase3_rerun_tradeoffs_20260815.md</code>. No
-  implementation in this pass.</li>
+  implementation in this pass.</p>
+</li>
 <li>
 <p><strong>SFW corpus C0/C0.5 rewrite + outreach roadmap kickoff (2026-08-15):</strong>
   direct Claude+Harbinger design session. <code>asp_sfw_corpus_roadmap_2026q3.md</code>
