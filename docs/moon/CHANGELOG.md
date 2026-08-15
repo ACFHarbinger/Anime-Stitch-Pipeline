@@ -26,6 +26,21 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **M1b canonical bench adapter (2026-08-15, #28):** default
+  `process_dataset` path is `run_canonical_asp()` — product
+  `AnimeStitchPipeline.run()` then `SafeAspPolicy`. A `raw_asp`
+  filename is written only for a true Raw ASP composite; internal
+  SCANS/PANORAMA fallbacks record `raw_asp_available=false` and never
+  occupy that path. Published `panorama.png` is Safe ASP.
+  `ASP_BENCH_LEGACY=1` restores the pre-adapter orchestrator.
+  Tests: `backend/test/core/test_bench_adapter.py`.
+- **M1b Safe ASP policy extract (2026-08-15, #28 first slice):**
+  CompositeGate / GhostGate / SeamVisGate moved to
+  `asp_backend.core.pipeline.safety_policy` with the same env knobs and
+  reason strings. Score functions live in `safety_metrics.py`; the
+  benchmark re-exports the old names. Canonical `run()` still does not
+  call the policy (M2). The 4k-line bench orchestrator is not rewritten
+  in this slice. Tests: `backend/test/core/test_safety_policy.py`.
 - **M0 case-provenance schema (Claude, 2026-08-15, partial #24/#41):** new
   `backend/benchmark/evaluation/other/provenance.py` — `CaseProvenance`
   dataclass for case-level fields (`corpus_id`, source URL/board, licence,

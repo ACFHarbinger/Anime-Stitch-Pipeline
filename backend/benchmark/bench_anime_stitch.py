@@ -68,6 +68,19 @@ from asp_backend.alignment.ecc import _ecc_refine  # noqa: E402
 from asp_backend.alignment.matching import _pairwise_match  # noqa: E402
 from asp_backend.core.pipeline import AnimeStitchPipeline  # noqa: E402
 from asp_backend.core.pipeline._probes import _USE_SAM2  # noqa: E402
+from asp_backend.core.pipeline.safety_metrics import (  # noqa: E402
+    ghosting_score_v2 as _ghosting_score_v2,
+    seam_coherence as _seam_coherence,
+    seam_visibility_score as _seam_visibility_score,
+    strip_banding_score as _strip_banding_score,
+)
+from asp_backend.core.pipeline.bench_adapter import (  # noqa: E402
+    bench_legacy_enabled,
+    run_canonical_asp,
+)
+from asp_backend.core.pipeline.safety_policy import (  # noqa: E402
+    default_benchmark_policy,
+)
 from asp_backend.core.validation import _validate_affines  # noqa: E402
 from asp_backend.ingestion.frame_selection import (  # noqa: E402
     detect_animation_phases,
@@ -346,168 +359,6 @@ def _edge_energy_score(img: np.ndarray) -> float:
     g = gray.astype(np.float32)
     gy2 = cv2.Sobel(cv2.Sobel(g, cv2.CV_32F, 0, 1, ksize=3), cv2.CV_32F, 0, 1, ksize=3)
     return float(np.abs(gy2).mean())
-
-
-def _ghosting_score_v2(img: np.ndarray) -> float:
-    """§3.8A: Double-edge autocorrelation ghosting score.
-
-    A ghost (double-image artifact) creates a pair of parallel edges separated
-    by displacement D in the scroll direction.  This shows up as a secondary
-    peak in the normalized autocorrelation of the column-mean gradient-magnitude
-    profile at lag D.
-
-    Score interpretation:
-      0–10  : no detectable double-edge structure (clean output)
-      10–30 : mild periodic gradient pattern (natural scene texture, low concern)
-      30–60 : moderate secondary peak (ghost possible, inspect)
-      60+   : strong secondary peak (ghost highly likely)
-
-    Unlike ``_ghosting_score`` / ``edge_energy_score`` (double-Sobel sharpness
-    proxy, §3.32), this metric is specifically sensitive to *repeated* edge
-    patterns at a fixed displacement — the signature of a misaligned character
-    copy — while being less sensitive to high-frequency texture that is NOT
-    ghost-related.
-    """
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
-    g = gray.astype(np.float32)
-    gy = cv2.Sobel(g, cv2.CV_32F, 0, 1, ksize=3)
-    mag = np.abs(gy)
-
-    profile = mag.mean(axis=1)  # (H,) column-mean gradient profile
-    H = len(profile)
-    if H < 20:
-        return 0.0
-
-    p = profile - profile.mean()
-    n = 2 * H  # zero-pad to avoid circular aliasing
-    P = np.fft.rfft(p, n=n)
-    acorr = np.fft.irfft(P * P.conj(), n=n)[:H]
-
-    zero_lag = float(acorr[0])
-    if zero_lag < 1e-6:
-        return 0.0
-
-    acorr /= zero_lag  # normalize: acorr[0] = 1.0
-
-    lag_min = 5
-    lag_max = max(lag_min + 1, H // 4)
-    secondary = float(acorr[lag_min:lag_max].max()) if lag_max > lag_min else 0.0
-    return float(np.clip(secondary, 0.0, 1.0) * 100.0)
-
-
-def _seam_coherence(img: np.ndarray) -> float:
-    """
-    Standard deviation of per-row mean luminance.
-
-    A clean panorama produced by genuine camera panning has smoothly varying
-    row means (std ≈ 5–20).  An image with severe horizontal color banding —
-    caused by the composite stacking frames with different animation-state
-    colors — has wildly different row means across the height (std > 30).
-
-    This metric is a better quality indicator than sharpness for detecting the
-    catastrophic strip-banding failures that corrupt the Laplacian-variance score.
-    Lower = more coherent (better).
-    """
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) if img.ndim == 3 else img
-    # Only consider rows that have content (not pure black borders)
-    content_rows = gray.mean(axis=1) > 5
-    if content_rows.sum() < 10:
-        return 0.0
-    row_means = gray[content_rows].mean(axis=1)
-    return float(np.std(row_means))
-
-
-def _strip_banding_score(
-    render_img: np.ndarray,
-    affines: list[np.ndarray] | None = None,
-) -> float:
-    """
-    Maximum luminance jump between adjacent frame-strip zones.
-
-    Samples the mean luminance in a ±25px band around each frame's canvas entry
-    row (where the frame's affine ty places it).  If two adjacent strips differ
-    by more than the returned value, severe color banding is present.
-
-    Used as a fallback trigger: if max_strip_jump > 20.0 lum units, the Stage 11
-    composite is likely to produce visible color bands and SCANS fallback is
-    preferable.
-    """
-    if affines is None or len(affines) < 2:
-        return 0.0
-    gray = (
-        cv2.cvtColor(render_img, cv2.COLOR_BGR2GRAY)
-        if render_img.ndim == 3
-        else render_img
-    )
-    H = gray.shape[0]
-    strip_means = []
-    for a in sorted(affines, key=lambda m: float(m[1, 2])):
-        ty = int(float(a[1, 2]))
-        y0 = max(0, ty)
-        y1 = min(H, ty + 50)
-        if y1 > y0:
-            band = gray[y0:y1]
-            # Skip near-black border regions
-            if band.mean() > 5:
-                strip_means.append(float(band.mean()))
-    if len(strip_means) < 2:
-        return 0.0
-    diffs = [
-        abs(strip_means[i + 1] - strip_means[i]) for i in range(len(strip_means) - 1)
-    ]
-    return max(diffs)
-
-
-def _seam_visibility_score(
-    output_img: np.ndarray,
-    affines: list[np.ndarray] | None = None,
-) -> float:
-    """
-    Worst-case horizontal luminance discontinuity (no-reference).
-
-    Computes the per-row mean absolute difference profile across the full
-    output image, then reports the maximum peak value.  A perfectly blended
-    seam contributes nothing to this profile; a hard single-pose seam cut
-    produces a large spike exactly at the seam row.
-
-    Lower = smoother output (better).  0 = no visible discontinuities.
-    Typical clean outputs: < 6.  Single-pose seam cuts: 12–50+.
-
-    Unlike `_seam_coherence` (global row-mean variance), this detects
-    localised hard cuts rather than broad brightness drift, making it
-    complementary to the existing metrics.  Works for all 96 tests with
-    no ground truth required.
-
-    Parameters
-    ----------
-    output_img : (H, W) or (H, W, 3) uint8 panorama
-    affines    : unused; kept for API compatibility with _compute_all_metrics
-    """
-    gray = (
-        cv2.cvtColor(output_img, cv2.COLOR_BGR2GRAY)
-        if output_img.ndim == 3
-        else output_img
-    )
-    g = gray.astype(np.float32)
-    H, W = g.shape
-
-    # Per-row mean luminance, excluding near-black border pixels.
-    content = g > 5  # True where pixel is non-black
-    row_content_count = content.sum(axis=1)
-    row_valid = row_content_count > W * 0.1  # rows with ≥10% content
-    if row_valid.sum() < 4:
-        return 0.0
-
-    # Compute mean only for content rows to avoid empty-slice warnings.
-    valid_idx = np.where(row_valid)[0]
-    row_sums = np.where(content[valid_idx], g[valid_idx], 0.0).sum(axis=1)
-    row_mean_vals = row_sums / np.maximum(row_content_count[valid_idx], 1)
-
-    # Adjacent-row absolute difference on content rows only.
-    diffs = np.abs(np.diff(row_mean_vals))
-
-    # The worst-case single-row jump is the seam visibility score.
-    return round(float(np.nanmax(diffs)) if len(diffs) > 0 else 0.0, 2)
 
 
 def _compute_per_seam_ghost_scores(
@@ -1229,6 +1080,123 @@ def _run_simple_stitch(frames_paths: list[str], out_path: str) -> bool:
 # ============================================================================
 
 
+def _process_dataset_canonical(
+    *,
+    dataset_dir: str,
+    dataset_name: str,
+    frames_paths: list[str],
+    out_path: str,
+    simple_stitch_path: str,
+    simple_ok: bool,
+    central_anime_path: str,
+    central_simple_path: str,
+    stage_dir: str,
+    plots_dir: str,
+    timings: dict,
+    stage_memory_rss_mb: dict[str, float],
+    t_total_start: float,
+    orig_frame_count: int,
+    smart_select_count: int,
+    gt_img,
+    overmix_img,
+    overmix_path: str,
+    hugin_img,
+    hugin_path: str,
+) -> dict:
+    """M1b: selected frames → product ``run()`` → Safe ASP policy → report."""
+    raw_asp_path = os.path.join(stage_dir, "raw_asp.png")
+    scans_path = simple_stitch_path if simple_ok else None
+    _log_resource("before_canonical_run", store=stage_memory_rss_mb)
+    t0 = time.perf_counter()
+    result = run_canonical_asp(
+        frames_paths,
+        raw_asp_path=raw_asp_path,
+        safe_asp_path=out_path,
+        scans_path=scans_path,
+        policy=default_benchmark_policy(),
+    )
+    timings["canonical_run_sec"] = round(time.perf_counter() - t0, 3)
+    timings["total_sec"] = round(time.perf_counter() - t_total_start, 3)
+    _log_resource("after_canonical_run", store=stage_memory_rss_mb)
+
+    shutil.copy2(result.safe_asp_path, central_anime_path)
+    central_raw = os.path.join(
+        os.path.dirname(central_anime_path), f"{dataset_name}_raw_asp.png"
+    )
+    if result.raw_asp_available and result.raw_asp_path and os.path.isfile(
+        result.raw_asp_path
+    ):
+        shutil.copy2(result.raw_asp_path, central_raw)
+
+    session = result.session
+    affines = []
+    raw_aff = session.artifacts.get("affines")
+    if isinstance(raw_aff, list):
+        affines = [np.asarray(a, dtype=np.float32) for a in raw_aff]
+
+    asp_img = cv2.imread(result.safe_asp_path)
+    sim_img = cv2.imread(central_simple_path) if simple_ok else None
+    canvas = session.artifacts.get("canvas_size") or [None, None]
+    frame_count = int(session.artifacts.get("frame_count") or len(frames_paths))
+    n_edges = int(session.artifacts.get("n_edges") or 0)
+
+    probe = cv2.imread(frames_paths[0]) if frames_paths else None
+    frame_h, frame_w = (probe.shape[0], probe.shape[1]) if probe is not None else (0, 0)
+
+    try:
+        phase_ids = detect_animation_phases(frames_paths)
+        spans = phase_spans(phase_ids)
+        phase_count = len(spans)
+    except Exception:
+        spans, phase_count = [], 0
+
+    print(
+        f"\nFinished ({result.identity}): {dataset_dir} -> {result.safe_asp_path}"
+        f"{'  [fallback: ' + result.fallback_reason + ']' if result.used_fallback else ''}"
+    )
+    built = _build_result(
+        dataset_name,
+        central_anime_path,
+        central_simple_path,
+        asp_img,
+        sim_img,
+        affines,
+        [],
+        [],
+        None,
+        plots_dir,
+        stage_dir,
+        canvas_h=canvas[1] if isinstance(canvas, list) and len(canvas) == 2 else None,
+        canvas_w=canvas[0] if isinstance(canvas, list) and len(canvas) == 2 else None,
+        used_fallback=result.used_fallback,
+        timings=timings,
+        frame_count=frame_count,
+        frame_h=frame_h,
+        frame_w=frame_w,
+        raw_edge_count=n_edges,
+        filtered_edge_count=n_edges,
+        birefnet_ok=bool(session.config.get("use_birefnet")),
+        loftr_ok=bool(session.config.get("use_loftr")),
+        gt_img=gt_img,
+        fallback_reason=result.fallback_reason,
+        orig_frame_count=orig_frame_count,
+        smart_select_count=smart_select_count,
+        spatial_dedup_count=frame_count,
+        phase_count=phase_count,
+        phase_spans_list=spans,
+        overmix_img=overmix_img,
+        overmix_path=(overmix_path if overmix_img is not None else None),
+        hugin_img=hugin_img,
+        hugin_path=(hugin_path if hugin_img is not None else None),
+        stage_memory_rss_mb=stage_memory_rss_mb,
+    )
+    built["raw_asp_path"] = result.raw_asp_path
+    built["safe_asp_path"] = result.safe_asp_path
+    built["result_identity"] = result.identity
+    built["session_digest"] = result.session.digest()
+    return built
+
+
 def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
     """
     Run both pipelines on a single dataset directory.
@@ -1346,8 +1314,34 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
     else:
         print(f"  Warning: simple stitch failed for {dataset_name}")
 
+    if not bench_legacy_enabled():
+        print("\n[M1b] Canonical AnimeStitchPipeline.run() + Safe ASP policy")
+        built = _process_dataset_canonical(
+            dataset_dir=dataset_dir,
+            dataset_name=dataset_name,
+            frames_paths=frames_paths,
+            out_path=out_path,
+            simple_stitch_path=simple_stitch_path,
+            simple_ok=simple_ok,
+            central_anime_path=central_anime_path,
+            central_simple_path=central_simple_path,
+            stage_dir=stage_dir,
+            plots_dir=plots_dir,
+            timings=timings,
+            stage_memory_rss_mb=stage_memory_rss_mb,
+            t_total_start=t_total_start,
+            orig_frame_count=_orig_frame_count,
+            smart_select_count=_smart_select_count,
+            gt_img=gt_img,
+            overmix_img=overmix_img,
+            overmix_path=_overmix_path,
+            hugin_img=hugin_img,
+            hugin_path=_hugin_path,
+        )
+        return built
+
     # ------------------------------------------------------------------
-    # STEP 1-2: Load and normalise
+    # STEP 1-2: Load and normalise  (ASP_BENCH_LEGACY=1)
     # ------------------------------------------------------------------
     frames = _load_frames(frames_paths)
     N = len(frames)
@@ -1852,59 +1846,22 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
         )
         cv2.imwrite(os.path.join(stage_dir, "stage11_fg_composite.png"), canvas)
 
-        # ── Composite quality gate (SCANS-comparative) ────────────────────
-        # Measures banding on the FINAL composite and compares against the
-        # SCANS baseline for the same dataset.  Falls back only when ASP is
-        # significantly worse than SCANS — not just because the content is
-        # inherently high-variance (e.g., dark scene + bright character).
-        #
-        # Adaptive limits:  limit = max(hard_floor, scans_value × 1.6)
-        # Interpretation: allow ASP to be up to 60% worse than SCANS before
-        # falling back.  The 1.6× factor is calibrated so that scenes where ASP
-        # and SCANS are roughly equal always pass, while cases where ASP
-        # introduces severe banding on top of clean SCANS output still fail.
-        #
-        # Hard-floor defaults (absolute caps even when SCANS is clean):
-        #   seam_coherence floor = 38   (sc > 38 on a clean-SCANS scene → bad)
-        #   strip_banding  floor = 35   (sb > 35 on a clean-SCANS scene → bad)
-        # Override: ASP_GATE_SC / ASP_GATE_SB  (set to 999 to disable entirely).
-        _render_sc = _seam_coherence(canvas)
-        _render_sb = _strip_banding_score(canvas, affines)
-        try:
-            _SC_FLOOR = float(os.environ.get("ASP_GATE_SC", "38"))
-        except ValueError:
-            _SC_FLOOR = 38.0
-        try:
-            _SB_FLOOR = float(os.environ.get("ASP_GATE_SB", "35"))
-        except ValueError:
-            _SB_FLOOR = 35.0
-        _SCANS_MULT = 2.0  # allow ASP up to 100% worse than SCANS (2× absolute)
-        _scans_sc_ref = 0.0
-        _scans_sb_ref = 0.0
+        # ── Composite / Ghost / SeamVis gates (M1b injectable policy) ─────
+        # Formulae and reason strings are unchanged; they now live in
+        # asp_backend.core.pipeline.safety_policy so M2 can inject the same
+        # object into the canonical runner. Raw ASP is still written above
+        # (stage11_fg_composite.png) before any fallback.
+        _safe_policy = default_benchmark_policy()
         _scans_img_gate = cv2.imread(simple_stitch_path) if simple_ok else None
-        if _scans_img_gate is not None:
-            _scans_sc_ref = _seam_coherence(_scans_img_gate)
-        _sc_limit = max(_SC_FLOOR, _scans_sc_ref * _SCANS_MULT)
-        _sb_limit = max(_SB_FLOOR, _scans_sb_ref * _SCANS_MULT)
-        print(
-            f"  [CompositeGate] asp sc={_render_sc:.1f} sb={_render_sb:.1f}  "
-            f"scans sc={_scans_sc_ref:.1f} sb={_scans_sb_ref:.1f}  "
-            f"limits sc<{_sc_limit:.1f} sb<{_sb_limit:.1f}"
-        )
-        _render_failed = _render_sc > _sc_limit or _render_sb > _sb_limit
-        if _render_failed:
-            _which = "sc" if _render_sc > _sc_limit else "sb"
-            _fallback_reason = f"composite_gate_{_which}:asp_sc={_render_sc:.1f}_limit={_sc_limit:.1f},asp_sb={_render_sb:.1f}_limit={_sb_limit:.1f}"
-            print(
-                f"  [CompositeGate] FAILED "
-                f"(asp sc={_render_sc:.1f}>{_sc_limit:.1f} or "
-                f"asp sb={_render_sb:.1f}>{_sb_limit:.1f}) → SCANS fallback."
-            )
-            timings["render_gate_fallback"] = 1
-            raise RuntimeError(
-                f"Composite quality gate: asp sc={_render_sc:.1f} (limit={_sc_limit:.1f}), "
-                f"asp sb={_render_sb:.1f} (limit={_sb_limit:.1f})"
-            )
+        _cg = _safe_policy.evaluate_composite(canvas, _scans_img_gate, affines)
+        if _cg.log_line:
+            print(_cg.log_line)
+        if not _cg.accept:
+            _fallback_reason = _cg.reason
+            if _cg.fail_log_line:
+                print(_cg.fail_log_line)
+            timings["render_gate_fallback"] = _cg.fallback_code
+            raise RuntimeError(_cg.runtime_message)
 
         timings["render_gate_fallback"] = 0
 
@@ -1919,102 +1876,27 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
         # The scale mismatch for test27 (2× larger than GT) is a fundamental
         # frame-selection issue, not a post-processing crop problem.
 
-        # ── Ghosting ratio gate (post-crop) ────────────────────────────────
-        # §3.32B: GhostGate now uses ghosting_siqe (FFT autocorrelation, 0-100)
-        # instead of the old ghosting_score (double-Sobel sharpness proxy).
-        # ghosting_siqe: 0=clean, 30+=ghost likely, 60+=ghost confirmed.
-        # ASP avg=36.21, SCANS avg=72.34 across 97 tests — ASP is normally
-        # BETTER (lower) on true ghosting; gate fires only when ASP shows
-        # heavy ghost AND is worse than SCANS by ratio×.
-        # Override: ASP_GATE_GHOST=99 to disable.
-        try:
-            _GHOST_RATIO_LIMIT = float(os.environ.get("ASP_GATE_GHOST", "2.0"))
-        except ValueError:
-            _GHOST_RATIO_LIMIT = 2.0
-        try:
-            _GHOST_ABS_FLOOR = float(os.environ.get("ASP_GATE_GHOST_FLOOR", "40.0"))
-        except ValueError:
-            _GHOST_ABS_FLOOR = 40.0
-        if simple_ok and _GHOST_RATIO_LIMIT < 90:
-            _simple_img_gate = cv2.imread(central_simple_path)
-            if _simple_img_gate is not None:
-                _asp_ghost = _ghosting_score_v2(canvas_out)  # siqe, post-crop
-                _sim_ghost = _ghosting_score_v2(_simple_img_gate)
-                print(
-                    f"  [GhostGate/siqe] asp_ghost={_asp_ghost:.1f}  "
-                    f"sim_ghost={_sim_ghost:.1f}  "
-                    f"ratio={_asp_ghost / max(_sim_ghost, 1.0):.2f}"
-                )
-                # Gate fires only when ASP ghosting is BOTH above the absolute
-                # floor and above ratio× SCANS — prevents false positives when
-                # both outputs have inherently low ghosting.
-                _ghost_limit = max(
-                    _GHOST_ABS_FLOOR, _GHOST_RATIO_LIMIT * max(_sim_ghost, 1.0)
-                )
-                if _asp_ghost > _ghost_limit:
-                    _fallback_reason = f"ghost_gate_siqe:asp={_asp_ghost:.1f}_sim={_sim_ghost:.1f}_limit={_ghost_limit:.1f}"
-                    print(
-                        f"  [GhostGate/siqe] FAILED "
-                        f"(asp={_asp_ghost:.1f} > limit={_ghost_limit:.1f} "
-                        f"[floor={_GHOST_ABS_FLOOR:.0f}, {_GHOST_RATIO_LIMIT:.1f}× sim={_sim_ghost:.1f}]) "
-                        f"→ SCANS fallback."
-                    )
-                    timings["render_gate_fallback"] = 1
-                    raise RuntimeError(
-                        f"Ghosting gate (siqe): asp_ghost={_asp_ghost:.1f}, "
-                        f"ratio={_asp_ghost / max(_sim_ghost, 1.0):.2f}"
-                    )
+        # GhostGate + SeamVisGate (post-crop). Same env knobs as before.
+        _simple_img_gate = cv2.imread(central_simple_path) if simple_ok else None
+        _gg = _safe_policy.evaluate_ghost(canvas_out, _simple_img_gate)
+        if _gg.log_line:
+            print(_gg.log_line)
+        if not _gg.accept:
+            _fallback_reason = _gg.reason
+            if _gg.fail_log_line:
+                print(_gg.fail_log_line)
+            timings["render_gate_fallback"] = _gg.fallback_code
+            raise RuntimeError(_gg.runtime_message)
 
-        # ── SeamVisGate (post-crop, §4.8) ──────────────────────────────────
-        # Fires when ASP seam_visibility is BOTH above an absolute floor AND
-        # above ratio× SCANS seam_visibility.
-        # seam_visibility taxonomy: 0–5=invisible, 6–12=normal, 13–25=visible,
-        # >25=hard cut.  ASP avg=25.77, SCANS avg=4.21 across 97 tests.
-        # 97-test corpus: test74 (sv=92.6), test34 (62.8), test12 (38.2),
-        # test92 (33.6) all fire at floor=20, ratio=3.0 → SCANS fallback.
-        # Override: ASP_GATE_SEAM_VIS=99 to disable.
-        try:
-            _SEAM_VIS_RATIO_LIMIT = float(os.environ.get("ASP_GATE_SEAM_VIS", "3.0"))
-        except ValueError:
-            _SEAM_VIS_RATIO_LIMIT = 3.0
-        try:
-            # Floor calibrated 2026-07-09: the gate's motivating failures
-            # (test74=92.6, test34=62.8, test12=38.2) all exceed 35, while the
-            # S160 corpus ASP average (25.8) must not auto-fallback — a floor
-            # of 20 silently replaced most ASP output with SCANS.
-            _SEAM_VIS_ABS_FLOOR = float(os.environ.get("ASP_GATE_SEAM_VIS_FLOOR", "35.0"))
-        except ValueError:
-            _SEAM_VIS_ABS_FLOOR = 35.0
-        if simple_ok and _SEAM_VIS_RATIO_LIMIT < 90:
-            _simple_img_sv = cv2.imread(central_simple_path)
-            if _simple_img_sv is not None:
-                _asp_sv = _seam_visibility_score(canvas_out)
-                _sim_sv = _seam_visibility_score(_simple_img_sv)
-                print(
-                    f"  [SeamVisGate] asp_sv={_asp_sv:.1f}  "
-                    f"sim_sv={_sim_sv:.1f}  "
-                    f"ratio={_asp_sv / max(_sim_sv, 1.0):.2f}"
-                )
-                _sv_limit = max(
-                    _SEAM_VIS_ABS_FLOOR, _SEAM_VIS_RATIO_LIMIT * max(_sim_sv, 1.0)
-                )
-                if _asp_sv > _sv_limit:
-                    _fallback_reason = (
-                        f"seam_vis_gate:asp={_asp_sv:.1f}"
-                        f"_sim={_sim_sv:.1f}_limit={_sv_limit:.1f}"
-                    )
-                    print(
-                        f"  [SeamVisGate] FAILED "
-                        f"(asp={_asp_sv:.1f} > limit={_sv_limit:.1f} "
-                        f"[floor={_SEAM_VIS_ABS_FLOOR:.0f}, "
-                        f"{_SEAM_VIS_RATIO_LIMIT:.1f}× sim={_sim_sv:.1f}]) "
-                        f"→ SCANS fallback."
-                    )
-                    timings["render_gate_fallback"] = 2
-                    raise RuntimeError(
-                        f"SeamVis gate: asp_sv={_asp_sv:.1f}, "
-                        f"ratio={_asp_sv / max(_sim_sv, 1.0):.2f}"
-                    )
+        _svg = _safe_policy.evaluate_seam_vis(canvas_out, _simple_img_gate)
+        if _svg.log_line:
+            print(_svg.log_line)
+        if not _svg.accept:
+            _fallback_reason = _svg.reason
+            if _svg.fail_log_line:
+                print(_svg.fail_log_line)
+            timings["render_gate_fallback"] = _svg.fallback_code
+            raise RuntimeError(_svg.runtime_message)
         from PIL import Image
 
         rgb = cv2.cvtColor(canvas_out, cv2.COLOR_BGR2RGB)
@@ -2349,12 +2231,14 @@ def _build_result(
             "dx_cv": round(dx_cv, 4),
         },
         "affine_health": {
-            "valid": health.valid,
-            "ratio": round(health.ratio, 3),
-            "min_gap_px": round(health.min_gap, 1),
-            "max_rotation": round(health.max_rotation, 4),
-            "max_scale_dev": round(health.max_scale_dev, 4),
-            "reason": health.reason,
+            "valid": getattr(health, "valid", None),
+            "ratio": round(float(getattr(health, "ratio", 0.0) or 0.0), 3),
+            "min_gap_px": round(float(getattr(health, "min_gap", 0.0) or 0.0), 1),
+            "max_rotation": round(float(getattr(health, "max_rotation", 0.0) or 0.0), 4),
+            "max_scale_dev": round(
+                float(getattr(health, "max_scale_dev", 0.0) or 0.0), 4
+            ),
+            "reason": getattr(health, "reason", "canonical_adapter"),
         },
         # --- photometric correction ---
         "photometric": {
@@ -2364,10 +2248,11 @@ def _build_result(
             ],
             "applied_gains": [round(g, 4) for g in applied_gains],
             "frames_corrected": non_trivial_gains,
-            "gain_range": [
-                round(min(applied_gains), 4),
-                round(max(applied_gains), 4),
-            ],
+            "gain_range": (
+                [round(min(applied_gains), 4), round(max(applied_gains), 4)]
+                if applied_gains
+                else None
+            ),
         },
         # --- quality metrics ---
         "metrics_asp": asp_metrics,

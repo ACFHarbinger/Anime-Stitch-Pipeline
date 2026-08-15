@@ -23,6 +23,9 @@ Split by role:
                               this is the one file left over 500 lines)
   manager.py                 -- AnimeStitchPipeline, composed from all mixins
   session.py                 -- M1a PipelineSession / stage protocol (no pixels)
+  safety_metrics.py          -- no-ref scores used by Safe ASP gates
+  safety_policy.py           -- M1b injectable Composite/Ghost/SeamVis policy
+  bench_adapter.py           -- M1b thin run() + policy adapter for the bench
 """
 
 import logging
@@ -45,6 +48,8 @@ from ._frame_utils import (
 from ._manual_edges import _build_landmark_affine, _build_manual_edge
 from ._probes import _ALIKED_OK, _BIREFNET_OK, _DY_CV_MAX, _ELOFTR_OK, _LOFTR_OK, _USE_SAM2
 from .manager import AnimeStitchPipeline
+from .bench_adapter import bench_legacy_enabled, run_canonical_asp
+from .safety_policy import SafeAspPolicy, default_benchmark_policy
 from .session import (
     HitlCheckpoint,
     PipelineSession,
@@ -61,6 +66,10 @@ __all__ = [
     "PipelineSession",
     "PipelineStage",
     "ResultIdentity",
+    "SafeAspPolicy",
+    "bench_legacy_enabled",
+    "default_benchmark_policy",
+    "run_canonical_asp",
     "snapshot_pipeline_config",
     "_ALIKED_OK",
     "_BIREFNET_OK",

@@ -2,7 +2,9 @@
 
 **Status:** Signed off. Issues filed (ASP #24–#40, Image-Toolkit #370–#371).
 M1a (`PipelineSession` / stage protocol) landed 2026-08-15 — extraction
-only, no pixel-path change. M1b/M1c not started.
+only, no pixel-path change. M1b adapter landed 2026-08-15 (canonical
+`run()` + policy; `ASP_BENCH_LEGACY=1` keeps the old fork). M1c not
+started.
 **Created:** 2026-08-15
 **Scope:** ASP correctness, product-pipeline convergence, measurement, and the
 artist review workflow. The visual redesign is recorded as future work and is
@@ -201,6 +203,17 @@ Deliverables:
      **Landed 2026-08-15 as isolated #27:** video path now writes proxies
      to temp PNGs, calls the real path API, and hard-fails on TypeError
      or empty selection. Not bundled with M1b.
+     **M1b first slice 2026-08-15:** Composite/Ghost/SeamVis live in
+     `safety_policy.py`; bench calls `default_benchmark_policy()`. Raw
+     ASP stage dump still written before any fallback. Remaining M1b
+     work is making the bench a thin `AnimeStitchPipeline.run()` adapter
+     — not done here (would change the 43-composite measurement path).
+     **M1b adapter 2026-08-15:** default path is
+     `run_canonical_asp()` (`bench_adapter.py`) — selected frames →
+     product `run()` → policy → published Safe ASP. Raw ASP is kept at
+     `output/panorama_stages/raw_asp.png`. Set `ASP_BENCH_LEGACY=1` to
+     keep the pre-adapter orchestrator for A/B. This *does* change the
+     measurement path; the post-M1 ungated 97-run is the new baseline.
   3. **M1c** — convert GUI `_ProgressPipeline` to hooks over the same
      stages. Pass `exclusion_masks` into `_composite_foreground` (the GUI
      *does* call composite three times for HITL, but never forwards the

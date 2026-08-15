@@ -1,5 +1,21 @@
 # Testing Guide
 
+**Sanctioned pytest invocation** (Image-Toolkit parent interpreter +
+`PYTHONPATH` at the parent root). `from backend.src.constants import …`
+in ASP source is **deliberate cross-repo sharing** (issue #3), not a
+missing package. It does not resolve if you run
+`just test::backend` / `uv run pytest` from `submodules/ASP` alone,
+because that puts ASP's own `backend/` on `sys.path` first.
+
+```bash
+cd /path/to/Image-Toolkit
+.venv/bin/python -m pytest submodules/ASP/backend/test -q
+# or:
+cd submodules/ASP/backend && \
+  PYTHONPATH=/path/to/Image-Toolkit \
+  /path/to/Image-Toolkit/.venv/bin/python -m pytest test -q
+```
+
 Each module owns its own test suite under `<module>/test/` (or `tests/` for
 `base/`, the C++ core — see each module's README).
 

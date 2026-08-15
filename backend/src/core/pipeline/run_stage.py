@@ -293,6 +293,7 @@ class _RunStageMixin(_Base):
                     _sf = scans_frames or _reload_scans_frames(image_paths)
                     return _scan_stitch_fallback(_sf, output_path)
         session.mark(PipelineStage.SPATIAL_DEDUP, dropped=_total_spa_dropped)
+        session.record_artifact("frame_count", N)
         if _total_spa_dropped:
             logger.debug(
                 f"[Stitch]   Spatial dedup complete: {_total_spa_dropped} frames "
@@ -322,6 +323,7 @@ class _RunStageMixin(_Base):
 
         edges = self._filter_edges(edges, image_paths, H, W, frames, bg_masks)
         session.mark(PipelineStage.FILTER_EDGES, n_edges=len(edges))
+        session.record_artifact("n_edges", len(edges))
 
         # §3.16B: apply HITL drop_edges after filter
         if _hitl_pipeline_state.get("boundaries"):
@@ -507,6 +509,7 @@ class _RunStageMixin(_Base):
             affines[i][1, 2] += T_global2[1]
         session.mark(PipelineStage.CANVAS, width=canvas_w, height=canvas_h)
         session.record_artifact("canvas_size", [canvas_w, canvas_h])
+        session.record_artifact("affines", [a.tolist() for a in affines])
         logger.debug(
             f"[Stitch] Stage 9 complete: midplane shift ({T_mid_x:.1f}, {T_mid_y:.1f}), "
             f"canvas {canvas_w}×{canvas_h}."
