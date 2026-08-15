@@ -2000,7 +2000,9 @@
 <h1 id="asp-change-roadmap-2026-q3">ASP Change Roadmap — 2026 Q3</h1>
 <p><strong>Status:</strong> Signed off. Issues filed (ASP #24–#40, Image-Toolkit #370–#371).
 M1a (<code>PipelineSession</code> / stage protocol) landed 2026-08-15 — extraction
-only, no pixel-path change. M1b/M1c not started.
+only, no pixel-path change. M1b adapter landed 2026-08-15 (canonical
+<code>run()</code> + policy; <code>ASP_BENCH_LEGACY=1</code> keeps the old fork). M1c GUI
+adapter landed 2026-08-15 (<code>ASP_GUI_LEGACY=1</code> keeps the HITL fork).
 <strong>Created:</strong> 2026-08-15
 <strong>Scope:</strong> ASP correctness, product-pipeline convergence, measurement, and the
 artist review workflow. The visual redesign is recorded as future work and is
@@ -2202,7 +2204,18 @@ does not replace human review.</p>
      and silently falls back to uniform.
      <strong>Landed 2026-08-15 as isolated #27:</strong> video path now writes proxies
      to temp PNGs, calls the real path API, and hard-fails on TypeError
-     or empty selection. Not bundled with M1b.</li>
+     or empty selection. Not bundled with M1b.
+     <strong>M1b first slice 2026-08-15:</strong> Composite/Ghost/SeamVis live in
+     <code>safety_policy.py</code>; bench calls <code>default_benchmark_policy()</code>. Raw
+     ASP stage dump still written before any fallback. Remaining M1b
+     work is making the bench a thin <code>AnimeStitchPipeline.run()</code> adapter
+     — not done here (would change the 43-composite measurement path).
+     <strong>M1b adapter 2026-08-15:</strong> default path is
+     <code>run_canonical_asp()</code> (<code>bench_adapter.py</code>) — selected frames →
+     product <code>run()</code> → policy → published Safe ASP. Raw ASP is kept at
+     <code>output/panorama_stages/raw_asp.png</code>. Set <code>ASP_BENCH_LEGACY=1</code> to
+     keep the pre-adapter orchestrator for A/B. This <em>does</em> change the
+     measurement path; the post-M1 ungated 97-run is the new baseline.</li>
 <li><strong>M1c</strong> — convert GUI <code>_ProgressPipeline</code> to hooks over the same
      stages. Pass <code>exclusion_masks</code> into <code>_composite_foreground</code> (the GUI
      <em>does</em> call composite three times for HITL, but never forwards the

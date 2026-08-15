@@ -1703,6 +1703,27 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
+<li><strong>M1c GUI adapter (2026-08-15, #29):</strong> <code>_ProgressPipeline.run()</code>
+  defaults to canonical <code>AnimeStitchPipeline.run()</code>, forwarding
+  <code>exclusion_masks</code>, <code>motion_model</code>, and HITL <code>pause_hook</code>. The three
+  legacy-fork <code>_composite_foreground</code> calls now pass <code>exclusion_masks</code>.
+  <code>ASP_GUI_LEGACY=1</code> keeps the HITL override fork. Headless parity:
+  <code>backend/test/core/test_entry_parity.py</code>.</li>
+<li><strong>M1b canonical bench adapter (2026-08-15, #28):</strong> default
+  <code>process_dataset</code> path is <code>run_canonical_asp()</code> — product
+  <code>AnimeStitchPipeline.run()</code> then <code>SafeAspPolicy</code>. A <code>raw_asp</code>
+  filename is written only for a true Raw ASP composite; internal
+  SCANS/PANORAMA fallbacks record <code>raw_asp_available=false</code> and never
+  occupy that path. Published <code>panorama.png</code> is Safe ASP.
+  <code>ASP_BENCH_LEGACY=1</code> restores the pre-adapter orchestrator.
+  Tests: <code>backend/test/core/test_bench_adapter.py</code>.</li>
+<li><strong>M1b Safe ASP policy extract (2026-08-15, #28 first slice):</strong>
+  CompositeGate / GhostGate / SeamVisGate moved to
+  <code>asp_backend.core.pipeline.safety_policy</code> with the same env knobs and
+  reason strings. Score functions live in <code>safety_metrics.py</code>; the
+  benchmark re-exports the old names. Canonical <code>run()</code> still does not
+  call the policy (M2). The 4k-line bench orchestrator is not rewritten
+  in this slice. Tests: <code>backend/test/core/test_safety_policy.py</code>.</li>
 <li>
 <p><strong>M0 case-provenance schema (Claude, 2026-08-15, partial #24/#41):</strong> new
   <code>backend/benchmark/evaluation/other/provenance.py</code> — <code>CaseProvenance</code>
