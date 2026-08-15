@@ -2219,7 +2219,14 @@ does not replace human review.</p>
 <li><strong>M1c</strong> — convert GUI <code>_ProgressPipeline</code> to hooks over the same
      stages. Pass <code>exclusion_masks</code> into <code>_composite_foreground</code> (the GUI
      <em>does</em> call composite three times for HITL, but never forwards the
-     captured masks; the canonical <code>run_stage.py:571</code> already does).</li>
+     captured masks; the canonical <code>run_stage.py:571</code> already does).
+     <strong>Landed 2026-08-15, then clarified after Chat/Claude review:</strong>
+     exclusion-mask plumbing is on both paths. Headless/no-op pause uses
+     canonical <code>run()</code> (parity suite). Interactive HITL (<code>pause_cb</code> from
+     the stitch worker) stays on the 9-checkpoint fork until M6. Only
+     the <code>masks</code> pause is applied on the canonical path. Do not read
+     this as "all HITL checkpoints moved." <code>ASP_GUI_CANONICAL=1</code> /
+     <code>ASP_GUI_LEGACY=1</code> force a side.</li>
 <li>Make frame selection and output-safety policy explicit pipeline components.</li>
 <li>Parent Image-Toolkit <code>backend/controllers/backend_dispatch.py</code> is already a
   thin <code>AnimeStitchPipeline.run()</code> caller, <strong>not</strong> a fourth compositor. Keep
@@ -2240,7 +2247,16 @@ does not replace human review.</p>
 <li>Existing focused tests pass, and the new entry-point parity suite passes.</li>
 <li>After adapters land, run one ungated Raw ASP 97-case corpus (all three
   artifacts retained) and freeze it as the M2+ baseline. This is the first
-  true Raw ASP scorecard; do not start M3 until it exists.</li>
+  true Raw ASP scorecard; do not start M3 until it exists.
+  <strong>Harness 2026-08-15:</strong> <code>ASP_BENCH_UNGATED=1</code> +
+  <code>just bench::asp-benchmark-ungated</code>. Disables Composite/Ghost/SeamVis
+  replacement and the env-gated align/coverage floors. Geometric
+  no-edge/affine-invalid cases still have no raw file
+  (<code>raw_asp_available=false</code>). The GPU 97-run itself is the remaining
+  #30 work.
+  <strong>Chat review 2026-08-15:</strong> per-case <code>safe_asp_counterfactual</code> is now
+  persisted on the run JSON. Ungated run knobs are forced (not
+  <code>setdefault</code>); the counterfactual policy is frozen product defaults.</li>
 </ul>
 <p>No new default image-quality algorithm is introduced in M1.</p>
 <h3 id="m2-safe-asp-policy-and-observability">M2 — Safe ASP policy and observability</h3>

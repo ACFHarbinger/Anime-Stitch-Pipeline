@@ -1703,12 +1703,32 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
+<li><strong>#30 ungated provenance + deterministic gates (2026-08-15):</strong>
+  per-case <code>safe_asp_counterfactual</code> (<code>would_select</code> / <code>gate</code> / <code>reason</code>
+  / policy snapshot / per-gate decisions) is written into the run JSON
+  and the session. Ungated run-internal knobs
+  (<code>ASP_ALIGN_GATE_DX=9999</code>, <code>ASP_COV_MIN_MULTI_PCT=0</code>) are <strong>forced</strong>,
+  not <code>setdefault</code>. Counterfactual uses frozen product Safe ASP defaults
+  so inherited <code>ASP_GATE_*</code> cannot change the baseline. Official
+  <code>just bench::asp-benchmark-ungated</code> recipes export the same knobs.</li>
+<li><strong>#30 ungated Raw ASP harness (2026-08-15):</strong> <code>ASP_BENCH_UNGATED=1</code>
+  publishes Raw ASP as the baseline (policy still evaluated for
+  telemetry: <code>policy_would_reject</code>). Internal no-edge / affine-invalid
+  fallbacks still have no raw composite. Recipes:
+  <code>just bench::asp-benchmark-ungated</code> (97-case) and
+  <code>just bench::asp-benchmark-ungated-verify</code> (5-test smoke).</li>
 <li><strong>M1c GUI adapter (2026-08-15, #29):</strong> <code>_ProgressPipeline.run()</code>
   defaults to canonical <code>AnimeStitchPipeline.run()</code>, forwarding
   <code>exclusion_masks</code>, <code>motion_model</code>, and HITL <code>pause_hook</code>. The three
   legacy-fork <code>_composite_foreground</code> calls now pass <code>exclusion_masks</code>.
   <code>ASP_GUI_LEGACY=1</code> keeps the HITL override fork. Headless parity:
   <code>backend/test/core/test_entry_parity.py</code>.</li>
+<li><strong>M1c HITL default clarified (2026-08-15, #29 Chat/Claude review):</strong>
+  a real <code>pause_cb</code> (the stitch worker) keeps the 9-checkpoint fork
+  until M6. Headless / no-op pause uses canonical <code>run()</code> so CLI/bench/GUI
+  share bytes. <code>ASP_GUI_CANONICAL=1</code> / <code>ASP_GUI_LEGACY=1</code> force a side.
+  Canonical path still only applies the <code>masks</code> pause; #29 is <strong>not</strong>
+  "all HITL on canonical."</li>
 <li><strong>M1b canonical bench adapter (2026-08-15, #28):</strong> default
   <code>process_dataset</code> path is <code>run_canonical_asp()</code> — product
   <code>AnimeStitchPipeline.run()</code> then <code>SafeAspPolicy</code>. A <code>raw_asp</code>
