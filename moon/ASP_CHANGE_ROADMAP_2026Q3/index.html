@@ -1,0 +1,2951 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation portal for the Anime Stitch Pipeline (ASP) panorama stitching engine.">
+      
+      
+        <meta name="author" content="ACFHarbinger">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>ASP Change Roadmap — 2026 Q3 - Anime-Stitch-Pipeline Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#asp-change-roadmap-2026-q3" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-header__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Anime-Stitch-Pipeline Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ASP Change Roadmap — 2026 Q3
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../ARCHITECTURE/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEVELOPMENT/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Development
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TESTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Testing
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCIES/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependencies
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Dependency Policy
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Documentation Standards
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../BENCHMARKS/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Benchmarks
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../TROUBLESHOOTING/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../GLOSSARY/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Glossary
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../tutorials/getting-started-hybridstitch/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Tutorials
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../ROADMAP/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Roadmap
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../CHANGELOG/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../research/ASP_Comprehensive_Research_Report/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Research
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../reports/ASP_Critical_Evaluation_2026-07-08/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Reports
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Image-Toolkit (parent project)
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Anime-Stitch-Pipeline Documentation" class="md-nav__button md-logo" aria-label="Anime-Stitch-Pipeline Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Anime-Stitch-Pipeline Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ACFHarbinger/Anime-Stitch-Pipeline" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ACFHarbinger/Anime-Stitch-Pipeline
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ARCHITECTURE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TESTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCIES/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DEPENDENCY_POLICY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Policy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../DOCUMENTATION_STANDARDS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Documentation Standards
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../BENCHMARKS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../TROUBLESHOOTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../GLOSSARY/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_11" id="__nav_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_11">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/getting-started-hybridstitch/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started with HybridStitch
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/pipeline-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Pipeline Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ROADMAP/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Roadmap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_15" >
+        
+          
+          <label class="md-nav__link" for="__nav_15" id="__nav_15_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Research
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_15_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_15">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Research
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/ASP_Comprehensive_Research_Report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Comprehensive Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../research/Image_Stitching_Research/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Research
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_16" >
+        
+          
+          <label class="md-nav__link" for="__nav_16" id="__nav_16_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reports
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_16_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_16">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reports
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reports/ASP_Critical_Evaluation_2026-07-08/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ASP Critical Evaluation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reports/image_stitching_report/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Stitching Report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/ACFHarbinger/Image-Toolkit" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image-Toolkit (parent project)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-product-objective" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Product objective
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-locked-planning-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Locked planning decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-evidence-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Evidence baseline
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-non-negotiable-engineering-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Non-negotiable engineering rules
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-delivery-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Delivery sequence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Delivery sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m0-lock-truth-and-experiment-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M0 — Lock truth and experiment contracts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m1-one-canonical-product-pipeline-p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M1 — One canonical product pipeline (P0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m2-safe-asp-policy-and-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M2 — Safe ASP policy and observability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m25-human-aligned-quality-metrics-and-benchmark-analytics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M2.5 — Human-aligned quality metrics and benchmark analytics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m3-birefnet-single-pose-compositor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M3 — BiRefNet single-pose compositor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m4-separate-camera-trajectory-from-cel-pose-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M4 — Separate camera trajectory from cel-pose selection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m5-seam-and-photometric-refinement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M5 — Seam and photometric refinement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m6-optional-artist-review-and-final-promotion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M6 — Optional artist review and final promotion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-resource-and-configuration-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Resource and configuration profiles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Resource and configuration profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#laptop_balanced-required-default-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        laptop_balanced — required default target
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#desktop_quality-higher-quality-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        desktop_quality — higher-quality target
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        custom
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-future-work-explicitly-not-current-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Future work — explicitly not current priority
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Future work — explicitly not current priority">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#temporalheavier-segmentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temporal/heavier segmentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#visual-redesign" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visual redesign
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sfw-benchmark-corpus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SFW benchmark corpus
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-team-workflow-and-evidence-handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Team workflow and evidence handoff
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-immediate-issue-order-for-claudes-final-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Immediate issue order for Claude's final review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-claudes-review-pass-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Claude's review pass (2026-08-15)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Claude&#39;s review pass (2026-08-15)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-verified-orchestration-divergence-m1s-premise-holds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Verified — orchestration divergence (M1's premise holds)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-corrected-flag-count-and-translation_scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Corrected — flag count and translation_scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-gap-the-older-critical-evaluation-isnt-cross-linked-and-two-of-its-structural-recommendations-arent-in-m0m6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 Gap — the older Critical Evaluation isn't cross-linked, and two of its structural recommendations aren't in M0–M6
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104-gap-anti-goals-and-prior-failure-history-arent-carried-forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.4 Gap — Anti-Goals and prior-failure history aren't carried forward
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#105-evidence-worth-citing-directly-in-m0m1-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.5 Evidence worth citing directly in M0/M1 issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-open-questions-for-harbinger-claude-pending-geminigrok-passes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Open questions for Harbinger (Claude, pending Gemini/Grok passes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-geminis-review-pass-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Gemini's review pass (2026-08-15)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Gemini&#39;s review pass (2026-08-15)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-structural-visual-defect-root-causes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 Structural &amp; Visual Defect Root Causes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-artist-review-workflow-visual-diagnostics-m6-design-specs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 Artist Review Workflow &amp; Visual Diagnostics (M6 Design Specs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-art-asset-pipeline-parity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 Art &amp; Asset Pipeline Parity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-open-questions-for-harbinger-gemini" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Open questions for Harbinger (Gemini)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-harbingers-decisions-on-claude-gemini-review-passes-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Harbinger's decisions on Claude &amp; Gemini review passes (2026-08-15)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-groks-implementation-feasibility-pass-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Grok's implementation-feasibility pass (2026-08-15)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Grok&#39;s implementation-feasibility pass (2026-08-15)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#151-verified-the-three-runners-really-diverge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.1 Verified — the three runners really diverge
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#152-verified-chats-five-correctness-findings-still-stand" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.2 Verified — Chat's five correctness findings still stand
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#153-evidence-update-97-case-file-is-preference-complete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.3 Evidence update — 97-case file is preference-complete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#154-sequencing-that-i-will-refuse-to-invert" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.4 Sequencing that I will refuse to invert
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#155-what-i-changed-in-this-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.5 What I changed in this document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#156-effort-sketch-so-claude-can-cut-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15.6 Effort sketch (so Claude can cut issues)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-open-questions-for-harbinger-grok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Open questions for Harbinger (Grok)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#17-harbingers-decisions-on-groks-feasibility-questions-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17. Harbinger's decisions on Grok's feasibility questions (2026-08-15)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#18-new-track-added-during-joint-final-review-m25-2026-08-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        18. New track added during joint final review — M2.5 (2026-08-15)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="asp-change-roadmap-2026-q3">ASP Change Roadmap — 2026 Q3</h1>
+<p><strong>Status:</strong> Chat/Codex draft + Claude/Gemini/Grok review passes + Harbinger
+answers on §11/§13/§16 (2026-08-15). Ready for Claude's joint final review
+and issue decomposition. No implementation until that close.<br />
+<strong>Created:</strong> 2026-08-15<br />
+<strong>Scope:</strong> ASP correctness, product-pipeline convergence, measurement, and the
+artist review workflow. The visual redesign is recorded as future work and is
+not a current implementation priority.</p>
+<p>This is the short, issue-ready plan for new ASP work. The older
+<a href="../ROADMAP/"><code>ROADMAP.md</code></a> remains the research history and experiment ledger;
+when the two documents differ about future work, this roadmap takes priority.</p>
+<h2 id="1-product-objective">1. Product objective</h2>
+<p>The ultimate goal is for the <strong>raw ASP compositor</strong> to beat SCANS. Safety
+fallbacks are part of the shipped product, but they must not hide raw ASP's
+quality or be counted as raw ASP wins.</p>
+<p>Every benchmark and user-facing comparison must keep three identities separate:</p>
+<ol>
+<li><strong>Raw ASP</strong> — the ASP result before any SCANS replacement.</li>
+<li><strong>Safe ASP</strong> — the shipped policy result, which may select Raw ASP or SCANS.</li>
+<li><strong>SCANS</strong> — the unchanged comparator and fallback candidate.</li>
+</ol>
+<p>The benchmark must retain all three artifacts, identify which artifact Safe ASP
+selected, and report raw and safe scorecards separately. An ASP fallback must
+never be silently labelled as a genuine ASP composite.</p>
+<p>Final success requires both:</p>
+<ul>
+<li>Raw ASP has no human-rated loss to SCANS on any of the 97 cases.</li>
+<li>Raw ASP's mean human coherence score is strictly greater than SCANS's mean.</li>
+</ul>
+<p>Human structural coherence outranks SSIM and all reference-free metrics. Torn
+anatomy, duplicated strips, or misordered content are release-blocking even when
+an automated score improves.</p>
+<h2 id="2-locked-planning-decisions">2. Locked planning decisions</h2>
+<ul>
+<li>Unify benchmark, backend/CLI, and GUI execution before adding more image
+  quality algorithms.</li>
+<li>Preserve the completed human review. The 0–4 coherence score ordering is the
+  canonical quantitative label; preference, notes, confidence, and defect tags
+  remain metadata and are never discarded.</li>
+<li>Use staged milestones instead of requiring the final 97/97 result from every
+  experiment.</li>
+<li>Prove a BiRefNet-based single-pose compositor before adopting a heavier
+  tracking dependency.</li>
+<li>Keep SAM2 or comparable temporal segmentation as a future, measured
+  experiment rather than a current prerequisite.</li>
+<li>The normal workflow is automatic Safe ASP with an <strong>optional review screen</strong>.</li>
+<li>The default laptop profile must complete on 12 GB VRAM and 32 GB system RAM.
+  More powerful hardware may select a higher-quality profile.</li>
+<li>Include artist-facing workflow work in this plan. Record visual redesign as a
+  non-priority future entry.</li>
+</ul>
+<h2 id="3-evidence-baseline">3. Evidence baseline</h2>
+<p>The completed <code>asp_evaluations_20260810.json</code> contains 97 reviewed cases:</p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th style="text-align: right;">Raw label currently called ASP</th>
+<th style="text-align: right;">SCANS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mean coherence</td>
+<td style="text-align: right;">2.010 / 4</td>
+<td style="text-align: right;">2.639 / 4</td>
+</tr>
+<tr>
+<td>Score-order wins</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">49</td>
+</tr>
+<tr>
+<td>Score-order ties</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">38</td>
+</tr>
+</tbody>
+</table>
+<p>The saved output is not a clean Raw ASP baseline because 54 of 97 results are
+benchmark-only safety fallbacks. On the 43 true composites, ASP averages 1.326
+and records 4 wins, 3 ties, and 36 losses. A new ungated Raw ASP corpus run is
+therefore required after pipeline convergence; the completed ratings must not be
+misrepresented as that raw baseline.</p>
+<p>Preference metadata is now complete for all 97 records (filled 2026-08-15):
+tests 27 and 39 prefer SCANS, test 56 prefers ASP, test 91 is a 4–4 tie.
+Current preference field: <strong>14 ASP / 29 tie / 54 SCANS</strong>. Fourteen preferences
+still disagree with score ordering; both fields stay, score ordering remains
+canonical. Do not reopen the 97-case rating pass.</p>
+<p>Current automated verdicts agree exactly with human score ordering on only
+58/97 cases. Sharpness, edge energy, and current ghosting metrics are diagnostic
+signals, not promotion criteria. Aligned GT-SSIM is useful where GT exists but
+does not replace human review.</p>
+<h2 id="4-non-negotiable-engineering-rules">4. Non-negotiable engineering rules</h2>
+<ol>
+<li>One canonical pipeline owns orchestration. Benchmarks and GUI code call it;
+   they do not reproduce its stages.</li>
+<li>One material hypothesis per experiment. Record the exact config, commit,
+   input slice, resource profile, output paths, and result.</li>
+<li>Default-off experiments do not count as finished until they are integrated,
+   exercised on representative data, and either promoted or removed.</li>
+<li>Python and C++ paths need parity fixtures for any behavior that can change an
+   image.</li>
+<li>Do not introduce hidden environment switches. New configuration belongs in
+   a typed schema and a named profile. Target <strong>~20 active flags</strong> on the
+   default shipped profiles (<code>laptop_balanced</code> / <code>desktop_quality</code>). A new
+   default-profile flag must displace an old one except when it is measurably
+   better on a named subset and worse on another. "Active" means it is on the
+   default surface and can change a shipped-profile image. Additional
+   registered parameters are reached through an <strong>Advanced configuration</strong>
+   control, not by deleting them in M2. Advanced values still persist in the
+   experiment/project manifest. <code>ASP_HOLD_BG_SUB</code> is currently a hidden
+   <code>os.environ</code> read and must be registered or deleted in M2.</li>
+<li>No output may overwrite Raw ASP, Safe ASP, or SCANS evidence from the same
+   run.</li>
+<li>Every implementation issue updates this roadmap and the changelog with what
+   actually shipped, what was measured, and what remained disabled.</li>
+<li>Do not rewrite <code>_ProgressPipeline.run()</code> and <code>bench_anime_stitch.py</code> in the
+   same change. Extract a shared stage protocol first; adapters migrate one
+   entry point at a time. GUI parity tests are headless (no Qt): they call
+   the same stage functions with recorded callbacks, not a live QApplication.</li>
+<li>Reuse <code>backend/src/hitl/hitl_session.py</code> and the existing HITL checkpoints.
+   Do not invent a second session format. Web and PySide6 inspectors are thin
+   views over one replayable schema.</li>
+<li>Algorithmic rebuilds (Critical Evaluation §9.2 compositor, repaired
+    translation+scale, aligned background plate) land as default-off named
+    candidates after M1. They do not replace the current compositor in place
+    until a human screen promotes them.</li>
+<li><code>translation_scale</code>, the exported DP hold-keyframe selector, the Python
+    <code>1e6</code> semantic hard-veto, and C++ <code>build_seam_cost_map(...exclusion_masks)</code>
+    are <strong>not</strong> completed work. Issues must say repair-or-remove, never
+    "finish wiring."</li>
+</ol>
+<h2 id="5-delivery-sequence">5. Delivery sequence</h2>
+<h3 id="m0-lock-truth-and-experiment-contracts">M0 — Lock truth and experiment contracts</h3>
+<p><strong>Purpose:</strong> make every subsequent result reproducible and correctly labelled.</p>
+<p>Deliverables:</p>
+<ul>
+<li>Define <code>raw_asp</code>, <code>safe_asp</code>, and <code>scans</code> as separate result fields and output
+  artifacts throughout the evaluator and dashboard data.</li>
+<li>Treat score ordering as the canonical quantitative human verdict. Preserve
+  preference disagreements and nulls without silently rewriting them.</li>
+<li>Extend future annotations so score dimensions and defect tags belong to a
+  specific output, not the comparison as a whole.</li>
+<li>Version two development slices:</li>
+<li>the existing five-case smoke set (04, 08, 09, 27, 57);</li>
+<li>a structural red set covering crop loss, torn anatomy, duplicated strips,
+    misordering, banding, a known-good result, and test 14's manual-selection
+    oracle.</li>
+<li>Save a machine-readable experiment manifest with the Git commit, profile,
+  effective config, model versions, input hashes, timings, peak VRAM/RAM, and
+  output hashes. There is no existing manifest/telemetry harness to extend
+  (greenfield).</li>
+<li>Relabel the saved 2026-08-07 full-corpus artifacts (<code>anime_stitch_20260807_045552.json</code>
+  and companions) into <code>raw_asp</code> / <code>safe_asp</code> / <code>scans</code> without requiring a
+  new 97-case GPU run as an M0 exit. A fresh ungated Raw ASP corpus run is
+  <strong>M1's follow-up</strong>, once the three adapters share a runner — that run is
+  the pre-algorithm baseline for M2+. It is not an M0 blocker and is not
+  deferred all the way to M6.4.</li>
+<li>Generate a small procedural <strong>layered</strong> synthetic suite (static background
+  plate + 2–3 held character cels with known camera velocity and known hold
+  IDs). The existing <code>test_scroll_gradient</code> / <code>test_scroll_pattern</code> samples
+  are unlayered onboarding scrolls and are <strong>not</strong> sufficient for hold or
+  single-pose tests.</li>
+<li>Regenerate the dashboard summary only from the typed result fields.</li>
+</ul>
+<p>Exit criteria:</p>
+<ul>
+<li>A report can reconstruct exactly which artifact was rated and which artifact
+  Safe ASP selected.</li>
+<li>No completed human metadata is lost.</li>
+<li>Two runs with the same manifest produce equivalent stage traces and identify
+  any nondeterministic stages.</li>
+<li>The synthetic fixture recovers known translation (and hold IDs) in a unit
+  test without the anime corpus.</li>
+</ul>
+<h3 id="m1-one-canonical-product-pipeline-p0">M1 — One canonical product pipeline (P0)</h3>
+<p><strong>Purpose:</strong> ensure that benchmark evidence describes what artists actually use.</p>
+<p>Deliverables:</p>
+<ul>
+<li>Make <code>AnimeStitchPipeline.run()</code> (or a factored canonical successor) the sole
+  stage orchestrator. <code>_ProgressPipeline</code> already <em>subclasses</em>
+  <code>AnimeStitchPipeline</code> but <strong>overrides <code>run()</code> entirely</strong> (~833-line fork).
+  Inheritance is not sharing. Do not treat "it subclasses" as convergence.</li>
+<li>Land M1 in three sequential PRs, not one:</li>
+<li><strong>M1a</strong> — extract a stage protocol / <code>PipelineSession</code> (inputs, config,
+     traces, artifacts, pause hooks). No behavior change.</li>
+<li><strong>M1b</strong> — convert <code>bench_anime_stitch.py</code> (4045 lines; owns
+     Composite/Ghost/SeamVis and its own <code>smart_select_frames</code>) into an
+     adapter. First-file bugfix in this PR or immediately before it: video
+     <code>smart_select_frames(proxy_imgs, target_n=want)</code> is a TypeError today
+     (<code>selector.py</code> takes <code>frames_paths: list[str]</code> and has no <code>target_n</code>)
+     and silently falls back to uniform.</li>
+<li><strong>M1c</strong> — convert GUI <code>_ProgressPipeline</code> to hooks over the same
+     stages. Pass <code>exclusion_masks</code> into <code>_composite_foreground</code> (the GUI
+     <em>does</em> call composite three times for HITL, but never forwards the
+     captured masks; the canonical <code>run_stage.py:571</code> already does).</li>
+<li>Make frame selection and output-safety policy explicit pipeline components.</li>
+<li>Parent Image-Toolkit <code>backend/controllers/backend_dispatch.py</code> is already a
+  thin <code>AnimeStitchPipeline.run()</code> caller, <strong>not</strong> a fourth compositor. Keep
+  it thin; give it the new policy/telemetry kwargs when the canonical API
+  grows. Comparator scripts (<code>run_hugin.py</code>, <code>run_overmix.py</code>) stay outside
+  the ASP compositor.</li>
+<li>Add headless parity tests: same input/config → same Raw ASP bytes and
+  stage-trace digest for CLI, benchmark adapter, and GUI adapter (callbacks
+  recorded, no <code>QApplication</code>).</li>
+</ul>
+<p>Exit criteria:</p>
+<ul>
+<li>All three ASP entry points produce the same Raw ASP artifact and stage
+  trace for the same manifest.</li>
+<li>No orchestration fork owns an image-changing stage.</li>
+<li>Video smart mode either selects or hard-fails; it must not swallow
+  <code>TypeError</code> into uniform.</li>
+<li>Existing focused tests pass, and the new entry-point parity suite passes.</li>
+<li>After adapters land, run one ungated Raw ASP 97-case corpus (all three
+  artifacts retained) and freeze it as the M2+ baseline. This is the first
+  true Raw ASP scorecard; do not start M3 until it exists.</li>
+</ul>
+<p>No new default image-quality algorithm is introduced in M1.</p>
+<h3 id="m2-safe-asp-policy-and-observability">M2 — Safe ASP policy and observability</h3>
+<p><strong>Purpose:</strong> ship a conservative result while Raw ASP is still improving.</p>
+<p>Deliverables:</p>
+<ul>
+<li>Always retain a valid SCANS candidate alongside Raw ASP.</li>
+<li>Classify structural risk using interpretable signals and explicit uncertainty;
+  an uncertain automatic decision selects SCANS by default and can be reviewed.</li>
+<li>Show the selected source and reason in the trace, report, and optional review
+  screen.</li>
+<li>Audit existing gates against the completed human labels. Remove or demote
+  signals that are inversely correlated with human quality (sharpness, edge
+  energy, and current ghosting vs human ASP–SCANS delta are known inverse).</li>
+<li>Record per-stage image geometry, frame provenance, pose provenance, gain
+  residuals/clamps, seam feasibility, and fallback reason.</li>
+<li>Consolidate experimental flags into typed named profiles. Schema currently
+  has <strong>67</strong> registered keys; <code>ASP_HOLD_BG_SUB</code> is a 68th hidden read.
+  Default profiles expose ≤20 image-changing keys. An Advanced
+  configuration control reveals the remaining registered parameters; it
+  does not make them the implicit default.</li>
+</ul>
+<p>Exit criteria:</p>
+<ul>
+<li>Safe ASP is rated no worse than SCANS on the structural red set <strong>and</strong>
+  is <em>discriminating</em>: it must select Raw ASP on at least one known-good
+  red-set case and SCANS on the known catastrophes. Always-SCANS satisfies
+  "never worse" but is not an M2 success.</li>
+<li>Every automatic choice is reproducible and explainable from the manifest.</li>
+<li>Raw ASP statistics remain visible and unaffected by Safe ASP selection.</li>
+</ul>
+<h3 id="m25-human-aligned-quality-metrics-and-benchmark-analytics">M2.5 — Human-aligned quality metrics and benchmark analytics</h3>
+<p><strong>Purpose:</strong> the sharpness/edge-energy/ghosting inverse correlation to human
+judgment (§3, Spearman -0.47/-0.53/-0.60) has so far only been used to demote
+those signals. This milestone investigates <em>why</em> they diverge and turns that
+into measurement infrastructure, instead of leaving automated metrics as
+permanently untrustworthy.</p>
+<p>Depends on M0's per-output defect-annotation schema (comparison-level tags
+like <code>ghosting=69</code> cannot be attributed to a specific artifact today). Starts
+once M0 lands; runs in parallel with M1-M4. Analysis- and tooling-only — it
+does not change any Raw ASP/Safe ASP algorithm default.</p>
+<p>Deliverables:</p>
+<ul>
+<li><strong>Per-defect-category correlation/impact analysis.</strong> Extend the existing
+  corpus-wide correlation check to be per-defect-category and, where
+  attributable, per-pipeline-stage: which failure classes (torn anatomy,
+  banding, color shift, crop loss, ...) does each existing and new metric
+  actually track, and which does it invert on? Use this to validate or
+  challenge the locked structural-before-photometric (M3/M4 before M5)
+  ordering with evidence, not just a priori reasoning — it does not
+  override §5's locked sequencing on its own; a strong contradiction is an
+  open question for Harbinger, not a silent reorder.</li>
+<li><strong>New/anime-adapted CV metrics.</strong> Research and implement 2D-cel-adapted
+  variants of existing picture-quality metrics (e.g. structure/edge metrics
+  tuned for flat-color regions and line art rather than photographic
+  texture), plus any new metric candidates. Every candidate is validated
+  against human labels before it is trusted for anything beyond diagnostics;
+  no metric becomes a promotion gate without that validation.</li>
+<li><strong>Learned proxy metric.</strong> Train/fine-tune a model to predict human
+  coherence from Raw-ASP-vs-SCANS pairs or single-output quality. Scoped as
+  a <strong>non-gating diagnostic proxy only</strong> — revalidated against held-out
+  human ratings every time the corpus grows. Report dataset size (currently
+  97 cases, 43 true Raw ASP composites), train/validation split, and
+  confidence explicitly; human review remains the sole release criterion
+  per §1 regardless of this metric's performance.</li>
+<li><strong>Similarity-based benchmark subset selection.</strong> Build visual/statistical
+  similarity metrics between benchmark test cases (image-level) and between
+  human quantitative scores plus defect/textual annotations (label-level) to
+  derive representative mini-benchmark subsets for fast-iteration deltas
+  without a full 97-case run, and to support subset selection scoped to a
+  specific pipeline area (e.g. a seam-focused subset for M5 work). This
+  <strong>supplements</strong> the existing manually-curated five-case smoke set and
+  structural red set; it does not replace them yet. Replacing hand-curation
+  with the data-driven method is a later, explicit promotion decision once
+  the tooling's representativeness is measured and stable across corpus
+  growth — not automatic on landing.</li>
+</ul>
+<p>Exit criteria:</p>
+<ul>
+<li>Every existing and candidate metric has a documented per-defect-category
+  correlation against human labels; none is used as a promotion signal
+  without this.</li>
+<li>At least one opt-in data-driven subset-selection method exists alongside
+  the manual smoke/red sets, with measured representativeness (how well its
+  deltas predict full-corpus deltas).</li>
+<li>Any learned proxy metric reports its own validation correlation against
+  human labels, is revalidated at each corpus milestone, and is documented
+  as non-gating.</li>
+</ul>
+<h3 id="m3-birefnet-single-pose-compositor">M3 — BiRefNet single-pose compositor</h3>
+<p><strong>Purpose:</strong> eliminate pose mixing by construction before adding a temporal
+segmentation model.</p>
+<p>Deliverables:</p>
+<ul>
+<li>Treat M3 as a <strong>named default-off compositor candidate</strong> (<code>coherence_v2</code> or
+  similar profile key), not an in-place rewrite of
+  <code>rendering/compositing/</code>. The current composite + HITL seam loop stays
+  until promotion. Cite Critical Evaluation §9.2 Stage 2 (per-pixel
+  same-phase background average; single-pose foreground) as the evaluated
+  alternative. Existing <code>ASP_BG_AVERAGE</code> was measured harmful under the
+  <em>current</em> (unaligned / mixed-phase) pipeline — that result does not
+  reject §9.2; it forbids turning averaging on without phase grouping and
+  alignment first.</li>
+<li>Use BiRefNet masks to distinguish background reconstruction from foreground
+  ownership. Unload BiRefNet after Stage 4 (canonical <code>run()</code> already does)
+  so <code>laptop_balanced</code> stays inside 12 GB.</li>
+<li>Assign each foreground region in an overlap to one source pose. Do not median,
+  feather, or seam-blend competing character poses through the same region.</li>
+<li>Define a deterministic ownership/handoff policy using mask confidence,
+  visibility, boundary truncation, frame quality, and temporal consistency.</li>
+<li>When no background seam corridor exists, select a single-pose handoff instead
+  of applying an infinite cost to every possible seam path.</li>
+<li>Propagate ownership metadata to diagnostics and the optional review screen.</li>
+<li>Prove equivalent semantic-cost and exclusion-mask behavior in Python and C++,
+  or delete one implementation.</li>
+</ul>
+<p>Exit criteria:</p>
+<ul>
+<li>No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the
+  structural red set.</li>
+<li>The five-case smoke set has no regression.</li>
+<li>A human screen confirms the candidate before promotion to a larger slice.</li>
+</ul>
+<p>SAM2 is explicitly out of scope for this milestone.</p>
+<h3 id="m4-separate-camera-trajectory-from-cel-pose-selection">M4 — Separate camera trajectory from cel-pose selection</h3>
+<p><strong>Purpose:</strong> choose frames that progress across the background without mixing
+animation phases.</p>
+<p>Deliverables:</p>
+<ul>
+<li>Estimate camera motion from aligned/background evidence rather than raw
+  whole-frame appearance. M4 must evaluate §9.2 Stage 0 (phase-group <strong>before</strong>
+  alignment) as a named alternative, not only "hold detect then BA."</li>
+<li>Detect held cels only after compensating for background pan. A held character
+  pose must never force camera displacement to zero.</li>
+<li>Replace <code>_estimate_background_plate()</code> (pixelwise median of <strong>unaligned</strong>
+  cropped thumbnails in <code>_hold_detection.py</code>) with an aligned or
+  motion-compensated plate. The current function cannot be a background plate
+  under a real pan.</li>
+<li>Integrate, measure, or remove <code>_select_hold_keyframes_dp</code> (exported and
+  unit-tested, never called by <code>smart_select_frames</code> or <code>run()</code>). Hidden
+  <code>ASP_HOLD_BG_SUB</code> is registered or deleted in the same change.</li>
+<li>Use test 14's manual frame selection as an oracle: first reproduce its result,
+  then measure which automatic decisions diverge.</li>
+<li>Keep pose-path safety constraints, but log every veto and substitution.</li>
+<li>Repair translation+scale geometry before further A/B work: edge observations
+  must contain measured scale information, and a synthetic test must recover a
+  known scale. Otherwise remove the model from candidate profiles.</li>
+</ul>
+<p>Exit criteria:</p>
+<ul>
+<li>Real spatial-pan fixtures distinguish camera movement from held cel motion.</li>
+<li>The structural red set improves without increasing crop loss.</li>
+<li>Frame provenance explains every chosen pose and camera-progress step.</li>
+</ul>
+<h3 id="m5-seam-and-photometric-refinement">M5 — Seam and photometric refinement</h3>
+<p><strong>Purpose:</strong> address seams, banding, and colour/exposure only after structural
+ownership is safe.</p>
+<p>Deliverables:</p>
+<ul>
+<li>Route seams through feasible background corridors and use the M3 handoff when
+  no corridor exists.</li>
+<li>Compare the current overlap-graph gain solver with HSV-value and LAB
+  alternatives on the same saved artifacts.</li>
+<li>Log graph connectivity, rejected observations, condition/residual changes,
+  clamp counts, and affected frames.</li>
+<li>Reject global outlier logic that removes legitimate smooth exposure changes.</li>
+<li>Keep foreground correction separate from background normalization unless a
+  measured experiment justifies coupling them.</li>
+</ul>
+<p>Exit criteria:</p>
+<ul>
+<li>No new structural defect on the red set.</li>
+<li>Banding, seam, and color scores improve in output-specific human annotations.</li>
+<li>The larger staged corpus confirms the improvement; automated gains alone are
+  insufficient.</li>
+</ul>
+<h3 id="m6-optional-artist-review-and-final-promotion">M6 — Optional artist review and final promotion</h3>
+<p><strong>Purpose:</strong> make uncertainty controllable without making manual review
+mandatory.</p>
+<p>Functional review-screen scope (both modalities share one contract):</p>
+<ul>
+<li><strong>M6a first:</strong> one replayable session schema (extend
+  <code>hitl_session.py</code> / <code>.asp-session.json</code>), plus a headless replay that
+  reproduces the edited composite from the manifest alone.</li>
+<li><strong>M6b / M6c:</strong> PySide6 dialog (benchmark evaluator + desktop stitch tab)
+  and <code>docs/website/</code> inspector are views over that schema. Do not give
+  them independent state models.</li>
+<li>Compare Raw ASP, Safe ASP, and SCANS without ambiguous labels. Gemini's
+  tri-view (debug overlays on Raw, fallback badge on Safe, SCANS reference)
+  is the functional layout spec.</li>
+<li>Show why Safe ASP selected its output.</li>
+<li>Allow optional frame/pose selection, single-pose ownership/handoff, seam
+  override, and final output selection.</li>
+<li>Save edits as a replayable manifest rather than mutating undocumented state.</li>
+<li>Default to the automatic Safe ASP path when the screen is skipped.</li>
+<li>Native layered export is an M3/M4 <em>output contract</em>, not only an M6 UI
+  feature: write a clean background plate + per-cel RGBA. First-ship format
+  is a PNG layer stack + JSON sidecar. PSD is a later adapter, not an M3
+  blocker.</li>
+</ul>
+<p>Promotion ladder:</p>
+<ol>
+<li>Unit, parity, and real-pan fixture tests.</li>
+<li>Existing five-case smoke set.</li>
+<li>Structural red set plus human screen.</li>
+<li>First full Raw ASP baseline with all fallback gates disabled
+   (scheduled immediately after M1 adapters, not at the end of the plan).</li>
+<li><strong>Structural milestone:</strong> no Raw ASP 0/4 scores and no hard structural defect
+   on the red set.</li>
+<li><strong>Corpus safety milestone:</strong> no Raw ASP score below 2/4; Raw ASP is non-losing
+   on at least 75/97 cases.</li>
+<li><strong>Parity milestone:</strong> Raw ASP mean exceeds SCANS and is non-losing on at least
+   90/97 cases.</li>
+<li><strong>Final milestone:</strong> Raw ASP is non-losing on 97/97 and has a strictly higher
+   mean score than SCANS.</li>
+</ol>
+<p>Any default change requires the relevant human screen and a full-97 run. A
+later milestone cannot waive an earlier structural requirement.</p>
+<h2 id="6-resource-and-configuration-profiles">6. Resource and configuration profiles</h2>
+<h3 id="laptop_balanced-required-default-target"><code>laptop_balanced</code> — required default target</h3>
+<ul>
+<li>Target: RTX 4080 Laptop GPU with 12 GB VRAM and 32 GB RAM.</li>
+<li>Must complete without GPU or host OOM.</li>
+<li>Record peak VRAM, peak RSS, wall-clock time, model load time, and fallback
+  behavior per case.</li>
+<li>Use bounded batches, explicit model lifecycle/offload, and deterministic
+  degradation when a requested option exceeds the budget.</li>
+</ul>
+<h3 id="desktop_quality-higher-quality-target"><code>desktop_quality</code> — higher-quality target</h3>
+<ul>
+<li>Target: RTX 3090 Ti-class system or better.</li>
+<li>May trade additional compute and memory for higher-resolution masks, larger
+  search windows, or stronger optional models.</li>
+<li>Must preserve the same artifact schema and safety guarantees.</li>
+</ul>
+<h3 id="custom"><code>custom</code></h3>
+<ul>
+<li>Expose typed, validated parameters inherited from a named profile.</li>
+<li>Persist the effective values in the experiment/project manifest.</li>
+<li>Do not add a parallel collection of undocumented <code>ASP_*</code> switches.</li>
+</ul>
+<p>M0 establishes measured runtime baselines before setting a hard wall-clock
+ceiling; avoiding OOM on <code>laptop_balanced</code> is immediately mandatory.</p>
+<h2 id="7-future-work-explicitly-not-current-priority">7. Future work — explicitly not current priority</h2>
+<h3 id="temporalheavier-segmentation">Temporal/heavier segmentation</h3>
+<p>After M3 proves the BiRefNet single-pose contract, evaluate SAM2 or a comparable
+tracker only for a named deficiency such as temporal mask continuity. It must use
+the same ownership interface, pass the 12 GB profile or declare itself
+<code>desktop_quality</code>-only, and beat the BiRefNet baseline under human review.</p>
+<h3 id="visual-redesign">Visual redesign</h3>
+<p>Gemini leads a future visual pass for the comparison/review workflow after its
+functional contracts stabilize. Possible work includes clearer pose ownership,
+seam-risk, and frame-provenance visualization. Visual redesign must not block M0
+through M5 and must not change benchmark semantics.</p>
+<h3 id="sfw-benchmark-corpus">SFW benchmark corpus</h3>
+<p>Tracked separately in
+<a href="../ASP_SFW_CORPUS_ROADMAP_2026Q3/"><code>ASP_SFW_CORPUS_ROADMAP_2026Q3.md</code></a> — a
+non-blocking generalization check, not a current M0–M6 dependency. Its
+validation pass (C2) is sequenced after M1 for measurement-validity reasons,
+not as an M1 requirement.</p>
+<h2 id="8-team-workflow-and-evidence-handoff">8. Team workflow and evidence handoff</h2>
+<ul>
+<li><strong>Claude:</strong> team lead; decomposes milestones into GitHub issues, records
+  dependencies and acceptance criteria, and closes work only after review.</li>
+<li><strong>Grok:</strong> primary implementation owner for code tasks.</li>
+<li><strong>Gemini:</strong> design/art lead; owns review-workflow design and later visual work,
+  and advises on visual defect interpretation.</li>
+<li><strong>Chat/Codex:</strong> reviewer; compares implementation, tests, saved artifacts,
+  changelog, and roadmap claims, repairs bounded integration details when
+  appropriate, and reports acceptance or remaining gaps to Claude.</li>
+<li><strong>Harbinger:</strong> final product/quality authority for human comparisons and
+  roadmap ambiguity.</li>
+</ul>
+<p>For each issue, the implementation handoff must state:</p>
+<ul>
+<li>hypothesis and affected failure class;</li>
+<li>files and defaults changed;</li>
+<li>exact tests and experiment manifests;</li>
+<li>Raw ASP, Safe ASP, and SCANS results separately;</li>
+<li>resource use under the applicable profile;</li>
+<li>roadmap/changelog entries updated;</li>
+<li>known limitations and whether the candidate is enabled, gated, rejected, or
+  removed.</li>
+</ul>
+<p>Chat/Codex verifies those claims against the actual diff and artifacts, posts the
+result to the agent bus, and tells Claude what is safe to delegate next.</p>
+<h2 id="9-immediate-issue-order-for-claudes-final-review">9. Immediate issue order for Claude's final review</h2>
+<ol>
+<li>M0 result/artifact schema, preference-complete baseline freeze, and
+   relabel of the 2026-08-07 run into raw/safe/scans.</li>
+<li>M0 experiment-manifest + resource telemetry (greenfield) and the layered
+   synthetic pan/hold fixture generator.</li>
+<li>M1a shared stage protocol / <code>PipelineSession</code> (no behavior change).</li>
+<li>M1 video smart-selection signature fix plus a test that proves smart
+   mode did not silently fall back to uniform.</li>
+<li>M1b benchmark adapter (move Composite/Ghost/SeamVis into an injectable
+   policy; keep Raw ASP).</li>
+<li>M1c GUI adapter: exclusion-mask / motion-model / HITL overrides through
+   the canonical call; headless parity suite.</li>
+<li>Post-M1 ungated Raw ASP 97-run (three artifacts, laptop_balanced
+   telemetry). Freeze as the M2+ baseline before any compositor candidate.</li>
+<li>M2 safety-policy extraction, inverse-metric demotion, default-profile
+   surface of ~20 keys plus an Advanced configuration control, register-or-
+   delete <code>ASP_HOLD_BG_SUB</code>.</li>
+<li>M2.5 per-defect-category correlation/impact analysis, anime-adapted CV
+   metrics, non-gating learned proxy metric, and data-driven subset-selection
+   tooling. Starts once M0's schema lands; runs in parallel with M1–M4, does
+   not block them and does not gate on them beyond M0.</li>
+<li>M3 default-off BiRefNet single-pose / §9.2 compositor candidate.</li>
+<li>M4 motion-compensated hold/selection, test-14 oracle, repair-or-remove
+    translation+scale and the unused DP selector. C++ items stay blocked
+    until <code>base</code> rebuilds.</li>
+<li><code>ASP_POSE_WINDOW_PX=80</code> measured human screen (after M0–M2, before M5).</li>
+<li>Only then: M5 photometric/seam candidates (informed by M2.5's per-defect
+    correlation findings where available); M6a session schema; M6b/c
+    inspectors; PNG+JSON layered export if not already emitted by M3/M4;
+    PSD adapter later.</li>
+</ol>
+<p>No implementation issue should describe the unintegrated DP selector,
+translation+scale solver, or backend-divergent hard seam veto as completed work.</p>
+<h2 id="10-claudes-review-pass-2026-08-15">10. Claude's review pass (2026-08-15)</h2>
+<p>I re-verified Chat/Codex's most consequential code claims directly against the
+current tree rather than trusting the bus log, and cross-read the older
+research/evaluation docs for anything material the M0–M6 plan doesn't yet
+carry forward. Findings below; §11 has open questions for Harbinger before
+this draft is final.</p>
+<h3 id="101-verified-orchestration-divergence-m1s-premise-holds">10.1 Verified — orchestration divergence (M1's premise holds)</h3>
+<ul>
+<li><code>AnimeStitchPipeline</code> (<code>backend/src/core/pipeline/manager.py:33</code>) composes
+  <code>_RunStageMixin.run()</code> (<code>backend/src/core/pipeline/run_stage.py:108</code>). Grepped
+  <code>run_stage.py</code> for <code>Gate|smart_select|frame_select</code>: only one hit, an
+  unrelated import. <strong>Confirmed:</strong> the canonical path has no
+  Composite/Ghost/SeamVis gate and does not call frame selection itself.</li>
+<li><code>backend/benchmark/bench_anime_stitch.py:1890-2007</code> owns <code>[CompositeGate]</code>,
+  <code>[GhostGate/siqe]</code>, and <code>[SeamVisGate]</code> directly, and calls
+  <code>smart_select_frames()</code> itself (<code>bench_anime_stitch.py:1203-1328</code>) rather than
+  going through the pipeline. <strong>Confirmed as described.</strong></li>
+<li><code>gui/src/helpers/_progress_pipeline.py</code> sets <code>self.exclusion_masks</code> from an
+  override dict (<code>_progress_pipeline.py:386-389</code>) but the file has <strong>zero</strong>
+  matches for a <code>composite(</code>-style call — the masks are captured but there is
+  no visible call site in this file that forwards them into rendering.
+  <strong>Confirmed:</strong> GUI mask propagation is at minimum unverifiable from this
+  file alone, consistent with the draft's claim, not weaker.</li>
+<li>No test file matches a benchmark-vs-GUI-vs-pipeline parity pattern
+  (<code>grep -rl "parity" backend/test gui/test</code> returns nothing relevant). <strong>M1's
+  "add parity tests" starts from zero, not from a partial harness.</strong></li>
+<li>No existing manifest/telemetry mechanism (peak VRAM/RSS, git-commit
+  stamping) exists anywhere in <code>backend/src</code> or <code>backend/benchmark</code>. <strong>M0's
+  experiment-manifest deliverable is also greenfield</strong> — nothing to reuse,
+  budget the milestone accordingly.</li>
+</ul>
+<h3 id="102-corrected-flag-count-and-translation_scale">10.2 Corrected — flag count and <code>translation_scale</code></h3>
+<ul>
+<li>Actual <code>ASP_*</code> flag count in current source (<code>grep -rho ASP_[A-Z0-9_]+
+  backend/src gui/src | sort -u | wc -l</code>): <strong>73</strong>, not the draft's cited ~67.
+  The gap is small but the trend matters more than the exact number — see
+  §11.1 below on the budget itself.</li>
+<li><code>translation_scale</code> is real and wired (<code>backend/src/alignment/bundle_adjust.py:425-479</code>,
+  <code>manager.py:67</code>), and the C++ side (<code>base/src/bundle_adjust.cpp:162,227-233</code>)
+  confirms the draft's claim exactly: <code>dof=3</code> includes a scale term, but its
+  only constraint is a regularization prior pulling every non-anchor frame's
+  scale toward 1.0 (<code>reg_scale</code>) plus relative-equality across frames — there
+  is no Jacobian row built from an actually-observed scale ratio between
+  matched edges. <strong>This is a scaffold that always reports scale≈1 unless
+  something else moves it, not a measured estimator. Confirmed as described.</strong></li>
+</ul>
+<h3 id="103-gap-the-older-critical-evaluation-isnt-cross-linked-and-two-of-its-structural-recommendations-arent-in-m0m6">10.3 Gap — the older Critical Evaluation isn't cross-linked, and two of its structural recommendations aren't in M0–M6</h3>
+<p><code>docs/reports/ASP_Critical_Evaluation_2026-07-08.md</code> §9.2 ("coherent by
+construction, enhanced where safe") is the direct intellectual ancestor of
+this draft's M3 (single-pose ownership) and M4 (camera/cel-pose separation),
+but two of its five stages aren't explicitly present in M0–M6 and should be
+named as evaluated options rather than silently dropped:</p>
+<ul>
+<li><strong>Stage 0 — animation-phase grouping <em>before</em> alignment</strong>, not concurrent
+  with it. The evaluation calls this "the single most important unimplemented
+  idea" (§8, Overmix lesson 2) and M4 as drafted separates camera trajectory
+  from cel-pose selection but doesn't sequence phase-grouping as a hard
+  precondition to alignment.</li>
+<li><strong>Stage 2 — per-pixel background reconstruction via median/mean over
+  same-phase frames</strong>, replacing seam-and-blend for background regions
+  entirely (no seam artifact by construction, not by gate). M5 as drafted
+  still frames background work as "seam routing/photometric refinement,"
+  which is compatible with but narrower than this alternative.</li>
+</ul>
+<p>I'm not proposing to adopt these as requirements — the locked decision to
+converge orchestration first (M1) before adding algorithms is sound and I
+agree with it. But M3/M4 issue writeups should cite §9.2 explicitly and state
+whether phase-grouping-first and averaging-based background reconstruction
+were considered and why the chosen design differs, so the next agent doesn't
+independently rediscover this document.</p>
+<h3 id="104-gap-anti-goals-and-prior-failure-history-arent-carried-forward">10.4 Gap — Anti-Goals and prior-failure history aren't carried forward</h3>
+<p>The older <code>docs/moon/ROADMAP.md</code>'s Anti-Goals section and its §5.1 history are
+not referenced anywhere in this draft, and this draft's §"Locked planning
+decisions" says nothing about them even though it states this roadmap "takes
+priority" when the two differ:</p>
+<ul>
+<li>RLHF-style reward modeling and DRL-based super-resolution were built,
+  measured, and deleted in the S200 "great trim" as unverified complexity
+  (old <code>ROADMAP.md</code> §5.1). Nothing in M0–M6 proposes reattempting them, but
+  worth an explicit pointer so a future issue doesn't reintroduce them cold.</li>
+<li>The old roadmap's Anti-Goals ("no new gate without displacing an old one
+  and a full-corpus run," "no default-OFF flags shipped without the A/B
+  scheduled in the same session," "no threshold-tuning sessions") restate
+  almost exactly what this draft's §4 rules 3 and 5 already say — good, they
+  agree — but §4 doesn't say a flag must <em>displace</em> an old one, only that old
+  flags should be "retired or consolidated." Recommend tightening §4 rule 5 to
+  match the stricter displacement rule, since 73 live flags is already past
+  where the discipline was supposed to cap it (see §11.1).</li>
+</ul>
+<h3 id="105-evidence-worth-citing-directly-in-m0m1-issues">10.5 Evidence worth citing directly in M0/M1 issues</h3>
+<ul>
+<li><code>docs/moon/CHANGELOG.md</code> records <code>ASP_POSE_WINDOW_PX=80</code> (DINOv2
+  pose-consistent frame selection) producing the <strong>first <code>asp_better</code> verdict
+  ever recorded from a flag in this project's history</strong> (1/1/3 vs the prior
+  0/0/2, mixed GT-SSIM but improved sharpness/ghosting) — flagged there for
+  human coherence review, never rated. This is a concrete, already-implemented
+  candidate for an early M0/M1-adjacent experiment once the manifest/parity
+  work lands, not a new idea to design from scratch.</li>
+<li>The same changelog documents issue #10: <code>ASP_USE_SAM2</code> had <strong>zero effect</strong>
+  on <code>bench_anime_stitch.py</code>'s scored output for a stretch of time because the
+  benchmark called a raw non-pipeline-aware masking function directly instead
+  of routing through the pipeline's flag-aware masking. This is the exact
+  failure class M1 is trying to close, already happened once, and already
+  shipped a false measurement — good precedent to cite in the M1 issue as
+  "why this milestone exists," not a hypothetical risk.</li>
+</ul>
+<h2 id="11-open-questions-for-harbinger-claude-pending-geminigrok-passes">11. Open questions for Harbinger (Claude, pending Gemini/Grok passes)</h2>
+<ol>
+<li><strong>Flag budget.</strong> This draft's §4 rule 5 references "the existing
+   configuration budget" without a number; the earlier bus discussion assumed
+   roughly 50; the 2026-07-08 Critical Evaluation recommends capping at ~20
+   given the project's own history of 387 flags becoming unreasonable. Actual
+   count today is 73. Should M2's flag audit target ~50 (retire down to
+   current-ish scope) or the stricter ~20 (aggressive consolidation), and
+   should §4 rule 5 require a new flag to displace an old one rather than just
+   "retire or consolidate before exceeding budget further"?</li>
+<li><strong>Structural rebuild alternative.</strong> Should M3/M4 issues be required to
+   explicitly evaluate the Critical Evaluation's phase-grouping-first and
+   per-pixel background-averaging design (§10.3 above) as a named alternative,
+   or is that considered out of scope relative to the locked "converge
+   orchestration, then extend the existing pipeline" decision?</li>
+<li><strong><code>ASP_POSE_WINDOW_PX=80</code> fast-follow.</strong> This is the only flag in the
+   project's history with a measured <code>asp_better</code> signal, still unrated for
+   human coherence. Should it get a standalone experiment slot right after M0
+   lands (using the new manifest/dev-slice infrastructure), rather than
+   waiting in the general M5 backlog?</li>
+</ol>
+<p>Handing off to Gemini next for the design/review-workflow and art-adjacent
+portions of this plan, per Harbinger's requested review order (Claude → Gemini
+→ Grok → joint final review).</p>
+<h2 id="12-geminis-review-pass-2026-08-15">12. Gemini's review pass (2026-08-15)</h2>
+<p>As Design and Art lead, I reviewed the ASP codebase, benchmark defect distributions from Harbinger's completed 97-case human pass, and the artist review workflow requirements (M6).</p>
+<h3 id="121-structural-visual-defect-root-causes">12.1 Structural &amp; Visual Defect Root Causes</h3>
+<ul>
+<li><strong>Phase Mixing vs. Clean Background Plates (Weighing in on Claude's Q2):</strong>
+  The dominant human-visible defects reported across the 97 tests are <strong>Ghosting (69/97 comparisons), Seams (52), Banding (45), Color Shift (41), and Torn Anatomy (26)</strong>. In 2D cel animation, camera panning and character animation occur on separate exposure sheets (cels). Conflating them by running unconstrained homographies or blending across different character animation phases guarantees torn anatomy and duplicate limbs.</li>
+<li><strong>Verdict on §9.2:</strong> Separating camera trajectory from cel animation and reconstructing the static background plate via temporal median/mean <em>prior</em> to compositing foreground cels is conceptually essential. M3/M4 must explicitly incorporate this architecture.</li>
+<li><strong>Seam Routing Feasibility &amp; Alpha Bleed:</strong>
+  Seam cuts currently force an artificial boundary through foreground cels when no background corridor exists, causing bisected torsos and limbs. An explicit single-pose handoff (winner-take-all cel assignment per overlap region) must be enforced by construction before seam optimization runs.</li>
+</ul>
+<h3 id="122-artist-review-workflow-visual-diagnostics-m6-design-specs">12.2 Artist Review Workflow &amp; Visual Diagnostics (M6 Design Specs)</h3>
+<ul>
+<li><strong>Tri-View Split Inspection:</strong>
+  The review screen should display side-by-side or synced pan/zoom views of:</li>
+<li><strong>Raw ASP</strong> (with optional debug overlays: BiRefNet mask contours, seam paths, and pose provenance boundaries).</li>
+<li><strong>Safe ASP</strong> (with active fallback indicator badge and explainability tooltip).</li>
+<li><strong>SCANS Comparator</strong> (baseline reference).</li>
+<li><strong>Interactive HITL Override Controls:</strong></li>
+<li><strong>Cel-Pose Selector:</strong> Dropdown/scrubber per overlap zone allowing the artist to pick which frame's cel pose owns the region.</li>
+<li><strong>Seam Corridor Adjuster:</strong> Draggable anchor points to guide graph-cut seam corridors away from critical artwork details.</li>
+<li><strong>Provenance &amp; Defect Inspector:</strong> Clickable region highlighting which source video frames contributed to specific canvas pixels.</li>
+<li><strong>Replayable Manifest Export:</strong> All user adjustments must serialize to a lightweight <code>.asp-session.json</code> manifest so review decisions can be version-controlled, re-rendered headless, and included in regression suites.</li>
+</ul>
+<h3 id="123-art-asset-pipeline-parity">12.3 Art &amp; Asset Pipeline Parity</h3>
+<ul>
+<li><strong>Lossless &amp; Multi-Layer Export:</strong> Support exporting separate Background (reconstructed panorama plate) and Foreground (segmented character cels with alpha channels) layers for game asset pipelines (e.g. parallax scrolling in mobile games or VN scene backgrounds).</li>
+<li><strong>Synthetic Ground-Truth Fixtures:</strong> Create synthetic multi-layer panning animation test suites (static background + moving multi-frame sprite cels) to provide mathematically ground-truth benchmarks for translation, hold detection, and single-pose segmentation.</li>
+</ul>
+<h2 id="13-open-questions-for-harbinger-gemini">13. Open questions for Harbinger (Gemini)</h2>
+<ol>
+<li><strong>Review Screen Depth &amp; Modality:</strong>
+   For the optional artist review screen (M6), should this be implemented as an embedded PySide6 dialog inside the existing desktop GUI (<code>gui/src/windows/</code>), or should it also be accessible as a web-based inspector in <code>docs/website/</code> leveraging our new Optic Lab / Blueprint design system?</li>
+<li><strong>Layered Asset Output:</strong>
+   In addition to the flattened stitched panorama, should ASP natively support exporting multi-layer PSD / multi-layer PNG assets (separated clean background plate + individual segmented foreground character cels with alpha) for game/animation asset workflows?</li>
+<li><strong>Synthetic Ground-Truth Benchmark Fixtures:</strong>
+   Would you like us to generate a set of procedural synthetic anime-style scrolling benchmarks (with known ground-truth camera velocity and known cel holds) in M0/M1 to mathematically verify alignment and hold detection before evaluating on real anime clips?</li>
+</ol>
+<p>Handing off to Grok next for the code implementation and engineering feasibility review pass.</p>
+<h2 id="14-harbingers-decisions-on-claude-gemini-review-passes-2026-08-15">14. Harbinger's decisions on Claude &amp; Gemini review passes (2026-08-15)</h2>
+<p>Harbinger reviewed the questions from Claude (§11) and Gemini (§13) and locked the following decisions:</p>
+<ol>
+<li><strong>Flag Budget (Q1.1):</strong>
+   Target a hard budget of <strong>~20 active flags</strong>. Maintain this by replacing an old flag with a new one for most cases, allowing the 20-flag budget to grow organically only as new flags demonstrate genuine improvements on specific test cases while being worse on others compared to existing flags.</li>
+<li><strong>Structural Rebuild Architecture (Q1.2 / Q2.1):</strong>
+   Approved. M3/M4 will explicitly explore the Critical Evaluation §9.2 architecture (phase-grouping-first and per-pixel background-averaging reconstruction before foreground single-pose compositing).</li>
+<li><strong><code>ASP_POSE_WINDOW_PX=80</code> Prioritization (Q1.3):</strong>
+   Approved for scheduling before M5, but after M0/M1/M2 once the canonical pipeline and telemetry harness are established.</li>
+<li><strong>Dual Review/Inspector Modality (Q2.1):</strong>
+   Approved dual implementation: a <strong>web-based inspector</strong> in <code>docs/website/</code> (leveraging the Optic Lab / Blueprint design system) and a <strong>PySide6 dialog</strong> in the desktop GUI / benchmark evaluator.</li>
+<li><strong>Multi-Layer Asset Export (Q2.2):</strong>
+   Approved. ASP will natively support exporting layered assets (clean background panorama plate + segmented foreground character cels with alpha channels) for game/animation asset workflows.</li>
+<li><strong>Synthetic Ground-Truth Fixtures (Q2.3):</strong>
+   Approved. Procedural synthetic anime scrolling benchmarks (with ground-truth camera velocity and cel holds) will be generated in M0/M1 to mathematically verify alignment and hold detection.</li>
+</ol>
+<p><strong>Handoff:</strong> Grok's implementation-feasibility pass is in §15. Open questions for Harbinger are in §16. After those answers, Claude does the joint final review and issue decomposition.</p>
+<h2 id="15-groks-implementation-feasibility-pass-2026-08-15">15. Grok's implementation-feasibility pass (2026-08-15)</h2>
+<p>I re-read the current tree (not just the bus), the completed 97-case file, the 2026-08-07 corpus report, Critical Evaluation §9.2, and the three runners. Role: I will be the one implementing M1–M5, so this pass is about what is buildable in what order, what is already false-complete, and what would blow a single issue.</p>
+<h3 id="151-verified-the-three-runners-really-diverge">15.1 Verified — the three runners really diverge</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th style="text-align: right;">Lines</th>
+<th>Frame selection</th>
+<th>Output gates</th>
+<th><code>exclusion_masks</code> into composite</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AnimeStitchPipeline.run()</code> (<code>run_stage.py</code>)</td>
+<td style="text-align: right;">683</td>
+<td>no</td>
+<td>coverage / geometric only</td>
+<td><strong>yes</strong> (<code>run_stage.py:571</code>)</td>
+</tr>
+<tr>
+<td><code>bench_anime_stitch.py</code></td>
+<td style="text-align: right;">4045</td>
+<td>own <code>_smart_select_frames</code></td>
+<td>Composite / Ghost / SeamVis</td>
+<td>N/A (own render path)</td>
+</tr>
+<tr>
+<td><code>_ProgressPipeline.run()</code></td>
+<td style="text-align: right;">833</td>
+<td>no (caller preselects)</td>
+<td>HITL pauses, no Safe ASP policy</td>
+<td><strong>captured, not forwarded</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>_ProgressPipeline</code> <em>does</em> call <code>_composite_foreground</code> three times (initial / seam-override / paint-mask loop). Claude's "zero <code>composite(</code>-style call" was true of a name search; the real bug is narrower and still load-bearing: <code>self.exclusion_masks</code> is set at lines 386–389 and never passed into those three calls. Canonical <code>run()</code> already passes them. M1c is a kwarg + parity test, not a missing composite stage.</p>
+<p>Parent <code>backend/controllers/backend_dispatch.py</code> constructs <code>AnimeStitchPipeline</code> and calls <code>run()</code>. That is a fourth <em>entry point</em>, not a fourth compositor. Keep it thin.</p>
+<h3 id="152-verified-chats-five-correctness-findings-still-stand">15.2 Verified — Chat's five correctness findings still stand</h3>
+<ol>
+<li><strong>Video smart-select is dead on arrival.</strong> <code>video_ingestion.py:344</code> calls <code>smart_select_frames(proxy_imgs, target_n=want)</code>. <code>selector.py:76</code> is <code>smart_select_frames(frames_paths: list[str], ...)</code> with no <code>target_n</code>. The <code>except Exception</code> at 356 swallows the TypeError and uniform-selects. First M1 bugfix; cheap; do not bundle with the GUI rewrite.</li>
+<li><strong><code>translation_scale</code> is a regularizer, not an estimator.</strong> Python sends only <code>dx</code>/<code>dy</code> (<code>bundle_adjust.py:444–447</code>). C++ 3-DoF pulls <code>s_j - s_i → 0</code> plus an identity prior. No measured scale residual. Synthetic recovery test does not exist. M4: repair (add a scale observation from bg-masked match spans) or delete from candidate profiles.</li>
+<li><strong>Unaligned "background plate."</strong> <code>_estimate_background_plate</code> median-stacks cropped thumbnails with no warp (<code>_hold_detection.py:73–105</code>). Under a pan this is a smear, not a plate. <code>ASP_HOLD_BG_SUB</code> gates it via raw <code>os.environ</code> and is <strong>not</strong> in <code>_CONFIG_SCHEMA</code> (67 registered keys; this is the one hidden read I found in <code>backend/src</code>).</li>
+<li><strong>DP hold selector is unused.</strong> <code>_select_hold_keyframes_dp</code> is exported and unit-tested; <code>smart_select_frames</code> / <code>run()</code> never call it. Treat as dead until M4 integrates or deletes it.</li>
+<li><strong>Hard-veto backends disagree.</strong> Python <code>_seam_cut.py:33</code> adds <code>1e6 * (sem_cost &gt; 0.1)</code>. C++ <code>seam.cpp</code> accepts <code>exclusion_masks</code> (1e9 barrier) but Python's exclusion path builds the cost map in Python (<code>_seam_cost.py</code>) and never reaches that C++ argument. An all-foreground overlap has no feasible corridor; M3 must hand off to a single pose instead of an infinite-cost grid.</li>
+</ol>
+<p>Focused tests still cannot substitute for entry-point parity. I did not re-run the 300-test slice this pass; Chat's 2026-08-15 result stands until the next implementation session.</p>
+<h3 id="153-evidence-update-97-case-file-is-preference-complete">15.3 Evidence update — 97-case file is preference-complete</h3>
+<p><code>asp_evaluations_20260810.json</code> now has a preference on every record (tests 27/39 → <code>simple</code>, 56 → <code>asp</code>, 91 → <code>tie</code>, timestamps 2026-08-15). Score-order is still 10 / 38 / 49; means 2.010 vs 2.639. Comparison-level defect tags (not output-specific):</p>
+<table>
+<thead>
+<tr>
+<th>Tag</th>
+<th style="text-align: right;">Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ghosting</td>
+<td style="text-align: right;">69</td>
+</tr>
+<tr>
+<td>crop_loss</td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr>
+<td>color_shift</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>torn_anatomy</td>
+<td style="text-align: right;">48</td>
+</tr>
+<tr>
+<td>seam_line</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr>
+<td>banding</td>
+<td style="text-align: right;">39</td>
+</tr>
+<tr>
+<td>misordered_content</td>
+<td style="text-align: right;">36</td>
+</tr>
+<tr>
+<td>blur</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr>
+<td>duplicated_strip</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr>
+<td>geometry_warp</td>
+<td style="text-align: right;">28</td>
+</tr>
+</tbody>
+</table>
+<p>These counts still cannot be attributed to ASP alone. M0's per-output annotation schema is the fix; do not mine these integers as if they were ASP-only.</p>
+<p>The 2026-08-07 run remains the last full-corpus execution: 43 true composites (mean human 1.326) vs 54 safety fallbacks (mean 2.556). Aggregate "ASP" is mostly Safe ASP. M0 should <em>relabel</em> that run. A new ungated Raw ASP 97-run is ~2.5–3 h on a 3090 and longer on the laptop; it belongs on the promotion ladder, not in M0's exit.</p>
+<h3 id="154-sequencing-that-i-will-refuse-to-invert">15.4 Sequencing that I will refuse to invert</h3>
+<ol>
+<li><strong>M1 is a rewrite of two large forks, not a flag flip.</strong> One PR that touches <code>bench_anime_stitch.py</code> and <code>_ProgressPipeline.run()</code> together is how we get another issue-#10 false measurement. Split M1a/M1b/M1c as now written in §5.</li>
+<li><strong>§9.2 is a second compositor, default-off.</strong> In-place replacement of <code>rendering/compositing/</code> while HITL still has a three-pass seam loop will break M6 and the GUI in the same week we cannot measure. Harbinger approved <em>evaluating</em> §9.2; evaluation means a named candidate with a manifest, not deleting the current path.</li>
+<li><strong><code>ASP_BG_AVERAGE</code> already exists and was marked harmful</strong> on the mixed-phase / unaligned path. M3/M4 issues must cite that result. Averaging after phase-group + alignment is a different experiment.</li>
+<li><strong>M2 "Safe ASP ≥ SCANS on the red set" is free if Safe ASP may always pick SCANS.</strong> I tightened the exit to require a discriminating policy. Confirm in §16.</li>
+<li><strong>M6 dual UI without M6a is two products.</strong> <code>hitl_session.py</code> already serializes override dicts including ndarrays. Extend it. Web and Qt must replay the same file.</li>
+<li><strong>Layered export is produced by M3/M4, displayed by M6.</strong> First-ship PNG + JSON sidecar; PSD is an extra dependency (<code>psd-tools</code> or ImageMagick) and should not gate the compositor.</li>
+<li><strong>C++ work is gated on a healthy <code>base</code> build.</strong> Chat already hit a stale extension / missing OpenCV 4.6 dev config. translation+scale and C++ seam parity cannot be "done" on a stale <code>.so</code>. M1 should include a documented <code>just</code> rebuild check; if this machine cannot build <code>base</code>, C++ issues stay blocked and must not be silently Python-only.</li>
+<li><strong>Existing synthetics are not the M0 fixture.</strong> <code>generate_samples.py</code> makes unlayered gradient/pattern scrolls for the onboarding wizard. M0 needs a 2-layer generator (static plate + held RGBA cels, known <code>dx</code>/<code>dy</code> and hold IDs).</li>
+<li><strong>Do not reintroduce RLHF / DRL-SR.</strong> S200 deleted them. Nothing in M0–M6 should grow a reward model.</li>
+<li><strong><code>ASP_POSE_WINDOW_PX=80</code> stays after M0–M2</strong> per Harbinger. I will not sneak it into M1b as a default.</li>
+</ol>
+<h3 id="155-what-i-changed-in-this-document">15.5 What I changed in this document</h3>
+<ul>
+<li>Locked engineering rules 8–11 (incremental M1, reuse HITL schema, default-off rebuilds, no false-complete scaffolds).</li>
+<li>M0: relabel existing 2026-08-07 artifacts; layered synthetics; no new 97-run as exit.</li>
+<li>M1: M1a/b/c split; video TypeError called out; GUI mask bug restated accurately; parent dispatch classified as thin wrapper.</li>
+<li>M2: discriminating-policy exit; 67 schema keys + one hidden flag; "20 active" = shipped-profile surface.</li>
+<li>M3/M4: §9.2 as default-off candidate; cite <code>ASP_BG_AVERAGE</code>; unaligned plate and unused DP named with file paths.</li>
+<li>M6: schema-first; layered export as compositor output.</li>
+<li>§3: preferences are complete.</li>
+<li>§9: issue order matches the split above.</li>
+</ul>
+<h3 id="156-effort-sketch-so-claude-can-cut-issues">15.6 Effort sketch (so Claude can cut issues)</h3>
+<table>
+<thead>
+<tr>
+<th>Slice</th>
+<th>Why it is that size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M0 schema + relabel</td>
+<td>Small. JSON + dashboard generator. No GPU.</td>
+</tr>
+<tr>
+<td>M0 manifest + telemetry</td>
+<td>Medium. Greenfield. Need VRAM/RSS without breaking headless CI.</td>
+</tr>
+<tr>
+<td>M0 layered synthetics</td>
+<td>Small–medium. New generator; do not extend <code>generate_samples.py</code> into a second API.</td>
+</tr>
+<tr>
+<td>M1a protocol</td>
+<td>Medium. Extract only. Highest "don't change pixels" risk.</td>
+</tr>
+<tr>
+<td>M1 video fix</td>
+<td>Small. One signature + one integration test.</td>
+</tr>
+<tr>
+<td>M1b bench adapter</td>
+<td>Large. 4k-line script. Must keep Raw vs Safe artifacts.</td>
+</tr>
+<tr>
+<td>M1c GUI adapter</td>
+<td>Large. Crash-sensitive HITL loop. Headless parity, not Qt e2e.</td>
+</tr>
+<tr>
+<td>M2 policy + flag audit</td>
+<td>Medium. Logic is small; retiring 47 flags without breaking A/B history is the work.</td>
+</tr>
+<tr>
+<td>M3 compositor candidate</td>
+<td>Large. Default-off. Laptop VRAM contract is part of the issue.</td>
+</tr>
+<tr>
+<td>M4 selection / scale</td>
+<td>Medium–large after M1. Blocked on <code>base</code> rebuild for scale.</td>
+</tr>
+<tr>
+<td>M6a schema</td>
+<td>Small if we extend <code>hitl_session.py</code>.</td>
+</tr>
+<tr>
+<td>M6b + M6c UIs</td>
+<td>Medium each. Gemini owns visual; I own replay/headless.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="16-open-questions-for-harbinger-grok">16. Open questions for Harbinger (Grok)</h2>
+<p>These are the only remaining ambiguities that change how I would cut the first implementation PRs. Claude's and Gemini's questions are already answered in §14.</p>
+<ol>
+<li><strong>M1 cut.</strong> Approve the M1a (protocol) → M1b (benchmark adapter) → M1c (GUI hooks) sequence, or do you want one unification issue? I will not implement a single-PR rewrite of both forks unless you override this.</li>
+<li><strong>M2 bar.</strong> Is "discriminating fallback" (must pick Raw ASP on a known-good and SCANS on catastrophes) the M2 exit, or is "Safe ASP never worse than SCANS" enough even if that means always-SCANS?</li>
+<li><strong>§9.2 landing.</strong> Confirm default-off second compositor (<code>coherence_v2</code>) versus in-place replacement of <code>rendering/compositing/</code> during M3.</li>
+<li><strong>M0 GPU time.</strong> Relabel the 2026-08-07 artifacts in M0 and defer a new ungated Raw ASP 97-run until the promotion ladder (M6.4), or spend a 3-hour 3090 / longer laptop run now?</li>
+<li><strong>Layered export first format.</strong> PNG layer stack + JSON sidecar in M3/M4, with PSD as a later adapter, or is PSD required in the same milestone (new <code>psd-tools</code> / ImageMagick dependency)?</li>
+<li><strong>Twenty active flags.</strong> Confirm my reading: shipped profiles expose ≤20 image-changing keys; the other ~47 stay in the schema as retired/hidden until measured deletion. The alternative is a hard delete down to 20 in M2, which throws away unreplicated A/B history.</li>
+<li><strong>C++ build gate.</strong> If this machine still cannot rebuild <code>base</code> (Chat's OpenCV 4.6 blocker), should C++ issues (<code>translation_scale</code>, seam-cost parity) stay blocked rather than grow a Python-only twin?</li>
+</ol>
+<p><strong>Handoff:</strong> Harbinger answers §16, then Claude + Harbinger close the plan and cut GitHub issues. I am not starting M1 until that signal.</p>
+<h2 id="17-harbingers-decisions-on-groks-feasibility-questions-2026-08-15">17. Harbinger's decisions on Grok's feasibility questions (2026-08-15)</h2>
+<ol>
+<li><strong>M1 cut:</strong> M1a (shared stage protocol, no pixel change) → M1b (benchmark adapter + video smart-select fix) → M1c (GUI hooks + exclusion-mask propagation). No single-PR rewrite of both forks.</li>
+<li><strong>M2 bar:</strong> Discriminating fallback. Safe ASP must pick Raw ASP on at least one known-good red-set case and SCANS on known catastrophes. Always-SCANS is not M2 success.</li>
+<li><strong>§9.2 landing:</strong> Default-off second compositor (<code>coherence_v2</code>). Current <code>rendering/compositing/</code> and the HITL seam loop stay until a human screen promotes the candidate.</li>
+<li><strong>M0 / first ungated 97-run:</strong> Relabel the 2026-08-07 artifacts in M0. Run a new ungated Raw ASP 97-case corpus <strong>immediately after M1 adapters land</strong>. That run is the pre-algorithm baseline for M2+.</li>
+<li><strong>Layered export:</strong> PNG stack + JSON sidecar first (M3/M4 output contract). PSD is a later adapter, not an M3 blocker.</li>
+<li><strong>Twenty active flags:</strong> Default profiles expose ≤20 image-changing keys (1-in-1-out on that surface). An <strong>Advanced configuration</strong> control reveals additional registered parameters. Advanced is not a silent second default; values still go into the manifest. Do not hard-delete the extra ~47 keys in M2.</li>
+<li><strong>C++ build gate:</strong> <code>translation_scale</code> repair, C++ seam-cost parity, and any other <code>base</code> kernel work stay blocked until this machine can rebuild the extension. No Python-only twin of a C++ kernel. M1 includes a documented rebuild check.</li>
+</ol>
+<p><strong>Handoff:</strong> Claude + Harbinger close remaining wording, then Claude files the §9 issues in dependency order. Grok does not start M1a until those issues exist.</p>
+<h2 id="18-new-track-added-during-joint-final-review-m25-2026-08-15">18. New track added during joint final review — M2.5 (2026-08-15)</h2>
+<p>During the joint final review, Harbinger raised a gap none of the four passes
+caught: §2/§10/§15 all treat the sharpness/edge-energy/ghosting inverse
+correlation to human judgment as a reason to <em>demote</em> those signals (M2), but
+nothing investigates <em>why</em> they diverge or builds better measurement. Three
+ideas were proposed: (1) new CV metrics, (2) anime-adapted metrics plus a
+trained human-judgment proxy model, (3) similarity-based benchmark subset
+selection and metric/human correlation mining to find the highest-leverage
+pipeline areas.</p>
+<p>Decisions locked:</p>
+<ul>
+<li>New milestone <strong>M2.5</strong> (§5), not folded into M0/M2 — visible as its own
+  workstream. Depends on M0's per-output schema; runs parallel to M1–M4;
+  analysis/tooling only, no algorithm-default changes. Added to §9's issue
+  order as item 9, after M2 and before M3.</li>
+<li>The learned human-judgment proxy is scoped as <strong>non-gating only</strong>, revalidated
+  against held-out human ratings as the corpus grows — human review remains
+  the sole release criterion (§1) regardless of this metric's performance,
+  given the small current sample (97 cases, 43 true Raw ASP composites).</li>
+<li>Data-driven subset selection <strong>supplements</strong> the existing manual five-case
+  smoke set and structural red set for now. It may graduate to replacing them
+  once its representativeness is measured and stable across corpus growth —
+  that graduation is a later, explicit decision, not automatic on landing.</li>
+<li>M2.5's per-defect-category correlation findings inform M5 (photometric/seam)
+  prioritization but do not override the locked M3/M4-before-M5 structural
+  ordering by themselves; a strong contradiction goes back to Harbinger as an
+  open question, not a silent reorder.</li>
+</ul>
+<p>Full M2.5 deliverables and exit criteria are in §5. This closes the open
+questions from this review round; Claude proceeds to file the §9 issues next.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.top", "navigation.indexes", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
