@@ -1,5 +1,13 @@
 # ASP Roadmap — Match or Exceed the OpenCV Stitcher on Every Benchmark Test
 
+> **Current change plan (2026-08-15):** New implementation work is organized in
+> [`ASP_CHANGE_ROADMAP_2026Q3.md`](ASP_CHANGE_ROADMAP_2026Q3.md). This document
+> remains the authoritative research/experiment history; where future-work
+> priorities differ, the concise Q3 change roadmap takes precedence. A
+> companion, non-blocking track — building a second SFW benchmark corpus as a
+> generalization check — is in
+> [`ASP_SFW_CORPUS_ROADMAP_2026Q3.md`](ASP_SFW_CORPUS_ROADMAP_2026Q3.md).
+
 *Created 2026-07-09, immediately after the S200 great trim and the post-trim full
 benchmark. Supersedes the retired 3,596-line roadmap (kept at `archive/moon/asp.md`
 for reference — read it as a catalogue of what was already tried, not as a plan).*

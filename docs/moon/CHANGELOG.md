@@ -26,6 +26,41 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **ASP 2026 Q3 change roadmap (2026-08-15):** added
+  `ASP_CHANGE_ROADMAP_2026Q3.md`, a concise issue-ready plan that tracks Raw ASP,
+  Safe ASP, and SCANS separately; prioritizes one canonical benchmark/backend/GUI
+  pipeline; sequences BiRefNet single-pose compositing before heavier temporal
+  segmentation; defines staged human-quality promotion gates; targets a 12 GB
+  VRAM / 32 GB RAM laptop profile; and records the optional artist review screen
+  plus visual redesign as later work. The historical `ROADMAP.md` now links to
+  this active change plan.
+- **Grok feasibility pass (2026-08-15):** reviewed the Q3 roadmap against
+  current source and the completed 97-case file. Locked incremental M1
+  (protocol → bench adapter → GUI hooks), a discriminating Safe ASP exit,
+  default-off §9.2 compositor, schema-first dual inspector, and
+  relabel-don't-rerun for M0. Recorded that preferences are now complete
+  (14 / 29 / 54), `ASP_HOLD_BG_SUB` is a hidden flag, and the GUI composite
+  path still drops `exclusion_masks`. Harbinger answered §16: post-M1
+  ungated 97-run; PNG+JSON then later PSD; default ≤20 flags with an
+  Advanced configuration control; C++ stays blocked until `base` rebuilds.
+
+- **M2.5 quality-metrics/benchmark-analytics milestone (2026-08-15):** added
+  to `ASP_CHANGE_ROADMAP_2026Q3.md` §5/§9/§18 — per-defect-category
+  correlation/impact analysis, anime-adapted CV metrics, a non-gating learned
+  human-judgment proxy (revalidated as the corpus grows), and similarity-based
+  benchmark subset selection. Depends on M0's per-output schema, runs parallel
+  to M1–M4, changes no algorithm default. Closes the review round that
+  produced §10 (Claude), §12 (Gemini), and §15 (Grok).
+
+- **ASP SFW benchmark corpus roadmap (2026-08-15):** added
+  `ASP_SFW_CORPUS_ROADMAP_2026Q3.md`, a companion, non-blocking track for
+  building a ~20–30 case SFW benchmark corpus as a generalization check
+  alongside the existing 97-case NSFW corpus. Confirmed `docs/website` and
+  `docs/tutorials` contain no NSFW material. Depends on the parent
+  Image-Toolkit repo's `new_features.md` §4.18 (crawler rating filter +
+  Safebooru board). Frame-sequence auto-detection is explicitly deferred to
+  this roadmap's M2.5, not duplicated as a one-off tool.
+
 - **C/D investigation baseline (2026-08-11):** ran the combined existing
   pose-window, phase-composite, and joint-gain candidates on the five-test
   verification set. The run produced 1 ASP ground-truth win, 2 SCANS wins,
