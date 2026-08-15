@@ -218,6 +218,13 @@ Deliverables:
      stages. Pass `exclusion_masks` into `_composite_foreground` (the GUI
      *does* call composite three times for HITL, but never forwards the
      captured masks; the canonical `run_stage.py:571` already does).
+     **Landed 2026-08-15, then clarified after Chat/Claude review:**
+     exclusion-mask plumbing is on both paths. Headless/no-op pause uses
+     canonical `run()` (parity suite). Interactive HITL (`pause_cb` from
+     the stitch worker) stays on the 9-checkpoint fork until M6. Only
+     the `masks` pause is applied on the canonical path. Do not read
+     this as "all HITL checkpoints moved." `ASP_GUI_CANONICAL=1` /
+     `ASP_GUI_LEGACY=1` force a side.
 - Make frame selection and output-safety policy explicit pipeline components.
 - Parent Image-Toolkit `backend/controllers/backend_dispatch.py` is already a
   thin `AnimeStitchPipeline.run()` caller, **not** a fourth compositor. Keep

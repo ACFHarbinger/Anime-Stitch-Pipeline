@@ -90,7 +90,38 @@ class TestHeadlessEntryParity:
         assert cli.last_session.digest() == gui.last_session.digest()
 
     def test_gui_default_is_not_legacy_override(self):
-        assert _ProgressPipeline.run is not _ProgressPipeline._run_legacy
+        # The *method* is a dispatcher. Headless (no pause_cb) is canonical.
+        gui = _ProgressPipeline(progress_cb=lambda *_a: None, log_cb=lambda *_a: None)
+        assert gui.uses_legacy_run() is False
+
+    def test_real_hitl_pause_keeps_legacy_fork(self):
+        def hitl(event, data):
+            return {}
+
+        gui = _ProgressPipeline(
+            progress_cb=lambda *_a: None,
+            log_cb=lambda *_a: None,
+            pause_cb=hitl,
+        )
+        assert gui.uses_legacy_run() is True
+
+    def test_env_can_force_canonical_even_with_hitl(self, monkeypatch):
+        monkeypatch.setenv("ASP_GUI_CANONICAL", "1")
+
+        def hitl(event, data):
+            return {}
+
+        gui = _ProgressPipeline(
+            progress_cb=lambda *_a: None,
+            log_cb=lambda *_a: None,
+            pause_cb=hitl,
+        )
+        assert gui.uses_legacy_run() is False
+
+    def test_env_can_force_legacy_even_when_headless(self, monkeypatch):
+        monkeypatch.setenv("ASP_GUI_LEGACY", "1")
+        gui = _ProgressPipeline(progress_cb=lambda *_a: None, log_cb=lambda *_a: None)
+        assert gui.uses_legacy_run() is True
 
     def test_canonical_pause_applies_exclusion_masks(self, tmp_path):
         frames = _sample_frames()

@@ -62,6 +62,14 @@ _STAGE_LABELS = [
 _TOTAL_STAGES = len(_STAGE_LABELS)
 
 
+def _noop_pause(_event: str, _data: dict) -> dict:
+    """Tagged no-op so ``run()`` can tell HITL from headless."""
+    return {}
+
+
+_noop_pause._asp_noop = True  # type: ignore[attr-defined]
+
+
 def _build_pipeline_kwargs(cfg: dict) -> dict:
     """Translate a pipeline_config dict into AnimeStitchPipeline keyword args."""
     return dict(
@@ -107,7 +115,7 @@ class _ProgressPipeline(AnimeStitchPipeline):
         self._cancel_flag = cancel_flag or [False]
         self._save_intermediate = save_intermediate
         self._intermediate_dir = intermediate_dir
-        self._pause_cb: Callable = pause_cb or (lambda event, data: {})
+        self._pause_cb: Callable = pause_cb or _noop_pause
 
     def _hitl_pause(self, event: str, data: dict) -> dict:
         """Emit a HITL checkpoint event and block until the UI calls resume()."""
@@ -117,20 +125,36 @@ class _ProgressPipeline(AnimeStitchPipeline):
         if self._cancel_flag[0]:
             raise InterruptedError("Stitch cancelled by user.")
 
+    def uses_legacy_run(self) -> bool:
+        """Which ``run()`` body this instance will execute.
+
+        Interactive HITL (a real ``pause_cb``) stays on the 9-checkpoint
+        fork until M6's schema-first review UI. Headless / no-op pause
+        uses the canonical compositor so CLI/bench/GUI share bytes.
+
+        Overrides: ``ASP_GUI_CANONICAL=1`` forces canonical;
+        ``ASP_GUI_LEGACY=1`` forces the fork.
+        """
+        if os.environ.get("ASP_GUI_CANONICAL", "0") == "1":
+            return False
+        if os.environ.get("ASP_GUI_LEGACY", "0") == "1":
+            return True
+        return not bool(getattr(self._pause_cb, "_asp_noop", False))
+
     def run(
         self,
         image_paths: list[str],
         output_path: str,
         hires_keyframes: dict[int, str] | None = None,
     ):
-        """Default: canonical ``AnimeStitchPipeline.run()`` (M1c).
+        """Dispatch to canonical ``run()`` or the HITL fork (see ``uses_legacy_run``).
 
-        ``ASP_GUI_LEGACY=1`` restores the pre-M1c HITL fork. Exclusion
-        masks, motion_model, and pause_hook are forwarded on the
-        canonical path; ``run_stage.py`` already passes
-        ``self.exclusion_masks`` into ``_composite_foreground``.
+        M1c decision (Claude/Chat 2026-08-15): do **not** claim the nine
+        HITL checkpoints are on the canonical path. Only ``masks`` is
+        wired there. The artist-facing stitch worker keeps the fork
+        until M6. Exclusion masks are forwarded on **both** paths.
         """
-        if os.environ.get("ASP_GUI_LEGACY", "0") == "1":
+        if self.uses_legacy_run():
             return self._run_legacy(image_paths, output_path, hires_keyframes)
         return self._run_canonical(image_paths, output_path, hires_keyframes)
 
