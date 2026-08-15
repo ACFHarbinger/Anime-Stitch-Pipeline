@@ -119,3 +119,75 @@ DEFECT_TITLES = {key: title for key, title, _ in DEFECTS}
 SEVERITY_MIN = 1
 SEVERITY_MAX = 3
 SEVERITY_LABELS = {1: "cosmetic", 2: "noticeable", 3: "disqualifying"}
+
+
+# ---------------------------------------------------------------------------
+# Result identities (M0 — asp_change_roadmap_2026q3.md §5 M0, issue #24)
+# ---------------------------------------------------------------------------
+# What a stored rating/artifact actually *is*. "asp" as previously written in
+# RatingEntry was ambiguous between "the ungated compositor output" and "the
+# policy-selected safe result" — this is exactly the M0 problem: the
+# 2026-08-07 corpus is majority-fallback, and averaging fallback scores in
+# with true-composite scores as if they were the same population overstated
+# ASP's real quality. These three identities must always be distinguishable.
+RESULT_RAW_ASP = "raw_asp"  # the ungated ASP compositor result, always an artifact
+RESULT_SAFE_ASP = "safe_asp"  # the policy-selected result; may equal raw_asp or a fallback
+RESULT_SCANS = "scans"  # the OpenCV stitcher comparator/fallback candidate
+RESULT_IDENTITIES = (RESULT_RAW_ASP, RESULT_SAFE_ASP, RESULT_SCANS)
+
+# Safe ASP is a *policy selection*, not a fourth compositor — record what it
+# actually picked, not just that a fallback happened.
+SAFE_ASP_SOURCE_RAW = "raw_asp"  # policy kept the raw compositor result
+SAFE_ASP_SOURCE_SCANS = "scans"  # policy substituted SCANS
+SAFE_ASP_SOURCE_NAMED_FALLBACK = "named_fallback"  # a non-SCANS named fallback (e.g. panorama)
+SAFE_ASP_SOURCES = (
+    SAFE_ASP_SOURCE_RAW,
+    SAFE_ASP_SOURCE_SCANS,
+    SAFE_ASP_SOURCE_NAMED_FALLBACK,
+)
+
+
+# ---------------------------------------------------------------------------
+# Case-level content safety (C0.5 — asp_sfw_corpus_roadmap_2026q3.md, issue #41)
+# ---------------------------------------------------------------------------
+# Objective content description — not a policy judgment. Multi-valued per
+# case; extend, don't repurpose an existing tag for something it doesn't mean.
+CONTENT_TAG_VIOLENCE = "violence"
+CONTENT_TAG_GORE = "gore"
+CONTENT_TAG_NUDITY_IMPLICIT = "nudity_implicit"
+CONTENT_TAG_NUDITY_EXPLICIT = "nudity_explicit"
+CONTENT_TAG_FANSERVICE = "fanservice"
+CONTENT_TAG_DARK_THEMES = "dark_themes"  # mature/gray-morality content
+CONTENT_TAGS = (
+    CONTENT_TAG_VIOLENCE,
+    CONTENT_TAG_GORE,
+    CONTENT_TAG_NUDITY_IMPLICIT,
+    CONTENT_TAG_NUDITY_EXPLICIT,
+    CONTENT_TAG_FANSERVICE,
+    CONTENT_TAG_DARK_THEMES,
+)
+# Deliberately open-ended (roadmap: "and others added as needed") — this is
+# the known starting set, not an enforced closed enum. Don't reject an
+# unrecognized tag on load; a human may add one before this list catches up.
+
+# Named tiers, not a numeric score — an unlabelled composite number invites
+# false precision the same way an unvalidated automated site score would.
+SAFETY_TIER_G = "tier_g"  # no tags beyond fully benign
+SAFETY_TIER_PG13 = "tier_pg13"  # mild fanservice/violence, no explicit content
+SAFETY_TIER_MATURE_SFW = "tier_mature_sfw"  # suggestive, dark themes, not explicit
+SAFETY_TIER_NSFW = "tier_nsfw"  # explicit
+SAFETY_TIERS = (
+    SAFETY_TIER_G,
+    SAFETY_TIER_PG13,
+    SAFETY_TIER_MATURE_SFW,
+    SAFETY_TIER_NSFW,
+)
+
+# The minor-presenting hard floor's per-assessor verdict (human or
+# automated). "high_risk" is never emitted by an unvalidated automated
+# ensemble member — see C0.5's decision rule — but the verdict enum itself
+# doesn't encode that restriction; the caller does.
+MINOR_RISK_HIGH_RISK = "high_risk"  # permanent hard drop regardless of source
+MINOR_RISK_CLEAR = "clear"
+MINOR_RISK_UNCERTAIN = "uncertain"  # never a veto, never stored as high_risk
+MINOR_RISK_VERDICTS = (MINOR_RISK_HIGH_RISK, MINOR_RISK_CLEAR, MINOR_RISK_UNCERTAIN)
