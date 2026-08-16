@@ -193,6 +193,51 @@ def _telea_fill_gaps(canvas: np.ndarray, gap_mask: np.ndarray) -> np.ndarray:
     )
 
 
+def _try_opencv_stitch(
+    frames: list[np.ndarray],
+    mode: int,
+    registration_resol: float,
+) -> tuple[int, np.ndarray | None]:
+    """One OpenCV Stitcher attempt. status 0 is OK."""
+    cv2.ocl.setUseOpenCL(False)
+    try:
+        stitcher = cv2.Stitcher_create(mode=mode)  # type: ignore[attr-defined]
+    except AttributeError:
+        stitcher = cv2.createStitcher(mode == 1)  # type: ignore[attr-defined]
+    stitcher.setRegistrationResol(registration_resol)
+    status, pano = stitcher.stitch(frames)
+    return int(status), pano if status == cv2.Stitcher_OK else None
+
+
+def _reuse_simple_stitch(output_path: str) -> Image.Image | None:
+    """If the bench already wrote opencv_stitch.png, reuse it instead of crashing.
+
+    ``run()`` writes to ``output/panorama_stages/run_output.png`` while the
+    simple stitch lives at ``output/opencv_stitch.png`` — check this
+    directory and its parent.
+    """
+    from pathlib import Path
+
+    dest = Path(output_path).expanduser().resolve()
+    candidates = [
+        dest.parent / "opencv_stitch.png",
+        dest.parent.parent / "opencv_stitch.png",
+    ]
+    for sibling in candidates:
+        if not sibling.is_file() or sibling.resolve() == dest:
+            continue
+        import shutil
+
+        shutil.copy2(sibling, dest)
+        logger.warning(
+            "[Stitch] SCANS stitcher failed; reused existing %s as %s",
+            sibling,
+            dest.name,
+        )
+        return Image.open(dest)
+    return None
+
+
 def _scan_stitch_fallback(
     frames: list[np.ndarray],
     output_path: str,
@@ -204,33 +249,55 @@ def _scan_stitch_fallback(
     OpenCV's stitcher output usually has staircase-shaped black edges.
     After stitching we crop to the largest fully-covered inner rectangle so
     the final image contains no black boundary pixels.
+
+    status=1 (ERR_NEED_MORE_IMGS) is common on hold-heavy / low-overlap
+    smart-selected sets even when the bench's earlier simple stitch
+    succeeded. Retry a few registrations, then reuse opencv_stitch.png
+    rather than raising CanvasError and aborting the dataset.
     """
     logger.info("[Stitch] FALLBACK: using OpenCV SCANS mode.")
-    cv2.ocl.setUseOpenCL(False)
-    try:
-        stitcher = cv2.Stitcher_create(mode=1)  # type: ignore[attr-defined] # cv2-stub gap
-    except AttributeError:
-        stitcher = cv2.createStitcher(True)  # type: ignore[attr-defined] # cv2-stub gap
-    stitcher.setRegistrationResol(0.8)
-    status, pano = stitcher.stitch(frames)
-    if status != cv2.Stitcher_OK:
-        raise CanvasError(f"SCANS fallback failed (status={status}).")
+    usable = [f for f in frames if isinstance(f, np.ndarray) and f.size > 0]
+    attempts: list[tuple[str, list[np.ndarray], int, float]] = []
+    if len(usable) >= 2:
+        attempts.append(("scans-0.8", usable, 1, 0.8))
+        attempts.append(("scans-0.4", usable, 1, 0.4))
+        if len(usable) > 8:
+            idx = np.linspace(0, len(usable) - 1, 8, dtype=int)
+            attempts.append(
+                ("scans-sub8", [usable[int(i)] for i in idx], 1, 0.6)
+            )
+        if len(usable) >= 3:
+            mid = len(usable) // 2
+            attempts.append(
+                ("scans-ends", [usable[0], usable[mid], usable[-1]], 1, 0.6)
+            )
+        attempts.append(("pano-0.6", usable[: min(12, len(usable))], 0, 0.6))
 
-    # Crop to the largest fully-covered interior rectangle so no black border pixels remain.
-    # _largest_valid_rect handles diagonal staircases; the simple "all-rows-valid" approach
-    # silently bails when no column is valid across every row (common for diagonal scrolls).
-    # relocated: from asp_backend.core.stateless import _largest_valid_rect
+    last_status = -1
+    for name, fr, mode, resol in attempts:
+        last_status, pano = _try_opencv_stitch(fr, mode, resol)
+        logger.info(
+            "[Stitch]   SCANS attempt %s n=%d status=%s",
+            name,
+            len(fr),
+            last_status,
+        )
+        if pano is None:
+            continue
+        valid_mask = pano.max(axis=2) > 0
+        x0, y0, x1, y1 = _largest_valid_rect(valid_mask)
+        if (x1 - x0) > 0 and (y1 - y0) > 0:
+            pano = pano[y0:y1, x0:x1]
+            logger.info(f"[Stitch] SCANS inner-rect crop: ({x0},{y0}) → ({x1},{y1})")
+        rgb = cv2.cvtColor(pano, cv2.COLOR_BGR2RGB)
+        out = Image.fromarray(rgb)
+        out.save(output_path)
+        return out
 
-    valid_mask = pano.max(axis=2) > 0
-    x0, y0, x1, y1 = _largest_valid_rect(valid_mask)
-    if (x1 - x0) > 0 and (y1 - y0) > 0:
-        pano = pano[y0:y1, x0:x1]
-        logger.info(f"[Stitch] SCANS inner-rect crop: ({x0},{y0}) → ({x1},{y1})")
-
-    rgb = cv2.cvtColor(pano, cv2.COLOR_BGR2RGB)
-    out = Image.fromarray(rgb)
-    out.save(output_path)
-    return out
+    reused = _reuse_simple_stitch(output_path)
+    if reused is not None:
+        return reused
+    raise CanvasError(f"SCANS fallback failed (status={last_status}).")
 
 
 def _panorama_stitch_fallback(

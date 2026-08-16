@@ -7,6 +7,7 @@ from __future__ import annotations
 import gc
 import logging
 import os
+import time
 
 import cv2
 import numpy as np
@@ -39,6 +40,13 @@ _MATCH_SPREAD_CEIL: float = float(os.environ.get("ASP_MATCH_SPREAD_CEIL", "0.0")
 # keypoints are sparse and their median displacement is noisy.
 # Set to 0.0 to disable (default); recommend 0.15 for real sequences.
 _LOFTR_BG_RATIO_MIN: float = float(os.environ.get("ASP_LOFTR_BG_RATIO_MIN", "0.0"))
+
+# asp_test83 hung 1+ hour after "Loading weights: 100%" with no further
+# logs: 18×1080p frames × (adj+skip1+skip2) pairs × LoFTR/LG/RoMa looks
+# like a stall. Budget stops matching and keeps whatever edges exist so
+# the pipeline can fall back to SCANS instead of spinning forever.
+# 0 disables the budget.
+_MATCH_BUDGET_SEC: float = float(os.environ.get("ASP_MATCH_BUDGET_SEC", "180"))
 
 
 def _match_pair(  # noqa: C901
@@ -317,7 +325,27 @@ def _pairwise_match(
         pairs.append((i, i + 3))  # skip-2
 
     edges: list[dict] = []
+    t0 = time.perf_counter()
     for _idx, (i, j) in enumerate(pairs):
+        elapsed = time.perf_counter() - t0
+        if _MATCH_BUDGET_SEC > 0 and elapsed > _MATCH_BUDGET_SEC:
+            logger.warning(
+                "[Stitch] match budget %.0fs exceeded after %d/%d pairs "
+                "(%d edges) — stopping so SCANS can run (asp_test83 hang class).",
+                _MATCH_BUDGET_SEC,
+                _idx,
+                len(pairs),
+                len(edges),
+            )
+            break
+        logger.info(
+            "[Stitch]   pair %d/%d %d→%d (%.0fs elapsed)",
+            _idx + 1,
+            len(pairs),
+            i,
+            j,
+            elapsed,
+        )
         edge = _match_pair(
             frames,
             bg_masks,
