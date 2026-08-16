@@ -3733,6 +3733,29 @@ def generate_report(results: list[dict], output_dir: str) -> str:
 # ============================================================================
 
 
+def default_checkpoint_path() -> str:
+    return os.path.join(os.path.dirname(__file__), "output", "_checkpoint.json")
+
+
+def _checkpoint_done_names() -> set[str]:
+    """Dataset names already persisted in the incremental bench checkpoint."""
+    path = default_checkpoint_path()
+    if not os.path.isfile(path):
+        return set()
+    try:
+        with open(path, encoding="utf-8") as fh:
+            rows = json.load(fh)
+    except (OSError, json.JSONDecodeError):
+        return set()
+    if not isinstance(rows, list):
+        return set()
+    return {
+        str(row["name"])
+        for row in rows
+        if isinstance(row, dict) and row.get("name")
+    }
+
+
 def _resolve_datasets(base_dir: str, args) -> list[str]:
     """
     Return an ordered list of dataset directories to process based on CLI args.
@@ -3746,6 +3769,7 @@ def _resolve_datasets(base_dir: str, args) -> list[str]:
 
     Additional filter:
       --skip-done   skip any dataset whose output panorama.png already exists
+      --resume-checkpoint   skip names already recorded in _checkpoint.json
     """
     all_dirs = sorted(
         d for d in glob.glob(os.path.join(base_dir, "asp_test*")) if os.path.isdir(d)
@@ -3794,6 +3818,16 @@ def _resolve_datasets(base_dir: str, args) -> list[str]:
             f"[skip-done] Skipped {before - len(selected)} already-processed datasets."
         )
 
+    if getattr(args, "resume_checkpoint", False):
+        done = _checkpoint_done_names()
+        if done:
+            before = len(selected)
+            selected = [d for d in selected if os.path.basename(d) not in done]
+            print(
+                f"[resume-checkpoint] Skipped {before - len(selected)} "
+                f"datasets already in _checkpoint.json ({len(done)} named)."
+            )
+
     return selected
 
 
@@ -3823,6 +3857,9 @@ Examples:
   # Skip tests already processed (panorama.png exists)
   python3 backend/benchmark/bench_anime_stitch.py --skip-done
 
+  # Resume a killed long run from incremental _checkpoint.json
+  python3 backend/benchmark/bench_anime_stitch.py --range 2-97 --resume-checkpoint
+
   # Combine: first 20 tests, skip done
   python3 backend/benchmark/bench_anime_stitch.py --first 20 --skip-done
 """,
@@ -3850,6 +3887,11 @@ Examples:
         help="Skip datasets whose output/panorama.png already exists",
     )
     parser.add_argument(
+        "--resume-checkpoint",
+        action="store_true",
+        help="Skip datasets already listed in backend/benchmark/output/_checkpoint.json",
+    )
+    parser.add_argument(
         "--data-dir",
         default=os.path.expanduser("~/Downloads/Data/Dump"),
         metavar="DIR",
@@ -3870,9 +3912,7 @@ Examples:
     print()
 
     suite_start = time.perf_counter()
-    _checkpoint_path = os.path.join(
-        os.path.dirname(__file__), "output", "_checkpoint.json"
-    )
+    _checkpoint_path = default_checkpoint_path()
     _baseline_snap = _resource_snapshot()
     print(
         f"[Resources] Baseline before any dataset: RSS={_baseline_snap['rss_gb']}GB  "
