@@ -148,6 +148,7 @@ def evaluate_case(
     *,
     max_frames: int,
     scale: float,
+    image_dir: Path | None = None,
 ) -> dict[str, Any]:
     case_dir = data_dir / name
     paths = _even_sample(_discover_frames(case_dir), max_frames)
@@ -184,6 +185,28 @@ def evaluate_case(
     )
     os.environ["ASP_COHERENCE_V2"] = "0"
 
+    paths: dict[str, str] = {}
+    if image_dir is not None:
+        image_dir.mkdir(parents=True, exist_ok=True)
+        def_path = image_dir / f"{name}_default.png"
+        v2_path = image_dir / f"{name}_v2.png"
+        cv2.imwrite(str(def_path), default)
+        cv2.imwrite(str(v2_path), v2)
+        paths = {
+            "default_png": str(def_path),
+            "coherence_v2_png": str(v2_path),
+        }
+        pub = ASP_ROOT.parent.parent / "docs" / "website" / "public"
+        try:
+            paths["default_url"] = "/" + str(def_path.resolve().relative_to(pub)).replace(
+                "\\", "/"
+            )
+            paths["coherence_v2_url"] = "/" + str(
+                v2_path.resolve().relative_to(pub)
+            ).replace("\\", "/")
+        except ValueError:
+            pass
+
     return {
         "name": name,
         "role": "known_good" if name == "asp_test96" else "catastrophe",
@@ -194,6 +217,7 @@ def evaluate_case(
         "coherence_v2": _score(v2),
         "crop_loss_increased": crop_loss_increased(default, v2),
         "human_labels_apply_to": "published_default_path_only",
+        "renders": paths,
     }
 
 
@@ -204,6 +228,7 @@ def screen(
     max_frames: int = 6,
     scale: float = 0.25,
     names: tuple[str, ...] = RED_SET,
+    image_dir: Path | None = None,
 ) -> dict[str, Any]:
     doc = json.loads(run_path.read_text(encoding="utf-8"))
     by_name = {d["name"]: d for d in doc.get("datasets") or []}
@@ -219,6 +244,7 @@ def screen(
                 data_dir,
                 max_frames=max_frames,
                 scale=scale,
+                image_dir=image_dir,
             )
         )
     scored = [r for r in rows if "crop_loss_increased" in r]
@@ -229,6 +255,8 @@ def screen(
         "n_crop_loss_increased": n_crop,
         "known_good_crop_ok": bool(good) and not good["crop_loss_increased"],
         "passes_crop_gate": n_crop == 0 and bool(scored),
+        "scale": scale,
+        "max_frames": max_frames,
         "note": (
             "Compositor-only A/B on subsampled frames + median-dy affines. "
             "Human ratings still describe the published default path, not v2."
@@ -244,6 +272,12 @@ def main() -> None:
     ap.add_argument("--max-frames", type=int, default=6)
     ap.add_argument("--scale", type=float, default=0.25)
     ap.add_argument(
+        "--image-dir",
+        type=Path,
+        default=None,
+        help="write default/v2 PNG pairs here for visual review",
+    )
+    ap.add_argument(
         "--out",
         type=Path,
         default=ASP_ROOT / "backend" / "benchmark" / "output" / "coherence_v2_redset.json",
@@ -254,6 +288,7 @@ def main() -> None:
         args.data_dir,
         max_frames=args.max_frames,
         scale=args.scale,
+        image_dir=args.image_dir,
     )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2), encoding="utf-8")

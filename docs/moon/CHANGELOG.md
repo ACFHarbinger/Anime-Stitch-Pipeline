@@ -26,6 +26,9 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#34 full-res red-set renders (2026-08-17):** `screen_coherence_v2.py
+  --scale 1.0 --max-frames 8 --image-dir` writes default/v2 PNG pairs.
+  Crop gate still 0/7. Recipe: `just bench::asp-coherence-v2-redset-full`.
 - **#31 GhostGate telemetry-only promoted to product default (2026-08-17,
   Harbinger ACK):** `product_safe_asp_policy()` now returns
   `ghost_telemetry_only=True`. `ghosting_score_v2` is still recorded on every

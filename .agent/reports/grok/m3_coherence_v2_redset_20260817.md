@@ -32,3 +32,13 @@ Structural proxies are mixed (fracture down on test96 64.8→39.3, up on
 test14 59.5→79.7). That is **not** a human screen and not an M3 exit.
 
 Not promoted. Sidecar: `docs/website/public/data/coherence_v2_redset.json`.
+
+## Full-resolution renders (2026-08-17)
+
+`--scale 1.0 --max-frames 8` for Harbinger visual review. Crop gate still
+**0/7**. PNGs:
+
+`docs/website/public/data/coherence_v2/{case}_default.png` and `{case}_v2.png`
+
+JSON includes `renders.default_url` / `coherence_v2_url` (`/data/coherence_v2/...`).
+Still compositor-only (even subsample + median-dy). Still not a human rating.

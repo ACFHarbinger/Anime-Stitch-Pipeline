@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 from asp_backend.core.pipeline.safety_policy import (
     SafeAspPolicy,
+    product_safe_asp_policy,
     safe_asp_counterfactual,
 )
 
@@ -123,6 +124,12 @@ class TestGhostGate:
     def test_default_policy_is_not_telemetry_only(self):
         assert SafeAspPolicy().ghost_telemetry_only is False
         assert SafeAspPolicy.from_environ().ghost_telemetry_only is False
+
+    def test_product_policy_ghost_is_telemetry_only(self):
+        policy = product_safe_asp_policy()
+        assert policy.ghost_telemetry_only is True
+        assert policy.composite_sb_telemetry_only is False
+        assert policy.composite_sc_telemetry_only is False
 
     def test_env_enables_telemetry_only(self, monkeypatch):
         monkeypatch.setenv("ASP_GHOST_TELEMETRY_ONLY", "1")
