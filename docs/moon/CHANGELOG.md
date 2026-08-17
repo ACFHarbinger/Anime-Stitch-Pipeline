@@ -26,6 +26,11 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#34 M3 slice 2 — apply ownership to warped frames (2026-08-17):**
+  `apply_coherence_v2` / `composite_coherence_v2` copy each owned region
+  from exactly one pose (no blend). `_composite_foreground` takes this
+  path only when `ASP_COHERENCE_V2=1`; default seam loop unchanged.
+  Tests: 11 in `test_coherence_v2.py`.
 - **#34 M3 first slice — `coherence_v2` assignment (2026-08-17):** new
   isolated module `rendering/compositing/coherence_v2.py` (Critical
   Evaluation §9.2 Stage 2). Each FG overlap region gets exactly one

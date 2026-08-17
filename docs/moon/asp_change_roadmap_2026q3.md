@@ -461,6 +461,9 @@ Deliverables:
   `has_background_corridor=False` and a single-pose handoff. Not imported
   by `composite.py`. Schema key `ASP_COHERENCE_V2` default 0. Tests:
   `test_coherence_v2.py`.
+  **Slice 2:** `apply_coherence_v2` paints owned pixels from one source;
+  N-frame fold is first-claim-wins. Opt-in hook in `_composite_foreground`
+  behind `ASP_COHERENCE_V2=1` only.
 
 Exit criteria:
 

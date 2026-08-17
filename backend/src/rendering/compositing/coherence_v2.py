@@ -6,9 +6,9 @@ poses through the same region. When no background corridor exists across an
 overlap, emit an explicit single-pose handoff instead of an infinite-cost
 seam grid.
 
-This module is assignment-only. It is not imported by ``composite.py``.
-The live HITL seam loop stays until a human screen promotes the candidate.
-Enable later via ``ASP_COHERENCE_V2=1`` (schema default 0).
+Assignment plus a pixel apply that copies each owned region from exactly
+one warped frame. ``composite.py`` may take this path only when
+``ASP_COHERENCE_V2=1``. The live HITL seam loop remains the default.
 """
 
 from __future__ import annotations
@@ -150,10 +150,68 @@ def plan_coherence_v2(
     )
 
 
+def fg_mask_from_warped(
+    warped: np.ndarray,
+    bg_mask: np.ndarray | None,
+) -> np.ndarray:
+    """Foreground = on-canvas content that is not the BiRefNet background."""
+    content = warped.max(axis=2) > 0 if warped.ndim == 3 else warped > 0
+    if bg_mask is None:
+        return content
+    bg = np.asarray(bg_mask)
+    if bg.ndim == 3:
+        bg = bg.max(axis=2)
+    if bg.dtype == bool:
+        return content & ~bg
+    return content & (bg <= 127)
+
+
+def apply_coherence_v2(
+    img_a: np.ndarray,
+    img_b: np.ndarray,
+    fg_a: np.ndarray,
+    fg_b: np.ndarray,
+    *,
+    background: np.ndarray | None = None,
+    conf_a: np.ndarray | None = None,
+    conf_b: np.ndarray | None = None,
+) -> tuple[np.ndarray, CoherenceV2Plan]:
+    """Paint owned foreground from one source pose only. No blend."""
+    plan = plan_coherence_v2(fg_a, fg_b, conf_a=conf_a, conf_b=conf_b)
+    out = np.zeros_like(img_a) if background is None else background.copy()
+    own0 = plan.ownership == 0
+    own1 = plan.ownership == 1
+    out[own0] = img_a[own0]
+    out[own1] = img_b[own1]
+    return out, plan
+
+
+def composite_coherence_v2(
+    warped: list[np.ndarray],
+    fg_masks: list[np.ndarray],
+    canvas: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Fold adjacent pair plans onto a canvas. First pair to claim a pixel wins."""
+    if len(warped) != len(fg_masks) or len(warped) < 2:
+        raise ValueError("Need at least two warped frames and matching FG masks.")
+    result = canvas.copy()
+    claimed = np.full(canvas.shape[:2], -1, dtype=np.int16)
+    for i in range(len(warped) - 1):
+        plan = plan_coherence_v2(fg_masks[i], fg_masks[i + 1])
+        for local, fi in ((0, i), (1, i + 1)):
+            take = (plan.ownership == local) & (claimed < 0)
+            result[take] = warped[fi][take]
+            claimed[take] = fi
+    return result, claimed
+
+
 __all__ = [
     "CoherenceV2Plan",
     "RegionOwnership",
     "coherence_v2_enabled",
     "has_background_corridor",
     "plan_coherence_v2",
+    "fg_mask_from_warped",
+    "apply_coherence_v2",
+    "composite_coherence_v2",
 ]
