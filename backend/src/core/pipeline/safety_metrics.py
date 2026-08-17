@@ -172,9 +172,22 @@ def seam_visibility_score(
     return round(float(np.nanmax(diffs)) if len(diffs) > 0 else 0.0, 2)
 
 
+from .anime_metrics import (
+    cel_flatness_variance,
+    extract_flat_cel_mask,
+    extract_line_art,
+    flat_region_edge_leakage,
+    line_art_fracture_score,
+)
+
 __all__ = [
     "ghosting_score_v2",
     "seam_coherence",
     "seam_visibility_score",
     "strip_banding_score",
+    "extract_line_art",
+    "extract_flat_cel_mask",
+    "line_art_fracture_score",
+    "cel_flatness_variance",
+    "flat_region_edge_leakage",
 ]
