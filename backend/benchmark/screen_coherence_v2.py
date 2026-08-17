@@ -49,6 +49,9 @@ def _load_asp_backend() -> None:
     spec.loader.exec_module(mod)
 
 
+_itk = ASP_ROOT.parent.parent
+if _itk.is_dir() and str(_itk) not in sys.path:
+    sys.path.insert(0, str(_itk))
 _load_asp_backend()
 
 from asp_backend.alignment.canvas import _compute_canvas, _load_frames, _normalise_widths
