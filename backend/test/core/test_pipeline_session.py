@@ -176,6 +176,38 @@ class TestPipelineSession:
         assert session.hitl_overrides["frames"]["frame_override"] == ["b.png"]
         assert session.inputs.image_paths == ["a.png", "b.png"]
 
+    def test_stages_emit_host_telemetry_spans_when_enabled(self, tmp_path, monkeypatch):
+        pytest.importorskip("backend.src.core.telemetry")
+        from backend.src.core import telemetry
+
+        monkeypatch.setattr(telemetry, "TELEMETRY_DIR", tmp_path)
+        previous = telemetry.is_enabled()
+        telemetry.set_enabled(True)
+        try:
+            session = PipelineSession.create(["a.png"], "out.png", config={})
+            session.mark(PipelineStage.LOAD, n=1)
+            session.start_stage(PipelineStage.MATCH)
+            session.complete_stage(PipelineStage.MATCH, n_edges=3)
+            session.finish(success=True, identity=ResultIdentity.RAW_ASP)
+        finally:
+            telemetry.close()
+            telemetry.set_enabled(previous)
+
+        files = list(tmp_path.glob("telemetry-*.jsonl"))
+        assert files, "PipelineSession must write host telemetry when enabled"
+        import json
+
+        events = [json.loads(line) for line in files[0].read_text().splitlines() if line]
+        names = [e["event"] for e in events]
+        assert "stage.load.start" in names
+        assert "stage.load.end" in names
+        assert "stage.match.start" in names
+        assert "stage.match.end" in names
+        load_start = next(e for e in events if e["event"] == "stage.load.start")
+        load_end = next(e for e in events if e["event"] == "stage.load.end")
+        assert load_start["span_id"] == load_end["span_id"]
+        assert load_start["category"] == "asp"
+
 
 class TestHitlEventParity:
     def test_checkpoint_names_match_gui_pause_events(self):

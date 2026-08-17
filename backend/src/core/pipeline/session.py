@@ -193,6 +193,7 @@ class PipelineSession:
     started_at: float = field(default_factory=time.perf_counter)
     finished_at: float | None = None
     _open: StageRecord | None = field(default=None, init=False, repr=False)
+    _span_id: str | None = field(default=None, init=False, repr=False)
 
     @classmethod
     def create(
@@ -220,6 +221,7 @@ class PipelineSession:
 
     def start_stage(self, stage: PipelineStage | str, **notes: Any) -> StageRecord:
         if self._open is not None:
+            self._end_stage_span(self._open)
             self._open.close()
             self._open = None
         record = StageRecord(
@@ -229,6 +231,7 @@ class PipelineSession:
         )
         self.stages.append(record)
         self._open = record
+        self._begin_stage_span(record)
         return record
 
     def complete_stage(
@@ -241,6 +244,7 @@ class PipelineSession:
         if record is None or (expected is not None and record.name != expected):
             record = self.start_stage(stage or "unknown")
         record.close(**notes)
+        self._end_stage_span(record)
         self._open = None
         return record
 
@@ -355,6 +359,7 @@ class PipelineSession:
         error: str | None = None,
     ) -> None:
         if self._open is not None:
+            self._end_stage_span(self._open)
             self._open.close()
             self._open = None
         if identity is not None:
@@ -365,6 +370,44 @@ class PipelineSession:
         self.success = success
         self.error = error
         self.finished_at = time.perf_counter()
+
+    def _host_telemetry(self) -> Any | None:
+        """Image-Toolkit writer when present; no-op in standalone ASP."""
+        try:
+            from backend.src.core import telemetry as host_telemetry
+        except ImportError:
+            return None
+        return host_telemetry
+
+    def _begin_stage_span(self, record: StageRecord) -> None:
+        tel = self._host_telemetry()
+        if tel is None or not tel.is_enabled():
+            self._span_id = None
+            return
+        try:
+            self._span_id = tel.begin_span("asp", f"stage.{record.name}")
+        except Exception:
+            self._span_id = None
+
+    def _end_stage_span(self, record: StageRecord, error: str | None = None) -> None:
+        tel = self._host_telemetry()
+        if tel is None or self._span_id is None:
+            self._span_id = None
+            return
+        duration_ms = (
+            None if record.duration_s is None else round(record.duration_s * 1000, 3)
+        )
+        try:
+            tel.end_span(
+                "asp",
+                f"stage.{record.name}",
+                error=error,
+                duration_ms=duration_ms,
+                span_id=self._span_id,
+            )
+        except Exception:
+            pass
+        self._span_id = None
 
     def stage_names(self) -> list[str]:
         return [record.name for record in self.stages]
