@@ -26,6 +26,12 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#34 M3 red-set compositor A/B (2026-08-17):**
+  `screen_coherence_v2.py` runs default seam loop vs `ASP_COHERENCE_V2=1`
+  on 04/06/07/12/14/15/96 (subsampled frames, median-dy affines). Crop-loss
+  gate **fails** (6/7 including known-good test96). Not promoted. Sidecar:
+  `docs/website/public/data/coherence_v2_redset.json`. Report:
+  `.agent/reports/grok/m3_coherence_v2_redset_20260817.md`.
 - **#34 M3 slice 2 — apply ownership to warped frames (2026-08-17):**
   `apply_coherence_v2` / `composite_coherence_v2` copy each owned region
   from exactly one pose (no blend). `_composite_foreground` takes this
