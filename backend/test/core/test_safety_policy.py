@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import numpy as np
-from asp_backend.core.pipeline.safety_policy import SafeAspPolicy
+from asp_backend.core.pipeline.safety_policy import (
+    SafeAspPolicy,
+    safe_asp_counterfactual,
+)
 
 
 def _solid(h: int, w: int, lum: int) -> np.ndarray:
@@ -75,6 +78,45 @@ class TestGhostGate:
         if not decision.accept:
             assert decision.reason.startswith("ghost_gate_siqe:")
             assert decision.runtime_message.startswith("Ghosting gate (siqe):")
+
+    def test_telemetry_only_never_rejects(self):
+        policy = SafeAspPolicy(
+            ghost_floor=0.0, ghost_ratio=0.01, ghost_telemetry_only=True
+        )
+        decision = policy.evaluate_ghost(_banded(80, 64), _solid(80, 64, 128))
+        assert decision.accept
+        assert decision.status == "telemetry_only_inverse_validated"
+        assert decision.fallback_code == 0
+        assert "would_reject" in decision.scores
+        assert "[telemetry_only_inverse_validated]" in (decision.log_line or "")
+
+    def test_ghost_limit_uses_floor_then_ratio(self):
+        policy = SafeAspPolicy(ghost_floor=40.0, ghost_ratio=2.0)
+        assert policy.ghost_limit(10.0) == 40.0
+        assert policy.ghost_limit(30.0) == 60.0
+
+    def test_default_policy_is_not_telemetry_only(self):
+        assert SafeAspPolicy().ghost_telemetry_only is False
+        assert SafeAspPolicy.from_environ().ghost_telemetry_only is False
+
+    def test_env_enables_telemetry_only(self, monkeypatch):
+        monkeypatch.setenv("ASP_GHOST_TELEMETRY_ONLY", "1")
+        assert SafeAspPolicy.from_environ().ghost_telemetry_only is True
+
+
+class TestGhostTelemetryCounterfactual:
+    def test_telemetry_ghost_does_not_select_scans(self):
+        policy = SafeAspPolicy(ghost_telemetry_only=True)
+        ghost = policy.evaluate_ghost(_banded(80, 64), _solid(80, 64, 128))
+        # Force a would-reject by using a tight policy clone for scores, but
+        # the candidate decision above already accepts. Selection uses accept.
+        cf = safe_asp_counterfactual(
+            [ghost], policy, raw_available=True, scans_available=True
+        )
+        assert ghost.accept
+        assert cf["would_select"] == "raw_asp"
+        assert cf["gate"] is None
+        assert cf["decisions"][0]["status"] == "telemetry_only_inverse_validated"
 
 
 class TestSeamVisGate:

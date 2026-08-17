@@ -279,6 +279,13 @@ Deliverables:
   maps them onto the actual gate code: **`GhostGate`'s only signal
   (`ghosting_score_v2`) is the worst-scoring inverse metric audited** — it is
   the concrete demotion candidate this bullet calls for.
+  **Candidate implemented, default not flipped (2026-08-17, Grok):**
+  `ghost_telemetry_only` / `ASP_GHOST_TELEMETRY_ONLY=1` records
+  `telemetry_only_inverse_validated` and never rejects; SeamVis is not
+  substituted. Offline replay of the 2026-08-07 97-case run: 0 identity
+  changes on the five-case screen, the structural red set, and all 97.
+  There is no historic GhostGate-only fallback in this corpus. See
+  `.agent/reports/grok/m2_ghostgate_telemetry_screen_20260817.md`.
   `SeamVisGate`'s `seam_visibility_score` is confirmed correct (rho +0.43) and
   should be the reference "gate that works." `CompositeGate`'s
   `seam_coherence` component shows no signal (rho -0.06, not significant);

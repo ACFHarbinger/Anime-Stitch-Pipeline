@@ -72,6 +72,19 @@ asp-benchmark-ungated-verify:
         backend/benchmark/bench_anime_stitch.py --data-dir dump \
         --tests asp_test04 asp_test08 asp_test09 asp_test27 asp_test57
 
+# Offline GhostGate telemetry-only promotion-ladder replay (no GPU, no default flip).
+# five | red | all against a saved run JSON.
+asp-ghost-telemetry-screen SET="five":
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/screen_ghost_telemetry.py \
+        --run backend/benchmark/output/anime_stitch_20260807_045552.json \
+        --set {{SET}}
+
+# Union disjoint per-range anime_stitch_*.json files into one corpus document.
+asp-benchmark-merge *ARGS:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/merge_run_json.py {{ARGS}}
+
 # 5-test rapid subset (asp_test04/08/09/27/57) -- run before any default-flag flip
 asp-benchmark-verify:
     cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \

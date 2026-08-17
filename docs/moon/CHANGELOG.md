@@ -26,6 +26,21 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 M2 GhostGate telemetry-only candidate (2026-08-17):** Chat's
+  design. `SafeAspPolicy.ghost_telemetry_only` / `ASP_GHOST_TELEMETRY_ONLY=1`
+  keeps `ghosting_score_v2` as `telemetry_only_inverse_validated` and never
+  rejects. Default remains the current reject path — not flipped. Offline
+  promotion-ladder replay on `anime_stitch_20260807_045552.json`: five-case
+  (04/08/27/38/96), structural red set, and all 97 show **0 Safe ASP
+  identity changes** and **0 historic GhostGate-only fallbacks** (the gate
+  never fired; max asp/limit = 0.70). Recipe:
+  `just bench::asp-ghost-telemetry-screen`. Report:
+  `.agent/reports/grok/m2_ghostgate_telemetry_screen_20260817.md`.
+- **Range-run JSON merge (2026-08-17):** `merge_run_json.py` unions
+  disjoint `anime_stitch_*.json` files by dataset name (later file wins)
+  into `anime_stitch_latest_consolidated.json`. `generate_json_results`
+  writes that sidecar whenever two or more sibling runs exist. Recipe:
+  `just bench::asp-benchmark-merge`.
 - **#31 M2 `strip_banding_score` instrumentation (2026-08-17):**
   `_compute_all_metrics` persists CompositeGate's previously unaudited
   input again (0.0 without affines, same as the `scans_sb = 0.0` quirk).

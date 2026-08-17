@@ -2408,6 +2408,7 @@ def generate_json_results(results: list[dict], suite_start_time: float) -> str:
             "total_datasets": len(results),
             "total_time_sec": total_sec,
             "format_version": "1.0",
+            "experiment_label": os.environ.get("ASP_EXPERIMENT_LABEL") or None,
         },
         "system": _system_info(),
         "summary": {
@@ -2530,6 +2531,14 @@ def generate_json_results(results: list[dict], suite_start_time: float) -> str:
         json.dump(doc, fh, indent=2)
 
     print(f"\n[JSON] Results written to {out_path}")
+    try:
+        from merge_run_json import maybe_write_consolidated
+
+        merged = maybe_write_consolidated(Path(out_path))
+        if merged is not None:
+            print(f"[JSON] Consolidated range merge written to {merged}")
+    except Exception as exc:
+        print(f"[JSON] Consolidated merge skipped: {exc!r}")
     return out_path
 
 

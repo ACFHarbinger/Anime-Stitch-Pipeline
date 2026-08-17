@@ -49,6 +49,10 @@ class GateDecision:
     fail_log_line: str | None = None
     scores: dict[str, float] = field(default_factory=dict)
     fallback_code: int = 0  # bench timings["render_gate_fallback"]
+    # Chat/Codex M2 design: GhostGate may record scores without rejecting.
+    # ``telemetry_only_inverse_validated`` means the signal is kept for
+    # traces/reports and must not drive Safe ASP selection.
+    status: str | None = None
 
 
 @dataclass
@@ -62,6 +66,9 @@ class SafeAspPolicy:
     ghost_floor: float = 40.0
     seam_vis_ratio: float = 3.0
     seam_vis_floor: float = 35.0
+    # Default-off M2 candidate. Do not flip until the promotion ladder
+    # (five-case → red set → 97) reports no human-worse selection.
+    ghost_telemetry_only: bool = False
 
     @classmethod
     def from_environ(cls) -> SafeAspPolicy:
@@ -73,6 +80,7 @@ class SafeAspPolicy:
             ghost_floor=_env_float("ASP_GATE_GHOST_FLOOR", 40.0),
             seam_vis_ratio=_env_float("ASP_GATE_SEAM_VIS", 3.0),
             seam_vis_floor=_env_float("ASP_GATE_SEAM_VIS_FLOOR", 35.0),
+            ghost_telemetry_only=os.environ.get("ASP_GHOST_TELEMETRY_ONLY", "0") == "1",
         )
 
     def evaluate_composite(
@@ -136,36 +144,54 @@ class SafeAspPolicy:
             fallback_code=1,
         )
 
+    def ghost_limit(self, sim_g: float) -> float:
+        return max(self.ghost_floor, self.ghost_ratio * max(sim_g, 1.0))
+
     def evaluate_ghost(
         self,
         asp_img: np.ndarray,
         scans_img: np.ndarray | None,
     ) -> GateDecision:
+        telemetry = (
+            "telemetry_only_inverse_validated" if self.ghost_telemetry_only else None
+        )
         if scans_img is None or self.ghost_ratio >= 90:
-            return GateDecision(name="ghost", accept=True, skipped=True)
+            return GateDecision(
+                name="ghost", accept=True, skipped=True, status=telemetry
+            )
         asp_g = ghosting_score_v2(asp_img)
         sim_g = ghosting_score_v2(scans_img)
         ratio = asp_g / max(sim_g, 1.0)
         limit = max(self.ghost_floor, self.ghost_ratio * max(sim_g, 1.0))
+        would_reject = asp_g > limit
         log_line = (
             f"  [GhostGate/siqe] asp_ghost={asp_g:.1f}  "
             f"sim_ghost={sim_g:.1f}  "
             f"ratio={ratio:.2f}"
         )
-        if asp_g <= limit:
+        if telemetry:
+            log_line += f"  [{telemetry}]"
+        scores = {
+            "asp_ghost": asp_g,
+            "sim_ghost": sim_g,
+            "limit": limit,
+            "would_reject": 1.0 if would_reject else 0.0,
+        }
+        reason = (
+            f"ghost_gate_siqe:asp={asp_g:.1f}_sim={sim_g:.1f}_limit={limit:.1f}"
+            if would_reject
+            else None
+        )
+        # Candidate policy: never reject. Do not substitute SeamVis here.
+        if telemetry or not would_reject:
             return GateDecision(
                 name="ghost",
                 accept=True,
+                reason=reason if telemetry else None,
                 log_line=log_line,
-                scores={
-                    "asp_ghost": asp_g,
-                    "sim_ghost": sim_g,
-                    "limit": limit,
-                },
+                scores=scores,
+                status=telemetry,
             )
-        reason = (
-            f"ghost_gate_siqe:asp={asp_g:.1f}_sim={sim_g:.1f}_limit={limit:.1f}"
-        )
         return GateDecision(
             name="ghost",
             accept=False,
@@ -180,11 +206,7 @@ class SafeAspPolicy:
                 f"[floor={self.ghost_floor:.0f}, {self.ghost_ratio:.1f}× "
                 f"sim={sim_g:.1f}]) → SCANS fallback."
             ),
-            scores={
-                "asp_ghost": asp_g,
-                "sim_ghost": sim_g,
-                "limit": limit,
-            },
+            scores=scores,
             fallback_code=1,
         )
 
@@ -277,6 +299,7 @@ class SafeAspPolicy:
             "ghost_floor": self.ghost_floor,
             "seam_vis_ratio": self.seam_vis_ratio,
             "seam_vis_floor": self.seam_vis_floor,
+            "ghost_telemetry_only": 1.0 if self.ghost_telemetry_only else 0.0,
         }
 
 
@@ -322,6 +345,7 @@ def safe_asp_counterfactual(
                 "accept": d.accept,
                 "skipped": d.skipped,
                 "reason": d.reason,
+                "status": d.status,
                 "scores": dict(d.scores),
             }
             for d in decisions
