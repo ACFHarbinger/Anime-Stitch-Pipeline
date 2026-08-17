@@ -115,6 +115,33 @@ class TestPipelineSession:
         assert session.fallbacks[0]["algorithm"] == "panorama"
         assert "safe_asp_path" in session.artifacts
 
+    def test_finish_publishes_m2_observability_envelope(self):
+        session = PipelineSession.create(["a.png", "b.png"], "out.png", config={})
+        session.note_geometry(PipelineStage.NORMALISE, width=64, height=48, n_frames=2)
+        session.note_frame_provenance(
+            [{"index": 0, "path": "a.png", "kept": True, "drop_reason": None}]
+        )
+        session.note_pose_provenance(
+            [{"frame": 0, "tx": 0.0, "ty": 10.0, "source": "bundle_adjust"}]
+        )
+        session.note_gain_telemetry({"n_clamped": 1, "mean_residual": 0.12})
+        session.note_seam_feasibility(
+            {"attempted": True, "feasible": True, "seam_crops": "drop-me"}
+        )
+        session.record_fallback(ResultIdentity.SCANS, "coverage_gate")
+        session.finish(success=True, identity=ResultIdentity.SCANS)
+
+        assert session.fallback_reason == "coverage_gate"
+        obs = session.artifacts["observability"]
+        assert obs["fallback_reason"] == "coverage_gate"
+        assert obs["geometry"][0]["width"] == 64
+        assert obs["frame_provenance"][0]["path"] == "a.png"
+        assert obs["pose_provenance"][0]["ty"] == 10.0
+        assert obs["gain"]["n_clamped"] == 1
+        assert obs["seam"]["feasible"] is True
+        assert "seam_crops" not in obs["seam"]
+        assert session.as_dict()["fallback_reason"] == "coverage_gate"
+
     def test_pause_is_noop_without_hook(self):
         session = PipelineSession.create(["a.png"], "out.png", config={})
         assert session.pause(HitlCheckpoint.FRAMES, {"paths": ["a.png"]}) == {}

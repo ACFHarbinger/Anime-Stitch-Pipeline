@@ -19,6 +19,7 @@ def _apply_background_photometric_normalization(
     frames: list[np.ndarray],
     bg_masks: list[np.ndarray | None],
     N: int,
+    telemetry: dict | None = None,
 ) -> list[np.ndarray]:
     """Normalise per-frame ambient lighting using background-pixel statistics.
 
@@ -47,6 +48,7 @@ def _apply_background_photometric_normalization(
         bg_frame_means.append(None)
 
     _valid_means = [m for m in bg_frame_means if m is not None]
+    gain_rows: list[dict] = []
     if len(_valid_means) >= 3:
         _ref_mean = np.median(_valid_means, axis=0)  # (3,) BGR reference
         for _i in range(N):
@@ -58,11 +60,32 @@ def _apply_background_photometric_normalization(
             _gain_lo, _gain_hi = (
                 (0.80, 1.25) if _ref_lum_scalar < 80.0 else (0.88, 1.14)
             )
+            _unclamped = np.asarray(_gain, dtype=np.float32)
             _gain = np.clip(_gain, _gain_lo, _gain_hi)
+            _clamped = bool(np.any(np.abs(_unclamped - _gain) > 1e-6))
+            gain_rows.append(
+                {
+                    "frame": int(_i),
+                    "gain_bgr": [round(float(x), 4) for x in _gain],
+                    "unclamped_bgr": [round(float(x), 4) for x in _unclamped],
+                    "clamped": _clamped,
+                    "clamp_lo": float(_gain_lo),
+                    "clamp_hi": float(_gain_hi),
+                    "residual": round(float(np.mean(np.abs(_gain - 1.0))), 4),
+                }
+            )
             if not np.allclose(_gain, 1.0, atol=0.01):
                 frames[_i] = np.clip(
                     frames[_i].astype(np.float32) * _gain, 0, 255
                 ).astype(np.uint8)
+    if telemetry is not None:
+        telemetry["frames"] = gain_rows
+        telemetry["n_clamped"] = sum(1 for row in gain_rows if row["clamped"])
+        telemetry["mean_residual"] = (
+            round(float(np.mean([row["residual"] for row in gain_rows])), 4)
+            if gain_rows
+            else 0.0
+        )
 
     # P2.6 — Per-segment photometric correction.
     # The global gain above applies one scalar per frame.  Anime assigns

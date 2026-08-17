@@ -184,6 +184,12 @@ class PipelineSession:
     identity: str | None = None
     success: bool | None = None
     error: str | None = None
+    fallback_reason: str | None = None
+    geometry: list[dict[str, Any]] = field(default_factory=list)
+    frame_provenance: list[dict[str, Any]] = field(default_factory=list)
+    pose_provenance: list[dict[str, Any]] = field(default_factory=list)
+    gain_telemetry: dict[str, Any] = field(default_factory=dict)
+    seam_feasibility: dict[str, Any] = field(default_factory=dict)
     started_at: float = field(default_factory=time.perf_counter)
     finished_at: float | None = None
     _open: StageRecord | None = field(default=None, init=False, repr=False)
@@ -246,6 +252,52 @@ class PipelineSession:
     def record_artifact(self, key: str, value: Any) -> None:
         self.artifacts[key] = json_safe(value)
 
+    def note_geometry(
+        self,
+        stage: PipelineStage | str,
+        *,
+        width: int,
+        height: int,
+        n_frames: int | None = None,
+    ) -> None:
+        """M2: per-stage image geometry (never pixels)."""
+        entry: dict[str, Any] = {
+            "stage": str(stage),
+            "width": int(width),
+            "height": int(height),
+        }
+        if n_frames is not None:
+            entry["n_frames"] = int(n_frames)
+        self.geometry.append(entry)
+
+    def note_frame_provenance(self, rows: list[Mapping[str, Any]]) -> None:
+        self.frame_provenance = [dict(row) for row in rows]
+
+    def note_pose_provenance(self, rows: list[Mapping[str, Any]]) -> None:
+        self.pose_provenance = [dict(row) for row in rows]
+
+    def note_gain_telemetry(self, payload: Mapping[str, Any]) -> None:
+        self.gain_telemetry = dict(payload)
+
+    def note_seam_feasibility(self, payload: Mapping[str, Any]) -> None:
+        # Drop image crops if a caller forwards seam_meta_out wholesale.
+        clean = {
+            key: value
+            for key, value in payload.items()
+            if key != "seam_crops"
+        }
+        self.seam_feasibility = clean
+
+    def observability(self) -> dict[str, Any]:
+        return {
+            "geometry": list(self.geometry),
+            "frame_provenance": list(self.frame_provenance),
+            "pose_provenance": list(self.pose_provenance),
+            "gain": dict(self.gain_telemetry),
+            "seam": dict(self.seam_feasibility),
+            "fallback_reason": self.fallback_reason,
+        }
+
     def record_fallback(
         self,
         identity: ResultIdentity,
@@ -255,6 +307,7 @@ class PipelineSession:
         """Record a non-raw result using one of the canonical identities."""
         entry = {"identity": identity, "reason": reason, **json_safe(notes)}
         self.fallbacks.append(entry)
+        self.fallback_reason = reason
         if self._open is not None:
             self._open.fallback = identity
             self._open.notes.setdefault("fallback_reason", reason)
@@ -287,6 +340,9 @@ class PipelineSession:
             self._open = None
         if identity is not None:
             self.identity = identity
+        if self.fallback_reason is None and self.fallbacks:
+            self.fallback_reason = str(self.fallbacks[-1].get("reason") or "") or None
+        self.record_artifact("observability", self.observability())
         self.success = success
         self.error = error
         self.finished_at = time.perf_counter()
@@ -306,6 +362,7 @@ class PipelineSession:
             "artifacts": dict(self.artifacts),
             "hitl_overrides": dict(self.hitl_overrides),
             "fallbacks": list(self.fallbacks),
+            "fallback_reason": self.fallback_reason,
             "identity": self.identity,
             "success": self.success,
             "error": self.error,

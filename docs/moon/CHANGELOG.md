@@ -26,6 +26,13 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **M2 session observability envelope (2026-08-17):** `PipelineSession`
+  publishes `artifacts["observability"]` on `finish()` with per-stage
+  geometry, frame provenance, pose provenance, gain residuals/clamps,
+  seam feasibility, and `fallback_reason`. Stage 4.5 writes gain telemetry
+  without changing pixels; Stage 11 records seam corridor metadata
+  (no `seam_crops`). Tests: `test_pipeline_session`,
+  `test_photometric_gain_telemetry`; entry-parity still green.
 - **#31 M2 CQAS v1 demotion + hold-background config provenance
   (2026-08-17):** benchmark output now records the failed aggregate as
   `cqas_v1_legacy`, an explicitly diagnostic-only field excluded from

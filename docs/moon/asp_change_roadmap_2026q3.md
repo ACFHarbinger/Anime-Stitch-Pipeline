@@ -309,6 +309,14 @@ Deliverables:
   historic field; it is excluded from radar ranking and automated verdicts.
 - Record per-stage image geometry, frame provenance, pose provenance, gain
   residuals/clamps, seam feasibility, and fallback reason.
+  **First slice landed 2026-08-17 (Grok):** `PipelineSession` now owns a
+  typed envelope (`geometry`, `frame_provenance`, `pose_provenance`,
+  `gain_telemetry`, `seam_feasibility`, `fallback_reason`) published as
+  `artifacts["observability"]` from `finish()`. Canonical `run()` records
+  canvas/crop sizes, kept/dropped source paths, BA pose rows, per-frame
+  gain residuals/clamps from Stage 4.5, and seam corridor feasibility
+  (`n_boundaries` / single-pose / max lum step / exclusion-mask count).
+  Pixel path unchanged.
 - Consolidate experimental flags into typed named profiles. `ASP_HOLD_BG_SUB`
   is registered as an Advanced-only, default-off experimental key with its
   unaligned-median limitation documented; M4 owns the later keep/delete

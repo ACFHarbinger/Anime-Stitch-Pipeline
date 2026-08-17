@@ -153,6 +153,7 @@ class _RunStageMixin(_Base):
         # §1.63: Sort frame paths by numeric suffix so glob-discovered frames are
         # always in temporal order, regardless of OS directory-entry order.
         image_paths = _sort_frames_by_index(image_paths)
+        _source_paths = list(image_paths)
 
         if session is None:
             session = PipelineSession.create(
@@ -195,6 +196,7 @@ class _RunStageMixin(_Base):
         H, W = frames[0].shape[:2]
         scans_frames = list(frames)
         session.mark(PipelineStage.NORMALISE, width=W, height=H)
+        session.note_geometry(PipelineStage.NORMALISE, width=W, height=H, n_frames=N)
         logger.info(f"[Stitch] Stage 2 complete: all frames at {W}×{H}.")
 
         # ── Stage 3: BaSiC photometric correction ────────────────────────────
@@ -246,7 +248,11 @@ class _RunStageMixin(_Base):
             self.exclusion_masks = _mask_ov["exclusion_masks"]
 
         # ── Stage 4.5/4.5b: Photometric normalisation ─────────────────────────
-        frames = _apply_background_photometric_normalization(frames, bg_masks, N)
+        _gain_telem: dict = {}
+        frames = _apply_background_photometric_normalization(
+            frames, bg_masks, N, telemetry=_gain_telem
+        )
+        session.note_gain_telemetry(_gain_telem)
         session.mark(PipelineStage.PHOTOMETRIC_BG)
 
         # ── Pre-stage 5: Deduplicate near-static consecutive frames ─────────
@@ -302,6 +308,28 @@ class _RunStageMixin(_Base):
                     return _scan_stitch_fallback(_sf, output_path)
         session.mark(PipelineStage.SPATIAL_DEDUP, dropped=_total_spa_dropped)
         session.record_artifact("frame_count", N)
+        _kept = set(image_paths)
+        session.note_frame_provenance(
+            [
+                {
+                    "index": i,
+                    "path": path,
+                    "kept": path in _kept,
+                    "drop_reason": None if path in _kept else "dedup",
+                }
+                for i, path in enumerate(_source_paths)
+            ]
+            + [
+                {
+                    "index": None,
+                    "path": path,
+                    "kept": True,
+                    "drop_reason": None,
+                }
+                for path in image_paths
+                if path not in _source_paths
+            ]
+        )
         if _total_spa_dropped:
             logger.debug(
                 f"[Stitch]   Spatial dedup complete: {_total_spa_dropped} frames "
@@ -516,8 +544,24 @@ class _RunStageMixin(_Base):
             affines[i][0, 2] += T_global2[0]
             affines[i][1, 2] += T_global2[1]
         session.mark(PipelineStage.CANVAS, width=canvas_w, height=canvas_h)
+        session.note_geometry(
+            PipelineStage.CANVAS, width=canvas_w, height=canvas_h, n_frames=N
+        )
         session.record_artifact("canvas_size", [canvas_w, canvas_h])
         session.record_artifact("affines", [a.tolist() for a in affines])
+        session.note_pose_provenance(
+            [
+                {
+                    "frame": i,
+                    "tx": round(float(affines[i][0, 2]), 3),
+                    "ty": round(float(affines[i][1, 2]), 3),
+                    "motion_model": str(_motion_model),
+                    "source": "bundle_adjust",
+                    "valid": bool(health.valid),
+                }
+                for i in range(N)
+            ]
+        )
         logger.debug(
             f"[Stitch] Stage 9 complete: midplane shift ({T_mid_x:.1f}, {T_mid_y:.1f}), "
             f"canvas {canvas_w}×{canvas_h}."
@@ -675,6 +719,7 @@ class _RunStageMixin(_Base):
 
         # ── Stage 11: Foreground composite ──────────────────────────────────
         if self.composite_fg and self.use_birefnet:
+            _seam_meta: dict = {}
             canvas = _composite_foreground(
                 [],
                 [],
@@ -688,10 +733,26 @@ class _RunStageMixin(_Base):
                 seam_path_cache=self._seam_path_cache,
                 exclusion_masks=self.exclusion_masks or None,
                 phase_ids=phase_ids,
+                seam_meta_out=_seam_meta,
+            )
+            _single = _seam_meta.get("seam_single_pose") or {}
+            _bounds = _seam_meta.get("boundaries") or []
+            session.note_seam_feasibility(
+                {
+                    "attempted": True,
+                    "feasible": bool(_bounds),
+                    "n_boundaries": len(_bounds),
+                    "n_single_pose": sum(1 for v in _single.values() if v),
+                    "max_seam_lum_step": _seam_meta.get("max_seam_lum_step"),
+                    "exclusion_masks": (
+                        0 if not self.exclusion_masks else len(self.exclusion_masks)
+                    ),
+                }
             )
             session.mark(PipelineStage.COMPOSITE)
             logger.info("[Stitch] Stage 11 complete: foreground composited.")
         else:
+            session.note_seam_feasibility({"attempted": False, "feasible": None})
             session.mark(PipelineStage.COMPOSITE, skipped=True)
 
         # ── Stage 12: Remaining seam blend (handled inside _render). ────────
@@ -709,6 +770,11 @@ class _RunStageMixin(_Base):
             if ec * 2 < canvas.shape[0] and ec * 2 < canvas.shape[1]:
                 canvas = canvas[ec:-ec, ec:-ec]
         session.mark(PipelineStage.CROP)
+        session.note_geometry(
+            PipelineStage.CROP,
+            width=int(canvas.shape[1]),
+            height=int(canvas.shape[0]),
+        )
         logger.info("[Stitch] Stage 13 complete: boundary crop done.")
 
         # P1.8 — Auto-trigger diffusion inpainting for coverage gaps (W4 fix).
