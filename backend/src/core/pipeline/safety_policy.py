@@ -339,8 +339,21 @@ class SafeAspPolicy:
 
 
 def product_safe_asp_policy() -> SafeAspPolicy:
-    """Frozen shipped defaults. Ignores inherited ``ASP_GATE_*`` env."""
-    return SafeAspPolicy()
+    """Frozen shipped defaults. Ignores inherited ``ASP_GATE_*`` env.
+
+    ``ghost_telemetry_only=True`` (2026-08-17, Harbinger ACK): the
+    promotion-ladder replay (five-case / structural red set / all 97,
+    `.agent/reports/grok/m2_ghostgate_telemetry_screen_20260817.md`) showed
+    zero Safe ASP identity changes in either direction, because GhostGate's
+    `ghosting_score_v2` signal never actually rejects on this corpus — there
+    is no historic GhostGate-only fallback to regress. Its score is still
+    recorded (``GateDecision.status == "telemetry_only_inverse_validated"``)
+    but no longer drives selection. CompositeGate's `sb`/`sc` telemetry-only
+    candidates remain default-off/rejecting — unlike GhostGate, demoting `sb`
+    was shown to change 26 historic identities with no raw-composite ground
+    truth to confirm the flip is safe (same report).
+    """
+    return SafeAspPolicy(ghost_telemetry_only=True)
 
 
 def default_benchmark_policy() -> SafeAspPolicy:

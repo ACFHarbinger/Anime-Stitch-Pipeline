@@ -26,6 +26,15 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 GhostGate telemetry-only promoted to product default (2026-08-17,
+  Harbinger ACK):** `product_safe_asp_policy()` now returns
+  `ghost_telemetry_only=True`. `ghosting_score_v2` is still recorded on every
+  `GateDecision` (`status="telemetry_only_inverse_validated"`) but no longer
+  drives Safe ASP selection — the promotion-ladder replay showed zero
+  identity changes because the gate never actually rejected on this corpus.
+  `CompositeGate`'s `sb`/`sc` telemetry-only candidates remain default-off;
+  demoting `sb` was shown to change 26 historic identities with no
+  raw-composite ground truth, so that promotion was not requested.
 - **#34 exclusive-keep unblocks crop gate (2026-08-17):** contested
   overlap is single-pose; exclusive FG stays with its source. Red-set
   crop-loss re-screen **0/7** (test96 coverage held). Still default-off.
