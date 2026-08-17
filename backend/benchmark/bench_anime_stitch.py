@@ -463,6 +463,9 @@ def _compute_all_metrics(
       seam_coherence    — std of per-row mean luminance (banding proxy).
       seam_visibility   — worst adjacent-row luminance jump (dominant ASP
                           failure mode vs simple stitch: 25.8 vs 4.2 at S160).
+      strip_banding_score — max luminance jump between adjacent frame-strip
+                          entry bands (CompositeGate input). 0.0 without
+                          affines, so SCANS/simple is 0 by construction.
       cqas              — weighted no-GT aggregate for the 42 GT-less tests.
     """
     seam_scores = _compute_per_seam_ghost_scores(img, n_strips)
@@ -475,6 +478,7 @@ def _compute_all_metrics(
         "ghosting_siqe": round(_ghosting_score_v2(img), 2),
         "seam_coherence": round(_seam_coherence(img), 2),
         "seam_visibility": round(_seam_visibility_score(img, affines), 2),
+        "strip_banding_score": round(_strip_banding_score(img, affines), 2),
         "ghost_seam_scores": [round(x, 2) for x in seam_scores],
         "ghost_seam_max": round(max(seam_scores), 2) if seam_scores else None,
         "width": img.shape[1],

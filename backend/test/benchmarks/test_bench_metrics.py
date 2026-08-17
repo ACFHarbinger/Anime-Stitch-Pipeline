@@ -32,6 +32,7 @@ from backend.benchmark.bench_anime_stitch import (  # noqa: E402
     _ghosting_score_v2,
     _seam_coherence,
     _seam_visibility_score,
+    _strip_banding_score,
 )
 
 
@@ -92,8 +93,8 @@ class TestComputeAllMetrics:
     CORE_KEYS = {
         "sharpness", "coverage", "seam_gradient", "color_entropy",
         "edge_energy_score", "ghosting_siqe", "seam_coherence",
-        "seam_visibility", "ghost_seam_scores", "ghost_seam_max",
-        "width", "height", "cqas",
+        "seam_visibility", "strip_banding_score", "ghost_seam_scores",
+        "ghost_seam_max", "width", "height", "cqas",
     }
 
     def test_core_keys_present(self):
@@ -103,11 +104,25 @@ class TestComputeAllMetrics:
     def test_removed_metric_zoo_keys_absent(self):
         m = _compute_all_metrics(_stacked(60, 180), n_strips=2)
         for stale in (
-            "ghosting_score", "strip_banding_score", "rlhf_score",
+            "ghosting_score", "rlhf_score",
             "composite_quality", "canvas_gain_uniformity", "strip_self_ssim",
             "mllm_overall", "seam_ownership_entropy",
         ):
             assert stale not in m, f"stale metric key {stale!r} still emitted"
+
+    def test_strip_banding_zero_without_affines(self):
+        m = _compute_all_metrics(_stacked(20, 235))
+        assert m["strip_banding_score"] == 0.0
+
+    def test_strip_banding_detects_adjacent_strip_jump(self):
+        img = _stacked(20, 235, H=100, W=80)
+        affines = [
+            np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], dtype=np.float32),
+            np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 50.0]], dtype=np.float32),
+        ]
+        score = _strip_banding_score(img, affines)
+        assert score > 50.0
+        assert _compute_all_metrics(img, affines)["strip_banding_score"] == round(score, 2)
 
 
 class TestComputeCqas:

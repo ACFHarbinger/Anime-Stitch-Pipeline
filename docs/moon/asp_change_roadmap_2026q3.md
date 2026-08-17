@@ -282,8 +282,14 @@ Deliverables:
   `SeamVisGate`'s `seam_visibility_score` is confirmed correct (rho +0.43) and
   should be the reference "gate that works." `CompositeGate`'s
   `seam_coherence` component shows no signal (rho -0.06, not significant);
-  its `strip_banding_score` component is **unaudited** — imported but never
-  computed in the benchmark, so it has zero correlation coverage either way.
+  its `strip_banding_score` component is now instrumented and audited
+  (2026-08-17, Grok): `_compute_all_metrics` emits it again, and
+  `audit_gate_correlation.py --recompute-missing` fills historical JSONs
+  from dump panoramas. **rho = -0.417** (n=97 mixed-vintage dump;
+  true-composite-only -0.365, n=43, p=0.016) — inverse / misleading, same
+  family as GhostGate. CompositeGate currently has **no** audited-correct
+  input. See `.agent/reports/grok/m2_strip_banding_audit_20260817.md`.
+  Date-locked 2026-08-07 images only: n=12, rho=-0.525, p=0.08.
   `cqas` (the single-scalar aggregate used for GT-less cases in
   dashboards/reports) also fails the audit (rho -0.09, not significant) — its
   two largest-weighted components are the inverse `ghosting_siqe` (0.35) and

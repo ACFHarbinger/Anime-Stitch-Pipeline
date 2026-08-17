@@ -26,6 +26,15 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 M2 `strip_banding_score` instrumentation (2026-08-17):**
+  `_compute_all_metrics` persists CompositeGate's previously unaudited
+  input again (0.0 without affines, same as the `scans_sb = 0.0` quirk).
+  `audit_gate_correlation.py` can `--recompute-missing` values from
+  panoramas + `alignment.affines` for historical JSONs. Live rho against
+  the 2026-08-10 labels is **-0.417** (n=97 mixed-vintage dump; true
+  composites only -0.365, n=43). CompositeGate now has no audited-correct
+  input. No gate default changed. Report:
+  `.agent/reports/grok/m2_strip_banding_audit_20260817.md`.
 - **#31 M2 gate-signal correlation audit (2026-08-17):** new
   `backend/benchmark/audit_gate_correlation.py` computes Spearman correlation
   between each no-reference benchmark metric and human ASP-vs-SCANS score
