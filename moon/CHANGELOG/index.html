@@ -1703,6 +1703,27 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
+<li><strong>#34 full-res red-set renders (2026-08-17):</strong> <code>screen_coherence_v2.py
+  --scale 1.0 --max-frames 8 --image-dir</code> writes default/v2 PNG pairs.
+  Crop gate still 0/7. Recipe: <code>just bench::asp-coherence-v2-redset-full</code>.</li>
+<li><strong>#31 GhostGate telemetry-only promoted to product default (2026-08-17,
+  Harbinger ACK):</strong> <code>product_safe_asp_policy()</code> now returns
+  <code>ghost_telemetry_only=True</code>. <code>ghosting_score_v2</code> is still recorded on every
+  <code>GateDecision</code> (<code>status="telemetry_only_inverse_validated"</code>) but no longer
+  drives Safe ASP selection — the promotion-ladder replay showed zero
+  identity changes because the gate never actually rejected on this corpus.
+  <code>CompositeGate</code>'s <code>sb</code>/<code>sc</code> telemetry-only candidates remain default-off;
+  demoting <code>sb</code> was shown to change 26 historic identities with no
+  raw-composite ground truth, so that promotion was not requested.</li>
+<li><strong>#34 exclusive-keep unblocks crop gate (2026-08-17):</strong> contested
+  overlap is single-pose; exclusive FG stays with its source. Red-set
+  crop-loss re-screen <strong>0/7</strong> (test96 coverage held). Still default-off.</li>
+<li><strong>#34 M3 red-set compositor A/B (2026-08-17):</strong>
+  <code>screen_coherence_v2.py</code> runs default seam loop vs <code>ASP_COHERENCE_V2=1</code>
+  on 04/06/07/12/14/15/96 (subsampled frames, median-dy affines). Crop-loss
+  gate <strong>fails</strong> (6/7 including known-good test96). Not promoted. Sidecar:
+  <code>docs/website/public/data/coherence_v2_redset.json</code>. Report:
+  <code>.agent/reports/grok/m3_coherence_v2_redset_20260817.md</code>.</li>
 <li><strong>#34 M3 slice 2 — apply ownership to warped frames (2026-08-17):</strong>
   <code>apply_coherence_v2</code> / <code>composite_coherence_v2</code> copy each owned region
   from exactly one pose (no blend). <code>_composite_foreground</code> takes this

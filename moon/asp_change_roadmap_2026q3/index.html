@@ -2278,12 +2278,14 @@ does not replace human review.</p>
   maps them onto the actual gate code: <strong><code>GhostGate</code>'s only signal
   (<code>ghosting_score_v2</code>) is the worst-scoring inverse metric audited</strong> — it is
   the concrete demotion candidate this bullet calls for.
-  <strong>Candidate implemented, default not flipped (2026-08-17, Grok):</strong>
-  <code>ghost_telemetry_only</code> / <code>ASP_GHOST_TELEMETRY_ONLY=1</code> records
-  <code>telemetry_only_inverse_validated</code> and never rejects; SeamVis is not
-  substituted. Offline replay of the 2026-08-07 97-case run: 0 identity
-  changes on the five-case screen, the structural red set, and all 97.
-  There is no historic GhostGate-only fallback in this corpus. See
+  <strong>Candidate implemented (2026-08-17, Grok), promoted to default
+  (2026-08-17, Harbinger ACK):</strong> <code>ghost_telemetry_only</code> /
+  <code>ASP_GHOST_TELEMETRY_ONLY=1</code> records <code>telemetry_only_inverse_validated</code>
+  and never rejects; SeamVis is not substituted. Offline replay of the
+  2026-08-07 97-case run: 0 identity changes on the five-case screen, the
+  structural red set, and all 97. There is no historic GhostGate-only
+  fallback in this corpus. <code>product_safe_asp_policy()</code> now ships
+  <code>ghost_telemetry_only=True</code> by default. See
   <code>.agent/reports/grok/m2_ghostgate_telemetry_screen_20260817.md</code>.
   <code>SeamVisGate</code>'s <code>seam_visibility_score</code> is confirmed correct (rho +0.43) and
   should be the reference "gate that works." <code>CompositeGate</code>'s
@@ -2456,7 +2458,10 @@ segmentation model.</p>
   <code>test_coherence_v2.py</code>.
   <strong>Slice 2:</strong> <code>apply_coherence_v2</code> paints owned pixels from one source;
   N-frame fold is first-claim-wins. Opt-in hook in <code>_composite_foreground</code>
-  behind <code>ASP_COHERENCE_V2=1</code> only.</p>
+  behind <code>ASP_COHERENCE_V2=1</code> only.
+  <strong>Red-set screen (2026-08-17):</strong> first apply punched holes (6/7 crop
+  loss). Exclusive-keep fix: crop gate <strong>0/7</strong>. Still default-off; no
+  human screen yet.</p>
 <p>Exit criteria:</p>
 <ul>
 <li>No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the
