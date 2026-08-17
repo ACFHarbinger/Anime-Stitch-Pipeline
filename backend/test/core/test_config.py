@@ -109,6 +109,17 @@ class TestValidateAspConfig:
         assert len(violations) == 1
         assert "ASP_HOLD_BG_SUB" in violations[0]
 
+    def test_coherence_v2_is_typed_default_off(self):
+        from asp_backend.core.config import asp_schema
+
+        kind, lo, hi, description = asp_schema()["ASP_COHERENCE_V2"]
+        assert kind is int
+        assert lo == 0 and hi == 1
+        assert validate_asp_config({"ASP_COHERENCE_V2": 0}) == []
+        assert validate_asp_config({"ASP_COHERENCE_V2": 2})
+        assert "default-off" in description
+        assert "§9.2" in description
+
     def test_hold_background_subtraction_description_warns_about_pan(self):
         from asp_backend.core.config import asp_schema
 

@@ -454,6 +454,14 @@ Deliverables:
 - Prove equivalent semantic-cost and exclusion-mask behavior in Python and C++,
   or delete one implementation.
 
+  **First slice landed 2026-08-17 (Grok):** isolated
+  `rendering/compositing/coherence_v2.py` — `plan_coherence_v2` assigns
+  each connected FG overlap region to exactly one pose (coverage →
+  confidence → index). All-foreground overlap →
+  `has_background_corridor=False` and a single-pose handoff. Not imported
+  by `composite.py`. Schema key `ASP_COHERENCE_V2` default 0. Tests:
+  `test_coherence_v2.py`.
+
 Exit criteria:
 
 - No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the

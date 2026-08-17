@@ -26,6 +26,12 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#34 M3 first slice — `coherence_v2` assignment (2026-08-17):** new
+  isolated module `rendering/compositing/coherence_v2.py` (Critical
+  Evaluation §9.2 Stage 2). Each FG overlap region gets exactly one
+  owner; no background corridor ⇒ explicit single-pose handoff. Not
+  wired into the live seam loop. `ASP_COHERENCE_V2` registered
+  default-off. Tests: `test_coherence_v2.py`.
 - **#31 SeamVis threshold sweep is discriminating-infeasible
   (2026-08-17):** no `(floor, ratio)` pair catches catastrophes
   04/06/07/12/14/15 and keeps known-good test96. test96's
