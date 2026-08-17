@@ -1703,6 +1703,116 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
+<li><strong>#34 M3 slice 2 — apply ownership to warped frames (2026-08-17):</strong>
+  <code>apply_coherence_v2</code> / <code>composite_coherence_v2</code> copy each owned region
+  from exactly one pose (no blend). <code>_composite_foreground</code> takes this
+  path only when <code>ASP_COHERENCE_V2=1</code>; default seam loop unchanged.
+  Tests: 11 in <code>test_coherence_v2.py</code>.</li>
+<li><strong>#34 M3 first slice — <code>coherence_v2</code> assignment (2026-08-17):</strong> new
+  isolated module <code>rendering/compositing/coherence_v2.py</code> (Critical
+  Evaluation §9.2 Stage 2). Each FG overlap region gets exactly one
+  owner; no background corridor ⇒ explicit single-pose handoff. Not
+  wired into the live seam loop. <code>ASP_COHERENCE_V2</code> registered
+  default-off. Tests: <code>test_coherence_v2.py</code>.</li>
+<li><strong>#31 SeamVis threshold sweep is discriminating-infeasible
+  (2026-08-17):</strong> no <code>(floor, ratio)</code> pair catches catastrophes
+  04/06/07/12/14/15 and keeps known-good test96. test96's
+  <code>seam_visibility</code> (32.2) is <em>higher</em> than every catastrophe (max 29.58;
+  binding case test15 at 12.55). Retuning SeamVis cannot pass the M2
+  exit. Tool: <code>screen_seamvis_threshold.py</code>. Report:
+  <code>.agent/reports/grok/m2_seamvis_threshold_infeasible_20260817.md</code>.</li>
+<li><strong>#32 M2.5a Per-Defect Category &amp; Stage-Attributed Correlation Audit
+  (2026-08-17, Gemini):</strong> New statistical CLI and analysis engine
+  <code>backend/benchmark/audit_defect_correlation.py</code> plus unit tests
+  (<code>test_audit_defect_correlation.py</code>). Analyzes the 97 human-reviewed cases
+  across 10 distinct defect classes (<code>torn_anatomy</code>, <code>banding</code>, <code>color_shift</code>,
+  <code>seam_line</code>, <code>ghosting</code>, <code>misordered_content</code>, <code>duplicated_strip</code>, etc.)
+  and maps them to pipeline stages.</li>
+<li>Confirmed <code>seam_visibility</code> ($\rho = +0.425$) and <code>seam_gradient</code>
+    ($\rho = +0.473$) are human-aligned across photometric ($\rho = +0.76$)
+    and structural ($\rho = +0.42$ to $+0.64$) defect modes.</li>
+<li>Demonstrated that Sobel <code>sharpness</code> ($\rho = -0.471$), <code>edge_energy</code>
+    ($\rho = -0.531$), and <code>ghosting_siqe</code> ($\rho = -0.600$) are strongly
+    inverted due to high-frequency edge inflation on torn seams and
+    duplicated geometry.</li>
+<li>Emits <code>public/data/defect_correlation_matrix.json</code> for web dashboard.</li>
+<li>Added interactive Per-Defect &times; Per-Metric Heatmap Matrix and
+    Pipeline Stage Attribution section to <code>RatingsDashboard.tsx</code> and
+    <code>RatingsDashboard.css</code>.</li>
+<li>
+<p>Analytical report: <code>.agent/reports/gemini/m2_5a_defect_category_correlation_20260817.md</code>.</p>
+</li>
+<li>
+<p><strong>#31 CompositeGate <code>sb</code> telemetry-only candidate (2026-08-17):</strong>
+  <code>ASP_COMPOSITE_SB_TELEMETRY_ONLY=1</code> records <code>would_reject_sb</code> and never
+  rejects on strip-banding. Default unchanged. Offline 97-case replay:
+  <strong>26 identity changes</strong> (all historic <code>composite_gate_sb</code>; none also
+  fail SeamVis/<code>sc</code>). Discriminating-policy exit <strong>fails</strong>: known-good
+  <code>asp_test96</code> stays Raw ASP, but catastrophes 04/06/07/12/14/15 are
+  already Raw ASP under current gates (SeamVis misses them too).
+  CompositeGate after <code>sb</code> demotion has only no-signal <code>sc</code> left — not
+  worth keeping as a structural gate. Report:
+  <code>.agent/reports/grok/m2_composite_sb_and_discriminating_20260817.md</code>.</p>
+</li>
+<li><strong>M2 observability slice 2 (2026-08-17):</strong> pose rows now label
+  <code>bundle_adjust</code> vs <code>affine_recovery</code> and <code>refined_by</code> (<code>ecc</code> /
+  <code>sea_raft</code> / <code>none</code>). Frame provenance tracks <code>near_static</code> then
+  <code>spatial_dedup</code> drop reasons. Geometry also recorded at load/save.
+  Canonical bench JSON / adapter extra persist <code>observability</code>.</li>
+<li><strong>M2 session observability envelope (2026-08-17):</strong> <code>PipelineSession</code>
+  publishes <code>artifacts["observability"]</code> on <code>finish()</code> with per-stage
+  geometry, frame provenance, pose provenance, gain residuals/clamps,
+  seam feasibility, and <code>fallback_reason</code>. Stage 4.5 writes gain telemetry
+  without changing pixels; Stage 11 records seam corridor metadata
+  (no <code>seam_crops</code>). Tests: <code>test_pipeline_session</code>,
+  <code>test_photometric_gain_telemetry</code>; entry-parity still green.</li>
+<li>
+<p><strong>#31 M2 CQAS v1 demotion + hold-background config provenance
+  (2026-08-17):</strong> benchmark output now records the failed aggregate as
+  <code>cqas_v1_legacy</code>, an explicitly diagnostic-only field excluded from
+  automated verdicts and radar ranking; individual component diagnostics
+  remain visible. <code>ASP_HOLD_BG_SUB</code> is now typed and persisted in
+  <code>_CONFIG_SCHEMA</code> as Advanced-only, experimental and default-off, with the
+  current unaligned-median limitation documented. M4 retains the algorithmic
+  keep/delete decision.</p>
+</li>
+<li>
+<p><strong>#31 M2 GhostGate telemetry-only candidate (2026-08-17):</strong> Chat's
+  design. <code>SafeAspPolicy.ghost_telemetry_only</code> / <code>ASP_GHOST_TELEMETRY_ONLY=1</code>
+  keeps <code>ghosting_score_v2</code> as <code>telemetry_only_inverse_validated</code> and never
+  rejects. Default remains the current reject path — not flipped. Offline
+  promotion-ladder replay on <code>anime_stitch_20260807_045552.json</code>: five-case
+  (04/08/27/38/96), structural red set, and all 97 show <strong>0 Safe ASP
+  identity changes</strong> and <strong>0 historic GhostGate-only fallbacks</strong> (the gate
+  never fired; max asp/limit = 0.70). Recipe:
+  <code>just bench::asp-ghost-telemetry-screen</code>. Report:
+  <code>.agent/reports/grok/m2_ghostgate_telemetry_screen_20260817.md</code>.</p>
+</li>
+<li><strong>Range-run JSON merge (2026-08-17):</strong> <code>merge_run_json.py</code> unions
+  disjoint <code>anime_stitch_*.json</code> files by dataset name (later file wins)
+  into <code>anime_stitch_latest_consolidated.json</code>. <code>generate_json_results</code>
+  writes that sidecar whenever two or more sibling runs exist. Recipe:
+  <code>just bench::asp-benchmark-merge</code>.</li>
+<li><strong>#31 M2 <code>strip_banding_score</code> instrumentation (2026-08-17):</strong>
+  <code>_compute_all_metrics</code> persists CompositeGate's previously unaudited
+  input again (0.0 without affines, same as the <code>scans_sb = 0.0</code> quirk).
+  <code>audit_gate_correlation.py</code> can <code>--recompute-missing</code> values from
+  panoramas + <code>alignment.affines</code> for historical JSONs. Live rho against
+  the 2026-08-10 labels is <strong>-0.417</strong> (n=97 mixed-vintage dump; true
+  composites only -0.365, n=43). CompositeGate now has no audited-correct
+  input. No gate default changed. Report:
+  <code>.agent/reports/grok/m2_strip_banding_audit_20260817.md</code>.</li>
+<li><strong>#31 M2 gate-signal correlation audit (2026-08-17):</strong> new
+  <code>backend/benchmark/audit_gate_correlation.py</code> computes Spearman correlation
+  between each no-reference benchmark metric and human ASP-vs-SCANS score
+  delta across the 97 reviewed cases. Reproduces the previously-unlinked bus
+  claim (sharpness -0.47, edge_energy -0.53, ghosting -0.60) exactly, and maps
+  it onto the live gates: <code>GhostGate</code>'s only signal (<code>ghosting_score_v2</code>) is
+  the worst-scoring inverse metric found; <code>SeamVisGate</code>'s
+  <code>seam_visibility_score</code> is confirmed correct; <code>CompositeGate</code>'s
+  <code>strip_banding_score</code> component is unaudited (imported, never computed in
+  the benchmark); the <code>cqas</code> aggregate also fails the audit. No gate default
+  changed — see <code>.agent/reports/claude/m2_gate_signal_correlation_audit_20260817.md</code>.</li>
 <li><strong>#30 ungated provenance + deterministic gates (2026-08-15):</strong>
   per-case <code>safe_asp_counterfactual</code> (<code>would_select</code> / <code>gate</code> / <code>reason</code>
   / policy snapshot / per-gate decisions) is written into the run JSON

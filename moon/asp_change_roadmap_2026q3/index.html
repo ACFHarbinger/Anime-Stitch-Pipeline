@@ -2270,11 +2270,70 @@ does not replace human review.</p>
   screen.</li>
 <li>Audit existing gates against the completed human labels. Remove or demote
   signals that are inversely correlated with human quality (sharpness, edge
-  energy, and current ghosting vs human ASP–SCANS delta are known inverse).</li>
+  energy, and current ghosting vs human ASP–SCANS delta are known inverse).
+  <strong>Done (2026-08-17), reproducible tool + evidence:</strong>
+  <code>.agent/reports/claude/m2_gate_signal_correlation_audit_20260817.md</code> /
+  <code>backend/benchmark/audit_gate_correlation.py</code>. Reproduces the three cited
+  numbers exactly (sharpness -0.47, edge_energy -0.53, ghosting -0.60) and
+  maps them onto the actual gate code: <strong><code>GhostGate</code>'s only signal
+  (<code>ghosting_score_v2</code>) is the worst-scoring inverse metric audited</strong> — it is
+  the concrete demotion candidate this bullet calls for.
+  <strong>Candidate implemented, default not flipped (2026-08-17, Grok):</strong>
+  <code>ghost_telemetry_only</code> / <code>ASP_GHOST_TELEMETRY_ONLY=1</code> records
+  <code>telemetry_only_inverse_validated</code> and never rejects; SeamVis is not
+  substituted. Offline replay of the 2026-08-07 97-case run: 0 identity
+  changes on the five-case screen, the structural red set, and all 97.
+  There is no historic GhostGate-only fallback in this corpus. See
+  <code>.agent/reports/grok/m2_ghostgate_telemetry_screen_20260817.md</code>.
+  <code>SeamVisGate</code>'s <code>seam_visibility_score</code> is confirmed correct (rho +0.43) and
+  should be the reference "gate that works." <code>CompositeGate</code>'s
+  <code>seam_coherence</code> component shows no signal (rho -0.06, not significant);
+  its <code>strip_banding_score</code> component is now instrumented and audited
+  (2026-08-17, Grok): <code>_compute_all_metrics</code> emits it again, and
+  <code>audit_gate_correlation.py --recompute-missing</code> fills historical JSONs
+  from dump panoramas. <strong>rho = -0.417</strong> (n=97 mixed-vintage dump;
+  true-composite-only -0.365, n=43, p=0.016) — inverse / misleading, same
+  family as GhostGate. CompositeGate currently has <strong>no</strong> audited-correct
+  input. See <code>.agent/reports/grok/m2_strip_banding_audit_20260817.md</code>.
+  Date-locked 2026-08-07 images only: n=12, rho=-0.525, p=0.08.
+  <strong>Candidate (2026-08-17, Grok):</strong> <code>composite_sb_telemetry_only</code> /
+  <code>ASP_COMPOSITE_SB_TELEMETRY_ONLY=1</code>. Default not flipped (26 identity
+  changes; no raw-composite human labels on those cases). After <code>sb</code> is
+  retired, CompositeGate has only no-signal <code>sc</code> (1 historic fire).
+  Discriminating exit is <strong>not met</strong>: catastrophes 04/06/07/12/14/15 are
+  Raw ASP under current SeamVis+Composite+Ghost as well. See
+  <code>.agent/reports/grok/m2_composite_sb_and_discriminating_20260817.md</code>.
+  <strong>SeamVis retune also infeasible (2026-08-17):</strong> 0 <code>(floor, ratio)</code>
+  pairs catch all six catastrophes and keep test96 — test96 sv=32.2 &gt;
+  every catastrophe (binding test15 sv=12.55). Discriminating exit needs
+  a new structural signal, not a threshold change. See
+  <code>.agent/reports/grok/m2_seamvis_threshold_infeasible_20260817.md</code>.
+  <code>cqas</code> (the former single-scalar aggregate used for GT-less cases in
+  dashboards/reports) also fails the audit (rho -0.09, not significant) — its
+  two largest-weighted components are the inverse <code>ghosting_siqe</code> (0.35) and
+  no-signal <code>seam_coherence</code> (0.20); only <code>seam_visibility</code> (0.30) is pulling
+  correct weight. No gate default changed yet — the actual demote/rework
+  change still needs the promotion-ladder review (five-case → stratified →
+  all 97) before landing, and <code>cqas</code>'s fix overlaps M2.5a (#32)'s
+  per-defect-category work rather than duplicating it here. <strong>Implemented
+  2026-08-17:</strong> new runs emit <code>cqas_v1_legacy</code> as an explicitly diagnostic-only
+  historic field; it is excluded from radar ranking and automated verdicts.</li>
 <li>Record per-stage image geometry, frame provenance, pose provenance, gain
-  residuals/clamps, seam feasibility, and fallback reason.</li>
-<li>Consolidate experimental flags into typed named profiles. Schema currently
-  has <strong>67</strong> registered keys; <code>ASP_HOLD_BG_SUB</code> is a 68th hidden read.
+  residuals/clamps, seam feasibility, and fallback reason.
+  <strong>First slice landed 2026-08-17 (Grok):</strong> <code>PipelineSession</code> now owns a
+  typed envelope (<code>geometry</code>, <code>frame_provenance</code>, <code>pose_provenance</code>,
+  <code>gain_telemetry</code>, <code>seam_feasibility</code>, <code>fallback_reason</code>) published as
+  <code>artifacts["observability"]</code> from <code>finish()</code>. Canonical <code>run()</code> records
+  canvas/crop sizes, kept/dropped source paths, BA pose rows, per-frame
+  gain residuals/clamps from Stage 4.5, and seam corridor feasibility
+  (<code>n_boundaries</code> / single-pose / max lum step / exclusion-mask count).
+  Pixel path unchanged.
+  <strong>Slice 2:</strong> pose <code>source</code>/<code>refined_by</code>; per-pass drop reasons;
+  load/save geometry; bench JSON <code>observability</code> field.</li>
+<li>Consolidate experimental flags into typed named profiles. <code>ASP_HOLD_BG_SUB</code>
+  is registered as an Advanced-only, default-off experimental key with its
+  unaligned-median limitation documented; M4 owns the later keep/delete
+  decision alongside its plate replacement.
   Default profiles expose ≤20 image-changing keys. An Advanced
   configuration control reveals the remaining registered parameters; it
   does not make them the implicit default.</li>
@@ -2388,6 +2447,16 @@ segmentation model.</p>
 <li>Prove equivalent semantic-cost and exclusion-mask behavior in Python and C++,
   or delete one implementation.</li>
 </ul>
+<p><strong>First slice landed 2026-08-17 (Grok):</strong> isolated
+  <code>rendering/compositing/coherence_v2.py</code> — <code>plan_coherence_v2</code> assigns
+  each connected FG overlap region to exactly one pose (coverage →
+  confidence → index). All-foreground overlap →
+  <code>has_background_corridor=False</code> and a single-pose handoff. Not imported
+  by <code>composite.py</code>. Schema key <code>ASP_COHERENCE_V2</code> default 0. Tests:
+  <code>test_coherence_v2.py</code>.
+  <strong>Slice 2:</strong> <code>apply_coherence_v2</code> paints owned pixels from one source;
+  N-frame fold is first-claim-wins. Opt-in hook in <code>_composite_foreground</code>
+  behind <code>ASP_COHERENCE_V2=1</code> only.</p>
 <p>Exit criteria:</p>
 <ul>
 <li>No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the
