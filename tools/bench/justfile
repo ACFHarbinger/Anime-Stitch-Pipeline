@@ -80,6 +80,19 @@ asp-ghost-telemetry-screen SET="five":
         --run backend/benchmark/output/anime_stitch_20260807_045552.json \
         --set {{SET}}
 
+# CompositeGate sb telemetry-only + discriminating-policy check (no GPU).
+asp-composite-sb-screen SET="all":
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/screen_ghost_telemetry.py \
+        --run backend/benchmark/output/anime_stitch_20260807_045552.json \
+        --set {{SET}} --sb-telemetry
+
+asp-safe-asp-discriminating:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/screen_ghost_telemetry.py \
+        --run backend/benchmark/output/anime_stitch_20260807_045552.json \
+        --sb-telemetry --discriminating
+
 # Union disjoint per-range anime_stitch_*.json files into one corpus document.
 asp-benchmark-merge *ARGS:
     cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \

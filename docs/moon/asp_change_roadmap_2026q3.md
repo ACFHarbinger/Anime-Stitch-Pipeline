@@ -297,6 +297,13 @@ Deliverables:
   family as GhostGate. CompositeGate currently has **no** audited-correct
   input. See `.agent/reports/grok/m2_strip_banding_audit_20260817.md`.
   Date-locked 2026-08-07 images only: n=12, rho=-0.525, p=0.08.
+  **Candidate (2026-08-17, Grok):** `composite_sb_telemetry_only` /
+  `ASP_COMPOSITE_SB_TELEMETRY_ONLY=1`. Default not flipped (26 identity
+  changes; no raw-composite human labels on those cases). After `sb` is
+  retired, CompositeGate has only no-signal `sc` (1 historic fire).
+  Discriminating exit is **not met**: catastrophes 04/06/07/12/14/15 are
+  Raw ASP under current SeamVis+Composite+Ghost as well. See
+  `.agent/reports/grok/m2_composite_sb_and_discriminating_20260817.md`.
   `cqas` (the former single-scalar aggregate used for GT-less cases in
   dashboards/reports) also fails the audit (rho -0.09, not significant) — its
   two largest-weighted components are the inverse `ghosting_siqe` (0.35) and

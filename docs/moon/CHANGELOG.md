@@ -26,6 +26,16 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 CompositeGate `sb` telemetry-only candidate (2026-08-17):**
+  `ASP_COMPOSITE_SB_TELEMETRY_ONLY=1` records `would_reject_sb` and never
+  rejects on strip-banding. Default unchanged. Offline 97-case replay:
+  **26 identity changes** (all historic `composite_gate_sb`; none also
+  fail SeamVis/`sc`). Discriminating-policy exit **fails**: known-good
+  `asp_test96` stays Raw ASP, but catastrophes 04/06/07/12/14/15 are
+  already Raw ASP under current gates (SeamVis misses them too).
+  CompositeGate after `sb` demotion has only no-signal `sc` left — not
+  worth keeping as a structural gate. Report:
+  `.agent/reports/grok/m2_composite_sb_and_discriminating_20260817.md`.
 - **M2 observability slice 2 (2026-08-17):** pose rows now label
   `bundle_adjust` vs `affine_recovery` and `refined_by` (`ecc` /
   `sea_raft` / `none`). Frame provenance tracks `near_static` then

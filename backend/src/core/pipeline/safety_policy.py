@@ -66,13 +66,16 @@ class SafeAspPolicy:
     ghost_floor: float = 40.0
     seam_vis_ratio: float = 3.0
     seam_vis_floor: float = 35.0
-    # Default-off M2 candidate. Do not flip until the promotion ladder
+    # Default-off M2 candidates. Do not flip until the promotion ladder
     # (five-case → red set → 97) reports no human-worse selection.
     ghost_telemetry_only: bool = False
+    composite_sb_telemetry_only: bool = False
+    composite_sc_telemetry_only: bool = False
 
     @classmethod
     def from_environ(cls) -> SafeAspPolicy:
         """Same env knobs the benchmark already documents."""
+        both = os.environ.get("ASP_COMPOSITE_TELEMETRY_ONLY", "0") == "1"
         return cls(
             composite_sc_floor=_env_float("ASP_GATE_SC", 38.0),
             composite_sb_floor=_env_float("ASP_GATE_SB", 35.0),
@@ -81,6 +84,10 @@ class SafeAspPolicy:
             seam_vis_ratio=_env_float("ASP_GATE_SEAM_VIS", 3.0),
             seam_vis_floor=_env_float("ASP_GATE_SEAM_VIS_FLOOR", 35.0),
             ghost_telemetry_only=os.environ.get("ASP_GHOST_TELEMETRY_ONLY", "0") == "1",
+            composite_sb_telemetry_only=both
+            or os.environ.get("ASP_COMPOSITE_SB_TELEMETRY_ONLY", "0") == "1",
+            composite_sc_telemetry_only=both
+            or os.environ.get("ASP_COMPOSITE_SC_TELEMETRY_ONLY", "0") == "1",
         )
 
     def evaluate_composite(
@@ -101,21 +108,48 @@ class SafeAspPolicy:
             f"scans sc={scans_sc:.1f} sb={scans_sb:.1f}  "
             f"limits sc<{sc_limit:.1f} sb<{sb_limit:.1f}"
         )
-        failed = asp_sc > sc_limit or asp_sb > sb_limit
-        if not failed:
+        sc_fail = asp_sc > sc_limit
+        sb_fail = asp_sb > sb_limit
+        sc_rejects = sc_fail and not self.composite_sc_telemetry_only
+        sb_rejects = sb_fail and not self.composite_sb_telemetry_only
+        telem_bits = []
+        if self.composite_sb_telemetry_only:
+            telem_bits.append("sb")
+        if self.composite_sc_telemetry_only:
+            telem_bits.append("sc")
+        status = (
+            "telemetry_only_inverse_validated" if telem_bits else None
+        )
+        if telem_bits:
+            log_line += f"  [telemetry_only:{'+'.join(telem_bits)}]"
+        scores = {
+            "asp_sc": asp_sc,
+            "asp_sb": asp_sb,
+            "scans_sc": scans_sc,
+            "sc_limit": sc_limit,
+            "sb_limit": sb_limit,
+            "would_reject_sc": 1.0 if sc_fail else 0.0,
+            "would_reject_sb": 1.0 if sb_fail else 0.0,
+        }
+        if not (sc_rejects or sb_rejects):
+            which = "sc" if sc_fail else "sb" if sb_fail else None
+            reason = (
+                None
+                if which is None
+                else (
+                    f"composite_gate_{which}:asp_sc={asp_sc:.1f}_limit={sc_limit:.1f},"
+                    f"asp_sb={asp_sb:.1f}_limit={sb_limit:.1f}"
+                )
+            )
             return GateDecision(
                 name="composite",
                 accept=True,
+                reason=reason if status else None,
                 log_line=log_line,
-                scores={
-                    "asp_sc": asp_sc,
-                    "asp_sb": asp_sb,
-                    "scans_sc": scans_sc,
-                    "sc_limit": sc_limit,
-                    "sb_limit": sb_limit,
-                },
+                scores=scores,
+                status=status,
             )
-        which = "sc" if asp_sc > sc_limit else "sb"
+        which = "sc" if sc_rejects else "sb"
         reason = (
             f"composite_gate_{which}:asp_sc={asp_sc:.1f}_limit={sc_limit:.1f},"
             f"asp_sb={asp_sb:.1f}_limit={sb_limit:.1f}"
@@ -134,14 +168,9 @@ class SafeAspPolicy:
                 f"(asp sc={asp_sc:.1f}>{sc_limit:.1f} or "
                 f"asp sb={asp_sb:.1f}>{sb_limit:.1f}) → SCANS fallback."
             ),
-            scores={
-                "asp_sc": asp_sc,
-                "asp_sb": asp_sb,
-                "scans_sc": scans_sc,
-                "sc_limit": sc_limit,
-                "sb_limit": sb_limit,
-            },
+            scores=scores,
             fallback_code=1,
+            status=status,
         )
 
     def ghost_limit(self, sim_g: float) -> float:
@@ -300,6 +329,12 @@ class SafeAspPolicy:
             "seam_vis_ratio": self.seam_vis_ratio,
             "seam_vis_floor": self.seam_vis_floor,
             "ghost_telemetry_only": 1.0 if self.ghost_telemetry_only else 0.0,
+            "composite_sb_telemetry_only": (
+                1.0 if self.composite_sb_telemetry_only else 0.0
+            ),
+            "composite_sc_telemetry_only": (
+                1.0 if self.composite_sc_telemetry_only else 0.0
+            ),
         }
 
 

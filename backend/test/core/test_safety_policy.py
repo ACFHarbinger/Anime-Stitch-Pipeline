@@ -56,6 +56,31 @@ class TestCompositeGate:
         assert decision.accept
         assert decision.scores["sb_limit"] == 10.0
 
+    def test_sb_telemetry_only_does_not_reject_on_strip_banding(self):
+        policy = SafeAspPolicy(
+            composite_sc_floor=999.0,
+            composite_sb_floor=5.0,
+            composite_sb_telemetry_only=True,
+        )
+        asp = _banded(100, 80)
+        affines = [_affine(0.0), _affine(50.0)]
+        decision = policy.evaluate_composite(asp, _solid(100, 80, 128), affines)
+        assert decision.accept
+        assert decision.status == "telemetry_only_inverse_validated"
+        assert decision.fallback_code == 0
+        assert decision.scores["would_reject_sb"] == 1.0
+        assert "[telemetry_only:sb]" in (decision.log_line or "")
+
+    def test_sb_telemetry_still_rejects_on_sc(self):
+        policy = SafeAspPolicy(
+            composite_sc_floor=5.0,
+            composite_sb_floor=5.0,
+            composite_sb_telemetry_only=True,
+        )
+        decision = policy.evaluate_composite(_banded(), _solid(120, 80, 128), None)
+        assert not decision.accept
+        assert decision.reason.startswith("composite_gate_sc:")
+
 
 class TestGhostGate:
     def test_skips_without_scans(self):
@@ -102,6 +127,12 @@ class TestGhostGate:
     def test_env_enables_telemetry_only(self, monkeypatch):
         monkeypatch.setenv("ASP_GHOST_TELEMETRY_ONLY", "1")
         assert SafeAspPolicy.from_environ().ghost_telemetry_only is True
+
+    def test_env_enables_composite_sb_telemetry(self, monkeypatch):
+        monkeypatch.setenv("ASP_COMPOSITE_SB_TELEMETRY_ONLY", "1")
+        policy = SafeAspPolicy.from_environ()
+        assert policy.composite_sb_telemetry_only is True
+        assert policy.composite_sc_telemetry_only is False
 
 
 class TestGhostTelemetryCounterfactual:

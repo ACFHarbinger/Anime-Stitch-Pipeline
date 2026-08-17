@@ -72,3 +72,80 @@ def test_ghost_only_reject_keeps_scans_under_candidate(tmp_path: Path):
     assert result["selection_changes"] == 1
     assert result["rows"][0]["baseline_select"] == "scans"
     assert result["rows"][0]["candidate_select"] == "raw_asp"
+
+
+def test_sb_telemetry_changes_recorded_composite_sb(tmp_path: Path):
+    run = tmp_path / "run.json"
+    run.write_text(
+        json.dumps(
+            {
+                "datasets": [
+                    {
+                        "name": "asp_test11",
+                        "used_fallback": True,
+                        "fallback_reason": "composite_gate_sb:asp_sc=20_limit=38,asp_sb=40_limit=35",
+                        "metrics_asp": {
+                            "ghosting_siqe": 10,
+                            "seam_coherence": 20,
+                            "seam_visibility": 4,
+                        },
+                        "metrics_simple": {
+                            "ghosting_siqe": 10,
+                            "seam_coherence": 10,
+                            "seam_visibility": 3,
+                        },
+                    }
+                ]
+            }
+        )
+    )
+    result = screen.screen(run, names=None, sb_telemetry_only=True)
+    assert result["selection_changes"] == 1
+    assert result["rows"][0]["baseline_select"] == "scans"
+    assert result["rows"][0]["candidate_select"] == "raw_asp"
+
+
+def test_discriminating_requires_catastrophe_scans(tmp_path: Path):
+    run = tmp_path / "run.json"
+    run.write_text(
+        json.dumps(
+            {
+                "datasets": [
+                    {
+                        "name": "asp_test96",
+                        "used_fallback": False,
+                        "fallback_reason": None,
+                        "metrics_asp": {
+                            "ghosting_siqe": 10,
+                            "seam_coherence": 10,
+                            "seam_visibility": 4,
+                        },
+                        "metrics_simple": {
+                            "ghosting_siqe": 10,
+                            "seam_coherence": 10,
+                            "seam_visibility": 3,
+                        },
+                    },
+                    {
+                        "name": "asp_test06",
+                        "used_fallback": False,
+                        "fallback_reason": None,
+                        "metrics_asp": {
+                            "ghosting_siqe": 10,
+                            "seam_coherence": 10,
+                            "seam_visibility": 4,
+                        },
+                        "metrics_simple": {
+                            "ghosting_siqe": 10,
+                            "seam_coherence": 10,
+                            "seam_visibility": 3,
+                        },
+                    },
+                ]
+            }
+        )
+    )
+    verdict = screen.discriminating(tmp_path / "run.json")
+    assert verdict["known_good_raw"] == ["asp_test96"]
+    assert verdict["catastrophe_raw"] == ["asp_test06"]
+    assert verdict["passes"] is False
