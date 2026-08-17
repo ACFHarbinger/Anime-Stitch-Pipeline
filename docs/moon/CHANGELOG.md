@@ -26,6 +26,13 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 SeamVis threshold sweep is discriminating-infeasible
+  (2026-08-17):** no `(floor, ratio)` pair catches catastrophes
+  04/06/07/12/14/15 and keeps known-good test96. test96's
+  `seam_visibility` (32.2) is *higher* than every catastrophe (max 29.58;
+  binding case test15 at 12.55). Retuning SeamVis cannot pass the M2
+  exit. Tool: `screen_seamvis_threshold.py`. Report:
+  `.agent/reports/grok/m2_seamvis_threshold_infeasible_20260817.md`.
 - **#32 M2.5a Per-Defect Category & Stage-Attributed Correlation Audit
   (2026-08-17, Gemini):** New statistical CLI and analysis engine
   `backend/benchmark/audit_defect_correlation.py` plus unit tests

@@ -93,6 +93,12 @@ asp-safe-asp-discriminating:
         --run backend/benchmark/output/anime_stitch_20260807_045552.json \
         --sb-telemetry --discriminating
 
+# Prove whether any SeamVis (floor, ratio) pair is discriminating.
+asp-seamvis-threshold-sweep:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/screen_seamvis_threshold.py \
+        --run backend/benchmark/output/anime_stitch_20260807_045552.json
+
 # Union disjoint per-range anime_stitch_*.json files into one corpus document.
 asp-benchmark-merge *ARGS:
     cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \

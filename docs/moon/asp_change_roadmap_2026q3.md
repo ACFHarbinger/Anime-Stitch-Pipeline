@@ -304,6 +304,11 @@ Deliverables:
   Discriminating exit is **not met**: catastrophes 04/06/07/12/14/15 are
   Raw ASP under current SeamVis+Composite+Ghost as well. See
   `.agent/reports/grok/m2_composite_sb_and_discriminating_20260817.md`.
+  **SeamVis retune also infeasible (2026-08-17):** 0 `(floor, ratio)`
+  pairs catch all six catastrophes and keep test96 — test96 sv=32.2 >
+  every catastrophe (binding test15 sv=12.55). Discriminating exit needs
+  a new structural signal, not a threshold change. See
+  `.agent/reports/grok/m2_seamvis_threshold_infeasible_20260817.md`.
   `cqas` (the former single-scalar aggregate used for GT-less cases in
   dashboards/reports) also fails the audit (rho -0.09, not significant) — its
   two largest-weighted components are the inverse `ghosting_siqe` (0.35) and
