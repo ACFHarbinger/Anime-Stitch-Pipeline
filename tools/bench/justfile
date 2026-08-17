@@ -94,6 +94,13 @@ asp-safe-asp-discriminating:
         --sb-telemetry --discriminating
 
 # Prove whether any SeamVis (floor, ratio) pair is discriminating.
+# M3 compositor A/B on the structural red set (proxy frames, no rematch).
+asp-coherence-v2-redset:
+    cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
+        backend/benchmark/screen_coherence_v2.py \
+        --run backend/benchmark/output/anime_stitch_20260807_045552.json \
+        --data-dir dump --max-frames 6 --scale 0.25
+
 asp-seamvis-threshold-sweep:
     cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
         backend/benchmark/screen_seamvis_threshold.py \
