@@ -272,6 +272,26 @@ Deliverables:
 - Audit existing gates against the completed human labels. Remove or demote
   signals that are inversely correlated with human quality (sharpness, edge
   energy, and current ghosting vs human ASP–SCANS delta are known inverse).
+  **Done (2026-08-17), reproducible tool + evidence:**
+  `.agent/reports/claude/m2_gate_signal_correlation_audit_20260817.md` /
+  `backend/benchmark/audit_gate_correlation.py`. Reproduces the three cited
+  numbers exactly (sharpness -0.47, edge_energy -0.53, ghosting -0.60) and
+  maps them onto the actual gate code: **`GhostGate`'s only signal
+  (`ghosting_score_v2`) is the worst-scoring inverse metric audited** — it is
+  the concrete demotion candidate this bullet calls for.
+  `SeamVisGate`'s `seam_visibility_score` is confirmed correct (rho +0.43) and
+  should be the reference "gate that works." `CompositeGate`'s
+  `seam_coherence` component shows no signal (rho -0.06, not significant);
+  its `strip_banding_score` component is **unaudited** — imported but never
+  computed in the benchmark, so it has zero correlation coverage either way.
+  `cqas` (the single-scalar aggregate used for GT-less cases in
+  dashboards/reports) also fails the audit (rho -0.09, not significant) — its
+  two largest-weighted components are the inverse `ghosting_siqe` (0.35) and
+  no-signal `seam_coherence` (0.20); only `seam_visibility` (0.30) is pulling
+  correct weight. No gate default changed yet — the actual demote/rework
+  change still needs the promotion-ladder review (five-case → stratified →
+  all 97) before landing, and `cqas`'s fix overlaps M2.5a (#32)'s
+  per-defect-category work rather than duplicating it here.
 - Record per-stage image geometry, frame provenance, pose provenance, gain
   residuals/clamps, seam feasibility, and fallback reason.
 - Consolidate experimental flags into typed named profiles. Schema currently

@@ -26,6 +26,17 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 M2 gate-signal correlation audit (2026-08-17):** new
+  `backend/benchmark/audit_gate_correlation.py` computes Spearman correlation
+  between each no-reference benchmark metric and human ASP-vs-SCANS score
+  delta across the 97 reviewed cases. Reproduces the previously-unlinked bus
+  claim (sharpness -0.47, edge_energy -0.53, ghosting -0.60) exactly, and maps
+  it onto the live gates: `GhostGate`'s only signal (`ghosting_score_v2`) is
+  the worst-scoring inverse metric found; `SeamVisGate`'s
+  `seam_visibility_score` is confirmed correct; `CompositeGate`'s
+  `strip_banding_score` component is unaudited (imported, never computed in
+  the benchmark); the `cqas` aggregate also fails the audit. No gate default
+  changed — see `.agent/reports/claude/m2_gate_signal_correlation_audit_20260817.md`.
 - **#30 ungated provenance + deterministic gates (2026-08-15):**
   per-case `safe_asp_counterfactual` (`would_select` / `gate` / `reason`
   / policy snapshot / per-gate decisions) is written into the run JSON
