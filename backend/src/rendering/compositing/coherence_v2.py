@@ -100,42 +100,70 @@ def plan_coherence_v2(
     ownership = np.full((h, w), -1, dtype=np.int8)
     corridor = has_background_corridor(a, b)
 
-    if not corridor and union.any():
-        mean_ca = float(conf_a[a].mean()) if conf_a is not None and a.any() else None
-        mean_cb = float(conf_b[b].mean()) if conf_b is not None and b.any() else None
-        owner, reason = _pick_owner(int(a.sum()), int(b.sum()), mean_ca, mean_cb)
-        ownership[union] = owner
-        return CoherenceV2Plan(
-            ownership=ownership,
-            regions=[
-                RegionOwnership(
-                    region_id=1,
-                    owner=owner,
-                    area_a=int(a.sum()),
-                    area_b=int(b.sum()),
-                    reason=f"handoff_{reason}",
-                )
-            ],
-            corridor=False,
-            handoff=owner,
-        )
+    # Exclusive coverage always stays with its source. Only A∩B is contested.
+    only_a = a & ~b
+    only_b = b & ~a
+    overlap = a & b
+    ownership[only_a] = 0
+    ownership[only_b] = 1
 
     if not union.any():
         return CoherenceV2Plan(ownership=ownership, corridor=corridor)
 
-    n, labels = cv2.connectedComponents(union.astype(np.uint8), connectivity=4)
     regions: list[RegionOwnership] = []
+    if only_a.any():
+        regions.append(
+            RegionOwnership(1, 0, int(only_a.sum()), 0, "only_a")
+        )
+    if only_b.any():
+        regions.append(
+            RegionOwnership(2, 1, 0, int(only_b.sum()), "only_b")
+        )
+
+    if not overlap.any():
+        return CoherenceV2Plan(
+            ownership=ownership, regions=regions, corridor=corridor
+        )
+
+    # No BG corridor: one owner for the whole contested overlap (not the union).
+    if not corridor:
+        mean_ca = float(conf_a[overlap].mean()) if conf_a is not None else None
+        mean_cb = float(conf_b[overlap].mean()) if conf_b is not None else None
+        owner, reason = _pick_owner(
+            int((overlap & a).sum()),
+            int((overlap & b).sum()),
+            mean_ca,
+            mean_cb,
+        )
+        ownership[overlap] = owner
+        regions.append(
+            RegionOwnership(
+                region_id=3,
+                owner=owner,
+                area_a=int((overlap & a).sum()),
+                area_b=int((overlap & b).sum()),
+                reason=f"handoff_{reason}",
+            )
+        )
+        return CoherenceV2Plan(
+            ownership=ownership,
+            regions=regions,
+            corridor=False,
+            handoff=owner,
+        )
+
+    n, labels = cv2.connectedComponents(overlap.astype(np.uint8), connectivity=4)
     for rid in range(1, n):
         pix = labels == rid
         area_a = int((pix & a).sum())
         area_b = int((pix & b).sum())
-        ca = float(conf_a[pix & a].mean()) if conf_a is not None and area_a else None
-        cb = float(conf_b[pix & b].mean()) if conf_b is not None and area_b else None
+        ca = float(conf_a[pix].mean()) if conf_a is not None else None
+        cb = float(conf_b[pix].mean()) if conf_b is not None else None
         owner, reason = _pick_owner(area_a, area_b, ca, cb)
         ownership[pix] = owner
         regions.append(
             RegionOwnership(
-                region_id=rid,
+                region_id=10 + rid,
                 owner=owner,
                 area_a=area_a,
                 area_b=area_b,

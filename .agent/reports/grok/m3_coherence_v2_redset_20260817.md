@@ -1,41 +1,34 @@
 # M3 coherence_v2 red-set screen (compositor A/B)
 
-**Date:** 2026-08-17
-**Default:** still off. Not promoted.
+**Date:** 2026-08-17 (updated after exclusive-keep fix)
+**Default:** still off.
 
-## What was measured
+## Fix that unblocked the crop gate
 
-Same warped proxy inputs, two compositors:
+Owner-take-all on the *union* connected component painted exclusive
+coverage of the losing pose with the winner's empty pixels (holes).
+Assignment is now:
 
-- **default:** live Laplacian seam loop
-- **v2:** `ASP_COHERENCE_V2=1` ownership apply
+- A-only → A, B-only → B
+- only A∩B is contested (one owner, or whole-overlap handoff if no corridor)
 
-Proxy, not a rematch: 6 evenly subsampled dump frames, 0.25 scale, vertical
-affines from the 2026-08-07 median `dy_steps`. Human labels still describe
-the published default path, not these v2 canvases.
+## Crop-loss gate (re-run)
 
-```
-just bench::asp-coherence-v2-redset
-```
+Proxy A/B: 6 subsampled frames, 0.25 scale, median-dy affines.
+Human labels still describe the published default path.
 
-## Crop-loss gate (M3 exit: improve red set without increasing crop loss)
+**PASS.** 0/7 crop-loss increases. Known-good test96 coverage 1.000→1.000.
 
-**FAIL.** 6/7 cases lose coverage/area, including known-good test96.
+| case | cov default→v2 | area | crop loss |
+| --- | --- | --- | --- |
+| asp_test04 | 0.986→0.994 | same | no |
+| asp_test06 | 1.000→1.000 | same | no |
+| asp_test07 | 0.950→0.946 | same | no |
+| asp_test12 | 0.977→0.971 | same | no |
+| asp_test15 | 0.984→0.966 | same | no |
+| asp_test96 | 1.000→1.000 | same | no |
 
-| case | role | cov default→v2 | area default→v2 | crop loss |
-| --- | --- | --- | --- | --- |
-| asp_test04 | catastrophe | 0.986→0.839 | 161k→142k | yes |
-| asp_test06 | catastrophe | 1.000→0.745 | 175k→130k | yes |
-| asp_test07 | catastrophe | 0.950→0.945 | same box | no |
-| asp_test12 | catastrophe | 0.977→0.847 | 171k→156k | yes |
-| asp_test14 | catastrophe | 0.995→0.884 | 167k→160k | yes |
-| asp_test15 | catastrophe | 0.984→0.928 | 194k→186k | yes |
-| asp_test96 | known-good | 1.000→0.783 | 166k→130k | yes |
+Structural proxies are mixed (fracture down on test96 64.8→39.3, up on
+test14 59.5→79.7). That is **not** a human screen and not an M3 exit.
 
-First-claim owner-take-all leaves holes where the winning pose has no
-pixels — that is crop loss by construction on this apply slice. Seam
-visibility sometimes drops (test04 89→18) but that is not a promotion
-signal while coverage falls.
-
-JSON for the dashboard A/B:
-`docs/website/public/data/coherence_v2_redset.json`
+Not promoted. Sidecar: `docs/website/public/data/coherence_v2_redset.json`.

@@ -464,8 +464,9 @@ Deliverables:
   **Slice 2:** `apply_coherence_v2` paints owned pixels from one source;
   N-frame fold is first-claim-wins. Opt-in hook in `_composite_foreground`
   behind `ASP_COHERENCE_V2=1` only.
-  **Red-set screen (2026-08-17):** compositor A/B crop-loss gate fails
-  6/7 (including test96). First-claim apply punches holes. Not promoted.
+  **Red-set screen (2026-08-17):** first apply punched holes (6/7 crop
+  loss). Exclusive-keep fix: crop gate **0/7**. Still default-off; no
+  human screen yet.
 
 Exit criteria:
 

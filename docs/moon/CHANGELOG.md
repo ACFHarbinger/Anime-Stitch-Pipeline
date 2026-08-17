@@ -26,6 +26,9 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#34 exclusive-keep unblocks crop gate (2026-08-17):** contested
+  overlap is single-pose; exclusive FG stays with its source. Red-set
+  crop-loss re-screen **0/7** (test96 coverage held). Still default-off.
 - **#34 M3 red-set compositor A/B (2026-08-17):**
   `screen_coherence_v2.py` runs default seam loop vs `ASP_COHERENCE_V2=1`
   on 04/06/07/12/14/15/96 (subsampled frames, median-dy affines). Crop-loss

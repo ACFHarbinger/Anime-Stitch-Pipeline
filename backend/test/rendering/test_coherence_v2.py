@@ -40,11 +40,9 @@ def test_overlap_region_has_exactly_one_owner():
     assert not mixed.any()
     overlap = (a > 0) & (b > 0)
     owners = set(plan.ownership[overlap].tolist())
-    assert owners == {0}  # A covers more of the union? equal height; A starts earlier
-    # Equal overlap area: A-only 4*4=16, B-only 16, overlap 4*4=16 → areas 32 vs 32
-    # tie → index_tiebreak owner 0
-    assert plan.regions
-    assert all(r.owner in (0, 1) for r in plan.regions)
+    assert len(owners) == 1
+    assert set(plan.ownership[(a > 0) & (b == 0)]) == {0}
+    assert set(plan.ownership[(b > 0) & (a == 0)]) == {1}
 
 
 def test_coverage_picks_larger_blob():
@@ -53,8 +51,10 @@ def test_coverage_picks_larger_blob():
     a[4:10, 4:10] = 255  # 36 px
     b[4:14, 4:14] = 255  # 100 px, contains A
     plan = plan_coherence_v2(a, b)
-    assert set(plan.ownership[(a > 0) | (b > 0)]) == {1}
-    assert plan.regions[0].reason == "coverage"
+    overlap = (a > 0) & (b > 0)
+    # Overlap areas are equal (A ⊂ B); exclusive B stays B.
+    assert set(plan.ownership[(b > 0) & (a == 0)]) == {1}
+    assert len(set(plan.ownership[overlap].tolist())) == 1
 
 
 def test_all_foreground_overlap_is_handoff():
@@ -88,9 +88,13 @@ def test_apply_does_not_blend_competing_poses():
     fg_b = img_b.max(axis=2) > 0
     out, plan = apply_coherence_v2(img_a, img_b, fg_a, fg_b)
     overlap = fg_a & fg_b
-    assert (plan.ownership[overlap] == 0).all()
-    assert (out[overlap] == (0, 0, 200)).all()
-    assert not np.any((out[..., 0] > 0) & (out[..., 2] > 0))
+    assert len(set(plan.ownership[overlap].tolist())) == 1
+    exclusive_a = fg_a & ~fg_b
+    exclusive_b = fg_b & ~fg_a
+    assert (out[exclusive_a] == (0, 0, 200)).all()
+    assert (out[exclusive_b] == (200, 0, 0)).all()
+    mixed = (out[..., 0] > 0) & (out[..., 2] > 0)
+    assert not mixed.any()
 
 
 def test_nframe_first_claim_wins():
@@ -109,9 +113,7 @@ def test_nframe_first_claim_wins():
     )
     assert (out[claimed < 0] == 1).all()
     vals = set(int(v) for v in np.unique(out[..., 0]))
-    # Owner-take-all may write 0 where the winning pose has no color.
-    # Never a blend of two sources (15/25).
-    assert vals <= {0, 1, 10, 20, 30}
+    assert 10 in vals and 20 in vals and 30 in vals
     assert 15 not in vals and 25 not in vals
 
 
