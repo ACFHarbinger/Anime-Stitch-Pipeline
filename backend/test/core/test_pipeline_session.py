@@ -115,6 +115,19 @@ class TestPipelineSession:
         assert session.fallbacks[0]["algorithm"] == "panorama"
         assert "safe_asp_path" in session.artifacts
 
+    def test_mark_dropped_paths_sets_reason(self):
+        session = PipelineSession.create(
+            ["a.png", "b.png", "c.png"], "out.png", config={}
+        )
+        session.init_frame_provenance(["a.png", "b.png", "c.png"])
+        session.mark_dropped_paths(["a.png", "c.png"], "near_static")
+        by_path = {row["path"]: row for row in session.frame_provenance}
+        assert by_path["a.png"]["kept"] is True
+        assert by_path["b.png"]["kept"] is False
+        assert by_path["b.png"]["drop_reason"] == "near_static"
+        session.mark_dropped_paths(["a.png"], "spatial_dedup")
+        assert by_path["c.png"]["drop_reason"] == "spatial_dedup"
+
     def test_finish_publishes_m2_observability_envelope(self):
         session = PipelineSession.create(["a.png", "b.png"], "out.png", config={})
         session.note_geometry(PipelineStage.NORMALISE, width=64, height=48, n_frames=2)

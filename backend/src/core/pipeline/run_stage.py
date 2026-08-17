@@ -153,7 +153,6 @@ class _RunStageMixin(_Base):
         # §1.63: Sort frame paths by numeric suffix so glob-discovered frames are
         # always in temporal order, regardless of OS directory-entry order.
         image_paths = _sort_frames_by_index(image_paths)
-        _source_paths = list(image_paths)
 
         if session is None:
             session = PipelineSession.create(
@@ -167,6 +166,7 @@ class _RunStageMixin(_Base):
             session.pause_hook = pause_hook
         self.last_session = session
         session.record_artifact("output_path", output_path)
+        session.init_frame_provenance(image_paths)
 
         logger.info(
             f"[Stitch] Starting AnimeStitchPipeline on {len(image_paths)} frames."
@@ -187,6 +187,8 @@ class _RunStageMixin(_Base):
             )
             raise PipelineError("Need at least 2 valid frames to stitch.")
         session.mark(PipelineStage.LOAD, n=N)
+        _h0, _w0 = frames[0].shape[:2]
+        session.note_geometry(PipelineStage.LOAD, width=_w0, height=_h0, n_frames=N)
         logger.info(f"[Stitch] Stage 1 complete: {N} frames loaded.")
 
         phase_ids: list[int] | None = None
@@ -262,10 +264,12 @@ class _RunStageMixin(_Base):
             )
         )
         if _early is not None:
+            session.mark_dropped_paths(image_paths, "near_static")
             session.record_fallback(ResultIdentity.SCANS, "dedup_too_few_frames")
             session.record_artifact("scans_path", output_path)
             session.finish(success=True, identity=ResultIdentity.SCANS)
             return _early
+        session.mark_dropped_paths(image_paths, "near_static")
         session.mark(PipelineStage.DEDUP, n=N)
 
         # ── Stage 5-6: Pairwise matching (+ skip-pair edges) ────────────────
@@ -308,28 +312,7 @@ class _RunStageMixin(_Base):
                     return _scan_stitch_fallback(_sf, output_path)
         session.mark(PipelineStage.SPATIAL_DEDUP, dropped=_total_spa_dropped)
         session.record_artifact("frame_count", N)
-        _kept = set(image_paths)
-        session.note_frame_provenance(
-            [
-                {
-                    "index": i,
-                    "path": path,
-                    "kept": path in _kept,
-                    "drop_reason": None if path in _kept else "dedup",
-                }
-                for i, path in enumerate(_source_paths)
-            ]
-            + [
-                {
-                    "index": None,
-                    "path": path,
-                    "kept": True,
-                    "drop_reason": None,
-                }
-                for path in image_paths
-                if path not in _source_paths
-            ]
-        )
+        session.mark_dropped_paths(image_paths, "spatial_dedup")
         if _total_spa_dropped:
             logger.debug(
                 f"[Stitch]   Spatial dedup complete: {_total_spa_dropped} frames "
@@ -442,6 +425,7 @@ class _RunStageMixin(_Base):
             f"max_rot={health.max_rotation:.4f} (thresh={_adaptive_rot:.2f}), "
             f"scale_dev={health.max_scale_dev:.4f} (thresh={_adaptive_sc:.2f})"
         )
+        _pose_source = "bundle_adjust"
         if not health.valid:
             affines, health = _recover_affine_health(
                 edges,
@@ -455,6 +439,8 @@ class _RunStageMixin(_Base):
                 logger,
                 _motion_model,
             )
+            if health.valid:
+                _pose_source = "affine_recovery"
             if not health.valid:
                 # §1.3B: PANORAMA stitcher handles scale/rotation that
                 # translation-only validation rejects; try before SCANS.
@@ -493,8 +479,8 @@ class _RunStageMixin(_Base):
         )
 
         # ── Stage 8: Sub-pixel refinement ────────────────────────────────────
-        affines = self._refine_subpixel(frames, affines, bg_masks)
-        session.mark(PipelineStage.REFINE)
+        affines, _refine_src = self._refine_subpixel(frames, affines, bg_masks)
+        session.mark(PipelineStage.REFINE, method=_refine_src)
 
         # ── Stage 8.8: Hires keyframe substitution (§9C — Sprint 8) ────────
         # All heavy computation above ran on proxy (1080p) frames. If the caller
@@ -556,7 +542,8 @@ class _RunStageMixin(_Base):
                     "tx": round(float(affines[i][0, 2]), 3),
                     "ty": round(float(affines[i][1, 2]), 3),
                     "motion_model": str(_motion_model),
-                    "source": "bundle_adjust",
+                    "source": _pose_source,
+                    "refined_by": _refine_src,
                     "valid": bool(health.valid),
                 }
                 for i in range(N)
@@ -806,6 +793,11 @@ class _RunStageMixin(_Base):
         out.save(output_path)
         gc.collect()
         session.mark(PipelineStage.SAVE)
+        session.note_geometry(
+            PipelineStage.SAVE,
+            width=int(canvas.shape[1]),
+            height=int(canvas.shape[0]),
+        )
         session.record_artifact("raw_asp_path", output_path)
         session.finish(success=True, identity=ResultIdentity.RAW_ASP)
         logger.info(f"[Stitch] Done. Saved to '{output_path}'.")
@@ -834,11 +826,15 @@ class _RunStageMixin(_Base):
         ECC fails on flat anime cells (near-zero gradients → singular
         Hessian); SEA-RAFT uses learned cost volumes that remain informative
         over uniform colour regions.
+
+        Returns ``(affines, source)`` where source is ``sea_raft``,
+        ``ecc``, ``sea_raft_ecc_fallback``, or ``none``.
         """
         from asp_backend.alignment.ecc import _ecc_refine
 
         from ._probes import _flow_refine, _load_sea_raft
 
+        refine_src = "none"
         if self.use_sea_raft:
             try:
                 if self._sea_raft is None:
@@ -852,6 +848,7 @@ class _RunStageMixin(_Base):
                     device="cuda" if torch.cuda.is_available() else "cpu",
                     raft_model=self._sea_raft,
                 )
+                refine_src = "sea_raft"
                 logger.info("[Stitch] Stage 8 complete: SEA-RAFT flow refinement done.")
                 # Offload SEA-RAFT after use
                 if torch.cuda.is_available():
@@ -865,15 +862,17 @@ class _RunStageMixin(_Base):
                 )
                 if self.use_ecc:
                     affines = _ecc_refine(frames, affines, bg_masks)
+                    refine_src = "sea_raft_ecc_fallback"
                     logger.info(
                         "[Stitch] Stage 8 complete: ECC refinement done (fallback)."
                     )
         elif self.use_ecc:
             affines = _ecc_refine(frames, affines, bg_masks)
+            refine_src = "ecc"
             logger.info("[Stitch] Stage 8 complete: ECC refinement done.")
         else:
             logger.info("[Stitch] Stage 8 skipped (use_ecc=False, use_sea_raft=False).")
-        return affines
+        return affines, refine_src
 
 
 __all__ = ["_RunStageMixin"]

@@ -88,6 +88,10 @@ class TestRunCanonicalAsp:
         assert not result.used_fallback
         assert cv2.imread(raw_path) is not None
         assert cv2.imread(safe_path) is not None
+        obs = result.extra.get("observability")
+        assert obs is not None
+        assert "geometry" in obs
+        assert "fallback_reason" in obs
 
     def test_policy_reject_keeps_raw_and_publishes_scans(self, tmp_path):
         raw_path = str(tmp_path / "raw.png")

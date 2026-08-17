@@ -317,6 +317,8 @@ Deliverables:
   gain residuals/clamps from Stage 4.5, and seam corridor feasibility
   (`n_boundaries` / single-pose / max lum step / exclusion-mask count).
   Pixel path unchanged.
+  **Slice 2:** pose `source`/`refined_by`; per-pass drop reasons;
+  load/save geometry; bench JSON `observability` field.
 - Consolidate experimental flags into typed named profiles. `ASP_HOLD_BG_SUB`
   is registered as an Advanced-only, default-off experimental key with its
   unaligned-median limitation documented; M4 owns the later keep/delete

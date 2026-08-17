@@ -173,6 +173,7 @@ def run_canonical_asp(
     extra: dict[str, Any] = {
         "safe_asp_counterfactual": counterfactual,
         "ungated_gate_config": ungated_config or None,
+        "observability": session.observability(),
     }
     session.record_artifact("safe_asp_counterfactual", counterfactual)
     if ungated_config:
@@ -198,6 +199,7 @@ def run_canonical_asp(
         session.finish(success=True, identity=ResultIdentity.SAFE_ASP)
         extra["gate"] = first_reject.name
         extra["policy_would_reject"] = first_reject.reason
+        extra["observability"] = session.observability()
         return CanonicalStitchResult(
             raw_asp_path=raw_asp_path,
             safe_asp_path=safe_asp_path,
@@ -222,6 +224,7 @@ def run_canonical_asp(
     if os.path.isfile(work_path):
         shutil.copy2(work_path, safe_asp_path)
     session.record_artifact("safe_asp_path", safe_asp_path)
+    extra["observability"] = session.observability()
     return CanonicalStitchResult(
         raw_asp_path=raw_asp_path if raw_available else "",
         safe_asp_path=safe_asp_path,

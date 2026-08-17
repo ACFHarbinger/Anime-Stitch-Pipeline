@@ -1205,6 +1205,7 @@ def _process_dataset_canonical(
     built["raw_asp_available"] = result.raw_asp_available
     built["safe_asp_counterfactual"] = result.extra.get("safe_asp_counterfactual")
     built["ungated_gate_config"] = result.extra.get("ungated_gate_config")
+    built["observability"] = result.extra.get("observability") or session.observability()
     return built
 
 

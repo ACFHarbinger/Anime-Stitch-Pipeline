@@ -273,6 +273,25 @@ class PipelineSession:
     def note_frame_provenance(self, rows: list[Mapping[str, Any]]) -> None:
         self.frame_provenance = [dict(row) for row in rows]
 
+    def init_frame_provenance(self, paths: list[str]) -> None:
+        self.frame_provenance = [
+            {
+                "index": i,
+                "path": path,
+                "kept": True,
+                "drop_reason": None,
+            }
+            for i, path in enumerate(paths)
+        ]
+
+    def mark_dropped_paths(self, remaining: list[str], reason: str) -> None:
+        """Mark previously-kept paths that are no longer in ``remaining``."""
+        kept = set(remaining)
+        for row in self.frame_provenance:
+            if row.get("kept") and row.get("path") not in kept:
+                row["kept"] = False
+                row["drop_reason"] = reason
+
     def note_pose_provenance(self, rows: list[Mapping[str, Any]]) -> None:
         self.pose_provenance = [dict(row) for row in rows]
 

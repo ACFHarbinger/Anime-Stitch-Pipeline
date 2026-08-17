@@ -26,6 +26,11 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **M2 observability slice 2 (2026-08-17):** pose rows now label
+  `bundle_adjust` vs `affine_recovery` and `refined_by` (`ecc` /
+  `sea_raft` / `none`). Frame provenance tracks `near_static` then
+  `spatial_dedup` drop reasons. Geometry also recorded at load/save.
+  Canonical bench JSON / adapter extra persist `observability`.
 - **M2 session observability envelope (2026-08-17):** `PipelineSession`
   publishes `artifacts["observability"]` on `finish()` with per-stage
   geometry, frame provenance, pose provenance, gain residuals/clamps,
