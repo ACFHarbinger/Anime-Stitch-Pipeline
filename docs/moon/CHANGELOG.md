@@ -26,6 +26,26 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#32 M2.5a Per-Defect Category & Stage-Attributed Correlation Audit
+  (2026-08-17, Gemini):** New statistical CLI and analysis engine
+  `backend/benchmark/audit_defect_correlation.py` plus unit tests
+  (`test_audit_defect_correlation.py`). Analyzes the 97 human-reviewed cases
+  across 10 distinct defect classes (`torn_anatomy`, `banding`, `color_shift`,
+  `seam_line`, `ghosting`, `misordered_content`, `duplicated_strip`, etc.)
+  and maps them to pipeline stages.
+  - Confirmed `seam_visibility` ($\rho = +0.425$) and `seam_gradient`
+    ($\rho = +0.473$) are human-aligned across photometric ($\rho = +0.76$)
+    and structural ($\rho = +0.42$ to $+0.64$) defect modes.
+  - Demonstrated that Sobel `sharpness` ($\rho = -0.471$), `edge_energy`
+    ($\rho = -0.531$), and `ghosting_siqe` ($\rho = -0.600$) are strongly
+    inverted due to high-frequency edge inflation on torn seams and
+    duplicated geometry.
+  - Emits `public/data/defect_correlation_matrix.json` for web dashboard.
+  - Added interactive Per-Defect &times; Per-Metric Heatmap Matrix and
+    Pipeline Stage Attribution section to `RatingsDashboard.tsx` and
+    `RatingsDashboard.css`.
+  - Analytical report: `.agent/reports/gemini/m2_5a_defect_category_correlation_20260817.md`.
+
 - **#31 CompositeGate `sb` telemetry-only candidate (2026-08-17):**
   `ASP_COMPOSITE_SB_TELEMETRY_ONLY=1` records `would_reject_sb` and never
   rejects on strip-banding. Default unchanged. Offline 97-case replay:
