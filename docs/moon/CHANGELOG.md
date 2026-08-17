@@ -26,6 +26,15 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 M2 CQAS v1 demotion + hold-background config provenance
+  (2026-08-17):** benchmark output now records the failed aggregate as
+  `cqas_v1_legacy`, an explicitly diagnostic-only field excluded from
+  automated verdicts and radar ranking; individual component diagnostics
+  remain visible. `ASP_HOLD_BG_SUB` is now typed and persisted in
+  `_CONFIG_SCHEMA` as Advanced-only, experimental and default-off, with the
+  current unaligned-median limitation documented. M4 retains the algorithmic
+  keep/delete decision.
+
 - **#31 M2 GhostGate telemetry-only candidate (2026-08-17):** Chat's
   design. `SafeAspPolicy.ghost_telemetry_only` / `ASP_GHOST_TELEMETRY_ONLY=1`
   keeps `ghosting_score_v2` as `telemetry_only_inverse_validated` and never

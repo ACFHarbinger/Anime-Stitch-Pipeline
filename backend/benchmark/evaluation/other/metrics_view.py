@@ -41,7 +41,7 @@ METRICS_BLOCK = {
 
 # (json key, display label, direction, unit/format hint)
 CV_METRICS: tuple[tuple[str, str, str, str], ...] = (
-    ("cqas", "CQAS (aggregate)", HIGHER_BETTER, "{:.4f}"),
+    ("cqas_v1_legacy", "CQAS v1 (legacy diagnostic; not a verdict)", NEUTRAL, "{:.4f}"),
     ("sharpness", "Sharpness (Laplacian)", HIGHER_BETTER, "{:.2f}"),
     ("ghosting_siqe", "Ghosting (SIQE 0-100)", LOWER_BETTER, "{:.2f}"),
     ("seam_visibility", "Seam visibility", LOWER_BETTER, "{:.2f}"),
@@ -75,15 +75,12 @@ STEP_OUTLIER_FACTOR = 2.0
 # banding-risk flag from #69's 11.3.
 GAIN_DEVIATION_FLAG = 0.15
 
-# Absolute 0-1 normalizers for the radar view, lifted verbatim from
-# `bench_anime_stitch.py`'s `_compute_cqas` so a radar axis means what the
-# pipeline's own aggregate score means by it. Only the metrics CQAS defines a
-# scale for are included: normalizing the rest would require inventing
-# thresholds, and min-max-across-comparators (the obvious alternative) is
-# actively misleading with two comparators — it pins the winner at 1.0 and the
-# loser at 0.0 on every axis regardless of how close they actually are.
+# Absolute 0-1 normalizers for individual diagnostic axes. These historic
+# thresholds were once used by CQAS v1 but no aggregate score is shown or used
+# for ranking: CQAS v1 failed the human-label audit. Min-max-across-comparators
+# remains actively misleading because it pins the winner at 1.0 and the loser
+# at 0.0 regardless of how close they actually are.
 RADAR_SCALES: tuple[tuple[str, str, float, str], ...] = (
-    ("cqas", "CQAS", 1.0, HIGHER_BETTER),
     ("sharpness", "Sharpness", 100.0, HIGHER_BETTER),
     ("coverage", "Coverage", 1.0, HIGHER_BETTER),
     ("ghosting_siqe", "Ghosting", 60.0, LOWER_BETTER),
@@ -93,7 +90,7 @@ RADAR_SCALES: tuple[tuple[str, str, float, str], ...] = (
 
 
 def radar_value(metric_key: str, value: float | None) -> float | None:
-    """Normalize one metric onto CQAS's own 0-1 quality scale (1 = best)."""
+    """Normalize one individual diagnostic axis to 0-1 (1 = best)."""
     for key, _label, reference, direction in RADAR_SCALES:
         if key != metric_key:
             continue
@@ -168,7 +165,17 @@ def cv_metric_rows(entry: dict, keys: Sequence[str] | None = None) -> list[Metri
     rows = []
     for metric_key, label, direction, fmt in CV_METRICS:
         values = {
-            key: _as_float((entry.get(METRICS_BLOCK[key]) or {}).get(metric_key))
+            key: _as_float(
+                (entry.get(METRICS_BLOCK[key]) or {}).get(
+                    metric_key,
+                    # Old result JSONs used the unversioned name.  Preserve
+                    # their diagnostic visibility without restoring a rankable
+                    # aggregate field.
+                    (entry.get(METRICS_BLOCK[key]) or {}).get("cqas")
+                    if metric_key == "cqas_v1_legacy"
+                    else None,
+                )
+            )
             for key in keys
         }
         if any(v is not None for v in values.values()):

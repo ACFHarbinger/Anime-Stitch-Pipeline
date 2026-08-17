@@ -297,18 +297,22 @@ Deliverables:
   family as GhostGate. CompositeGate currently has **no** audited-correct
   input. See `.agent/reports/grok/m2_strip_banding_audit_20260817.md`.
   Date-locked 2026-08-07 images only: n=12, rho=-0.525, p=0.08.
-  `cqas` (the single-scalar aggregate used for GT-less cases in
+  `cqas` (the former single-scalar aggregate used for GT-less cases in
   dashboards/reports) also fails the audit (rho -0.09, not significant) — its
   two largest-weighted components are the inverse `ghosting_siqe` (0.35) and
   no-signal `seam_coherence` (0.20); only `seam_visibility` (0.30) is pulling
   correct weight. No gate default changed yet — the actual demote/rework
   change still needs the promotion-ladder review (five-case → stratified →
   all 97) before landing, and `cqas`'s fix overlaps M2.5a (#32)'s
-  per-defect-category work rather than duplicating it here.
+  per-defect-category work rather than duplicating it here. **Implemented
+  2026-08-17:** new runs emit `cqas_v1_legacy` as an explicitly diagnostic-only
+  historic field; it is excluded from radar ranking and automated verdicts.
 - Record per-stage image geometry, frame provenance, pose provenance, gain
   residuals/clamps, seam feasibility, and fallback reason.
-- Consolidate experimental flags into typed named profiles. Schema currently
-  has **67** registered keys; `ASP_HOLD_BG_SUB` is a 68th hidden read.
+- Consolidate experimental flags into typed named profiles. `ASP_HOLD_BG_SUB`
+  is registered as an Advanced-only, default-off experimental key with its
+  unaligned-median limitation documented; M4 owns the later keep/delete
+  decision alongside its plate replacement.
   Default profiles expose ≤20 image-changing keys. An Advanced
   configuration control reveals the remaining registered parameters; it
   does not make them the implicit default.
@@ -1034,5 +1038,4 @@ Harbinger and Gemini brainstormed the interactive dev tool, visualization method
 - **3D Exploded-View Layer Stack:** Interactive WebGL 3D view in `docs/website/` showing the warped background mesh, seam boundary planes, and floating segmented character cels with orbit controls.
 - **3D Feature Match Point Clouds:** Interactive particle graph visualizing LoFTR keypoint correspondences in 3D feature space.
 - **Lightweight 3D Mascots & Viewfinders:** Fast-loading `.glb` interactive assets for the web portal adhering to the Optic Lab / Blueprint theme.
-
 

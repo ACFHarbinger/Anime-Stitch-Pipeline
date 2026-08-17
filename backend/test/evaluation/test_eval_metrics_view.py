@@ -15,8 +15,8 @@ Two properties matter most here:
 - **The radar's absolute normalization.** Normalizing min-max across the
   comparators present pins the winner at 1.0 and the loser at 0.0 on every axis,
   drawing a dramatic star out of a 0.1% difference. The radar uses
-  ``_compute_cqas``'s own references instead, so a radius means what the
-  pipeline's aggregate quality score means by it.
+  historic CQAS v1 component references instead, so each radius keeps a
+  stable per-metric meaning without presenting an aggregate quality score.
 
 The fixture below mirrors the real shape of ``bench_anime_stitch.py``'s
 per-dataset result block, with the numbers from ``asp_test01`` of
@@ -71,13 +71,13 @@ ENTRY = {
                     "color_entropy": 7.6492, "edge_energy_score": 34.5869,
                     "ghosting_siqe": 58.88, "seam_coherence": 21.64,
                     "seam_visibility": 4.79, "ghost_seam_scores": [12.0, 45.0, 70.0],
-                    "ghost_seam_max": 70.0, "width": 1703, "height": 1704, "cqas": 0.5125},
+                    "ghost_seam_max": 70.0, "width": 1703, "height": 1704, "cqas_v1_legacy": 0.5125},
     "metrics_simple": {"sharpness": 79.96, "coverage": 1.0, "seam_gradient": 6.385,
                        "color_entropy": 7.7266, "edge_energy_score": 28.9596,
                        "ghosting_siqe": 66.27, "seam_coherence": 25.16,
                        "seam_visibility": 4.02, "ghost_seam_scores": [],
                        "ghost_seam_max": None, "width": 1917, "height": 2050,
-                       "cqas": 0.4711},
+                       "cqas_v1_legacy": 0.4711},
     "metrics_overmix": {},
     "metrics_hugin": {},
     "comparison": {"ssim": 0.6999, "psnr_db": 12.42, "verdict": "simple_better",
@@ -104,7 +104,7 @@ ENTRY = {
 
 
 @pytest.mark.parametrize("metric,direction", [
-    ("cqas", mv.HIGHER_BETTER),
+    ("cqas_v1_legacy", mv.NEUTRAL),
     ("sharpness", mv.HIGHER_BETTER),
     ("coverage", mv.HIGHER_BETTER),
     ("edge_energy_score", mv.HIGHER_BETTER),
@@ -131,6 +131,18 @@ def test_winner_follows_direction_not_magnitude():
 def test_neutral_metric_has_no_winner():
     row = next(r for r in mv.cv_metric_rows(ENTRY) if r.key == "color_entropy")
     assert row.best_key() is None
+
+
+def test_historical_cqas_is_presented_only_as_a_neutral_legacy_diagnostic():
+    entry = dict(ENTRY)
+    entry["metrics_asp"] = dict(ENTRY["metrics_asp"])
+    entry["metrics_simple"] = dict(ENTRY["metrics_simple"])
+    entry["metrics_asp"]["cqas"] = entry["metrics_asp"].pop("cqas_v1_legacy")
+    entry["metrics_simple"]["cqas"] = entry["metrics_simple"].pop("cqas_v1_legacy")
+    row = next(r for r in mv.cv_metric_rows(entry) if r.key == "cqas_v1_legacy")
+    assert row.direction == mv.NEUTRAL
+    assert row.best_key() is None
+    assert "not a verdict" in row.label
 
 
 def test_single_comparator_has_no_winner():
@@ -171,7 +183,7 @@ def test_gt_rows_are_empty_without_ground_truth():
 # ---------------------------------------------------------------------------
 
 
-def test_radar_uses_absolute_cqas_scales_not_min_max():
+def test_radar_uses_absolute_component_scales_not_min_max():
     rows = {r.key: r for r in mv.radar_rows(ENTRY)}
     # sharpness/100, clamped: 119.33 -> 1.0, 79.96 -> 0.7996. Under min-max
     # these two would have been exactly 1.0 and 0.0.
@@ -183,7 +195,6 @@ def test_radar_uses_absolute_cqas_scales_not_min_max():
 
 
 @pytest.mark.parametrize("metric,raw,expected", [
-    ("cqas", 0.5, 0.5),
     ("coverage", 1.0, 1.0),
     ("sharpness", 50.0, 0.5),
     ("sharpness", 250.0, 1.0),      # clamped
@@ -193,7 +204,7 @@ def test_radar_uses_absolute_cqas_scales_not_min_max():
     ("seam_visibility", 12.5, 0.5),
     ("seam_coherence", 25.0, 0.5),
 ])
-def test_radar_value_matches_compute_cqas_references(metric, raw, expected):
+def test_radar_value_matches_legacy_component_references(metric, raw, expected):
     assert mv.radar_value(metric, raw) == pytest.approx(expected, abs=1e-6)
 
 

@@ -402,12 +402,14 @@ def _compute_per_seam_ghost_scores(
     return scores
 
 
-def _compute_cqas(metrics: dict) -> float | None:
-    """§3.18 Composite Quality Aggregate Score — single [0,1] quality signal (S148).
+def _compute_cqas_v1_legacy(metrics: dict) -> float | None:
+    """Legacy CQAS v1 diagnostic; not a quality verdict or ranking signal.
 
-    Combines five complementary no-reference metrics into one scalar, useful
-    especially for the 43 GT-less tests where GT-SSIM is unavailable.
-    Higher = better quality.
+    The 2026-08-17 human-label audit found no association with human
+    ASP-vs-SCANS preference (rho=-0.09, non-significant). Preserve the
+    historic formula only for backwards-compatible diagnostics; it must not
+    drive automated verdicts, sorting, or "X wins" claims. A replacement is
+    M2.5a work and must be versioned and validated on a held-out split.
 
     Components (all normalized to [0, 1]):
       ghosting_siqe        : 0=clean → 1.0; ≥60=ghost → 0.0  (weight 0.35)
@@ -466,7 +468,7 @@ def _compute_all_metrics(
       strip_banding_score — max luminance jump between adjacent frame-strip
                           entry bands (CompositeGate input). 0.0 without
                           affines, so SCANS/simple is 0 by construction.
-      cqas              — weighted no-GT aggregate for the 42 GT-less tests.
+      cqas_v1_legacy    — historic aggregate, diagnostic-only; not a verdict.
     """
     seam_scores = _compute_per_seam_ghost_scores(img, n_strips)
     metrics = {
@@ -484,7 +486,7 @@ def _compute_all_metrics(
         "width": img.shape[1],
         "height": img.shape[0],
     }
-    metrics["cqas"] = _compute_cqas(metrics)
+    metrics["cqas_v1_legacy"] = _compute_cqas_v1_legacy(metrics)
     return metrics
 
 
@@ -2621,6 +2623,9 @@ human_notes: |
 def _auto_verdict(asp_m: dict, sim_m: dict) -> str:
     """
     Quality verdict using seam_coherence as the primary discriminator.
+
+    ``cqas_v1_legacy`` / historical ``cqas`` are intentionally not read here:
+    the aggregate failed the completed human-label audit and is diagnostic-only.
 
     Laplacian sharpness is NOT used as a primary signal because hard seam edges
     inflate it, making catastrophically banded ASP outputs appear "sharper" than

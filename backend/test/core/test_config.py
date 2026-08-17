@@ -83,6 +83,7 @@ class TestValidateAspConfig:
             "ASP_COV_MIN_MULTI_PCT": 0.30,
             "ASP_SP_SOFT_PX": 6,
             "ASP_HOLD_AVERAGE": 0,
+            "ASP_HOLD_BG_SUB": 0,
         }
         assert validate_asp_config(config) == []
 
@@ -101,6 +102,20 @@ class TestValidateAspConfig:
         assert len(violations) == 1
         assert "ASP_HIGH_HOLD_RESPONSE" in violations[0]
         assert "1.0" in violations[0]
+
+    def test_hold_background_subtraction_is_a_typed_experimental_flag(self):
+        assert validate_asp_config({"ASP_HOLD_BG_SUB": 0}) == []
+        violations = validate_asp_config({"ASP_HOLD_BG_SUB": 2})
+        assert len(violations) == 1
+        assert "ASP_HOLD_BG_SUB" in violations[0]
+
+    def test_hold_background_subtraction_description_warns_about_pan(self):
+        from asp_backend.core.config import asp_schema
+
+        description = asp_schema()["ASP_HOLD_BG_SUB"][3]
+        assert "EXPERIMENTAL" in description
+        assert "unaligned-median" in description
+        assert "M4" in description
 
     def test_strict_raises_on_violations(self):
         """strict=True must raise ValueError listing all violations."""

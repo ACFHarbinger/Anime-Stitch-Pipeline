@@ -27,7 +27,7 @@ sys.path.insert(0, _repo_root)
 
 from backend.benchmark.bench_anime_stitch import (  # noqa: E402
     _compute_all_metrics,
-    _compute_cqas,
+    _compute_cqas_v1_legacy,
     _edge_energy_score,
     _ghosting_score_v2,
     _seam_coherence,
@@ -94,7 +94,7 @@ class TestComputeAllMetrics:
         "sharpness", "coverage", "seam_gradient", "color_entropy",
         "edge_energy_score", "ghosting_siqe", "seam_coherence",
         "seam_visibility", "strip_banding_score", "ghost_seam_scores",
-        "ghost_seam_max", "width", "height", "cqas",
+        "ghost_seam_max", "width", "height", "cqas_v1_legacy",
     }
 
     def test_core_keys_present(self):
@@ -129,12 +129,12 @@ class TestComputeCqas:
     def test_range_and_ordering(self):
         good = _compute_all_metrics(_solid(100, 120, 128))
         bad = _compute_all_metrics(_stacked(20, 235))
-        assert 0.0 <= bad["cqas"] <= 1.0
-        assert 0.0 <= good["cqas"] <= 1.0
-        assert good["cqas"] >= bad["cqas"]
+        assert 0.0 <= bad["cqas_v1_legacy"] <= 1.0
+        assert 0.0 <= good["cqas_v1_legacy"] <= 1.0
+        assert good["cqas_v1_legacy"] >= bad["cqas_v1_legacy"]
 
     def test_all_none_returns_none(self):
-        assert _compute_cqas({}) is None
+        assert _compute_cqas_v1_legacy({}) is None
 
 
 class TestSeamVisGateFormula:

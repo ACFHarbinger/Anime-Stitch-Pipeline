@@ -25,7 +25,6 @@ from ..other.schema import RatingEntry
 # Metrics copied onto each comparator's own sample, so sorting the grid by
 # `sharpness` sorts within the currently-selected slice.
 _PER_IMAGE_METRICS = (
-    "cqas",
     "sharpness",
     "ghosting_siqe",
     "seam_visibility",

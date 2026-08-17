@@ -389,10 +389,10 @@ def cv_metric_radar_figure(entry: dict) -> Figure:
     fast "who wins on what, and by how much" read before drilling into the
     table.
 
-    Axes are normalized against ``_compute_cqas``'s own absolute references
-    (ghosting/60, seam visibility/25, banding/50, sharpness/100, coverage and
-    CQAS already 0-1), so a radius means what the pipeline's aggregate quality
-    score means by it and 1.0 is "as good as the metric's scale goes".
+    Axes use stable per-metric references inherited from the retired CQAS v1
+    formula (ghosting/60, seam visibility/25, banding/50, sharpness/100 and
+    coverage). They are individual diagnostics, not an aggregate quality
+    score; 1.0 means "as good as this metric's scale goes".
     Deliberately *not* min-max normalized across the comparators present: with
     two comparators that pins the winner at 1.0 and the loser at 0.0 on every
     axis, which draws a dramatic star out of a 0.1% difference.

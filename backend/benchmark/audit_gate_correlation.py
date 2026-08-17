@@ -48,7 +48,7 @@ ASP_ROOT = Path(__file__).resolve().parents[2]
 
 METRIC_KEYS = [
     "sharpness", "edge_energy_score", "ghosting_siqe", "seam_coherence",
-    "seam_visibility", "cqas", "coverage", "color_entropy", "seam_gradient",
+    "seam_visibility", "cqas_v1_legacy", "coverage", "color_entropy", "seam_gradient",
     "strip_banding_score",
 ]
 
@@ -61,7 +61,7 @@ HIGHER_IS_BETTER = {
     "ghosting_siqe": False,   # higher = more periodic ghosting (worse)
     "seam_coherence": False,  # higher = more row-luminance variance/banding (worse)
     "seam_visibility": False,  # higher = harder seam cut (worse)
-    "cqas": True,              # already a normalized goodness aggregate
+    "cqas_v1_legacy": True,    # historic diagnostic aggregate; not a verdict
     "coverage": True,
     "color_entropy": True,    # not a clear quality direction; reference only
     "seam_gradient": False,   # higher = more discontinuity at seam rows (worse)
@@ -225,7 +225,12 @@ def audit(
         human_delta.append(h["asp"] - h["simple"])
         used_fallback.append(bool(d.get("used_fallback")))
         for k in METRIC_KEYS:
-            va, vs = ma.get(k), ms.get(k)
+            # Historical runs emitted the unversioned ``cqas`` key. Treat it
+            # as the same legacy diagnostic so the audit remains reproducible,
+            # while new runs never advertise it as an aggregate quality score.
+            legacy_key = "cqas" if k == "cqas_v1_legacy" else k
+            va = ma.get(k, ma.get(legacy_key))
+            vs = ms.get(k, ms.get(legacy_key))
             metric_delta[k].append(
                 va - vs if va is not None and vs is not None else float("nan")
             )
