@@ -54,6 +54,7 @@ from . import shortcuts
 from .annotation_flow import AnnotationFlowMixin
 from .annotations import AnnotationListWidget, EdgeBuilder, EdgeOverlay
 from .artifacts_tab import ArtifactsTab
+from .coherence_v2_tab import CoherenceV2Tab
 from .compare_tab import ComparisonTab
 from .diagnostics_tab import DiagnosticsTab
 from .metrics_panel import MetricsPanel
@@ -303,10 +304,12 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         self.tabs = QTabWidget()
         self.viz_tab = VisualizationTab()
         self.compare_tab = ComparisonTab()
+        self.coherence_v2_tab = CoherenceV2Tab(self.repo_root)
         self.diagnostics_tab = DiagnosticsTab(self.repo_root)
         self.metrics_panel = MetricsPanel()
         self.artifacts_tab = ArtifactsTab()
         self.tabs.addTab(self.metrics_panel, "Metrics")
+        self.tabs.addTab(self.coherence_v2_tab, "Coherence V2")
         self.tabs.addTab(self.diagnostics_tab, "Diagnostics")
         self.tabs.addTab(self.compare_tab, "Compare")
         self.tabs.addTab(self.viz_tab, "Visualise")
@@ -370,7 +373,7 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         run_label = self._run_label()
         self.metrics_panel.set_metrics(self._assets.metrics, run_label)
         self.diagnostics_tab.set_dataset(name)
-        for tab in (self.viz_tab, self.compare_tab, self.diagnostics_tab):
+        for tab in (self.viz_tab, self.compare_tab, self.diagnostics_tab, self.coherence_v2_tab):
             tab.set_context(images, self._assets.metrics, name)
         self.artifacts_tab.set_assets(self._assets)
 
