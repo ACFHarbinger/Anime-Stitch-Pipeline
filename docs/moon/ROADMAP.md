@@ -9,7 +9,11 @@
 > [`asp_sfw_corpus_roadmap_2026q3.md`](asp_sfw_corpus_roadmap_2026q3.md), and
 > an outreach/results-blog kickoff (design still open, team brainstorm in
 > progress) is in
-> [`asp_outreach_roadmap_2026q3.md`](asp_outreach_roadmap_2026q3.md).
+> [`asp_outreach_roadmap_2026q3.md`](asp_outreach_roadmap_2026q3.md). A new,
+> additive product surface — general-purpose wallpaper creation via Hero-Cel
+> + Background Plate compositing, locked 2026-08-18 — is in
+> [`asp_wallpaper_mode_roadmap_2026q3.md`](asp_wallpaper_mode_roadmap_2026q3.md);
+> this document's benchmarking mission stays primary and unchanged.
 
 *Created 2026-07-09, immediately after the S200 great trim and the post-trim full
 benchmark. Supersedes the retired 3,596-line roadmap (kept at `archive/moon/asp.md`
