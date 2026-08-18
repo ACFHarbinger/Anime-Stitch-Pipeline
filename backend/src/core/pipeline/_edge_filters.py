@@ -4,11 +4,24 @@ and ``run()``'s affine-validation retry chain."""
 from __future__ import annotations
 
 import numpy as np
-from backend.src.constants import (
-    ADAPTIVE_MIN_DISP_FRAC,
-    HIGH_CONF_EDGE_THRESH,
-    STATIC_EDGE_MIN_DISP_PX,
-)
+try:
+    from backend.src.constants.animation import (
+        ADAPTIVE_MIN_DISP_FRAC,
+        HIGH_CONF_EDGE_THRESH,
+        STATIC_EDGE_MIN_DISP_PX,
+    )
+except ImportError:
+    try:
+        from backend.src.constants import (
+            ADAPTIVE_MIN_DISP_FRAC,
+            HIGH_CONF_EDGE_THRESH,
+            STATIC_EDGE_MIN_DISP_PX,
+        )
+    except ImportError:
+        ADAPTIVE_MIN_DISP_FRAC = 0.10
+        HIGH_CONF_EDGE_THRESH = 0.65
+        STATIC_EDGE_MIN_DISP_PX = 50.0
+
 
 
 def _reject_static_edges(

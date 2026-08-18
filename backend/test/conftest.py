@@ -29,8 +29,11 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 def _load_package(alias: str, src_dir: Path) -> None:
     if alias in sys.modules or not src_dir.is_dir():
         return
+    init_file = src_dir / "__init__.py"
+    if not init_file.is_file():
+        return
     spec = importlib.util.spec_from_file_location(
-        alias, src_dir / "__init__.py", submodule_search_locations=[str(src_dir)]
+        alias, init_file, submodule_search_locations=[str(src_dir)]
     )
     if spec is None or spec.loader is None:
         return
@@ -42,6 +45,8 @@ def _load_package(alias: str, src_dir: Path) -> None:
 _load_package("asp_backend", _REPO_ROOT / "backend" / "src")
 _load_package("asp_gui", _REPO_ROOT / "gui" / "src")
 _load_package("asp_backend_evaluation", _REPO_ROOT / "backend" / "benchmark" / "evaluation")
+
+
 
 
 # ----------------------------------------------------------------------
