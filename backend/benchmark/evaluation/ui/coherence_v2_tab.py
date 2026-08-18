@@ -239,11 +239,20 @@ class CoherenceV2Tab(QWidget):
         right_layout.setSpacing(2)
 
         self.image_panel = ImagePanel("coherence_v2", "Coherence V2 A/B")
+        self.image_panel.pixelHovered.connect(self._on_pixel_hovered)
         right_layout.addWidget(self.image_panel, stretch=1)
 
+        status_row = QHBoxLayout()
+        status_row.setContentsMargins(0, 0, 0, 0)
         self.lbl_status = subtle("Select a case to inspect.")
         self.lbl_status.setStyleSheet("padding: 4px 8px; color: #8b949e; font-size: 11px;")
-        right_layout.addWidget(self.lbl_status)
+        self.lbl_pixel = QLabel("Pixel: —")
+        self.lbl_pixel.setStyleSheet(
+            "padding: 4px 8px; color: #cbd5e1; font-size: 11px; font-family: monospace;"
+        )
+        status_row.addWidget(self.lbl_status, stretch=1)
+        status_row.addWidget(self.lbl_pixel)
+        right_layout.addLayout(status_row)
 
         splitter.addWidget(right_widget)
         splitter.setStretchFactor(0, 0)
@@ -466,6 +475,18 @@ class CoherenceV2Tab(QWidget):
 
         self.image_panel.set_image(out_img)
         self.lbl_status.setText(status_text)
+
+    def _on_pixel_hovered(self, x: int, y: int, bgr) -> None:
+        """Live x/y + RGB readout for whatever's currently rendered in the
+        image panel (side-by-side, swipe, diff map, etc. — reads the actual
+        composited pixel data, not a screen-scaled approximation; ImagePanel
+        maps view coords through its own zoom/pan transform). No alpha
+        channel: every comparator render here is an opaque cv2 BGR image."""
+        if bgr is None:
+            self.lbl_pixel.setText("Pixel: —")
+            return
+        b, g, r = bgr
+        self.lbl_pixel.setText(f"({x}, {y})  R={r:3d} G={g:3d} B={b:3d}  #{r:02x}{g:02x}{b:02x}")
 
     def set_context(self, images: dict, metrics: dict, name: str) -> None:
         """Called by main evaluator window when dataset changes."""

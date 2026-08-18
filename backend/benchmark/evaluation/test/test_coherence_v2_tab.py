@@ -67,6 +67,22 @@ def test_coherence_v2_tab_view_modes(qapp):
 
 
 @pytest.mark.inspector_ui
+def test_coherence_v2_tab_pixel_hover_readout(qapp):
+    tab = CoherenceV2Tab()
+    assert tab.lbl_pixel.text() == "Pixel: —"
+
+    tab._on_pixel_hovered(12, 34, (10, 20, 30))  # BGR
+    assert "(12, 34)" in tab.lbl_pixel.text()
+    assert "R= 30" in tab.lbl_pixel.text()
+    assert "G= 20" in tab.lbl_pixel.text()
+    assert "B= 10" in tab.lbl_pixel.text()
+    assert "#1e140a" in tab.lbl_pixel.text()
+
+    tab._on_pixel_hovered(-1, -1, None)
+    assert tab.lbl_pixel.text() == "Pixel: —"
+
+
+@pytest.mark.inspector_ui
 def test_coherence_v2_tab_set_context(qapp):
     tab = CoherenceV2Tab()
     tab._cases = [
