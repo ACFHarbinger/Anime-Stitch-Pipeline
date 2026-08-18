@@ -48,10 +48,12 @@ class TestWallpaperPipeline:
         assert out.exists()
         img = cv2.imread(str(out))
         assert img is not None and img.shape[2] == 3
-        # Session stage trace covers all six pipeline stages.
+        # Session stage trace: load -> route -> hero -> plate -> composite
+        # -> crop -> save (the route stage is the #431 engine gate).
         names = [s.name for s in result.session.stages]
         assert names == [
             "load",
+            "wallpaper_route",
             STAGE_HERO_SELECT,
             STAGE_PLATE,
             "composite",
@@ -59,6 +61,8 @@ class TestWallpaperPipeline:
             "save",
         ]
         assert result.session.success is True
+        assert result.routing_engine == "asp"
+        assert result.session.artifacts["routing_engine"] == "asp"
 
     def test_hero_selected_and_recorded(self, tmp_path):
         clip = _make_clip(str(tmp_path / "walk.mp4"))

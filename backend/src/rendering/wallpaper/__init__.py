@@ -3,6 +3,7 @@
 from ._aspect_framer import FramedWallpaper, frame_wallpaper
 from ._cel_compositor import CelCompositeResult, composite_hero_cel
 from ._engine_router import (
+    HuginRouteResult,
     RoutingDecision,
     evaluate_routing_gate,
     run_hugin_with_asp_wrappers,
@@ -23,6 +24,7 @@ __all__ = [
     "CelCompositeResult",
     "FramedWallpaper",
     "HeroCel",
+    "HuginRouteResult",
     "RoutingDecision",
     "STAGE_HERO_SELECT",
     "STAGE_PLATE",

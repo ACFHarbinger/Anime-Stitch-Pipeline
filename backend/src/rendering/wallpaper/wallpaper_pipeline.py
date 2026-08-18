@@ -38,6 +38,7 @@ import numpy as np
 from asp_backend.core.pipeline.session import PipelineSession, PipelineStage
 from asp_backend.rendering.wallpaper._aspect_framer import FramedWallpaper, frame_wallpaper
 from asp_backend.rendering.wallpaper._cel_compositor import CelCompositeResult, composite_hero_cel
+from asp_backend.rendering.wallpaper._engine_router import evaluate_routing_gate
 from asp_backend.rendering.wallpaper._hero_selector import HeroCel, select_hero_cel
 from asp_backend.rendering.wallpaper._plate_builder import BackgroundPlate, build_background_plate
 
@@ -65,15 +66,22 @@ _ESTIMATE_COST = {
 
 @dataclass
 class WallpaperResult:
-    """Final wallpaper output plus session observability."""
+    """Final wallpaper output plus session observability.
+
+    plate / composite are None when the engine router (#431) sent the
+    clip to the Hugin route: the stitch replaces the ASP plate and the
+    composite (with hero-cel anchoring) is the Hugin route's own result.
+    """
 
     wallpaper: np.ndarray  # (H, W, 3) uint8 BGR
     output_path: Path
     hero: HeroCel
-    plate: BackgroundPlate
-    composite: CelCompositeResult
+    plate: BackgroundPlate | None
+    composite: CelCompositeResult | None
     framed: FramedWallpaper
     session: PipelineSession
+    routing_engine: str = "asp"
+    routing_reason: str = ""
 
 
 def _sample_frames(clip: str, *, interval: int = DEFAULT_FRAME_INTERVAL, max_frames: int = MAX_SAMPLED_FRAMES) -> list[np.ndarray]:
@@ -167,6 +175,61 @@ def run_wallpaper_pipeline(
     session.note_geometry(PipelineStage.LOAD, width=canvas_w, height=canvas_h, n_frames=len(frames))
     session.complete_stage(PipelineStage.LOAD, n_frames=len(frames))
 
+    # 1b. Engine routing gate (#431): identity affines are the Slice-1
+    # static-camera model; the gate still catches severe lighting gradients
+    # (and rotation/baseline once real affines land) and routes to Hugin.
+    routing_affines = [np.eye(3)[:2].astype(np.float32)] * len(frames)
+    session.start_stage("wallpaper_route", n_frames=len(frames))
+    decision = evaluate_routing_gate(frames, routing_affines)
+    session.record_artifact("routing_engine", decision.selected_engine)
+    session.record_artifact("routing_reason", decision.reason)
+    session.record_artifact("routing_confidence", decision.confidence)
+    session.complete_stage("wallpaper_route",
+                           engine=decision.selected_engine,
+                           reason=decision.reason,
+                           confidence=decision.confidence)
+
+    if decision.selected_engine == "hugin":
+        # Hugin route: select the hero cel first (the wrapper anchors it onto
+        # the Hugin stitch), then run the external toolchain enclosed in ASP
+        # pre/post-processing (gain normalization in, anchoring + framing out).
+        session.start_stage(STAGE_HERO_SELECT, n_frames=len(frames))
+        used_fallback_masks = fg_masks is None
+        if fg_masks is None:
+            fg_masks = _fallback_fg_masks(frames)
+        hero = select_hero_cel(frames, fg_masks, override_frame_idx=override_frame_idx)
+        session.complete_stage(STAGE_HERO_SELECT, hero_frame=hero.frame_idx,
+                               score=hero.score,
+                               fallback="threshold-mask" if used_fallback_masks else None)
+
+        from ._engine_router import run_hugin_with_asp_wrappers
+
+        session.start_stage("wallpaper_hugin", aspect=aspect)
+        routed = run_hugin_with_asp_wrappers(frames, hero_cel=hero, target_aspect=aspect)
+        framed = routed.framed
+        session.record_artifact("hugin_stitch_shape", list(routed.stitch.shape[:2]))
+        session.record_artifact("hugin_normalized_frames", routed.n_normalized_frames)
+        session.record_artifact("hugin_hero_anchored", routed.composite is not None)
+        session.complete_stage("wallpaper_hugin", engine="hugin",
+                               anchored=routed.composite is not None)
+
+        session.start_stage(PipelineStage.SAVE, path=str(out_path))
+        cv2.imwrite(str(out_path), framed.wallpaper)
+        session.complete_stage(PipelineStage.SAVE, path=str(out_path))
+        session.finished_at = time.perf_counter()
+        session.success = True
+        return WallpaperResult(
+            wallpaper=framed.wallpaper,
+            output_path=out_path,
+            hero=hero,
+            plate=None,
+            composite=None,
+            framed=framed,
+            session=session,
+            routing_engine="hugin",
+            routing_reason=decision.reason,
+        )
+
     # 2. Hero selection.
     session.start_stage(STAGE_HERO_SELECT, n_frames=len(frames))
     used_fallback_masks = fg_masks is None
@@ -237,6 +300,8 @@ def run_wallpaper_pipeline(
         composite=composite,
         framed=framed,
         session=session,
+        routing_engine=decision.selected_engine,
+        routing_reason=decision.reason,
     )
 
 
