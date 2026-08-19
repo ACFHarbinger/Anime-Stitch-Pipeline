@@ -192,7 +192,7 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   benchmark re-exports the old names. Canonical `run()` still does not
   call the policy (M2). The 4k-line bench orchestrator is not rewritten
   in this slice. Tests: `backend/test/core/test_safety_policy.py`.
-- **M0 case-provenance schema (Claude, 2026-08-15, partial #24/#41):** new
+- **M0 case-provenance schema (Claude, 2026-08-15, #24/#41):** new
   `backend/benchmark/evaluation/other/provenance.py` — `CaseProvenance`
   dataclass for case-level fields (`corpus_id`, source URL/board, licence,
   `web_redistribution_ok`, `source_work_nsfw` as a real three-state
@@ -201,11 +201,26 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
   the actual dual-veto logic (`minor_presenting_high_risk`/
   `minor_presenting_includable` — OR to exclude, AND with a human `clear`
   specifically to include). New `RESULT_*`/`CONTENT_TAGS`/`SAFETY_TIERS`/
-  `MINOR_RISK_VERDICTS` constants. Does not yet cover the raw_asp/safe_asp/
-  scans extension to `RatingEntry` or the actual 2026-08-07 data relabeling
-  — those remain open. Found (pre-existing, not caused by this change) a
-  `conftest.py` package-aliasing issue blocking direct pytest invocation in
-  this environment; verified correctness via a standalone harness instead.
+  `MINOR_RISK_VERDICTS` constants. Found (pre-existing, not caused by this
+  change) a `conftest.py` package-aliasing issue blocking direct pytest
+  invocation in this environment; verified correctness via a standalone
+  harness instead.
+- **M0 raw_asp/safe_asp/scans relabeling, closing #24 (Claude, 2026-08-15,
+  `64d8829`):** `relabel_corpus()` in
+  `backend/benchmark/evaluation/other/relabel.py` cross-references the
+  saved 2026-08-07 benchmark run's `render_gate_fallback` codes against
+  the human evaluations to make explicit, per case, which identity
+  (`raw_asp` vs. a `scans` substitution) the human's "asp" score actually
+  rated. Deliberately kept as a separate module joined by `case_id` rather
+  than extending `RatingEntry` directly — `RatingEntry` stays the
+  bench-facing comparison schema, `RelabeledCase` and `CaseProvenance`
+  both reference cases by the same `case_id`, satisfying #24's exit
+  criterion ("reconstruct exactly which artifact was rated") without a
+  second evaluation schema. Verified against the real 97-case data: 43
+  true raw_asp composites (mean 1.326) / 54 safety fallbacks (mean
+  2.556), matching the numbers already cited in the roadmap §3. 47 tests
+  green across `test_eval_schema.py`, `test_eval_provenance.py`,
+  `test_eval_relabel.py` (2026-08-20 verification pass).
 
 - **Phase 3 telemetry lock (Harbinger 2026-08-15):** A+B —
   `TelemetrySink` + opt-in Rerun `.rrd` sidecar (`desktop_quality`) +
