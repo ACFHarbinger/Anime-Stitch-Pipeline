@@ -458,6 +458,22 @@ Deliverables:
   97 cases, 43 true Raw ASP composites), train/validation split, and
   confidence explicitly; human review remains the sole release criterion
   per §1 regardless of this metric's performance.
+  **Feasibility spike done (2026-08-20, Claude, issue #33):**
+  `backend/benchmark/learned_proxy_feasibility.py` +
+  `.agent/reports/claude/m2_5b_learned_proxy_feasibility_20260820.md`.
+  Against the frozen post-M1 ungated 97-run (#30), only **27** cases are
+  true Raw ASP composites with reviewed human labels (not 43 — that count
+  was measured on the pre-M1 gated corpus; M1's canonical adapter changed
+  which cases fall back). Per-feature Pearson r against human ASP coherence
+  tops out at +0.328 (`color_entropy`); a leave-one-source-group-out ridge
+  regression over all 9 existing `metrics_asp` signals scores **worse**
+  than predicting the training-fold mean (RMSE 1.536 vs 1.058 baseline).
+  **Verdict: not yet feasible** — both the sample size and the existing
+  metrics' individual signal strength are binding constraints, not a
+  modeling gap. Revisit once the SFW corpus (#38-41) grows the labeled set
+  and/or M2.5a's anime-adapted metrics supply better-correlated features.
+  The script is kept as the reusable revalidation tool for future corpus
+  milestones, per this deliverable's own requirement.
 - **Similarity-based benchmark subset selection.** Build visual/statistical
   similarity metrics between benchmark test cases (image-level) and between
   human quantitative scores plus defect/textual annotations (label-level) to

@@ -26,6 +26,18 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#33 M2.5b learned-proxy feasibility spike (2026-08-20):**
+  `backend/benchmark/learned_proxy_feasibility.py` — leave-one-source-
+  group-out ridge regression over the 9 existing `metrics_asp` signals
+  against reviewed human coherence labels, on the frozen post-M1 ungated
+  97-run (#30). Only 27 cases are true Raw ASP composites with reviewed
+  labels (not 43 — M1's canonical adapter changed the fallback set).
+  Verdict: **not yet feasible** — max per-feature Pearson r is +0.328, and
+  the ridge model scores worse than the training-fold mean baseline (RMSE
+  1.536 vs 1.058). Non-gating; no pipeline behavior changed. See
+  `.agent/reports/claude/m2_5b_learned_proxy_feasibility_20260820.md` and
+  `docs/moon/asp_change_roadmap_2026q3.md` §5 M2.5.
+
 - **#31 M2 verification pass (2026-08-20):** re-confirmed (no code changes
   needed) that `ASP_HOLD_BG_SUB` registration, the `ghost_telemetry_only`
   default-promotion, and the ≤20-key default profile + Advanced-config
