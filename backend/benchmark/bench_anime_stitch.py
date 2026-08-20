@@ -3976,7 +3976,14 @@ Examples:
             except Exception:
                 pass
         gc.collect()
-        if os.environ.get("ASP_RESOURCE_FLUSH_CUDA", "0") == "1" and torch.cuda.is_available():
+        # Unconditional (unlike _log_resource's internal per-stage flush,
+        # still gated behind ASP_RESOURCE_FLUSH_CUDA): this fires once per
+        # dataset, not inside a hot per-pair/per-frame loop, so it doesn't
+        # reintroduce #49's stream-serialization stalls. Without it, the
+        # allocator's reserved-but-unallocated blocks accumulate across
+        # datasets (vram_reserved stays ~15+GB even as vram_alloc drops to
+        # ~0 between datasets) and spuriously trip the VRAM abort guardrail.
+        if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
         _snap = _resource_snapshot()
