@@ -65,8 +65,10 @@ class _MatcherSelectionMixin(_Base):
                 from asp_backend.models.wrappers.jamma_wrapper import JamMaWrapper  # §3.14 lazy
 
                 _jamma_inst = JamMaWrapper()
+                logger.info("[Stitch]   Loading JamMa matcher...")
                 _jamma_inst.load_model()
                 _active_loftr = _jamma_inst
+                logger.info("[Stitch]   JamMa matcher ready.")
                 logger.info(f"[Stitch]   4K frame ({W}×{H}): using JamMa (O(N) Mamba).")
             except Exception as _jm_e:
                 logger.info(
@@ -83,8 +85,10 @@ class _MatcherSelectionMixin(_Base):
                     )  # §3.14 lazy
 
                     self._eloftr = EfficientLoFTRWrapper()
+                    logger.info("[Stitch]   Loading EfficientLoFTR matcher...")
                     self._eloftr.load_model()
                     _active_loftr = self._eloftr
+                    logger.info("[Stitch]   EfficientLoFTR matcher ready.")
                     logger.info(
                         "[Stitch]   Using EfficientLoFTR (2.5× faster than LoFTR)."
                     )
@@ -102,6 +106,7 @@ class _MatcherSelectionMixin(_Base):
                 from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper  # §3.14 lazy
 
                 self._loftr = LoFTRWrapper()
+                logger.info("[Stitch]   LoFTR matcher constructed (loads on first pair).")
             _active_loftr = self._loftr
 
         if self.use_aliked and self._aliked is None:

@@ -92,8 +92,19 @@ def _match_pair(  # noqa: C901
 
     # ── Attempt 1: LoFTR ───────────────────────────────────────────────────
     if use_loftr and loftr_wrapper is not None:
+        _matcher_name = type(loftr_wrapper).__name__
+        _match_started = time.perf_counter()
+        logger.info("[Stitch]   %d→%d: %s matching started.", i, j, _matcher_name)
         try:
             pts1, pts2, conf = loftr_wrapper.match(match_img_i, match_img_j)
+            logger.info(
+                "[Stitch]   %d→%d: %s matching finished in %.1fs (%d points).",
+                i,
+                j,
+                _matcher_name,
+                time.perf_counter() - _match_started,
+                len(pts1),
+            )
             if len(pts1) >= 30:
                 n_loftr_total = len(pts1)  # capture before bg filtering (§1.38)
                 if match_m_i is not None and match_m_j is not None:
@@ -171,8 +182,15 @@ def _match_pair(  # noqa: C901
                             f"[Stitch]   {i}→{j}: LoFTR dx={M[0, 2]:.1f} dy={M[1, 2]:.1f} conf={mean_conf:.3f} (pts={len(pts1)})"
                         )
 
-        except Exception:
-            pass
+        except Exception as _match_error:
+            logger.warning(
+                "[Stitch]   %d→%d: %s matching failed after %.1fs: %s",
+                i,
+                j,
+                _matcher_name,
+                time.perf_counter() - _match_started,
+                _match_error,
+            )
 
     # ── Attempt 1b: ALIKED + LightGlue (P2.3) ─────────────────────────────
     # Trigger when LoFTR returned < 20 background keypoints on a flat/sparse
@@ -355,14 +373,18 @@ def _pairwise_match(
             aliked_wrapper=aliked_wrapper,
             roma_wrapper=roma_wrapper,
         )
-        if torch.cuda.is_available():
-            torch.cuda.synchronize()
-            torch.cuda.empty_cache()
         if edge is not None:
             edges.append(edge)
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
         gc.collect()
+
+    # Moving tensors back to CPU in the matcher already synchronizes the work.
+    # Avoid forcing a device-wide synchronize and allocator flush after every
+    # pair: on CUDA this serializes the fallback chain and can present as a
+    # second "hang" immediately after model loading. Callers that need the old
+    # diagnostic behaviour can opt in for one run.
+    if os.environ.get("ASP_MATCH_CUDA_SYNC", "0") == "1" and torch.cuda.is_available():
+        torch.cuda.synchronize()
+        torch.cuda.empty_cache()
 
     return edges
 

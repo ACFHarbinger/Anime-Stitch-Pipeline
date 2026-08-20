@@ -26,6 +26,11 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#49 Stage 5–6 matcher stall diagnostics (2026-08-20):** Matcher loading
+  and per-pair inference now emit flushed INFO-level lifecycle messages, and
+  matcher exceptions are reported instead of being silently discarded. The
+  pairwise loop no longer forces a CUDA synchronize/cache flush after every
+  pair; the old behavior remains available with `ASP_MATCH_CUDA_SYNC=1`.
 - **#49 Stage 4 hang (2026-08-20, Grok):** OpenCV OpenCL was claiming the
   same NVIDIA GPU as PyTorch CUDA (BaSiC then BiRefNet). Disabled OpenCL
   at benchmark start and `AnimeStitchPipeline.run()`. `_compute_fg_masks`

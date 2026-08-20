@@ -18,6 +18,7 @@ from asp_backend.alignment.matching import (
     _compute_translation_spread,
     _extract_similarity,
 )  # noqa: E402
+from asp_backend.alignment.matching._pairwise import _pairwise_match
 
 _repo_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -224,3 +225,31 @@ class TestComputeBgMatchRatio:
         assert _compute_bg_match_ratio(n_bg_pts=50, n_total_pts=100) == pytest.approx(
             0.5, abs=1e-6
         )
+
+
+class TestPairwiseMatcherProgress:
+    """The learned matcher path must expose progress and failures."""
+
+    class _Matcher:
+        def match(self, _img1, _img2):
+            # Too few points deliberately exercises the fallback chain while
+            # still proving that the wrapper was called and logged.
+            empty = np.empty((0, 2), dtype=np.float32)
+            return empty, empty, np.empty(0, dtype=np.float32)
+
+    def test_matcher_progress_and_failure_are_visible(self, caplog):
+        frames = [np.zeros((32, 32, 3), dtype=np.uint8) for _ in range(2)]
+        masks = [np.full((32, 32), 255, dtype=np.uint8) for _ in range(2)]
+        with caplog.at_level("INFO"):
+            edges = _pairwise_match(
+                frames,
+                masks,
+                loftr_wrapper=self._Matcher(),
+                use_loftr=True,
+                aliked_wrapper=None,
+                roma_wrapper=None,
+            )
+        assert edges == []
+        messages = "\n".join(caplog.messages)
+        assert "_Matcher matching started" in messages
+        assert "_Matcher matching finished" in messages

@@ -14,6 +14,12 @@ This is the short, issue-ready plan for new ASP work. The older
 [`ROADMAP.md`](ROADMAP.md) remains the research history and experiment ledger;
 when the two documents differ about future work, this roadmap takes priority.
 
+**2026-08-20 status:** ASP #49 remains under investigation. Stage 4's
+OpenCL/CUDA contention is fixed; Stage 5–6 now has matcher load/inference
+telemetry and avoids per-pair CUDA allocator synchronization. The ungated
+97-case run stays blocked until a GPU smoke run confirms the second stall is
+resolved.
+
 ## 1. Product objective
 
 The ultimate goal is for the **raw ASP compositor** to beat SCANS. Safety
@@ -1093,4 +1099,3 @@ Harbinger and Gemini brainstormed the interactive dev tool, visualization method
 - **3D Exploded-View Layer Stack:** Interactive WebGL 3D view in `docs/website/` showing the warped background mesh, seam boundary planes, and floating segmented character cels with orbit controls.
 - **3D Feature Match Point Clouds:** Interactive particle graph visualizing LoFTR keypoint correspondences in 3D feature space.
 - **Lightweight 3D Mascots & Viewfinders:** Fast-loading `.glb` interactive assets for the web portal adhering to the Optic Lab / Blueprint theme.
-
