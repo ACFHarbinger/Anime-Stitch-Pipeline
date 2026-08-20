@@ -1703,9 +1703,50 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
-<li><strong>#34 full-res red-set renders (2026-08-17):</strong> <code>screen_coherence_v2.py
+<li>
+<p><strong>#49 Stage 4 hang (2026-08-20, Grok):</strong> OpenCV OpenCL was claiming the
+  same NVIDIA GPU as PyTorch CUDA (BaSiC then BiRefNet). Disabled OpenCL
+  at benchmark start and <code>AnimeStitchPipeline.run()</code>. <code>_compute_fg_masks</code>
+  now prefers <code>get_mask_batch</code> and no longer calls
+  <code>empty_cache</code>/<code>synchronize</code>/<code>gc.collect</code> after every frame. Per-frame
+  progress is flushed so a long mask pass cannot look like a dead hang.</p>
+</li>
+<li>
+<p><strong>#47 (M0c) layered synthetic pan/hold fixture generator (2026-08-20, Gemini):</strong>
+  Added <code>backend/src/alignment/synthetic.py</code> (<code>HeldCel</code>, <code>SyntheticPanSequence</code>,
+  <code>generate_layered_pan_sequence</code>, <code>export_synthetic_sequence</code>). Generates
+  high-frequency textured background plates with 2–3 held foreground character cels
+  across known camera pan trajectories <code>(dx, dy)</code> and discrete hold spans. Exports
+  complete ground-truth metadata manifests and panorama composites. Integrated into
+  <code>backend/benchmark/generate_samples.py</code>. 5 unit tests in
+  <code>backend/test/alignment/test_synthetic_fixture.py</code>.</p>
+</li>
+<li>
+<p><strong>#46 (M0b) experiment manifest + OTel telemetry (2026-08-20, Grok):</strong>
+  <code>TelemetrySink</code> on <code>PipelineSession</code> (Null / OTLP-JSONL / optional Rerun).
+  Canonical <code>run()</code> still does not import <code>opentelemetry</code> or <code>rerun</code>.
+  Manifest records git commit, profile, effective <code>ASP_*</code> env, model
+  versions, input/output hashes, stage timings, peak RSS, and peak VRAM
+  when CUDA is present (omitted on CPU CI). Canonical metrics:
+  <code>asp.stage.duration_ms</code>, <code>asp.vram.peak_bytes</code>, <code>asp.gain.clamp_residual</code>,
+  <code>asp.seam.cut_energy</code>. <code>compare_traces</code> treats duration-only deltas as
+  timing noise and flags note/fallback divergence as nondeterministic.
+  Opt-in extra: <code>desktop_quality</code> (<code>rerun-sdk</code>). Tests:
+  <code>backend/test/core/test_experiment_manifest.py</code>.</p>
+</li>
+<li>
+<p><strong>#48 (M0d) versioned development slices (2026-08-20, Gemini):</strong> Added <code>backend/benchmark/slices.py</code>
+  defining canonical benchmark slices <code>smoke_v1</code> (5-case fast sanity: <code>asp_test04</code>, <code>08</code>, <code>09</code>, <code>27</code>, <code>57</code>)
+  and <code>structural_red_v1</code> covering crop loss (<code>asp_test07</code>, <code>97</code>), torn anatomy (<code>asp_test04</code>, <code>06</code>, <code>12</code>, <code>15</code>),
+  duplicated strips (<code>asp_test04</code>, <code>08</code>), misordered content (<code>asp_test12</code>, <code>41</code>), banding (<code>asp_test11</code>, <code>26</code>),
+  known-good controls (<code>asp_test28</code>, <code>58</code>), and the test-14 oracle (<code>asp_test14</code>). Exported canonical manifest
+  to <code>data/benchmarks/benchmark_slices_v1.json</code>. 8 unit tests in <code>backend/test/benchmarks/test_slices.py</code>.</p>
+</li>
+<li>
+<p><strong>#34 full-res red-set renders (2026-08-17):</strong> <code>screen_coherence_v2.py
   --scale 1.0 --max-frames 8 --image-dir</code> writes default/v2 PNG pairs.
-  Crop gate still 0/7. Recipe: <code>just bench::asp-coherence-v2-redset-full</code>.</li>
+  Crop gate still 0/7. Recipe: <code>just bench::asp-coherence-v2-redset-full</code>.</p>
+</li>
 <li><strong>#31 GhostGate telemetry-only promoted to product default (2026-08-17,
   Harbinger ACK):</strong> <code>product_safe_asp_policy()</code> now returns
   <code>ghost_telemetry_only=True</code>. <code>ghosting_score_v2</code> is still recorded on every
@@ -1875,8 +1916,7 @@ can follow.</p>
   benchmark re-exports the old names. Canonical <code>run()</code> still does not
   call the policy (M2). The 4k-line bench orchestrator is not rewritten
   in this slice. Tests: <code>backend/test/core/test_safety_policy.py</code>.</li>
-<li>
-<p><strong>M0 case-provenance schema (Claude, 2026-08-15, partial #24/#41):</strong> new
+<li><strong>M0 case-provenance schema (Claude, 2026-08-15, #24/#41):</strong> new
   <code>backend/benchmark/evaluation/other/provenance.py</code> — <code>CaseProvenance</code>
   dataclass for case-level fields (<code>corpus_id</code>, source URL/board, licence,
   <code>web_redistribution_ok</code>, <code>source_work_nsfw</code> as a real three-state
@@ -1885,11 +1925,27 @@ can follow.</p>
   the actual dual-veto logic (<code>minor_presenting_high_risk</code>/
   <code>minor_presenting_includable</code> — OR to exclude, AND with a human <code>clear</code>
   specifically to include). New <code>RESULT_*</code>/<code>CONTENT_TAGS</code>/<code>SAFETY_TIERS</code>/
-  <code>MINOR_RISK_VERDICTS</code> constants. Does not yet cover the raw_asp/safe_asp/
-  scans extension to <code>RatingEntry</code> or the actual 2026-08-07 data relabeling
-  — those remain open. Found (pre-existing, not caused by this change) a
-  <code>conftest.py</code> package-aliasing issue blocking direct pytest invocation in
-  this environment; verified correctness via a standalone harness instead.</p>
+  <code>MINOR_RISK_VERDICTS</code> constants. Found (pre-existing, not caused by this
+  change) a <code>conftest.py</code> package-aliasing issue blocking direct pytest
+  invocation in this environment; verified correctness via a standalone
+  harness instead.</li>
+<li>
+<p><strong>M0 raw_asp/safe_asp/scans relabeling, closing #24 (Claude, 2026-08-15,
+  <code>64d8829</code>):</strong> <code>relabel_corpus()</code> in
+  <code>backend/benchmark/evaluation/other/relabel.py</code> cross-references the
+  saved 2026-08-07 benchmark run's <code>render_gate_fallback</code> codes against
+  the human evaluations to make explicit, per case, which identity
+  (<code>raw_asp</code> vs. a <code>scans</code> substitution) the human's "asp" score actually
+  rated. Deliberately kept as a separate module joined by <code>case_id</code> rather
+  than extending <code>RatingEntry</code> directly — <code>RatingEntry</code> stays the
+  bench-facing comparison schema, <code>RelabeledCase</code> and <code>CaseProvenance</code>
+  both reference cases by the same <code>case_id</code>, satisfying #24's exit
+  criterion ("reconstruct exactly which artifact was rated") without a
+  second evaluation schema. Verified against the real 97-case data: 43
+  true raw_asp composites (mean 1.326) / 54 safety fallbacks (mean
+  2.556), matching the numbers already cited in the roadmap §3. 47 tests
+  green across <code>test_eval_schema.py</code>, <code>test_eval_provenance.py</code>,
+  <code>test_eval_relabel.py</code> (2026-08-20 verification pass).</p>
 </li>
 <li>
 <p><strong>Phase 3 telemetry lock (Harbinger 2026-08-15):</strong> A+B —

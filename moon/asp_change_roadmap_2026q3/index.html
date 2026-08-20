@@ -2135,6 +2135,21 @@ does not replace human review.</p>
 <h2 id="5-delivery-sequence">5. Delivery sequence</h2>
 <h3 id="m0-lock-truth-and-experiment-contracts">M0 — Lock truth and experiment contracts</h3>
 <p><strong>Purpose:</strong> make every subsequent result reproducible and correctly labelled.</p>
+<p><strong>Schema/relabel slice landed 2026-08-15, verified 2026-08-20 (Claude,
+issue #24 closed):</strong> <code>raw_asp</code>/<code>safe_asp</code>/<code>scans</code> result separation
+(<code>relabel.py::relabel_corpus</code>), the case/provenance envelope
+(<code>provenance.py::CaseProvenance</code>, includes the SFW-corpus case-level
+fields), and score-ordering/preference/defect handling
+(<code>schema.py::RatingEntry</code>) are all implemented and tested (47 passing
+tests). The smoke/red-set development slices landed 2026-08-20 (Gemini,
+issue #48 closed: <code>smoke_v1</code> and <code>structural_red_v1</code> in <code>slices.py</code>,
+manifest in <code>benchmark_slices_v1.json</code>, 8 passing tests). The
+manifest/telemetry harness landed 2026-08-20 (Grok, issue #46:
+<code>TelemetrySink</code> on <code>PipelineSession</code>, OTLP-JSONL/stdout first, experiment
+manifest with git/profile/hashes/RSS/VRAM, <code>compare_traces</code> for the
+same-manifest exit). The layered synthetic pan/hold fixture generator
+landed 2026-08-20 (Gemini, issue #47 closed: <code>synthetic.py</code>,
+<code>generate_layered_pan_sequence</code>, 5 passing unit tests). <strong>All M0 deliverables are complete.</strong></p>
 <p>Deliverables:</p>
 <ul>
 <li>Define <code>raw_asp</code>, <code>safe_asp</code>, and <code>scans</code> as separate result fields and output
@@ -2157,8 +2172,9 @@ does not replace human review.</p>
     oracle.</li>
 <li>Save a machine-readable experiment manifest with the Git commit, profile,
   effective config, model versions, input hashes, timings, peak VRAM/RAM, and
-  output hashes. There is no existing manifest/telemetry harness to extend
-  (greenfield).</li>
+  output hashes. <strong>Landed 2026-08-20 (#46):</strong> <code>backend/src/core/pipeline/{telemetry,manifest}.py</code>
+  — <code>TelemetrySink</code> on <code>PipelineSession</code>; local OTLP-JSONL or stdout; no
+  <code>opentelemetry</code>/<code>rerun</code> import in <code>run()</code>.</li>
 <li>Relabel the saved 2026-08-07 full-corpus artifacts (<code>anime_stitch_20260807_045552.json</code>
   and companions) into <code>raw_asp</code> / <code>safe_asp</code> / <code>scans</code> without requiring a
   new 97-case GPU run as an M0 exit. A fresh ungated Raw ASP corpus run is
@@ -2700,10 +2716,10 @@ this draft is final.</p>
 <li>No test file matches a benchmark-vs-GUI-vs-pipeline parity pattern
   (<code>grep -rl "parity" backend/test gui/test</code> returns nothing relevant). <strong>M1's
   "add parity tests" starts from zero, not from a partial harness.</strong></li>
-<li>No existing manifest/telemetry mechanism (peak VRAM/RSS, git-commit
-  stamping) exists anywhere in <code>backend/src</code> or <code>backend/benchmark</code>. <strong>M0's
-  experiment-manifest deliverable is also greenfield</strong> — nothing to reuse,
-  budget the milestone accordingly.</li>
+<li>Manifest/telemetry was greenfield as of 2026-08-15. <strong>Landed 2026-08-20
+  (#46):</strong> <code>TelemetrySink</code> on <code>PipelineSession</code>, OTLP-JSONL/stdout, RSS via
+  psutil, VRAM via <code>torch.cuda.max_memory_allocated</code> (omitted when no
+  CUDA). Canonical <code>run()</code> still does not import <code>opentelemetry</code> or <code>rerun</code>.</li>
 </ul>
 <h3 id="102-corrected-flag-count-and-translation_scale">10.2 Corrected — flag count and <code>translation_scale</code></h3>
 <ul>
@@ -3000,7 +3016,7 @@ portions of this plan, per Harbinger's requested review order (Claude → Gemini
 </tr>
 <tr>
 <td>M0 manifest + telemetry</td>
-<td>Medium. Greenfield. Need VRAM/RSS without breaking headless CI.</td>
+<td><strong>Landed 2026-08-20 (#46).</strong> RSS/VRAM without breaking headless CI.</td>
 </tr>
 <tr>
 <td>M0 layered synthetics</td>
