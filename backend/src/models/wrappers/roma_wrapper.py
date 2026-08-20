@@ -69,12 +69,10 @@ class RoMaWrapper(ModelWrapper):
         super().unload()
 
     def offload(self) -> None:
+        """Move the model to CPU without synchronizing the CUDA allocator."""
         if self._model is not None:
             with contextlib.suppress(Exception):
                 self._model.to("cpu")
-            import torch
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
 
     @lazy_load
     def match_translation(

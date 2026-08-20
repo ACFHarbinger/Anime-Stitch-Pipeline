@@ -83,10 +83,9 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
         super().unload()
 
     def offload(self) -> None:
+        """Move the matcher to CPU without synchronizing the CUDA allocator."""
         if self._matcher is not None:
             self._matcher.cpu()
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
 
     @lazy_load
     def match(

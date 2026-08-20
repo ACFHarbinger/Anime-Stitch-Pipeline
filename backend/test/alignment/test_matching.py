@@ -13,12 +13,14 @@ import sys
 
 import numpy as np
 import pytest
+import torch
 from asp_backend.alignment.matching import (
     _compute_bg_match_ratio,
     _compute_translation_spread,
     _extract_similarity,
 )  # noqa: E402
 from asp_backend.alignment.matching._pairwise import _pairwise_match
+from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
 
 _repo_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -253,3 +255,24 @@ class TestPairwiseMatcherProgress:
         messages = "\n".join(caplog.messages)
         assert "_Matcher matching started" in messages
         assert "_Matcher matching finished" in messages
+
+
+def test_efficient_loftr_offload_does_not_flush_cuda(monkeypatch):
+    """Offloading after the last pair must not synchronize the CUDA allocator."""
+
+    class _Model:
+        cpu_calls = 0
+
+        def cpu(self):
+            self.cpu_calls += 1
+            return self
+
+    empty_cache_calls = []
+    monkeypatch.setattr(torch.cuda, "empty_cache", lambda: empty_cache_calls.append(1))
+    wrapper = object.__new__(EfficientLoFTRWrapper)
+    wrapper._model = _Model()
+
+    wrapper.offload()
+
+    assert wrapper._model.cpu_calls == 1
+    assert empty_cache_calls == []

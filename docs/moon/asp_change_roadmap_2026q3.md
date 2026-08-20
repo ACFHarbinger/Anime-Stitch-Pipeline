@@ -21,6 +21,9 @@ telemetry and avoids per-pair CUDA allocator synchronization. The ungated
 resolved. Benchmark resource checkpoints now also avoid allocator flushes by
 default, with explicit post-match timing markers to isolate later CPU/GPU
 phases; `ASP_RESOURCE_FLUSH_CUDA=1` restores the old diagnostic flushes.
+The remaining EfficientLoFTR offload-time allocator flush was removed and the
+previously failing `asp_test09` case now completes end to end; rerun the full
+five-case smoke slice before starting the ungated 97-case run.
 
 ## 1. Product objective
 

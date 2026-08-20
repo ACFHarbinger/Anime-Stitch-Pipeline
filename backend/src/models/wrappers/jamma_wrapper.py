@@ -93,11 +93,9 @@ class JamMaWrapper(ModelWrapper):
         super().unload()
 
     def offload(self) -> None:
+        """Move the model to CPU without synchronizing the CUDA allocator."""
         if self._model is not None:
             self._model.cpu()
-            import torch
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
 
     def load(self) -> None:
         """Load JamMa outdoor weights onto self.device."""
