@@ -338,13 +338,9 @@ def _pairwise_match(
                 len(edges),
             )
             break
-        logger.info(
-            "[Stitch]   pair %d/%d %d→%d (%.0fs elapsed)",
-            _idx + 1,
-            len(pairs),
-            i,
-            j,
-            elapsed,
+        print(
+            f"[Stitch]   Pair {_idx + 1}/{len(pairs)} ({i}→{j}, {elapsed:.0f}s elapsed)...",
+            flush=True,
         )
         edge = _match_pair(
             frames,
