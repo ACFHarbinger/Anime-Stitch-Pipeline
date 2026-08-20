@@ -578,15 +578,23 @@ Deliverables:
   that's the pre-existing seam-cost path used by the default HITL loop,
   not coherence_v2, and stays exactly as already flagged: incomplete,
   repair-or-remove, out of scope here.)
-  **Not verified this pass:** the structural red-set / smoke-set live
-  GPU screen was not re-run against these changes — the host's CPU
-  package hit 89°C (elevated, not critical) from concurrent sibling work
-  at the time, and the standing thermal-safety policy is to avoid
-  starting new GPU/CPU-heavy work under that condition rather than push
-  through it. The prior red-set result (0/7 crop-loss, 2026-08-17/20)
-  stands unverified against today's ownership-factor change; rerun
-  `structural_red_v1` + `smoke_v1` with `ASP_COHERENCE_V2=1` before any
-  human-screen promotion decision.
+  **Structural red-set rerun (2026-08-20, Claude, post-cooldown):** ran
+  `structural_red_v1` (14 cases) with `ASP_COHERENCE_V2=1` after CPU temps
+  returned to 69°C. No crashes, no errors, no torn-output warnings across
+  the corpus. However **only 5/14 cases (asp_test06/08/28/41/97) actually
+  reached the `coherence_v2` compositor path** — the other 9 fall back to
+  SCANS via earlier, unrelated gates (`disconnected_edge_graph` ×7,
+  `affine_invalid` ×2) that run *before* compositing is ever reached, so
+  they exercise none of today's ownership-factor code. This confirms no
+  pipeline-level regression from the change, but the specific "0/7
+  crop-loss" claim continues to rest on `test_coherence_v2.py`'s unit-level
+  coverage (which does directly exercise the assignment logic, including
+  the case that caught the visibility bug), not on this end-to-end run —
+  the current red-set corpus doesn't structurally exercise coherence_v2's
+  contested-overlap path often enough to be a strong live signal either
+  way. `smoke_v1` not separately rerun (subset of red-set coverage, no
+  additional signal expected). Still default-off; human-screen promotion
+  decision unchanged, still Harbinger's call.
 
 Exit criteria:
 
