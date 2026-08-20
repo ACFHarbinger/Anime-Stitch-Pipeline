@@ -70,10 +70,11 @@ def _composite_foreground(
             fg_mask_from_warped(warped_list[i], warped_bg[i] if i < len(warped_bg) else None)
             for i in range(N)
         ]
-        result, claimed = composite_coherence_v2(warped_list, fgs, canvas)
+        result, claimed, claimed_meta = composite_coherence_v2(warped_list, fgs, canvas)
         if seam_meta_out is not None:
             seam_meta_out["coherence_v2"] = True
             seam_meta_out["n_claimed"] = int((claimed >= 0).sum())
+            seam_meta_out["coherence_ownership"] = claimed_meta
         print("[Stitch]   coherence_v2 single-pose composite (ASP_COHERENCE_V2=1).")
         return result
 

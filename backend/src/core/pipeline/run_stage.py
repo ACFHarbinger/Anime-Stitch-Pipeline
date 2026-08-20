@@ -788,6 +788,9 @@ class _RunStageMixin(_Base):
                     "exclusion_masks": (
                         0 if not self.exclusion_masks else len(self.exclusion_masks)
                     ),
+                    # M3 (#34): coherence_v2 ownership decisions, present only
+                    # when ASP_COHERENCE_V2=1 took the single-pose path.
+                    "coherence_ownership": _seam_meta.get("coherence_ownership"),
                 }
             )
             session.mark(PipelineStage.COMPOSITE)

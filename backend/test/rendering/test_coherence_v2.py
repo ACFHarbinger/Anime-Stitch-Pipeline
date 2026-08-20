@@ -106,7 +106,7 @@ def test_nframe_first_claim_wins():
     b[1:4, 4:10] = 20
     c[1:4, 8:12] = 30
     canvas = np.full((h, w, 3), 1, dtype=np.uint8)
-    out, claimed = composite_coherence_v2(
+    out, claimed, claimed_meta = composite_coherence_v2(
         [a, b, c],
         [a.max(axis=2) > 0, b.max(axis=2) > 0, c.max(axis=2) > 0],
         canvas,
@@ -133,6 +133,55 @@ def test_fg_mask_inverts_boolean_background():
     fg = fg_mask_from_warped(img, bg)
     assert bool(fg[0, 1]) is False
     assert bool(fg[1, 1]) is True
+
+
+def test_weighted_score_breaks_tie_by_visibility():
+    # Fully overlapping poses (equal overlap area, no confidence given):
+    # A is a solid 6x6 block (visibility = 1.0). B occupies the same
+    # footprint but is fragmented by a hole punched out of its own mask
+    # (visibility < 1.0 -- same bounding box, less filled area). A should
+    # win the weighted stage on visibility.
+    a = np.zeros((16, 16), dtype=np.uint8)
+    b = np.zeros((16, 16), dtype=np.uint8)
+    a[4:10, 4:10] = 255
+    b[4:10, 4:10] = 255
+    b[6:8, 6:8] = 0  # hole -> B's own mask is less compact than A's
+    plan = plan_coherence_v2(a, b)
+    overlap = (a > 0) & (b > 0)
+    owners = set(plan.ownership[overlap].tolist())
+    assert owners == {0}
+    assert plan.regions[-1].reason == "weighted"
+
+
+def test_composite_returns_ownership_metadata():
+    h, w = 10, 12
+    a = np.zeros((h, w, 3), dtype=np.uint8)
+    b = np.zeros((h, w, 3), dtype=np.uint8)
+    a[1:4, 1:6] = 10
+    b[1:4, 4:10] = 20
+    canvas = np.zeros((h, w, 3), dtype=np.uint8)
+    out, claimed, claimed_meta = composite_coherence_v2(
+        [a, b], [a.max(axis=2) > 0, b.max(axis=2) > 0], canvas
+    )
+    assert "pairs" in claimed_meta
+    assert len(claimed_meta["pairs"]) == 1
+    assert claimed_meta["pairs"][0]["pair"] == [0, 1]
+    assert "regions" in claimed_meta["pairs"][0]
+
+
+def test_temporal_consistency_prefers_prior_owner_on_tie():
+    # Symmetric overlap (equal area, no confidence) so coverage/confidence
+    # don't decide it; a prior_owner hint favoring frame 1 should win via
+    # the temporal-consistency term.
+    a = np.zeros((10, 10), dtype=np.uint8)
+    b = np.zeros((10, 10), dtype=np.uint8)
+    a[2:8, 2:8] = 255
+    b[2:8, 2:8] = 255
+    prior = np.full((10, 10), -1, dtype=np.int8)
+    prior[2:8, 2:8] = 1
+    plan = plan_coherence_v2(a, b, prior_owner=prior)
+    overlap = (a > 0) & (b > 0)
+    assert set(plan.ownership[overlap].tolist()) == {1}
 
 
 def test_flagged_composite_records_coherence_v2(monkeypatch):

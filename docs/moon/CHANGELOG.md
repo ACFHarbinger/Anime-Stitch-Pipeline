@@ -26,6 +26,24 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#34 M3 coherence_v2 ownership-factor slice (2026-08-20):**
+  `_pick_owner` in `backend/src/rendering/compositing/coherence_v2.py`
+  extended with a weighted tie-break stage covering the roadmap's
+  remaining named factors — visibility (compactness of each candidate's
+  own pose mask), boundary truncation, frame-quality sharpness, and
+  temporal consistency (`composite_coherence_v2`'s multi-pair fold now
+  passes forward the already-claimed map as `prior_owner`). Additive/
+  optional; existing area+confidence-only call sites unaffected.
+  Ownership decisions now propagate to `PipelineSession.observability()`
+  via `seam_meta_out["coherence_ownership"]`. C++ parity check: no C++
+  counterpart exists for this logic at all (Python-only by construction),
+  so the roadmap's parity rule is trivially satisfied. Still default-off
+  (`ASP_COHERENCE_V2`); structural red-set/smoke-set live rerun deferred
+  this pass (elevated CPU temps from concurrent work) — needed before any
+  promotion decision. 14/14 `test_coherence_v2.py` (+3 new), 277/277
+  `rendering`+`core/pipeline` suites, no regressions. See
+  `docs/moon/asp_change_roadmap_2026q3.md` §5 M3.
+
 - **#33 M2.5b learned-proxy feasibility spike (2026-08-20):**
   `backend/benchmark/learned_proxy_feasibility.py` — leave-one-source-
   group-out ridge regression over the 9 existing `metrics_asp` signals

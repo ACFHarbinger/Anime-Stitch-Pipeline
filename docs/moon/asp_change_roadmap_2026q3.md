@@ -540,6 +540,53 @@ Deliverables:
   **Red-set screen (2026-08-17):** first apply punched holes (6/7 crop
   loss). Exclusive-keep fix: crop gate **0/7**. Still default-off; no
   human screen yet.
+  **Ownership-factor slice (2026-08-20, Claude, #34):** `_pick_owner`
+  extended past coverage/confidence with a weighted stage covering the
+  remaining named factors — visibility (filled/bbox-area compactness of
+  each candidate's *own* pose mask, not the shared overlap pixels: `pix`
+  is by construction a subset of both `a` and `b`, so anything computed
+  on `pix & a` vs `pix & b` is identical for both and can never
+  discriminate — this was caught and fixed before landing, not shipped
+  broken), boundary truncation (fraction of a pose's own bbox touching
+  the frame edge), frame quality (Laplacian-variance sharpness of the
+  source frame restricted to that pose's mask), and temporal consistency
+  (`composite_coherence_v2`'s multi-pair fold now passes the
+  already-`claimed` map as `prior_owner` to each subsequent pair, biasing
+  contested regions toward staying with whichever side a neighboring fold
+  already assigned). All four are additive/optional kwargs — every
+  existing call site and test that only passes area/confidence is
+  bit-for-bit unaffected; the weighted stage only engages when coverage
+  and confidence are tied *and* the extra signals are supplied. 14/14
+  `test_coherence_v2.py` cases pass (was 11, +3 new), plus all 277
+  `backend/test/rendering` + `backend/test/core/pipeline` tests, no
+  regressions.
+  **Diagnostics propagation:** `composite_coherence_v2` now returns a
+  third `claimed_meta` value (per-pair region ownership + reason codes),
+  threaded through `seam_meta_out["coherence_ownership"]` in
+  `composite.py` and forwarded into `session.note_seam_feasibility(...)`
+  in `run_stage.py`, so it appears in `PipelineSession.observability()`
+  alongside the other M2 first-slice fields — no parallel diagnostic
+  surface invented.
+  **C++ parity finding:** `coherence_v2`'s semantic-cost/exclusion-mask
+  logic has **no C++ counterpart at all** — it never imports
+  `rendering/compositing/_native.py`'s `base.compositing` extension, and
+  `base/src/seam.cpp` has no `coherence_v2`/single-pose-ownership code.
+  The roadmap's "prove equivalent Python/C++ behavior or delete one"
+  rule is trivially satisfied: there is only one implementation, nothing
+  to reconcile. (This is unrelated to rule #11's flag on the *existing*
+  live-compositor's C++ `build_seam_cost_map(...exclusion_masks)` —
+  that's the pre-existing seam-cost path used by the default HITL loop,
+  not coherence_v2, and stays exactly as already flagged: incomplete,
+  repair-or-remove, out of scope here.)
+  **Not verified this pass:** the structural red-set / smoke-set live
+  GPU screen was not re-run against these changes — the host's CPU
+  package hit 89°C (elevated, not critical) from concurrent sibling work
+  at the time, and the standing thermal-safety policy is to avoid
+  starting new GPU/CPU-heavy work under that condition rather than push
+  through it. The prior red-set result (0/7 crop-loss, 2026-08-17/20)
+  stands unverified against today's ownership-factor change; rerun
+  `structural_red_v1` + `smoke_v1` with `ASP_COHERENCE_V2=1` before any
+  human-screen promotion decision.
 
 Exit criteria:
 
