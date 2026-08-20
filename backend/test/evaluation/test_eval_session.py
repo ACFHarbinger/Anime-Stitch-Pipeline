@@ -138,8 +138,9 @@ def test_visiting_tests_writes_nothing(out_path):
     session.go_to("asp_test03")
     session.go_to("asp_test05")
     session.save()
-    with open(out_path) as f:
-        assert not os.path.exists(out_path) or json.loads(f.read()) == {}
+    if os.path.exists(out_path):
+        with open(out_path) as f:
+            assert json.loads(f.read()) == {}
 
 
 def test_a_visited_test_is_still_queued_next_session(out_path):

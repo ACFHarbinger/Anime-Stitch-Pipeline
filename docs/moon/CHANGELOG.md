@@ -26,6 +26,13 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#48 (M0d) versioned development slices (2026-08-20, Gemini):** Added `backend/benchmark/slices.py`
+  defining canonical benchmark slices `smoke_v1` (5-case fast sanity: `asp_test04`, `08`, `09`, `27`, `57`)
+  and `structural_red_v1` covering crop loss (`asp_test07`, `97`), torn anatomy (`asp_test04`, `06`, `12`, `15`),
+  duplicated strips (`asp_test04`, `08`), misordered content (`asp_test12`, `41`), banding (`asp_test11`, `26`),
+  known-good controls (`asp_test28`, `58`), and the test-14 oracle (`asp_test14`). Exported canonical manifest
+  to `data/benchmarks/benchmark_slices_v1.json`. 8 unit tests in `backend/test/benchmarks/test_slices.py`.
+
 - **#34 full-res red-set renders (2026-08-17):** `screen_coherence_v2.py
   --scale 1.0 --max-frames 8 --image-dir` writes default/v2 PNG pairs.
   Crop gate still 0/7. Recipe: `just bench::asp-coherence-v2-redset-full`.

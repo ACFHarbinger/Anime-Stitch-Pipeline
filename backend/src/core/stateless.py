@@ -8,7 +8,10 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-from backend.src.constants import LAPLACIAN_BANDS
+try:
+    from backend.src.constants.animation import LAPLACIAN_BANDS
+except ImportError:
+    LAPLACIAN_BANDS = 5
 
 
 def _luma(bgr: np.ndarray) -> np.ndarray:

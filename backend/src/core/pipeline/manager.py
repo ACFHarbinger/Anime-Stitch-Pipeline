@@ -5,7 +5,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
-from backend.src.constants import LAPLACIAN_BANDS
+try:
+    from backend.src.constants.animation import LAPLACIAN_BANDS
+except ImportError:
+    LAPLACIAN_BANDS = 5
 
 from ._filter_edges_mixin import _FilterEdgesMixin
 from ._matcher_selection import _MatcherSelectionMixin

@@ -44,6 +44,7 @@ def _load_package(alias: str, src_dir: Path) -> None:
 
 _load_package("asp_backend", _REPO_ROOT / "backend" / "src")
 _load_package("asp_gui", _REPO_ROOT / "gui" / "src")
+_load_package("asp_backend_benchmark", _REPO_ROOT / "backend" / "benchmark")
 _load_package("asp_backend_evaluation", _REPO_ROOT / "backend" / "benchmark" / "evaluation")
 
 

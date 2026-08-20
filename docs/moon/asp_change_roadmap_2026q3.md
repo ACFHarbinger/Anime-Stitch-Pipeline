@@ -137,9 +137,11 @@ issue #24 closed):** `raw_asp`/`safe_asp`/`scans` result separation
 (`provenance.py::CaseProvenance`, includes the SFW-corpus case-level
 fields), and score-ordering/preference/defect handling
 (`schema.py::RatingEntry`) are all implemented and tested (47 passing
-tests). The manifest/telemetry harness, layered synthetic fixture
-generator, and smoke/red-set versioning are the remaining M0 work —
-split into issues #46/#47/#48.
+tests). The smoke/red-set development slices landed 2026-08-20 (Gemini,
+issue #48 closed: `smoke_v1` and `structural_red_v1` in `slices.py`,
+manifest in `benchmark_slices_v1.json`, 8 passing tests). The
+manifest/telemetry harness (#46) and layered synthetic fixture generator
+(#47) are the remaining open M0 work.
 
 Deliverables:
 
