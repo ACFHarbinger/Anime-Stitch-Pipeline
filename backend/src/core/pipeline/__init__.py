@@ -47,8 +47,8 @@ from ._frame_utils import (
 )
 from ._manual_edges import _build_landmark_affine, _build_manual_edge
 from ._probes import _ALIKED_OK, _BIREFNET_OK, _DY_CV_MAX, _ELOFTR_OK, _LOFTR_OK, _USE_SAM2
-from .manager import AnimeStitchPipeline
 from .bench_adapter import bench_legacy_enabled, run_canonical_asp
+from .manager import AnimeStitchPipeline
 from .safety_policy import SafeAspPolicy, default_benchmark_policy
 from .session import (
     HitlCheckpoint,
@@ -57,15 +57,23 @@ from .session import (
     ResultIdentity,
     snapshot_pipeline_config,
 )
+from .telemetry import (
+    NullTelemetrySink,
+    OtlpJsonlSink,
+    TelemetrySink,
+)
 
 logger = logging.getLogger(__name__)
 
 __all__ = [
     "AnimeStitchPipeline",
     "HitlCheckpoint",
+    "NullTelemetrySink",
+    "OtlpJsonlSink",
     "PipelineSession",
     "PipelineStage",
     "ResultIdentity",
+    "TelemetrySink",
     "SafeAspPolicy",
     "bench_legacy_enabled",
     "default_benchmark_policy",

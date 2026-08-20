@@ -20,6 +20,16 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from .telemetry import (
+    METRIC_GAIN_CLAMP_RESIDUAL,
+    METRIC_SEAM_CUT_ENERGY,
+    METRIC_VRAM_PEAK_BYTES,
+    ResourceTracker,
+    TelemetrySink,
+    default_sink,
+    sink_from_env,
+)
+
 PauseHook = Callable[[str, dict[str, Any]], dict[str, Any]]
 
 
@@ -192,8 +202,17 @@ class PipelineSession:
     seam_feasibility: dict[str, Any] = field(default_factory=dict)
     started_at: float = field(default_factory=time.perf_counter)
     finished_at: float | None = None
+    telemetry: TelemetrySink = field(default_factory=default_sink)
+    resources: ResourceTracker = field(default_factory=ResourceTracker)
+    git: dict[str, Any] = field(default_factory=dict)
+    profile: str = "laptop_balanced"
+    input_hashes: dict[str, str | None] = field(default_factory=dict)
+    output_hashes: dict[str, str | None] = field(default_factory=dict)
+    model_versions: dict[str, Any] = field(default_factory=dict)
+    effective_env: dict[str, str] = field(default_factory=dict)
     _open: StageRecord | None = field(default=None, init=False, repr=False)
     _span_id: str | None = field(default=None, init=False, repr=False)
+    _otel_span_id: str | None = field(default=None, init=False, repr=False)
 
     @classmethod
     def create(
@@ -205,10 +224,20 @@ class PipelineSession:
         config: Mapping[str, Any] | None = None,
         host: Any | None = None,
         pause_hook: PauseHook | None = None,
+        telemetry: TelemetrySink | None = None,
     ) -> PipelineSession:
         snap = dict(config) if config is not None else (
             snapshot_pipeline_config(host) if host is not None else {}
         )
+        from .manifest import (
+            current_profile,
+            effective_asp_env,
+            git_identity,
+            hash_paths,
+            model_versions,
+        )
+
+        sink = telemetry if telemetry is not None else sink_from_env()
         return cls(
             inputs=PipelineInputs(
                 image_paths=list(image_paths),
@@ -217,6 +246,12 @@ class PipelineSession:
             ),
             config=snap,
             pause_hook=pause_hook,
+            telemetry=sink,
+            git=git_identity(),
+            profile=current_profile(),
+            input_hashes=hash_paths(list(image_paths)),
+            model_versions=model_versions(),
+            effective_env=effective_asp_env(),
         )
 
     def start_stage(self, stage: PipelineStage | str, **notes: Any) -> StageRecord:
@@ -301,6 +336,16 @@ class PipelineSession:
 
     def note_gain_telemetry(self, payload: Mapping[str, Any]) -> None:
         self.gain_telemetry = dict(payload)
+        residual = payload.get("mean_residual", payload.get("clamp_residual"))
+        if residual is not None:
+            try:
+                self.telemetry.metric(
+                    METRIC_GAIN_CLAMP_RESIDUAL,
+                    float(residual),
+                    unit="1",
+                )
+            except Exception:
+                pass
 
     def note_seam_feasibility(self, payload: Mapping[str, Any]) -> None:
         # Drop image crops if a caller forwards seam_meta_out wholesale.
@@ -310,6 +355,16 @@ class PipelineSession:
             if key != "seam_crops"
         }
         self.seam_feasibility = clean
+        energy = clean.get("cut_energy", clean.get("energy", clean.get("max_seam_lum_step")))
+        if energy is not None:
+            try:
+                self.telemetry.metric(
+                    METRIC_SEAM_CUT_ENERGY,
+                    float(energy),
+                    unit="1",
+                )
+            except Exception:
+                pass
 
     def observability(self) -> dict[str, Any]:
         return {
@@ -370,6 +425,24 @@ class PipelineSession:
         self.success = success
         self.error = error
         self.finished_at = time.perf_counter()
+        self.resources.sample()
+        out = self.inputs.output_path
+        if out:
+            from .manifest import hash_file
+
+            digest = hash_file(out)
+            if digest is not None:
+                self.output_hashes[out] = digest
+        peak_vram = self.resources.peak_vram_bytes
+        if peak_vram is not None:
+            try:
+                self.telemetry.metric(METRIC_VRAM_PEAK_BYTES, float(peak_vram), unit="By")
+            except Exception:
+                pass
+        try:
+            self.telemetry.close()
+        except Exception:
+            pass
 
     def _host_telemetry(self) -> Any | None:
         """Image-Toolkit writer when present; no-op in standalone ASP."""
@@ -380,6 +453,14 @@ class PipelineSession:
         return host_telemetry
 
     def _begin_stage_span(self, record: StageRecord) -> None:
+        self.resources.sample()
+        try:
+            self._otel_span_id = self.telemetry.span_start(
+                f"asp.stage.{record.name}",
+                attributes={"asp.stage": record.name},
+            )
+        except Exception:
+            self._otel_span_id = None
         tel = self._host_telemetry()
         if tel is None or not tel.is_enabled():
             self._span_id = None
@@ -390,13 +471,24 @@ class PipelineSession:
             self._span_id = None
 
     def _end_stage_span(self, record: StageRecord, error: str | None = None) -> None:
+        duration_ms = (
+            None if record.duration_s is None else round(record.duration_s * 1000, 3)
+        )
+        try:
+            self.telemetry.span_end(
+                f"asp.stage.{record.name}",
+                span_id=self._otel_span_id,
+                duration_ms=duration_ms,
+                error=error,
+                attributes={"asp.stage": record.name},
+            )
+        except Exception:
+            pass
+        self._otel_span_id = None
         tel = self._host_telemetry()
         if tel is None or self._span_id is None:
             self._span_id = None
             return
-        duration_ms = (
-            None if record.duration_s is None else round(record.duration_s * 1000, 3)
-        )
         try:
             tel.end_span(
                 "asp",
@@ -408,6 +500,11 @@ class PipelineSession:
         except Exception:
             pass
         self._span_id = None
+
+    def experiment_manifest(self) -> dict[str, Any]:
+        from .manifest import build_experiment_manifest
+
+        return build_experiment_manifest(self)
 
     def stage_names(self) -> list[str]:
         return [record.name for record in self.stages]

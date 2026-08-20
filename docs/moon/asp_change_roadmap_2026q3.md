@@ -140,8 +140,11 @@ fields), and score-ordering/preference/defect handling
 tests). The smoke/red-set development slices landed 2026-08-20 (Gemini,
 issue #48 closed: `smoke_v1` and `structural_red_v1` in `slices.py`,
 manifest in `benchmark_slices_v1.json`, 8 passing tests). The
-manifest/telemetry harness (#46) and layered synthetic fixture generator
-(#47) are the remaining open M0 work.
+manifest/telemetry harness landed 2026-08-20 (Grok, issue #46:
+`TelemetrySink` on `PipelineSession`, OTLP-JSONL/stdout first, experiment
+manifest with git/profile/hashes/RSS/VRAM, `compare_traces` for the
+same-manifest exit). The layered synthetic fixture generator (#47) is
+the remaining open M0 work.
 
 Deliverables:
 
@@ -165,8 +168,9 @@ Deliverables:
     oracle.
 - Save a machine-readable experiment manifest with the Git commit, profile,
   effective config, model versions, input hashes, timings, peak VRAM/RAM, and
-  output hashes. There is no existing manifest/telemetry harness to extend
-  (greenfield).
+  output hashes. **Landed 2026-08-20 (#46):** `backend/src/core/pipeline/{telemetry,manifest}.py`
+  — `TelemetrySink` on `PipelineSession`; local OTLP-JSONL or stdout; no
+  `opentelemetry`/`rerun` import in `run()`.
 - Relabel the saved 2026-08-07 full-corpus artifacts (`anime_stitch_20260807_045552.json`
   and companions) into `raw_asp` / `safe_asp` / `scans` without requiring a
   new 97-case GPU run as an M0 exit. A fresh ungated Raw ASP corpus run is
@@ -743,10 +747,10 @@ this draft is final.
 - No test file matches a benchmark-vs-GUI-vs-pipeline parity pattern
   (`grep -rl "parity" backend/test gui/test` returns nothing relevant). **M1's
   "add parity tests" starts from zero, not from a partial harness.**
-- No existing manifest/telemetry mechanism (peak VRAM/RSS, git-commit
-  stamping) exists anywhere in `backend/src` or `backend/benchmark`. **M0's
-  experiment-manifest deliverable is also greenfield** — nothing to reuse,
-  budget the milestone accordingly.
+- Manifest/telemetry was greenfield as of 2026-08-15. **Landed 2026-08-20
+  (#46):** `TelemetrySink` on `PipelineSession`, OTLP-JSONL/stdout, RSS via
+  psutil, VRAM via `torch.cuda.max_memory_allocated` (omitted when no
+  CUDA). Canonical `run()` still does not import `opentelemetry` or `rerun`.
 
 ### 10.2 Corrected — flag count and `translation_scale`
 
@@ -984,7 +988,7 @@ The 2026-08-07 run remains the last full-corpus execution: 43 true composites (m
 | Slice | Why it is that size |
 |---|---|
 | M0 schema + relabel | Small. JSON + dashboard generator. No GPU. |
-| M0 manifest + telemetry | Medium. Greenfield. Need VRAM/RSS without breaking headless CI. |
+| M0 manifest + telemetry | **Landed 2026-08-20 (#46).** RSS/VRAM without breaking headless CI. |
 | M0 layered synthetics | Small–medium. New generator; do not extend `generate_samples.py` into a second API. |
 | M1a protocol | Medium. Extract only. Highest "don't change pixels" risk. |
 | M1 video fix | Small. One signature + one integration test. |

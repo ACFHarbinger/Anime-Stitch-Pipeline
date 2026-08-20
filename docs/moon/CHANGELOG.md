@@ -26,6 +26,18 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#46 (M0b) experiment manifest + OTel telemetry (2026-08-20, Grok):**
+  `TelemetrySink` on `PipelineSession` (Null / OTLP-JSONL / optional Rerun).
+  Canonical `run()` still does not import `opentelemetry` or `rerun`.
+  Manifest records git commit, profile, effective `ASP_*` env, model
+  versions, input/output hashes, stage timings, peak RSS, and peak VRAM
+  when CUDA is present (omitted on CPU CI). Canonical metrics:
+  `asp.stage.duration_ms`, `asp.vram.peak_bytes`, `asp.gain.clamp_residual`,
+  `asp.seam.cut_energy`. `compare_traces` treats duration-only deltas as
+  timing noise and flags note/fallback divergence as nondeterministic.
+  Opt-in extra: `desktop_quality` (`rerun-sdk`). Tests:
+  `backend/test/core/test_experiment_manifest.py`.
+
 - **#48 (M0d) versioned development slices (2026-08-20, Gemini):** Added `backend/benchmark/slices.py`
   defining canonical benchmark slices `smoke_v1` (5-case fast sanity: `asp_test04`, `08`, `09`, `27`, `57`)
   and `structural_red_v1` covering crop loss (`asp_test07`, `97`), torn anatomy (`asp_test04`, `06`, `12`, `15`),
