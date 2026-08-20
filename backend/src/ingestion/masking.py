@@ -33,6 +33,7 @@ def _compute_fg_masks(
 
     # Detect which API version is loaded
     has_new_api = hasattr(birefnet_wrapper, "get_background_mask")
+    print(f"[Stitch]   Generating BiRefNet foreground masks ({len(frames)} frames)...", flush=True)
 
     masks: list[np.ndarray | None] = []
     for i, img in enumerate(frames):
