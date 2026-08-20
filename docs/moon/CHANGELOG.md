@@ -26,6 +26,11 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#49 third-stall diagnostics (2026-08-20):** Benchmark resource
+  checkpoints no longer force a CUDA allocator flush at every stage. The
+  expensive diagnostic behavior is opt-in with `ASP_RESOURCE_FLUSH_CUDA=1`.
+  Post-matching bundle-adjustment, ECC, render, and foreground-composite
+  phases now print start/finish timings so long CPU phases cannot appear hung.
 - **#49 Stage 5–6 matcher stall diagnostics (2026-08-20):** Matcher loading
   and per-pair inference now emit flushed INFO-level lifecycle messages, and
   matcher exceptions are reported instead of being silently discarded. The

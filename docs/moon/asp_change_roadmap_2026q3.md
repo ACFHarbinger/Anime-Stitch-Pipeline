@@ -18,7 +18,9 @@ when the two documents differ about future work, this roadmap takes priority.
 OpenCL/CUDA contention is fixed; Stage 5–6 now has matcher load/inference
 telemetry and avoids per-pair CUDA allocator synchronization. The ungated
 97-case run stays blocked until a GPU smoke run confirms the second stall is
-resolved.
+resolved. Benchmark resource checkpoints now also avoid allocator flushes by
+default, with explicit post-match timing markers to isolate later CPU/GPU
+phases; `ASP_RESOURCE_FLUSH_CUDA=1` restores the old diagnostic flushes.
 
 ## 1. Product objective
 

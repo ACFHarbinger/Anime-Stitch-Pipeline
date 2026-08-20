@@ -234,12 +234,12 @@ def _resource_danger(snap: dict) -> str | None:
 # process_dataset itself, not just per-dataset in the outer loop, so a single
 # dataset already reveals which *stage* — not just which dataset — leaves
 # memory elevated. Prints one compact line per call; cheap enough to leave in
-# permanently (a few syscalls), and each call also runs gc.collect() +
-# torch.cuda.empty_cache() first so the reading reflects what's genuinely
-# unreachable/uncached, not just "not yet collected".
+# permanently. CUDA allocator flushing is deliberately opt-in because
+# ``empty_cache()`` synchronizes the device and was masking a third stall after
+# matching (set ``ASP_RESOURCE_FLUSH_CUDA=1`` when collecting allocator data).
 def _log_resource(tag: str, store: dict[str, float] | None = None) -> dict:
     gc.collect()
-    if torch.cuda.is_available():
+    if os.environ.get("ASP_RESOURCE_FLUSH_CUDA", "0") == "1" and torch.cuda.is_available():
         torch.cuda.empty_cache()
     snap = _resource_snapshot()
     print(
@@ -1399,7 +1399,6 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
                 birefnet.offload()
         del birefnet
         gc.collect()
-        torch.cuda.empty_cache()
     except Exception as e:
         print(f"  BiRefNet failed ({e}), using None masks")
         bg_masks = [None] * N
@@ -1483,7 +1482,6 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
                 loftr.offload()
         del loftr
         gc.collect()
-        torch.cuda.empty_cache()
     timings["matching_sec"] = round(time.perf_counter() - t0, 3)
     _log_resource("after_loftr_offload", store=stage_memory_rss_mb)
 
@@ -1565,9 +1563,11 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
     pipe = AnimeStitchPipeline(
         use_basic=False, use_birefnet=False, use_loftr=False, use_ecc=False
     )
+    print(f"  [PostMatch] filtering {len(edges)} edges and starting bundle adjustment...")
     edges = pipe._filter_edges(edges, frames_paths, H, W, frames, bg_masks) # pyrefly: ignore [bad-argument-type]
     affines = _bundle_adjust_affine(edges, N)
     timings["bundle_adjust_sec"] = round(time.perf_counter() - t0, 3)
+    print(f"  [PostMatch] bundle adjustment complete ({timings['bundle_adjust_sec']:.1f}s).")
 
     filtered_edge_count = len(edges)
     edge_stats = [
@@ -1766,8 +1766,10 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
     try:
         # ECC refinement
         t0 = time.perf_counter()
+        print("  [PostMatch] starting ECC refinement...")
         affines = _ecc_refine(frames, affines, bg_masks) # pyrefly: ignore [bad-argument-type]
         timings["ecc_sec"] = round(time.perf_counter() - t0, 3)
+        print(f"  [PostMatch] ECC refinement complete ({timings['ecc_sec']:.1f}s).")
 
         # Canvas construction
         canvas_h, canvas_w, T_global = _compute_canvas(frames, affines)
@@ -1832,10 +1834,12 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
         # ------------------------------------------------------------------
         t0 = time.perf_counter()
         _log_resource("before_render_median", store=stage_memory_rss_mb)
+        print("  [PostMatch] starting temporal median render...")
         canvas, valid_mask, _, _ = _render_median(
             frames, affines, bg_masks, canvas_h, canvas_w # pyrefly: ignore [bad-argument-type]
         )
         timings["render_sec"] = round(time.perf_counter() - t0, 3)
+        print(f"  [PostMatch] temporal median render complete ({timings['render_sec']:.1f}s).")
         _log_resource("after_render_median", store=stage_memory_rss_mb)
         cv2.imwrite(os.path.join(stage_dir, "stage09_temporal_render.png"), canvas)
 
@@ -1844,11 +1848,13 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
         # re-posing (Stage 8.5) + single-pose fallback.
         t0 = time.perf_counter()
         _seam_meta: dict = {}
+        print("  [PostMatch] starting foreground composite...")
         canvas = _composite_foreground(
             [], [], canvas, canvas_h, canvas_w, frames, affines, bg_masks, # pyrefly: ignore [bad-argument-type]
             phase_ids=_phase_ids, seam_meta_out=_seam_meta,
         )
         timings["composite_sec"] = round(time.perf_counter() - t0, 3)
+        print(f"  [PostMatch] foreground composite complete ({timings['composite_sec']:.1f}s).")
         _log_resource("after_composite", store=stage_memory_rss_mb)
 
         # §0.4 — seam-band pose-residual stats: lower mean post_warp_diff
@@ -3970,7 +3976,7 @@ Examples:
             except Exception:
                 pass
         gc.collect()
-        if torch.cuda.is_available():
+        if os.environ.get("ASP_RESOURCE_FLUSH_CUDA", "0") == "1" and torch.cuda.is_available():
             torch.cuda.empty_cache()
 
         _snap = _resource_snapshot()
