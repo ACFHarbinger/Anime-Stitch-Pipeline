@@ -339,6 +339,33 @@ Deliverables:
   every catastrophe (binding test15 sv=12.55). Discriminating exit needs
   a new structural signal, not a threshold change. See
   `.agent/reports/grok/m2_seamvis_threshold_infeasible_20260817.md`.
+  **#31 verification pass (2026-08-20, Claude):** re-confirmed against
+  current code, not just the 2026-08-17 reports. `ghost_telemetry_only`
+  is default `True` in `product_safe_asp_policy()` (`safety_policy.py`);
+  `composite_sb_telemetry_only` is still default `False`, correctly left
+  that way per the "no raw-composite labels on those 26 cases" reasoning
+  above — this is an open decision for Harbinger, not a bug. `ASP_HOLD_BG_SUB`
+  is registered in `_CONFIG_SCHEMA` (`config.py:58`) as Advanced/experimental/
+  default-off, satisfying engineering rule #5's register-or-delete
+  requirement. The ≤20-key default profile + Advanced-configuration-control
+  surface is shipped — cross-repo, in Image-Toolkit's own
+  `gui/src/components/dialogs/asp_advanced_config_dialog.py` (20-flag
+  Primary tab, 73-flag Advanced Matrix tab) and
+  `docs/website/src/components/config/AdvancedConfigDrawer.tsx` — not inside
+  this submodule, consistent with this repo's documented cross-repo coupling
+  (see `tools/bench/justfile`'s header comment). No code change needed for
+  any of the above; all four already meet their bullets.
+  **What remains open, blocked on Harbinger, not on further agent work:**
+  (1) the CompositeGate "empty gate" redesign Grok recommended (`sb`
+  demoted, `sc` has no signal, so the gate "should not stay alive for its
+  own sake") is designed but not implemented, pending sign-off; (2) the
+  discriminating-fallback bar Harbinger locked in §17 item 2 ("Always-SCANS
+  is not M2 success") is proven infeasible under every combination of the
+  three existing gates on this corpus (§17 item 2 vs the SeamVis-sweep
+  finding directly above are now in tension — flagging, not resolving).
+  Closing #31 requires one of: a genuinely new structural signal, an
+  explicit HITL veto path, or Harbinger relaxing the §17 item 2 bar. None
+  of those is a mechanical/config change, so none was attempted here.
   `cqas` (the former single-scalar aggregate used for GT-less cases in
   dashboards/reports) also fails the audit (rho -0.09, not significant) — its
   two largest-weighted components are the inverse `ghosting_siqe` (0.35) and

@@ -26,6 +26,18 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#31 M2 verification pass (2026-08-20):** re-confirmed (no code changes
+  needed) that `ASP_HOLD_BG_SUB` registration, the `ghost_telemetry_only`
+  default-promotion, and the ≤20-key default profile + Advanced-config
+  surface (`gui/src/components/dialogs/asp_advanced_config_dialog.py` +
+  `docs/website/src/components/config/AdvancedConfigDrawer.tsx` in the
+  parent Image-Toolkit repo) are all already shipped and correct. Two
+  items remain, both blocked on a Harbinger decision rather than further
+  agent work: the CompositeGate empty-gate redesign, and the
+  discriminating-fallback bar (§17 item 2) which is proven infeasible
+  under the three existing gates on this corpus. See
+  `docs/moon/asp_change_roadmap_2026q3.md` §5 M2 for detail.
+
 - **#49 repeated-sequence benchmark stall fix (2026-08-20):** Model unloads,
   the pair loop, and the canonical matching stage no longer force synchronous
   CUDA allocator flushes or full Python garbage collections. Matcher outputs
