@@ -143,8 +143,9 @@ manifest in `benchmark_slices_v1.json`, 8 passing tests). The
 manifest/telemetry harness landed 2026-08-20 (Grok, issue #46:
 `TelemetrySink` on `PipelineSession`, OTLP-JSONL/stdout first, experiment
 manifest with git/profile/hashes/RSS/VRAM, `compare_traces` for the
-same-manifest exit). The layered synthetic fixture generator (#47) is
-the remaining open M0 work.
+same-manifest exit). The layered synthetic pan/hold fixture generator
+landed 2026-08-20 (Gemini, issue #47 closed: `synthetic.py`,
+`generate_layered_pan_sequence`, 5 passing unit tests). **All M0 deliverables are complete.**
 
 Deliverables:
 

@@ -26,6 +26,15 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#47 (M0c) layered synthetic pan/hold fixture generator (2026-08-20, Gemini):**
+  Added `backend/src/alignment/synthetic.py` (`HeldCel`, `SyntheticPanSequence`,
+  `generate_layered_pan_sequence`, `export_synthetic_sequence`). Generates
+  high-frequency textured background plates with 2–3 held foreground character cels
+  across known camera pan trajectories `(dx, dy)` and discrete hold spans. Exports
+  complete ground-truth metadata manifests and panorama composites. Integrated into
+  `backend/benchmark/generate_samples.py`. 5 unit tests in
+  `backend/test/alignment/test_synthetic_fixture.py`.
+
 - **#46 (M0b) experiment manifest + OTel telemetry (2026-08-20, Grok):**
   `TelemetrySink` on `PipelineSession` (Null / OTLP-JSONL / optional Rerun).
   Canonical `run()` still does not import `opentelemetry` or `rerun`.

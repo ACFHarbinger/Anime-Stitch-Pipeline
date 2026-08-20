@@ -25,15 +25,26 @@ _repo_root = os.path.dirname(
 )
 sys.path.insert(0, _repo_root)
 
-from backend.benchmark.bench_anime_stitch import (  # noqa: E402
-    _compute_all_metrics,
-    _compute_cqas_v1_legacy,
-    _edge_energy_score,
-    _ghosting_score_v2,
-    _seam_coherence,
-    _seam_visibility_score,
-    _strip_banding_score,
-)
+try:
+    from asp_backend_benchmark.bench_anime_stitch import (  # noqa: E402
+        _compute_all_metrics,
+        _compute_cqas_v1_legacy,
+        _edge_energy_score,
+        _ghosting_score_v2,
+        _seam_coherence,
+        _seam_visibility_score,
+        _strip_banding_score,
+    )
+except ImportError:
+    from backend.benchmark.bench_anime_stitch import (  # noqa: E402
+        _compute_all_metrics,
+        _compute_cqas_v1_legacy,
+        _edge_energy_score,
+        _ghosting_score_v2,
+        _seam_coherence,
+        _seam_visibility_score,
+        _strip_banding_score,
+    )
 
 
 def _solid(H: int, W: int, lum: int) -> np.ndarray:
