@@ -26,6 +26,13 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
+- **#49 Stage 4 hang (2026-08-20, Grok):** OpenCV OpenCL was claiming the
+  same NVIDIA GPU as PyTorch CUDA (BaSiC then BiRefNet). Disabled OpenCL
+  at benchmark start and `AnimeStitchPipeline.run()`. `_compute_fg_masks`
+  now prefers `get_mask_batch` and no longer calls
+  `empty_cache`/`synchronize`/`gc.collect` after every frame. Per-frame
+  progress is flushed so a long mask pass cannot look like a dead hang.
+
 - **#47 (M0c) layered synthetic pan/hold fixture generator (2026-08-20, Gemini):**
   Added `backend/src/alignment/synthetic.py` (`HeldCel`, `SyntheticPanSequence`,
   `generate_layered_pan_sequence`, `export_synthetic_sequence`). Generates

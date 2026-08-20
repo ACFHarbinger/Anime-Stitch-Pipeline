@@ -11,10 +11,13 @@ import os
 import tempfile
 import unittest.mock as mock
 
+import cv2
 import numpy as np
 from asp_backend.ingestion.masking import (
     _cleanup_sam2_state,
+    _compute_fg_masks,
     _compute_fg_masks_sam2_stateful,
+    _disable_opencv_opencl,
 )
 
 
@@ -111,3 +114,37 @@ class TestCleanupSam2State:
     def test_cleanup_tolerates_missing_tmp_dir(self):
         """cleanup is safe when tmp_dir path no longer exists."""
         _cleanup_sam2_state(None, None, "/nonexistent/tmp/asp_test_xyz")
+
+
+class _BatchWrapper:
+    def get_mask_batch(self, images, **kwargs):
+        return [np.full(im.shape[:2], 255, dtype=np.uint8) for im in images]
+
+
+class _PerFrameWrapper:
+    def get_background_mask(self, img, **kwargs):
+        return np.full(img.shape[:2], 128, dtype=np.uint8)
+
+
+class TestComputeFgMasks:
+    def test_none_wrapper_returns_nones(self):
+        frames = _make_frames(3)
+        out = _compute_fg_masks(frames, None, use_birefnet=True)
+        assert out == [None, None, None]
+
+    def test_batch_path_inverts_fg_masks(self):
+        frames = _make_frames(2, h=8, w=8)
+        out = _compute_fg_masks(frames, _BatchWrapper())
+        assert len(out) == 2
+        assert out[0].shape == (8, 8)
+        assert int(out[0][0, 0]) == 0  # inverted 255 fg → bg 0
+
+    def test_per_frame_fallback_without_batch_api(self):
+        frames = _make_frames(2, h=8, w=8)
+        out = _compute_fg_masks(frames, _PerFrameWrapper())
+        assert len(out) == 2
+        assert int(out[0][0, 0]) == 128
+
+    def test_disable_opencl_is_safe(self):
+        _disable_opencv_opencl()
+        assert cv2.ocl.useOpenCL() is False

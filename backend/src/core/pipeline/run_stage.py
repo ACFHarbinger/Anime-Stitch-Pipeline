@@ -171,6 +171,11 @@ class _RunStageMixin(_Base):
         logger.info(
             f"[Stitch] Starting AnimeStitchPipeline on {len(image_paths)} frames."
         )
+        # OpenCV defaults to NVIDIA OpenCL on this machine; BaSiC/BiRefNet
+        # then take the same GPU via CUDA. That pairing livelocks Stage 4
+        # (CPU busy, GPU idle) — see ASP #49.
+        with contextlib.suppress(Exception):
+            cv2.ocl.setUseOpenCL(False)
         self._baselines = None
 
         # ── §3.16B: Per-test HITL preset ─────────────────────────────────────

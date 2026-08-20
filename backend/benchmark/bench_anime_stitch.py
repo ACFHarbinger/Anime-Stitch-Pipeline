@@ -28,6 +28,12 @@ import numpy as np
 import psutil
 import torch
 
+# Same NVIDIA GPU as PyTorch CUDA. Must be off before BaSiC/BiRefNet (#49).
+try:
+    cv2.ocl.setUseOpenCL(False)
+except Exception:
+    pass
+
 
 def _load_package(alias: str, src_dir: Path) -> None:
     """Register ``src_dir`` under ``alias`` in ``sys.modules``, the same

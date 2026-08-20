@@ -4,6 +4,7 @@ BiRefNet foreground / background masking for anime frames.
 
 from __future__ import annotations
 
+import contextlib
 import gc
 import os
 import shutil
@@ -22,6 +23,37 @@ except ImportError:
 from backend.src.constants import FOREGROUND_DILATION, FOREGROUND_EROSION
 
 
+def _disable_opencv_opencl() -> None:
+    """Keep OpenCV off the NVIDIA OpenCL stack while PyTorch owns CUDA.
+
+    OpenCL-on-the-same-GPU as CUDA is a known livelock (CPU spinning, GPU
+    idle). The stitch fallback already disables it; masking/BaSiC did not.
+    """
+    with contextlib.suppress(Exception):
+        cv2.ocl.setUseOpenCL(False)
+
+
+def _invert_fg_mask(fg: np.ndarray) -> np.ndarray:
+    return cv2.bitwise_not(fg)
+
+
+def _one_background_mask(birefnet_wrapper, img: np.ndarray, has_new_api: bool) -> np.ndarray:
+    if has_new_api:
+        return birefnet_wrapper.get_background_mask(
+            img,
+            dilate_px=FOREGROUND_DILATION,
+            erode_px=FOREGROUND_EROSION,
+        )
+    fg = birefnet_wrapper.get_mask(img)
+    if FOREGROUND_DILATION > 0:
+        k = cv2.getStructuringElement(
+            cv2.MORPH_ELLIPSE,
+            (2 * FOREGROUND_DILATION + 1, 2 * FOREGROUND_DILATION + 1),
+        )
+        fg = cv2.dilate(fg, k)
+    return _invert_fg_mask(fg)
+
+
 def _compute_fg_masks(
     frames: list[np.ndarray],
     birefnet_wrapper,
@@ -31,44 +63,37 @@ def _compute_fg_masks(
     if not use_birefnet or birefnet_wrapper is None:
         return [None] * len(frames)
 
-    # Detect which API version is loaded
+    _disable_opencv_opencl()
     has_new_api = hasattr(birefnet_wrapper, "get_background_mask")
-    print(f"[Stitch]   Generating BiRefNet foreground masks ({len(frames)} frames)...", flush=True)
+    n = len(frames)
+    print(f"[Stitch]   Generating BiRefNet foreground masks ({n} frames)...", flush=True)
+
+    if hasattr(birefnet_wrapper, "get_mask_batch"):
+        try:
+            fgs = birefnet_wrapper.get_mask_batch(
+                frames,
+                dilate_px=FOREGROUND_DILATION,
+                erode_px=FOREGROUND_EROSION,
+            )
+            if not isinstance(fgs, (list, tuple)) or len(fgs) != n:
+                raise ValueError(
+                    f"get_mask_batch returned {0 if fgs is None else len(fgs)} "
+                    f"masks for {n} frames"
+                )
+            print(f"[Stitch]   BiRefNet batch masks ready ({len(fgs)} frames).", flush=True)
+            return [_invert_fg_mask(fg) for fg in fgs]
+        except Exception as e:
+            print(f"[Stitch]   BiRefNet batch path failed ({e}); per-frame fallback.", flush=True)
 
     masks: list[np.ndarray | None] = []
     for i, img in enumerate(frames):
         try:
-            if has_new_api:
-                # New API: returns 255=background, 0=foreground, with dilation/erosion
-                bg = birefnet_wrapper.get_background_mask(
-                    img,
-                    dilate_px=FOREGROUND_DILATION,
-                    erode_px=FOREGROUND_EROSION,
-                )
-            else:
-                # Legacy API: get_mask returns 255=foreground; invert + dilate manually
-                fg = birefnet_wrapper.get_mask(img)
-                bg = cv2.bitwise_not(fg)
-                if FOREGROUND_DILATION > 0:
-                    k = cv2.getStructuringElement(
-                        cv2.MORPH_ELLIPSE,
-                        (
-                            2 * FOREGROUND_DILATION + 1,
-                            2 * FOREGROUND_DILATION + 1,
-                        ),
-                    )
-                    fg_dilated = cv2.dilate(fg, k)
-                    bg = cv2.bitwise_not(fg_dilated)
-            masks.append(bg)
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            gc.collect()
-            if torch.cuda.is_available():
-                torch.cuda.synchronize()
-                torch.cuda.empty_cache()
+            masks.append(_one_background_mask(birefnet_wrapper, img, has_new_api))
         except Exception as e:
-            print(f"[Stitch]   BiRefNet failed on frame {i}: {e}")
+            print(f"[Stitch]   BiRefNet failed on frame {i}: {e}", flush=True)
             masks.append(None)
+        if i == 0 or (i + 1) % 5 == 0 or i + 1 == n:
+            print(f"[Stitch]   BiRefNet mask {i + 1}/{n}", flush=True)
     return masks
 
 
@@ -572,6 +597,7 @@ def _refine_masks_with_clicks(
 
 __all__ = [
     "_compute_fg_masks",
+    "_disable_opencv_opencl",
     "_compute_fg_masks_sam2",
     "_compute_fg_masks_sam2_stateful",
     "_cleanup_sam2_state",
