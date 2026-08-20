@@ -26,11 +26,15 @@ Implemented an HSV-based value scaling fix for seam-photometric diagnosis in bot
 
 ### Added
 
-- **#49 matcher-offload stall fix (2026-08-20):** EfficientLoFTR no longer
-  calls `torch.cuda.empty_cache()` internally while offloading after the final
-  pair; ALIKED, JamMa, and RoMa follow the same non-synchronizing lifecycle.
-  A live `asp_test09` ungated run crossed pair 60/60 immediately and completed
-  ECC, compositing, artifact generation, and reporting end to end.
+- **#49 repeated-sequence benchmark stall fix (2026-08-20):** Model unloads,
+  the pair loop, and the canonical matching stage no longer force synchronous
+  CUDA allocator flushes or full Python garbage collections. Matcher outputs
+  are detached and copied before release, ALIKED/LightGlue instances are reused,
+  and affine BA bounds correspondence counts and uses a sparse solver. The
+  final hidden stall was an unbounded OpenCV PANORAMA fallback after affine
+  validation failed: sequences above 12 frames now use bounded SCANS directly
+  (`ASP_PANORAMA_MAX_FRAMES` overrides the limit). A live `asp_test04 → 08 → 09`
+  run completed with reports written and about 5.1 GB RSS at the former stall.
 - **#49 third-stall diagnostics (2026-08-20):** Benchmark resource
   checkpoints no longer force a CUDA allocator flush at every stage. The
   expensive diagnostic behavior is opt-in with `ASP_RESOURCE_FLUSH_CUDA=1`.

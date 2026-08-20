@@ -85,9 +85,8 @@ class JamMaWrapper(ModelWrapper):
     # ---------------------------------------------------------------- lifecycle
 
     def unload(self) -> None:
-        """Delete model from VRAM/RAM, then flush CUDA cache."""
+        """Delete the model from VRAM/RAM."""
         if self._model is not None:
-            self._model.cpu()
             del self._model
             self._model = None
         super().unload()

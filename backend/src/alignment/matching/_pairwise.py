@@ -4,7 +4,6 @@ then build the full pairwise correspondence-edge list for bundle adjustment.
 
 from __future__ import annotations
 
-import gc
 import logging
 import os
 import time
@@ -97,12 +96,16 @@ def _match_pair(  # noqa: C901
         logger.info("[Stitch]   %d→%d: %s matching started.", i, j, _matcher_name)
         try:
             pts1, pts2, conf = loftr_wrapper.match(match_img_i, match_img_j)
+            print(
+                f"[Stitch]   {i}→{j}: {_matcher_name} matching finished "
+                f"in {time.perf_counter() - _match_started:.1f}s ({len(pts1)} points).",
+                flush=True,
+            )
             logger.info(
-                "[Stitch]   %d→%d: %s matching finished in %.1fs (%d points).",
+                "[Stitch]   %d→%d: %s matching finished (%d points).",
                 i,
                 j,
                 _matcher_name,
-                time.perf_counter() - _match_started,
                 len(pts1),
             )
             if len(pts1) >= 30:
@@ -197,9 +200,16 @@ def _match_pair(  # noqa: C901
     # scene.  ALIKED's deformable descriptor head detects keypoints at anime
     # line-art edges that LoFTR misses in low-texture regions.
     if M is None and aliked_wrapper is not None and _loftr_bg_pts < 20:
+        _aliked_started = time.perf_counter()
+        print(f"[Stitch]   {i}→{j}: ALIKED+LightGlue fallback started...", flush=True)
         try:
             M_alg, c_alg, pts_alg_i, pts_alg_j = aliked_wrapper.get_translation(
                 match_img_i, match_img_j, match_m_i, match_m_j
+            )
+            print(
+                f"[Stitch]   {i}→{j}: ALIKED+LightGlue fallback finished "
+                f"in {time.perf_counter() - _aliked_started:.1f}s.",
+                flush=True,
             )
             if M_alg is not None and _is_valid(M_alg) and len(pts_alg_i) >= 15:
                 M, mean_conf = M_alg, c_alg
@@ -209,8 +219,12 @@ def _match_pair(  # noqa: C901
                     f"[Stitch]   {i}→{j}: ALIKED+LG dx={M[0, 2]:.1f} dy={M[1, 2]:.1f} "
                     f"conf={mean_conf:.3f} (pts={len(pts_alg_i)})"
                 )
-        except Exception:
-            pass
+        except Exception as _aliked_error:
+            print(
+                f"[Stitch]   {i}→{j}: ALIKED+LightGlue fallback failed "
+                f"after {time.perf_counter() - _aliked_started:.1f}s: {_aliked_error}",
+                flush=True,
+            )
 
     # ── Attempt 2: Template Match (Fallback) ───────────────────────────────
     if M is None:
@@ -375,7 +389,6 @@ def _pairwise_match(
         )
         if edge is not None:
             edges.append(edge)
-        gc.collect()
 
     # Moving tensors back to CPU in the matcher already synchronizes the work.
     # Avoid forcing a device-wide synchronize and allocator flush after every

@@ -60,10 +60,8 @@ class RoMaWrapper(ModelWrapper):
     _load = load
 
     def unload(self) -> None:
-        """Delete model from VRAM/RAM, then flush CUDA cache."""
+        """Delete the model from VRAM/RAM."""
         if self._model is not None:
-            with contextlib.suppress(Exception):
-                self._model.to("cpu")
             del self._model
             self._model = None
         super().unload()

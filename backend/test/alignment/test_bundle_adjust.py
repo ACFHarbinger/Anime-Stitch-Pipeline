@@ -25,6 +25,8 @@ from asp_backend.alignment.bundle_adjust import (  # noqa: E402
     _bundle_adjust_affine,
     _compute_adaptive_f_scale,
     _gnc_weights_geman_mcclure,
+    _jacobian_sparsity,
+    _prepare_solver_edges,
     _spanning_tree_inlier_filter,
 )
 from conftest import compute_ty_gaps, make_edge  # noqa: E402
@@ -36,6 +38,38 @@ from conftest import compute_ty_gaps, make_edge  # noqa: E402
 
 def _tys(affines):
     return np.array([float(a[1, 2]) for a in affines])
+
+
+class TestSolverEdgePreparation:
+    def test_caps_dense_correspondences_without_mutating_input(self):
+        edge = make_edge(0, 1, dy=30.0)
+        edge["pts_i"] = np.arange(2000, dtype=np.float32).reshape(1000, 2)
+        edge["pts_j"] = edge["pts_i"] + np.array([0.0, 30.0], np.float32)
+
+        prepared = _prepare_solver_edges([edge], max_points_per_edge=256)
+
+        assert len(prepared[0]["pts_i"]) == 256
+        assert prepared[0]["pts_i"].dtype == np.float64
+        assert len(edge["pts_i"]) == 1000
+        np.testing.assert_array_equal(
+            prepared[0]["pts_j"] - prepared[0]["pts_i"],
+            np.tile([0.0, 30.0], (256, 1)),
+        )
+
+    def test_zero_cap_preserves_all_correspondences(self):
+        edge = make_edge(0, 1, dy=30.0)
+        prepared = _prepare_solver_edges([edge], max_points_per_edge=0)
+        assert len(prepared[0]["pts_i"]) == len(edge["pts_i"])
+
+    def test_sparse_jacobian_has_expected_shape_and_dependencies(self):
+        edges = [make_edge(0, 1, dy=30.0), make_edge(1, 2, dy=30.0)]
+        pattern = _jacobian_sparsity(edges, use_affine=True, num_frames=3)
+        edge_rows = sum(2 * len(edge["pts_i"]) for edge in edges)
+
+        assert pattern.shape == (edge_rows + 4 + 4 + 2, 12)
+        assert pattern[: 2 * len(edges[0]["pts_i"]), :4].nnz > 0
+        assert pattern[: 2 * len(edges[0]["pts_i"]), 4:8].nnz > 0
+        assert pattern[: 2 * len(edges[0]["pts_i"]), 8:12].nnz == 0
 
 
 # ---------------------------------------------------------------------------

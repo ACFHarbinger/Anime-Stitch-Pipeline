@@ -43,16 +43,18 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
       - ``KF.LightGlue(features='aliked')``   — the matcher
       - ``KF.LightGlueMatcher('aliked')``     — unified detector+matcher API
 
-    The unified API requires LAFs (Local Affine Frames), so we use the
-    lower-level KF.LightGlue + kornia's KeyNetAffNetHardNet-style extraction.
-    Instead, we use ``KF.LightGlueMatcher`` which wraps the full pipeline.
+    The unified API requires precomputed descriptors/LAFs, so this wrapper
+    owns and reuses one detector plus one lower-level LightGlue matcher.
     """
 
     def __init__(self, device: str | None = None):
         if not _KORNIA_OK:
             raise ImportError("kornia >= 0.8 is required for ALIKEDLightGlueWrapper.")
         # set before super().__init__ so loaded property is safe
-        self._matcher: KF.LightGlueMatcher | None = None
+        self._matcher = None  # backward-compatible alias for _lightglue
+        self._detector = None
+        self._lightglue = None
+        self._feature_name = "aliked" if hasattr(KF, "ALIKED") else "disk"
         super().__init__(device)
 
     @classmethod
@@ -61,31 +63,51 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
 
     @property
     def loaded(self) -> bool:
-        return getattr(self, "_matcher", None) is not None
+        return (
+            getattr(self, "_detector", None) is not None
+            and getattr(self, "_lightglue", None) is not None
+        )
 
     def load(self) -> None:
         """Load the ALIKED+LightGlue matcher onto self.device."""
-        if self._matcher is None:
+        if not self.loaded:
             logger.debug("[ALIKED+LG] Loading ALIKED+LightGlue matcher …")
-            self._matcher = KF.LightGlueMatcher("aliked").eval().to(self.device)
+            if self._feature_name == "aliked":
+                self._detector = (
+                    KF.ALIKED(model_name="aliked-n16rot", max_num_keypoints=2048)
+                    .eval()
+                    .to(self.device)
+                )
+            else:
+                self._detector = KF.DISK.from_pretrained("depth").eval().to(self.device)
+            self._lightglue = (
+                KF.LightGlue(features=self._feature_name).eval().to(self.device)
+            )
+            self._matcher = self._lightglue
         else:
-            self._matcher.to(self.device).eval()
+            self._detector.to(self.device).eval()
+            self._lightglue.to(self.device).eval()
 
     # backward-compat alias used by internal callers
     _load = load
 
     def unload(self) -> None:
-        """Delete matcher from VRAM/RAM, then flush CUDA cache."""
-        if self._matcher is not None:
-            self._matcher.cpu()
-            del self._matcher
-            self._matcher = None
+        """Delete the matcher from VRAM/RAM."""
+        self._matcher = None
+        if self._detector is not None:
+            del self._detector
+            self._detector = None
+        if self._lightglue is not None:
+            del self._lightglue
+            self._lightglue = None
         super().unload()
 
     def offload(self) -> None:
         """Move the matcher to CPU without synchronizing the CUDA allocator."""
-        if self._matcher is not None:
-            self._matcher.cpu()
+        if self._detector is not None:
+            self._detector.cpu()
+        if self._lightglue is not None:
+            self._lightglue.cpu()
 
     @lazy_load
     def match(
@@ -122,31 +144,16 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
         t_j = _to_tensor(img_j)
 
         with torch.no_grad():
-            # LightGlueMatcher.forward takes (desc1, desc2, lafs1, lafs2, hw1, hw2)
-            # but the recommended high-level usage is via LocalFeatureMatcher.
-            # Fallback: use the underlying KF.LightGlue via detect-then-match.
-            matcher = self._matcher
-            # @lazy_load guarantees self.load() ran (and thus self._matcher is
-            # set) before this method body executes.
-            assert matcher is not None
-            # kornia's LightGlueMatcher wraps a LocalFeatureMatcher internally.
-            # Access it to run the full detect+match pipeline.
-            if hasattr(matcher, "matcher") and hasattr(matcher.matcher, "forward"):
-                # Detect keypoints with ALIKED via kornia's get_laf_descriptors
-                try:
-                    # Direct LightGlue pipeline (detector-free internal path not exposed).
-                    # Use the lower-level path: LocalFeatureMatcher with ALIKED.
-                    raise NotImplementedError("use lower-level path")
-                except Exception:
-                    pass
+            # @lazy_load guarantees one cached detector/matcher pair exists.
+            detector = self._detector
+            lg = self._lightglue
+            assert detector is not None
+            assert lg is not None
 
-            # Lower-level path: KF.ALIKED (if available) + KF.LightGlue
-            if hasattr(KF, "ALIKED"):
-                aliked = KF.ALIKED(model_name="aliked-n16rot", max_num_keypoints=2048).eval().to(self.device)
+            if self._feature_name == "aliked":
                 with torch.no_grad():
-                    feats_i = aliked({"image": t_i})
-                    feats_j = aliked({"image": t_j})
-                lg = KF.LightGlue(features="aliked").eval().to(self.device)
+                    feats_i = detector({"image": t_i})
+                    feats_j = detector({"image": t_j})
                 with torch.no_grad():
                     result = lg({"image0": feats_i, "image1": feats_j})
                 kp_i = feats_i["keypoints"][0].cpu().numpy()  # (N, 2)
@@ -159,10 +166,9 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
             else:
                 # Kornia does not expose standalone ALIKED in this version;
                 # fall back to DISK as a closely-related sparse detector.
-                disk = KF.DISK.from_pretrained("depth").eval().to(self.device)
                 with torch.no_grad():
-                    feats_i = disk(t_i, n=2048, pad_if_not_divisible=True)
-                    feats_j = disk(t_j, n=2048, pad_if_not_divisible=True)
+                    feats_i = detector(t_i, n=2048, pad_if_not_divisible=True)
+                    feats_j = detector(t_j, n=2048, pad_if_not_divisible=True)
                 kp_i = feats_i[0].keypoints.cpu().numpy()   # (N, 2)
                 kp_j = feats_j[0].keypoints.cpu().numpy()
                 desc_i = feats_i[0].descriptors.cpu()        # (N, D)
@@ -179,7 +185,6 @@ class ALIKEDLightGlueWrapper(ModelWrapper):
                     torch.zeros(1, len(kp_j), 1),
                 ).to(self.device)
 
-                lg = KF.LightGlue(features="disk").eval().to(self.device)
                 with torch.no_grad():
                     result = lg({
                         "image0": {"keypoints": laf_i, "descriptors": desc_i[None].to(self.device)},

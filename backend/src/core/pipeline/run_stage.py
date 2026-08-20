@@ -80,6 +80,15 @@ from .session import (
 
 logger = logging.getLogger(__name__)
 
+
+def _panorama_fallback_allowed(n_frames: int) -> bool:
+    """Keep OpenCV PANORAMA fallback within a bounded workload."""
+    try:
+        max_frames = int(os.environ.get("ASP_PANORAMA_MAX_FRAMES", "12"))
+    except ValueError:
+        max_frames = 12
+    return max_frames > 0 and n_frames <= max_frames
+
 if TYPE_CHECKING:
     from asp_backend.models.wrappers.aliked_lg_wrapper import ALIKEDLightGlueWrapper
     from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
@@ -281,6 +290,11 @@ class _RunStageMixin(_Base):
         # ── Matcher selection (P1.4 EfficientLoFTR / P3.2 JamMa) ───────────────
         _active_loftr = self._select_matcher(H, W)
         edges = self._pairwise_match_with(frames, bg_masks, _active_loftr)
+        print(
+            f"[Stitch]   Pairwise matching complete ({len(edges)} edges); "
+            "starting spatial dedup...",
+            flush=True,
+        )
 
         # ── Post-match: Spatial dedup of near-static consecutive frames ──────
         # Frames whose measured adj displacement is < SPATIAL_DEDUP_PX add no
@@ -323,6 +337,10 @@ class _RunStageMixin(_Base):
                 f"[Stitch]   Spatial dedup complete: {_total_spa_dropped} frames "
                 f"removed, {N} remain."
             )
+        print(
+            f"[Stitch]   Spatial dedup complete ({N} frames); detecting phases...",
+            flush=True,
+        )
 
         # ── §2.2/2.3 animation-phase clustering ──────────────────────────────
         # Measurement-only unless ASP_PHASE_COMPOSITE=1 (compositing.py reads
@@ -345,6 +363,7 @@ class _RunStageMixin(_Base):
             phase_ids = None
             session.mark(PipelineStage.PHASE, skipped=True, error=str(_phase_exc))
 
+        print("[Stitch]   Phase detection complete; filtering edges...", flush=True)
         edges = self._filter_edges(edges, image_paths, H, W, frames, bg_masks)
         session.mark(PipelineStage.FILTER_EDGES, n_edges=len(edges))
         session.record_artifact("n_edges", len(edges))
@@ -356,6 +375,10 @@ class _RunStageMixin(_Base):
                 f"forced_boundaries={_hitl_pipeline_state['boundaries']}."
             )
 
+        print(
+            f"[Stitch]   Edge filtering complete ({len(edges)} edges); unloading matchers...",
+            flush=True,
+        )
         for _mdl in [self._loftr, self._eloftr, self._aliked, self._roma]:
             if _mdl is not None:
                 try:
@@ -367,9 +390,14 @@ class _RunStageMixin(_Base):
         self._eloftr = None
         self._aliked = None
         self._roma = None
-        if torch.cuda.is_available():
+        if (
+            os.environ.get("ITK_MODEL_FLUSH_CUDA_ON_UNLOAD", "0") == "1"
+            and torch.cuda.is_available()
+        ):
             torch.cuda.empty_cache()
-        gc.collect()
+        if os.environ.get("ITK_MODEL_FORCE_GC_ON_UNLOAD", "0") == "1":
+            gc.collect()
+        print("[Stitch]   Matcher unload complete.", flush=True)
         session.mark(PipelineStage.MATCH, n_edges=len(edges))
         logger.info(f"[Stitch] Stages 5-6 complete: {len(edges)} valid edges found.")
         if not edges:
@@ -383,6 +411,7 @@ class _RunStageMixin(_Base):
         # ── §1.15: Edge graph connectivity gate ───────────────────────────────
         # A disconnected edge graph means BA will assign wrong translations to
         # isolated frames.  Detect and fall back to SCANS before the bad solve.
+        print("[Stitch]   Checking edge-graph connectivity...", flush=True)
         if not _check_edge_graph_connectivity(edges, N):
             logger.info(
                 "[Stitch] §1.15: Edge graph is disconnected (%d edges, %d frames) "
@@ -397,6 +426,7 @@ class _RunStageMixin(_Base):
             return _scan_stitch_fallback(_sf, output_path)
 
         # ── Stage 7: Global bundle adjustment ────────────────────────────────
+        print("[Stitch]   Edge graph connected; starting bundle adjustment...", flush=True)
         _motion_model = getattr(self, "motion_model", "affine")
         use_affine_ba = _motion_model == "affine"
         affines = _bundle_adjust_affine(
@@ -405,6 +435,7 @@ class _RunStageMixin(_Base):
             use_affine=use_affine_ba,
             motion_model=_motion_model,
         )
+        print("[Stitch]   Bundle adjustment complete.", flush=True)
         session.mark(PipelineStage.BUNDLE_ADJUST, motion_model=_motion_model)
         logger.debug(
             f"[Stitch] Stage 7 complete: bundle adjustment done "
@@ -449,24 +480,42 @@ class _RunStageMixin(_Base):
             if not health.valid:
                 # §1.3B: PANORAMA stitcher handles scale/rotation that
                 # translation-only validation rejects; try before SCANS.
-                try:
-                    _sf = scans_frames or _reload_scans_frames(image_paths)
-                    _pano = _panorama_stitch_fallback(_sf, output_path)
-                    # PANORAMA is a safe-policy fallback algorithm, not a
-                    # fourth output identity. Raw/Safe/SCANS stay disjoint for
-                    # the M0 result schema and future parity comparisons.
-                    session.record_fallback(
-                        ResultIdentity.SAFE_ASP,
-                        str(health.reason),
-                        algorithm="panorama",
-                    )
-                    session.record_artifact("safe_asp_path", output_path)
-                    session.record_artifact("fallback_algorithm", "panorama")
-                    session.finish(success=True, identity=ResultIdentity.SAFE_ASP)
-                    return _pano
-                except Exception as _pano_e:
+                if _panorama_fallback_allowed(N):
+                    try:
+                        print(
+                            f"[Stitch]   Affine recovery failed; trying PANORAMA "
+                            f"fallback for {N} frames...",
+                            flush=True,
+                        )
+                        _sf = scans_frames or _reload_scans_frames(image_paths)
+                        _pano = _panorama_stitch_fallback(_sf, output_path)
+                        # PANORAMA is a safe-policy fallback algorithm, not a
+                        # fourth output identity. Raw/Safe/SCANS stay disjoint for
+                        # the M0 result schema and future parity comparisons.
+                        session.record_fallback(
+                            ResultIdentity.SAFE_ASP,
+                            str(health.reason),
+                            algorithm="panorama",
+                        )
+                        session.record_artifact("safe_asp_path", output_path)
+                        session.record_artifact("fallback_algorithm", "panorama")
+                        session.finish(success=True, identity=ResultIdentity.SAFE_ASP)
+                        return _pano
+                    except Exception as _pano_e:
+                        logger.info(
+                            f"[Stitch]   PANORAMA fallback failed ({_pano_e}); using SCANS."
+                        )
+                else:
                     logger.info(
-                        f"[Stitch]   PANORAMA fallback failed ({_pano_e}); using SCANS."
+                        "[Stitch]   Skipping PANORAMA fallback for %d frames "
+                        "(ASP_PANORAMA_MAX_FRAMES=%s); using SCANS.",
+                        N,
+                        os.environ.get("ASP_PANORAMA_MAX_FRAMES", "12"),
+                    )
+                    print(
+                        f"[Stitch]   Affine recovery failed; {N} frames exceed the "
+                        "PANORAMA safety limit, using SCANS.",
+                        flush=True,
                     )
                 warnings.warn(
                     f"[Stitch] Affine validation FAILED ({health.reason}) after retries. "

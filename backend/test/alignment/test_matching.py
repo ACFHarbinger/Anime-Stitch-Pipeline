@@ -7,6 +7,7 @@ All tests use synthetic numpy matrices; no GPU or image files required.
 
 from __future__ import annotations
 
+import gc
 import math
 import os
 import sys
@@ -20,6 +21,7 @@ from asp_backend.alignment.matching import (
     _extract_similarity,
 )  # noqa: E402
 from asp_backend.alignment.matching._pairwise import _pairwise_match
+from asp_backend.models.wrappers import aliked_lg_wrapper as _aliked_module
 from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
 
 _repo_root = os.path.dirname(
@@ -256,6 +258,23 @@ class TestPairwiseMatcherProgress:
         assert "_Matcher matching started" in messages
         assert "_Matcher matching finished" in messages
 
+    def test_pair_loop_does_not_force_full_gc(self, monkeypatch):
+        frames = [np.zeros((32, 32, 3), dtype=np.uint8) for _ in range(2)]
+        masks = [np.full((32, 32), 255, dtype=np.uint8) for _ in range(2)]
+        gc_calls = []
+        monkeypatch.setattr(gc, "collect", lambda: gc_calls.append(1))
+
+        _pairwise_match(
+            frames,
+            masks,
+            loftr_wrapper=self._Matcher(),
+            use_loftr=True,
+            aliked_wrapper=None,
+            roma_wrapper=None,
+        )
+
+        assert gc_calls == []
+
 
 def test_efficient_loftr_offload_does_not_flush_cuda(monkeypatch):
     """Offloading after the last pair must not synchronize the CUDA allocator."""
@@ -276,3 +295,52 @@ def test_efficient_loftr_offload_does_not_flush_cuda(monkeypatch):
 
     assert wrapper._model.cpu_calls == 1
     assert empty_cache_calls == []
+
+
+def test_efficient_loftr_unload_deletes_without_cpu_copy(monkeypatch):
+    """Final teardown must not materialize a redundant CPU model copy."""
+
+    class _Model:
+        def cpu(self):
+            raise AssertionError("unload must delete directly, not copy to CPU")
+
+    monkeypatch.delenv("ITK_MODEL_FORCE_GC_ON_UNLOAD", raising=False)
+    monkeypatch.delenv("ITK_MODEL_FLUSH_CUDA_ON_UNLOAD", raising=False)
+    wrapper = object.__new__(EfficientLoFTRWrapper)
+    wrapper._model = _Model()
+    wrapper._processor = object()
+
+    wrapper.unload()
+
+    assert wrapper._model is None
+    assert wrapper._processor is None
+
+
+def test_aliked_load_reuses_detector_and_matcher(monkeypatch):
+    """Fallback pairs must share one ALIKED/LightGlue model pair."""
+
+    calls = {"detector": 0, "matcher": 0}
+
+    class _Module:
+        def eval(self):
+            return self
+
+        def to(self, _device):
+            return self
+
+    def _detector(*_args, **_kwargs):
+        calls["detector"] += 1
+        return _Module()
+
+    def _matcher(*_args, **_kwargs):
+        calls["matcher"] += 1
+        return _Module()
+
+    monkeypatch.setattr(_aliked_module.KF, "ALIKED", _detector, raising=False)
+    monkeypatch.setattr(_aliked_module.KF, "LightGlue", _matcher)
+    wrapper = _aliked_module.ALIKEDLightGlueWrapper(device="cpu")
+
+    wrapper.load()
+    wrapper.load()
+
+    assert calls == {"detector": 1, "matcher": 1}

@@ -63,9 +63,8 @@ class EfficientLoFTRWrapper(ModelWrapper):
     # ------------------------------------------------------------------ lifecycle
 
     def unload(self) -> None:
-        """Delete model and processor from VRAM/RAM, then flush CUDA cache."""
+        """Delete the model and processor from VRAM/RAM."""
         if self._model is not None:
-            self._model.cpu()
             del self._model
             self._model = None
         if self._processor is not None:
@@ -83,7 +82,7 @@ class EfficientLoFTRWrapper(ModelWrapper):
         if self._model is None:
             logger.debug("[ELoFTR] Loading EfficientLoFTR from HuggingFace …")
             self._processor = AutoImageProcessor.from_pretrained(
-                WRAPPERS__HF_REPO, use_fast=True
+                WRAPPERS__HF_REPO, backend="pil"
             )
             self._model = (
                 EfficientLoFTRForKeypointMatching.from_pretrained(WRAPPERS__HF_REPO)
@@ -134,15 +133,19 @@ class EfficientLoFTRWrapper(ModelWrapper):
         inputs["pixel_values"].shape[-2]
         inputs["pixel_values"].shape[-1]
 
-        with torch.no_grad():
+        with torch.inference_mode():
             outputs = self._model(**inputs)
 
         # outputs.keypoints : (1, 2, N, 2)  normalized coords in [0, 1]
         # outputs.matches   : (1, 2, N)     index of match in other image (-1 = unmatched)
         # outputs.matching_scores : (1, 2, N) confidence
-        kps = outputs.keypoints[0].cpu().numpy()      # (2, N, 2)
-        matches = outputs.matches[0].cpu().numpy()    # (2, N)
-        scores = outputs.matching_scores[0].cpu().numpy()  # (2, N)
+        kps = outputs.keypoints[0].detach().cpu().numpy().copy()  # (2, N, 2)
+        matches = outputs.matches[0].detach().cpu().numpy().copy()  # (2, N)
+        scores = outputs.matching_scores[0].detach().cpu().numpy().copy()  # (2, N)
+        # Drop the large per-pair tensor graph before CPU post-processing.
+        # Keeping it alive until the next explicit GC caused multi-dataset
+        # matching runs to accumulate tens of GB of resident memory.
+        del outputs, inputs, pil0, pil1
 
         valid = matches[0] >= 0
         if not valid.any():

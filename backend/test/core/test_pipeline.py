@@ -12,6 +12,7 @@ Tests for pipeline.py module-level functions:
 import cv2
 import numpy as np
 import pytest
+from asp_backend.core.pipeline.run_stage import _panorama_fallback_allowed
 from asp_backend.core.pipeline import (  # noqa: E402
     _apply_hires_keyframes,
     _check_edge_graph_connectivity,
@@ -45,6 +46,19 @@ def _make_mask(h: int = 4, w: int = 4) -> np.ndarray:
 
 def _make_edge(i: int, j: int, dy: float, dx: float = 0.0) -> dict:
     return {"i": i, "j": j, "M": _make_affine(dy=dy, dx=dx)}
+
+
+class TestPanoramaFallbackSafety:
+    def test_default_limit_rejects_large_sequences(self, monkeypatch):
+        monkeypatch.delenv("ASP_PANORAMA_MAX_FRAMES", raising=False)
+        assert _panorama_fallback_allowed(12)
+        assert not _panorama_fallback_allowed(13)
+
+    def test_limit_can_be_overridden_or_disabled(self, monkeypatch):
+        monkeypatch.setenv("ASP_PANORAMA_MAX_FRAMES", "24")
+        assert _panorama_fallback_allowed(22)
+        monkeypatch.setenv("ASP_PANORAMA_MAX_FRAMES", "0")
+        assert not _panorama_fallback_allowed(2)
 
 
 class TestSpatialDedupFrames:
@@ -910,7 +924,6 @@ class TestAdaptiveDyCvMax:
 # ===========================================================================
 # §5.53: Stage 11.42 Strip Contrast CV Gate
 # ===========================================================================
-
 
 
 

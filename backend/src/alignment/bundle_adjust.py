@@ -20,6 +20,7 @@ from collections import deque
 import numpy as np
 from backend.src.constants import DY_ABS_THRESH, DY_RATIO_THRESH, GNC_C_PX, GNC_MU_ANNEAL
 from scipy.optimize import least_squares
+from scipy.sparse import lil_matrix
 
 try:
     import base as batch
@@ -42,6 +43,11 @@ try:
     _GNC_OUTER: int = int(os.environ.get("ASP_GNC_OUTER", "8"))
 except ValueError:
     _GNC_OUTER = 8
+
+try:
+    _BA_MAX_POINTS_PER_EDGE = int(os.environ.get("ASP_BA_MAX_POINTS_PER_EDGE", "256"))
+except ValueError:
+    _BA_MAX_POINTS_PER_EDGE = 256
 
 _GNC_C_PX: float = GNC_C_PX
 _GNC_MU_ANNEAL: float = GNC_MU_ANNEAL
@@ -228,8 +234,8 @@ def _residuals(
                 [[1, 0, x[j * 2]], [0, 1, x[j * 2 + 1]]], dtype=np.float64
             )
 
-        pts_i = e["pts_i"].astype(np.float64)
-        pts_j = e["pts_j"].astype(np.float64)
+        pts_i = e["pts_i"].astype(np.float64, copy=False)
+        pts_j = e["pts_j"].astype(np.float64, copy=False)
 
         pi_global = (Mi[:, :2] @ pts_i.T + Mi[:, 2:3]).T
         pj_global = (Mj[:, :2] @ pts_j.T + Mj[:, 2:3]).T
@@ -271,6 +277,82 @@ def _residuals(
         res.append(ty_acc * reg_traj)
 
     return np.array(res, np.float64)
+
+
+def _prepare_solver_edges(
+    edges: list[dict], max_points_per_edge: int = _BA_MAX_POINTS_PER_EDGE
+) -> list[dict]:
+    """Bound dense-solver memory while retaining representative matches.
+
+    LoFTR can produce several thousand correspondences per edge. SciPy's
+    finite-difference affine solve constructs a dense residual Jacobian, so
+    passing every match makes memory scale into tens of gigabytes on longer
+    sequences. Uniform index sampling is deterministic and preserves the
+    matcher's spatial ordering while 256 anchors remain far above the four
+    degrees of freedom being estimated per frame.
+    """
+    prepared: list[dict] = []
+    for edge in edges:
+        pts_i = np.asarray(edge["pts_i"])
+        pts_j = np.asarray(edge["pts_j"])
+        n_points = min(len(pts_i), len(pts_j))
+        if max_points_per_edge > 0 and n_points > max_points_per_edge:
+            indices = np.linspace(
+                0, n_points - 1, num=max_points_per_edge, dtype=np.intp
+            )
+            pts_i = pts_i[indices]
+            pts_j = pts_j[indices]
+        else:
+            pts_i = pts_i[:n_points]
+            pts_j = pts_j[:n_points]
+        prepared.append(
+            {
+                **edge,
+                "pts_i": pts_i.astype(np.float64, copy=False),
+                "pts_j": pts_j.astype(np.float64, copy=False),
+            }
+        )
+    return prepared
+
+
+def _jacobian_sparsity(
+    edges: list[dict], use_affine: bool, num_frames: int
+):
+    """Return the block-sparse dependency pattern of ``_residuals``."""
+    dof = 4 if use_affine else 2
+    edge_rows = sum(2 * min(len(e["pts_i"]), len(e["pts_j"])) for e in edges)
+    anchor_rows = dof
+    identity_rows = 2 * (num_frames - 1) if use_affine else 0
+    trajectory_rows = 2 * max(0, num_frames - 2)
+    pattern = lil_matrix(
+        (edge_rows + anchor_rows + identity_rows + trajectory_rows, num_frames * dof),
+        dtype=np.int8,
+    )
+
+    row = 0
+    for edge in edges:
+        n_rows = 2 * min(len(edge["pts_i"]), len(edge["pts_j"]))
+        i, j = int(edge["i"]), int(edge["j"])
+        pattern[row : row + n_rows, i * dof : (i + 1) * dof] = 1
+        pattern[row : row + n_rows, j * dof : (j + 1) * dof] = 1
+        row += n_rows
+
+    pattern[row : row + dof, :dof] = 1
+    row += dof
+    if use_affine:
+        for frame in range(1, num_frames):
+            pattern[row, frame * dof] = 1
+            pattern[row + 1, frame * dof + 1] = 1
+            row += 2
+
+    tx_slot = 2 if use_affine else 0
+    ty_slot = 3 if use_affine else 1
+    for frame in range(1, num_frames - 1):
+        for neighbour in (frame - 1, frame, frame + 1):
+            pattern[row, neighbour * dof + tx_slot] = 1
+            pattern[row + 1, neighbour * dof + ty_slot] = 1
+        row += 2
+    return pattern.tocsr()
 
 
 def _extract_affines(x: np.ndarray, num_frames: int, use_affine: bool) -> list[np.ndarray]:
@@ -327,6 +409,7 @@ def _solve_gnc(
     c_sq = _GNC_C_PX ** 2
     x_cur = x0.copy()
     mu: float | None = None
+    jac_sparsity = _jacobian_sparsity(edges, use_affine, num_frames)
 
     for _outer in range(_GNC_OUTER):
         # Per-edge squared translation disagreement
@@ -353,6 +436,8 @@ def _solve_gnc(
             x_cur,
             args=(edges, use_affine, num_frames, _gnc_ws),
             method="trf",
+            tr_solver="lsmr",
+            jac_sparsity=jac_sparsity,
             loss="linear",
             ftol=1e-6,
             xtol=1e-6,
@@ -380,11 +465,14 @@ def _solve_cauchy(
     iterations: int,
     _gnc_ws: list[float],
 ) -> np.ndarray:
+    jac_sparsity = _jacobian_sparsity(edges, use_affine, num_frames)
     result = least_squares(
         _residuals,
         x0,
         args=(edges, use_affine, num_frames, _gnc_ws),
         method="trf",
+        tr_solver="lsmr",
+        jac_sparsity=jac_sparsity,
         loss="cauchy",
         f_scale=_BA_F_SCALE,
         ftol=1e-6,
@@ -402,6 +490,8 @@ def _solve_cauchy(
             x_opt,
             args=(edges, use_affine, num_frames, _gnc_ws),
             method="trf",
+            tr_solver="lsmr",
+            jac_sparsity=jac_sparsity,
             loss="cauchy",
             f_scale=_adapt_scale,
             ftol=1e-6,
@@ -482,6 +572,13 @@ def _bundle_adjust_affine(
             M[1, 2] = cd["ty"]
             out.append(M)
     else:
+        edges = _prepare_solver_edges(edges)
+        print(
+            "[Stitch]   BA solver input: "
+            f"{sum(len(edge['pts_i']) for edge in edges)} correspondences "
+            f"across {len(edges)} edges (cap={_BA_MAX_POINTS_PER_EDGE}/edge).",
+            flush=True,
+        )
         x0 = _init_guess_x0(num_frames, use_affine, edges)
         _gnc_ws = [1.0] * len(edges)
 
