@@ -2336,6 +2336,33 @@ landed 2026-08-20 (Gemini, issue #47 closed: <code>synthetic.py</code>,
   every catastrophe (binding test15 sv=12.55). Discriminating exit needs
   a new structural signal, not a threshold change. See
   <code>.agent/reports/grok/m2_seamvis_threshold_infeasible_20260817.md</code>.
+  <strong>#31 verification pass (2026-08-20, Claude):</strong> re-confirmed against
+  current code, not just the 2026-08-17 reports. <code>ghost_telemetry_only</code>
+  is default <code>True</code> in <code>product_safe_asp_policy()</code> (<code>safety_policy.py</code>);
+  <code>composite_sb_telemetry_only</code> is still default <code>False</code>, correctly left
+  that way per the "no raw-composite labels on those 26 cases" reasoning
+  above — this is an open decision for Harbinger, not a bug. <code>ASP_HOLD_BG_SUB</code>
+  is registered in <code>_CONFIG_SCHEMA</code> (<code>config.py:58</code>) as Advanced/experimental/
+  default-off, satisfying engineering rule #5's register-or-delete
+  requirement. The ≤20-key default profile + Advanced-configuration-control
+  surface is shipped — cross-repo, in Image-Toolkit's own
+  <code>gui/src/components/dialogs/asp_advanced_config_dialog.py</code> (20-flag
+  Primary tab, 73-flag Advanced Matrix tab) and
+  <code>docs/website/src/components/config/AdvancedConfigDrawer.tsx</code> — not inside
+  this submodule, consistent with this repo's documented cross-repo coupling
+  (see <code>tools/bench/justfile</code>'s header comment). No code change needed for
+  any of the above; all four already meet their bullets.
+  <strong>What remains open, blocked on Harbinger, not on further agent work:</strong>
+  (1) the CompositeGate "empty gate" redesign Grok recommended (<code>sb</code>
+  demoted, <code>sc</code> has no signal, so the gate "should not stay alive for its
+  own sake") is designed but not implemented, pending sign-off; (2) the
+  discriminating-fallback bar Harbinger locked in §17 item 2 ("Always-SCANS
+  is not M2 success") is proven infeasible under every combination of the
+  three existing gates on this corpus (§17 item 2 vs the SeamVis-sweep
+  finding directly above are now in tension — flagging, not resolving).
+  Closing #31 requires one of: a genuinely new structural signal, an
+  explicit HITL veto path, or Harbinger relaxing the §17 item 2 bar. None
+  of those is a mechanical/config change, so none was attempted here.
   <code>cqas</code> (the former single-scalar aggregate used for GT-less cases in
   dashboards/reports) also fails the audit (rho -0.09, not significant) — its
   two largest-weighted components are the inverse <code>ghosting_siqe</code> (0.35) and
@@ -2423,7 +2450,23 @@ that document separately, do not inherit those claims here.</p>
   human ratings every time the corpus grows. Report dataset size (currently
   97 cases, 43 true Raw ASP composites), train/validation split, and
   confidence explicitly; human review remains the sole release criterion
-  per §1 regardless of this metric's performance.</li>
+  per §1 regardless of this metric's performance.
+  <strong>Feasibility spike done (2026-08-20, Claude, issue #33):</strong>
+  <code>backend/benchmark/learned_proxy_feasibility.py</code> +
+  <code>.agent/reports/claude/m2_5b_learned_proxy_feasibility_20260820.md</code>.
+  Against the frozen post-M1 ungated 97-run (#30), only <strong>27</strong> cases are
+  true Raw ASP composites with reviewed human labels (not 43 — that count
+  was measured on the pre-M1 gated corpus; M1's canonical adapter changed
+  which cases fall back). Per-feature Pearson r against human ASP coherence
+  tops out at +0.328 (<code>color_entropy</code>); a leave-one-source-group-out ridge
+  regression over all 9 existing <code>metrics_asp</code> signals scores <strong>worse</strong>
+  than predicting the training-fold mean (RMSE 1.536 vs 1.058 baseline).
+  <strong>Verdict: not yet feasible</strong> — both the sample size and the existing
+  metrics' individual signal strength are binding constraints, not a
+  modeling gap. Revisit once the SFW corpus (#38-41) grows the labeled set
+  and/or M2.5a's anime-adapted metrics supply better-correlated features.
+  The script is kept as the reusable revalidation tool for future corpus
+  milestones, per this deliverable's own requirement.</li>
 <li><strong>Similarity-based benchmark subset selection.</strong> Build visual/statistical
   similarity metrics between benchmark test cases (image-level) and between
   human quantitative scores plus defect/textual annotations (label-level) to
@@ -2487,7 +2530,62 @@ segmentation model.</p>
   behind <code>ASP_COHERENCE_V2=1</code> only.
   <strong>Red-set screen (2026-08-17):</strong> first apply punched holes (6/7 crop
   loss). Exclusive-keep fix: crop gate <strong>0/7</strong>. Still default-off; no
-  human screen yet.</p>
+  human screen yet.
+  <strong>Ownership-factor slice (2026-08-20, Claude, #34):</strong> <code>_pick_owner</code>
+  extended past coverage/confidence with a weighted stage covering the
+  remaining named factors — visibility (filled/bbox-area compactness of
+  each candidate's <em>own</em> pose mask, not the shared overlap pixels: <code>pix</code>
+  is by construction a subset of both <code>a</code> and <code>b</code>, so anything computed
+  on <code>pix &amp; a</code> vs <code>pix &amp; b</code> is identical for both and can never
+  discriminate — this was caught and fixed before landing, not shipped
+  broken), boundary truncation (fraction of a pose's own bbox touching
+  the frame edge), frame quality (Laplacian-variance sharpness of the
+  source frame restricted to that pose's mask), and temporal consistency
+  (<code>composite_coherence_v2</code>'s multi-pair fold now passes the
+  already-<code>claimed</code> map as <code>prior_owner</code> to each subsequent pair, biasing
+  contested regions toward staying with whichever side a neighboring fold
+  already assigned). All four are additive/optional kwargs — every
+  existing call site and test that only passes area/confidence is
+  bit-for-bit unaffected; the weighted stage only engages when coverage
+  and confidence are tied <em>and</em> the extra signals are supplied. 14/14
+  <code>test_coherence_v2.py</code> cases pass (was 11, +3 new), plus all 277
+  <code>backend/test/rendering</code> + <code>backend/test/core/pipeline</code> tests, no
+  regressions.
+  <strong>Diagnostics propagation:</strong> <code>composite_coherence_v2</code> now returns a
+  third <code>claimed_meta</code> value (per-pair region ownership + reason codes),
+  threaded through <code>seam_meta_out["coherence_ownership"]</code> in
+  <code>composite.py</code> and forwarded into <code>session.note_seam_feasibility(...)</code>
+  in <code>run_stage.py</code>, so it appears in <code>PipelineSession.observability()</code>
+  alongside the other M2 first-slice fields — no parallel diagnostic
+  surface invented.
+  <strong>C++ parity finding:</strong> <code>coherence_v2</code>'s semantic-cost/exclusion-mask
+  logic has <strong>no C++ counterpart at all</strong> — it never imports
+  <code>rendering/compositing/_native.py</code>'s <code>base.compositing</code> extension, and
+  <code>base/src/seam.cpp</code> has no <code>coherence_v2</code>/single-pose-ownership code.
+  The roadmap's "prove equivalent Python/C++ behavior or delete one"
+  rule is trivially satisfied: there is only one implementation, nothing
+  to reconcile. (This is unrelated to rule #11's flag on the <em>existing</em>
+  live-compositor's C++ <code>build_seam_cost_map(...exclusion_masks)</code> —
+  that's the pre-existing seam-cost path used by the default HITL loop,
+  not coherence_v2, and stays exactly as already flagged: incomplete,
+  repair-or-remove, out of scope here.)
+  <strong>Structural red-set rerun (2026-08-20, Claude, post-cooldown):</strong> ran
+  <code>structural_red_v1</code> (14 cases) with <code>ASP_COHERENCE_V2=1</code> after CPU temps
+  returned to 69°C. No crashes, no errors, no torn-output warnings across
+  the corpus. However <strong>only 5/14 cases (asp_test06/08/28/41/97) actually
+  reached the <code>coherence_v2</code> compositor path</strong> — the other 9 fall back to
+  SCANS via earlier, unrelated gates (<code>disconnected_edge_graph</code> ×7,
+  <code>affine_invalid</code> ×2) that run <em>before</em> compositing is ever reached, so
+  they exercise none of today's ownership-factor code. This confirms no
+  pipeline-level regression from the change, but the specific "0/7
+  crop-loss" claim continues to rest on <code>test_coherence_v2.py</code>'s unit-level
+  coverage (which does directly exercise the assignment logic, including
+  the case that caught the visibility bug), not on this end-to-end run —
+  the current red-set corpus doesn't structurally exercise coherence_v2's
+  contested-overlap path often enough to be a strong live signal either
+  way. <code>smoke_v1</code> not separately rerun (subset of red-set coverage, no
+  additional signal expected). Still default-off; human-screen promotion
+  decision unchanged, still Harbinger's call.</p>
 <p>Exit criteria:</p>
 <ul>
 <li>No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the

@@ -1703,7 +1703,53 @@ can follow.</p>
 <h2 id="unreleased">[Unreleased]</h2>
 <h3 id="added">Added</h3>
 <ul>
-<li><strong>#49 repeated-sequence benchmark stall fix (2026-08-20):</strong> Model unloads,
+<li>
+<p><strong>#34 M3 coherence_v2 ownership-factor slice (2026-08-20):</strong>
+  <code>_pick_owner</code> in <code>backend/src/rendering/compositing/coherence_v2.py</code>
+  extended with a weighted tie-break stage covering the roadmap's
+  remaining named factors — visibility (compactness of each candidate's
+  own pose mask), boundary truncation, frame-quality sharpness, and
+  temporal consistency (<code>composite_coherence_v2</code>'s multi-pair fold now
+  passes forward the already-claimed map as <code>prior_owner</code>). Additive/
+  optional; existing area+confidence-only call sites unaffected.
+  Ownership decisions now propagate to <code>PipelineSession.observability()</code>
+  via <code>seam_meta_out["coherence_ownership"]</code>. C++ parity check: no C++
+  counterpart exists for this logic at all (Python-only by construction),
+  so the roadmap's parity rule is trivially satisfied. Still default-off
+  (<code>ASP_COHERENCE_V2</code>); structural red-set/smoke-set live rerun deferred
+  this pass (elevated CPU temps from concurrent work) — needed before any
+  promotion decision. 14/14 <code>test_coherence_v2.py</code> (+3 new), 277/277
+  <code>rendering</code>+<code>core/pipeline</code> suites, no regressions. See
+  <code>docs/moon/asp_change_roadmap_2026q3.md</code> §5 M3.</p>
+</li>
+<li>
+<p><strong>#33 M2.5b learned-proxy feasibility spike (2026-08-20):</strong>
+  <code>backend/benchmark/learned_proxy_feasibility.py</code> — leave-one-source-
+  group-out ridge regression over the 9 existing <code>metrics_asp</code> signals
+  against reviewed human coherence labels, on the frozen post-M1 ungated
+  97-run (#30). Only 27 cases are true Raw ASP composites with reviewed
+  labels (not 43 — M1's canonical adapter changed the fallback set).
+  Verdict: <strong>not yet feasible</strong> — max per-feature Pearson r is +0.328, and
+  the ridge model scores worse than the training-fold mean baseline (RMSE
+  1.536 vs 1.058). Non-gating; no pipeline behavior changed. See
+  <code>.agent/reports/claude/m2_5b_learned_proxy_feasibility_20260820.md</code> and
+  <code>docs/moon/asp_change_roadmap_2026q3.md</code> §5 M2.5.</p>
+</li>
+<li>
+<p><strong>#31 M2 verification pass (2026-08-20):</strong> re-confirmed (no code changes
+  needed) that <code>ASP_HOLD_BG_SUB</code> registration, the <code>ghost_telemetry_only</code>
+  default-promotion, and the ≤20-key default profile + Advanced-config
+  surface (<code>gui/src/components/dialogs/asp_advanced_config_dialog.py</code> +
+  <code>docs/website/src/components/config/AdvancedConfigDrawer.tsx</code> in the
+  parent Image-Toolkit repo) are all already shipped and correct. Two
+  items remain, both blocked on a Harbinger decision rather than further
+  agent work: the CompositeGate empty-gate redesign, and the
+  discriminating-fallback bar (§17 item 2) which is proven infeasible
+  under the three existing gates on this corpus. See
+  <code>docs/moon/asp_change_roadmap_2026q3.md</code> §5 M2 for detail.</p>
+</li>
+<li>
+<p><strong>#49 repeated-sequence benchmark stall fix (2026-08-20):</strong> Model unloads,
   the pair loop, and the canonical matching stage no longer force synchronous
   CUDA allocator flushes or full Python garbage collections. Matcher outputs
   are detached and copied before release, ALIKED/LightGlue instances are reused,
@@ -1711,7 +1757,8 @@ can follow.</p>
   final hidden stall was an unbounded OpenCV PANORAMA fallback after affine
   validation failed: sequences above 12 frames now use bounded SCANS directly
   (<code>ASP_PANORAMA_MAX_FRAMES</code> overrides the limit). A live <code>asp_test04 → 08 → 09</code>
-  run completed with reports written and about 5.1 GB RSS at the former stall.</li>
+  run completed with reports written and about 5.1 GB RSS at the former stall.</p>
+</li>
 <li><strong>#49 third-stall diagnostics (2026-08-20):</strong> Benchmark resource
   checkpoints no longer force a CUDA allocator flush at every stage. The
   expensive diagnostic behavior is opt-in with <code>ASP_RESOURCE_FLUSH_CUDA=1</code>.
