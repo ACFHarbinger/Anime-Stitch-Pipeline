@@ -2010,6 +2010,16 @@ not a current implementation priority.</p>
 <p>This is the short, issue-ready plan for new ASP work. The older
 <a href="../ROADMAP/"><code>ROADMAP.md</code></a> remains the research history and experiment ledger;
 when the two documents differ about future work, this roadmap takes priority.</p>
+<p><strong>2026-08-20 status:</strong> ASP #49 remains under investigation. Stage 4's
+OpenCL/CUDA contention is fixed; Stage 5–6 now has matcher load/inference
+telemetry and avoids per-pair CUDA allocator synchronization. The ungated
+97-case run stays blocked until a GPU smoke run confirms the second stall is
+resolved. Benchmark resource checkpoints now also avoid allocator flushes by
+default, with explicit post-match timing markers to isolate later CPU/GPU
+phases; <code>ASP_RESOURCE_FLUSH_CUDA=1</code> restores the old diagnostic flushes.
+The remaining EfficientLoFTR offload-time allocator flush was removed and the
+previously failing <code>asp_test09</code> case now completes end to end; rerun the full
+five-case smoke slice before starting the ungated 97-case run.</p>
 <h2 id="1-product-objective">1. Product objective</h2>
 <p>The ultimate goal is for the <strong>raw ASP compositor</strong> to beat SCANS. Safety
 fallbacks are part of the shipped product, but they must not hide raw ASP's
