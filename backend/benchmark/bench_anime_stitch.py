@@ -118,6 +118,15 @@ for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXP
     os.environ.setdefault(_v, _THREAD_CAP)
 
 cv2.setNumThreads(int(_THREAD_CAP))
+try:
+    # torch is imported above so the OpenMP environment variables are too late
+    # for its pools; enforce the benchmark cap through its runtime API too.
+    torch.set_num_threads(int(_THREAD_CAP))
+    torch.set_num_interop_threads(1)
+except RuntimeError:
+    # An embedding/test host can have already configured the inter-op pool.
+    # The process still keeps its existing safe setting in that case.
+    pass
 torch.set_num_threads(int(_THREAD_CAP))
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[4]))

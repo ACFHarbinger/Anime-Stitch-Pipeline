@@ -95,6 +95,9 @@ production Stage 4.5 gain record from `PipelineSession`, including per-frame
 background-pixel eligibility/luminance, BGR gains, clamp hits, residuals, and
 reference luminance. No gain is recomputed in the adapter and no pixel path
 changed. Legacy A/B output is explicitly labeled `legacy_harness`.
+The guarded validation runner also applies `ASP_BENCH_THREAD_CAP` to PyTorch's
+runtime thread pools; its environment-only setting was too late after the
+benchmark's import order.
 
 ## 3. Evidence baseline
 

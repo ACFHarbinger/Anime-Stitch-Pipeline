@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   gains, clamps, residuals, and reference luminance. It does not recompute a
   benchmark-only correction; legacy A/B output is explicitly labeled.
 
+- **Benchmark thread cap (2026-08-23, Codex):** `ASP_BENCH_THREAD_CAP` now
+  also sets PyTorch's runtime intra-op/inter-op pools. The environment-only
+  cap was too late because the benchmark imports Torch first; guarded slice
+  runs can now actually enforce one Torch thread.
+
 > **Continuity note (2026-08-06):** `docs/moon/ROADMAP.md` cites specific
 > session numbers (e.g. "S214", "S216") as being documented "in
 > `docs/moon/CHANGELOG.md`". That detailed, session-by-session history
