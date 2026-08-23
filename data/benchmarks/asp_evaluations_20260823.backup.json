@@ -1,0 +1,2577 @@
+{
+  "asp_test01": {
+    "asp": 2,
+    "bboxes": [
+      {
+        "defect": "torn_anatomy",
+        "h": 0.24954314826043916,
+        "image": "asp",
+        "label": "",
+        "severity": 3,
+        "w": 0.3494949494949495,
+        "x": 0.5858585858585859,
+        "y": 0.5852594700208861
+      },
+      {
+        "defect": "color_shift",
+        "h": 0.22435385523210077,
+        "image": "simple",
+        "label": "",
+        "severity": 1,
+        "w": 0.3749999999999999,
+        "x": 0.5846774193548387,
+        "y": 0.5109234854445318
+      }
+    ],
+    "confidence": 3,
+    "defect_severity": {
+      "asp": {
+        "banding": 1,
+        "blur": 1,
+        "color_shift": 1,
+        "crop_loss": 1,
+        "duplicated_strip": 1,
+        "ghosting": 1,
+        "misordered_content": 1,
+        "seam_line": 1,
+        "torn_anatomy": 1
+      }
+    },
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "ASP has every flaw except geometry warp, and SCANS has slight dark color shift\n",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T20:08:42"
+  },
+  "asp_test02": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "ASP has severe crop loss and SCANS has slight color shift",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T11:55:55"
+  },
+  "asp_test03": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "blur",
+      "color_shift",
+      "ghosting"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2,
+        "color": 2,
+        "framing": 2,
+        "seams": 2,
+        "sharpness": 2
+      },
+      "simple": {
+        "coherence": 4,
+        "color": 4,
+        "framing": 4,
+        "seams": 4,
+        "sharpness": 4
+      }
+    },
+    "edges": [],
+    "notes": "SCANS is perfect, and ASP has severe color shift + ghosting issues, and some blur\n\t",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T11:56:20"
+  },
+  "asp_test04": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "ASP has severe crop loss and some torn anatomy, and SCANS has torn anatomy also, and slight color shift",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T11:56:49"
+  },
+  "asp_test05": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "color_shift",
+      "seam_line"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "ASP has very intense seam lines, banding, and color shift, while SCANS is near perfect",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T11:57:01"
+  },
+  "asp_test06": {
+    "asp": 0,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "duplicated_strip",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 0
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "ASP is complete trash, has almost all issues but crop loss, and SCANS is almost perfect.",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T11:57:43"
+  },
+  "asp_test07": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "Both ASP and SCANS have severe crop loss and some color shift, although ASP's is worse, and Hugin has some geometry warp",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T11:57:59"
+  },
+  "asp_test08": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T11:58:45"
+  },
+  "asp_test09": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T11:59:05"
+  },
+  "asp_test10": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "misordered_content",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T13:04:11"
+  },
+  "asp_test11": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "ASP has slightly more severe crop loss, but is otherwise better than SCANS, which also has torn anatomy and very severe color shifts",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:05:24"
+  },
+  "asp_test12": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "Both have crop loss and color shift, but ASP's is more severe",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:05:58"
+  },
+  "asp_test13": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "ASP has more severe crop loss than SCANS, and Hugin the usual geometric warp, although mostly imperceptible here",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:06:49"
+  },
+  "asp_test14": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "ASP crop loss is severe enough to make it worse than SCANS, even though SCANS has far more issues",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:08:55"
+  },
+  "asp_test15": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:09:21"
+  },
+  "asp_test16": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "hugin": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:09:48"
+  },
+  "asp_test17": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "seam_line"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:10:03"
+  },
+  "asp_test18": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:10:33"
+  },
+  "asp_test19": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:10:51"
+  },
+  "asp_test20": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "misordered_content",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "hugin": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "SCANS has slightly less color shift issues",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:11:38"
+  },
+  "asp_test21": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "Same as the test before",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:42:26"
+  },
+  "asp_test22": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T13:04:19"
+  },
+  "asp_test23": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "More intense issues in the ASP",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:13:11"
+  },
+  "asp_test24": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "SCANS has slightly more severe crop loss than ASP, but is otherwise better",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:14:10"
+  },
+  "asp_test25": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:14:21"
+  },
+  "asp_test26": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "color_shift",
+      "crop_loss",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T13:04:24"
+  },
+  "asp_test27": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:15:10"
+  },
+  "asp_test28": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "color_shift",
+      "duplicated_strip",
+      "ghosting",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:18:14"
+  },
+  "asp_test29": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:18:39"
+  },
+  "asp_test30": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "ASP has much more severe color shift, but SCANS has torn anatomy",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:42:25"
+  },
+  "asp_test31": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 1,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "ASP has more crop loss, while SCANS has more color shift",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:20:36"
+  },
+  "asp_test32": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:21:03"
+  },
+  "asp_test33": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:23:25"
+  },
+  "asp_test34": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "ASP has crop loss so severe it shadows the other issues that SCANS has\n",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:32:36"
+  },
+  "asp_test35": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 1,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:33:03"
+  },
+  "asp_test36": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "ASP has slight less color shift",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:36:21"
+  },
+  "asp_test37": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "seam_line"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:38:45"
+  },
+  "asp_test38": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "ASP has slight less color shift, but more crop loss",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:35:37"
+  },
+  "asp_test39": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "Similar to the previous test case",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:36:17"
+  },
+  "asp_test40": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 1
+      }
+    },
+    "edges": [],
+    "notes": "ASP has many issues, but SCANS crop loss is severe enough to overshadow them",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 1,
+    "updated_at": "2026-08-23T12:37:22"
+  },
+  "asp_test41": {
+    "asp": 0,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "duplicated_strip",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "other",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 0
+      },
+      "hugin": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "ASP is a complete trash can of an output",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:38:19"
+  },
+  "asp_test42": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "seam_line"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "SANS is near perfectm while the ASP has the usual issues",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T12:42:35"
+  },
+  "asp_test43": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "SCANS has very slightly less crop loss",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:47:14"
+  },
+  "asp_test44": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 1
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 1,
+    "updated_at": "2026-08-23T12:47:44"
+  },
+  "asp_test45": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "ASP has more severe crop loss, outshadowing the color shift issues of SCANS. Hugin is pratically perfect",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:48:39"
+  },
+  "asp_test46": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:48:59"
+  },
+  "asp_test47": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "ASP has more severe crop loss",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T12:51:04"
+  },
+  "asp_test48": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "ASP has crop loss, outshadowing other issues",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:51:45"
+  },
+  "asp_test49": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "duplicated_strip",
+      "misordered_content",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T12:52:17"
+  },
+  "asp_test50": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T13:52:19"
+  },
+  "asp_test51": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T13:52:40"
+  },
+  "asp_test52": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "geometry_warp",
+      "misordered_content",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 1
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 1,
+    "updated_at": "2026-08-23T15:11:11"
+  },
+  "asp_test53": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "ghosting",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:11:18"
+  },
+  "asp_test54": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "blur",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:12:16"
+  },
+  "asp_test55": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:13:12"
+  },
+  "asp_test56": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:13:58"
+  },
+  "asp_test57": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 1,
+    "defects": [
+      "color_shift",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:14:53"
+  },
+  "asp_test58": {
+    "asp": 2,
+    "bboxes": [],
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:15:16"
+  },
+  "asp_test59": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:15:33"
+  },
+  "asp_test60": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:16:08"
+  },
+  "asp_test61": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:16:31"
+  },
+  "asp_test62": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:17:31"
+  },
+  "asp_test63": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:17:45"
+  },
+  "asp_test64": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:18:07"
+  },
+  "asp_test65": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:18:45"
+  },
+  "asp_test66": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "ASP has far more severe crop loss, even though it doesnt have color shifts like SCANS",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:19:36"
+  },
+  "asp_test67": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:44:15"
+  },
+  "asp_test68": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:44:18"
+  },
+  "asp_test69": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:20:53"
+  },
+  "asp_test70": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "ghosting",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:21:24"
+  },
+  "asp_test71": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:22:32"
+  },
+  "asp_test72": {
+    "asp": 1,
+    "bboxes": [],
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:22:58"
+  },
+  "asp_test73": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:23:37"
+  },
+  "asp_test74": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "duplicated_strip",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:24:02"
+  },
+  "asp_test75": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:24:53"
+  },
+  "asp_test76": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:25:07"
+  },
+  "asp_test77": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:28:45"
+  },
+  "asp_test78": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "ghosting",
+      "seam_line"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:28:42"
+  },
+  "asp_test79": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:28:38"
+  },
+  "asp_test80": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:28:47"
+  },
+  "asp_test81": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 1,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 1
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 1,
+    "updated_at": "2026-08-23T15:28:49"
+  },
+  "asp_test82": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "duplicated_strip",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:29:21"
+  },
+  "asp_test83": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "ghosting",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:29:55"
+  },
+  "asp_test84": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:31:11"
+  },
+  "asp_test85": {
+    "asp": 3,
+    "bboxes": [],
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:31:35"
+  },
+  "asp_test86": {
+    "asp": 1,
+    "bboxes": [],
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "duplicated_strip",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:32:04"
+  },
+  "asp_test87": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 1,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "geometry_warp",
+      "ghosting",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:33:50"
+  },
+  "asp_test88": {
+    "asp": 4,
+    "bboxes": [],
+    "confidence": 3,
+    "dimensions": {
+      "asp": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:34:09"
+  },
+  "asp_test89": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "ghosting",
+      "misordered_content",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:34:46"
+  },
+  "asp_test90": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:35:18"
+  },
+  "asp_test91": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "banding",
+      "blur",
+      "color_shift",
+      "ghosting",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "simple": {
+        "coherence": 4
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 4,
+    "updated_at": "2026-08-23T15:35:42"
+  },
+  "asp_test92": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "blur",
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:36:22"
+  },
+  "asp_test93": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:36:37"
+  },
+  "asp_test94": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 2,
+    "defects": [
+      "color_shift",
+      "geometry_warp",
+      "ghosting",
+      "misordered_content",
+      "seam_line",
+      "torn_anatomy"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 1
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "asp",
+    "reviewed": true,
+    "simple": 1,
+    "updated_at": "2026-08-23T15:38:01"
+  },
+  "asp_test95": {
+    "asp": 3,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 3
+      },
+      "simple": {
+        "coherence": 3
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 3,
+    "updated_at": "2026-08-23T15:38:16"
+  },
+  "asp_test96": {
+    "asp": 1,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss",
+      "geometry_warp"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 1
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 1
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "tie",
+    "reviewed": true,
+    "simple": 1,
+    "updated_at": "2026-08-23T15:39:02"
+  },
+  "asp_test97": {
+    "asp": 2,
+    "bboxes": [],
+    "confidence": 3,
+    "defects": [
+      "color_shift",
+      "crop_loss"
+    ],
+    "dimensions": {
+      "asp": {
+        "coherence": 2
+      },
+      "hugin": {
+        "coherence": 4
+      },
+      "simple": {
+        "coherence": 2
+      }
+    },
+    "edges": [],
+    "notes": "",
+    "preference": "simple",
+    "reviewed": true,
+    "simple": 2,
+    "updated_at": "2026-08-23T15:39:09"
+  }
+}

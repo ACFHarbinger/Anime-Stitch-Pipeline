@@ -471,8 +471,5 @@ backend/config/api_keys.yaml
 # Phase DB pre-migration backups (contain an unencrypted pg_dump of the image index)
 assets/migrations/pre_unified/
 
-# ASP Benchmarks
-data/benchmarks/
-
 # Other stuff
 /**/anime_stitch_pipeline.egg-info
