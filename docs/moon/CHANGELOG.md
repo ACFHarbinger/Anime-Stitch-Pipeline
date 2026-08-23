@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   load unchanged and are not silently backfilled. Focused schema/inspector
   tests: 97 passed.
 
+- **Raw ASP quality proposal (2026-08-23, Codex):** recorded default-off
+  renderer and assisted-recovery candidates for seam/blending, content
+  integrity, and matching connectivity. The proposal requires
+  production/benchmark photometric telemetry parity and Harbinger-selected
+  small-slice review before any authorized corpus run.
+
 > **Continuity note (2026-08-06):** `docs/moon/ROADMAP.md` cites specific
 > session numbers (e.g. "S214", "S216") as being documented "in
 > `docs/moon/CHANGELOG.md`". That detailed, session-by-session history

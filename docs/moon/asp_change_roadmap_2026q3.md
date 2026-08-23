@@ -69,6 +69,18 @@ an automated score improves.
 - Include artist-facing workflow work in this plan. Record visual redesign as a
   non-priority future entry.
 
+**2026-08-23 raw-quality proposal:** The corrected frozen review says the
+next experiments must improve Raw ASP rendering rather than add another
+selection gate. Default-off candidates are: production/benchmark photometric
+telemetry parity; a canvas-aligned background plate followed by one foreground
+pose; edge-preserving background source selection; a protected-background TPS
+or APAP residual; mask disagreement with a trapped-ball alternate; and
+replayable assisted correspondence/order/background corrections for
+connectivity failures. Harbinger hand-picks the small seam/blending,
+content-integrity, and connectivity validation sets; no metric-derived subset
+or corpus run promotes a candidate. Full proposal:
+`.agent/reports/codex/asp_quality_proposal_2026-08-23.md`.
+
 ## 3. Evidence baseline
 
 The completed `asp_evaluations_20260810.json` contains 97 reviewed cases:
