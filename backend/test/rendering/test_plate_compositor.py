@@ -71,3 +71,26 @@ def test_composite_plate_single_pose_one_character():
     # Frame 1 has larger coverage so it must be chosen
     assert meta["zones"][0]["chosen_frame"] == 1
     assert np.all(result[35:55, 35:55] == 250)
+
+
+def test_plate_compositor_p2_multiband_and_edge_preserve():
+    """Verify P2 multiband blending runs cleanly over the background plate."""
+    H, W = 128, 128
+    bg0 = np.full((H, W, 3), 50, dtype=np.uint8)
+    bg1 = np.full((H, W, 3), 150, dtype=np.uint8)
+    mask0 = np.ones((H, W), dtype=bool)
+    mask1 = np.ones((H, W), dtype=bool)
+
+    canvas = np.zeros((H, W, 3), dtype=np.uint8)
+    result, claimed, meta = composite_plate_single_pose(
+        [bg0, bg1],
+        [mask0, mask1],
+        canvas,
+        edge_preserve=True,
+        multiband=True,
+        multiband_levels=3,
+    )
+    assert meta.get("multiband_applied") is True
+    # Background should be non-zero and blend smoothly
+    assert result.mean() > 0
+

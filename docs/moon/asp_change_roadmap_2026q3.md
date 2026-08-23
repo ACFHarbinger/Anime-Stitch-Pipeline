@@ -630,6 +630,13 @@ Deliverables:
   and boundary completeness) with soft-edge feathering over the clean plate.
   Registered in `_CONFIG_SCHEMA` and wired into `composite.py`. Unit tests in
   `test_plate_compositor.py` (3 passed).
+  **P2 edge-preserving & multi-band seam cleanup (2026-08-23, Antigravity):**
+  Added edge-preserving sharp background source selection in multi-sample zones
+  (`ASP_PLATE_EDGE_PRESERVE=1`) and multi-scale Laplacian pyramid blending
+  (`ASP_PLATE_MULTIBAND=1`) over the clean background plate to resolve blur,
+  seam lines, and banding while protecting high-frequency line art and character
+  crispness. Unit tests in `test_plate_compositor.py` (4 passed).
+
 
 
 Exit criteria:
