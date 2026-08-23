@@ -162,7 +162,7 @@ class DefectSeverityRow(QWidget):
     def __init__(self, defect: str, title: str, hint: str, parent=None):
         super().__init__(parent)
         self.defect = defect
-        self._severity = 0
+        self._severity: int | None = 0
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(3)
@@ -178,16 +178,20 @@ class DefectSeverityRow(QWidget):
             btn.clicked.connect(lambda _checked, v=value: self._on_clicked(v))
             layout.addWidget(btn)
             self._buttons[value] = btn
+        self._legacy_label = subtle("legacy: ungraded")
+        self._legacy_label.hide()
+        layout.addWidget(self._legacy_label)
         layout.addStretch(1)
 
     def _on_clicked(self, severity: int) -> None:
         self.set_severity(severity)
         self.severityChanged.emit(self.defect, severity)
 
-    def set_severity(self, severity: int) -> None:
+    def set_severity(self, severity: int | None) -> None:
         self._severity = severity
         for value, button in self._buttons.items():
             button.setChecked(value == severity)
+        self._legacy_label.setVisible(severity is None)
 
 
 class ScoringPanel(QWidget):
@@ -473,7 +477,10 @@ class ScoringPanel(QWidget):
         for key, button in self._severity_image_buttons.items():
             button.setChecked(key == self._severity_image)
         for key, row in self._severity_rows.items():
-            row.set_severity(self._entry.severity(self._severity_image, key))
+            severity = self._entry.severity(self._severity_image, key)
+            row.set_severity(
+                None if severity == 0 and key in self._entry.defects else severity
+            )
 
     # -- status --------------------------------------------------------------
 

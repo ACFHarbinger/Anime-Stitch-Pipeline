@@ -765,6 +765,13 @@ def test_defect_severity_is_per_output_and_keeps_legacy_tag_projection(scoring):
     assert scoring.entry().defects == []
 
 
+def test_legacy_binary_tag_is_shown_as_ungraded_not_absent(scoring):
+    from asp_backend_evaluation.other.schema import RatingEntry
+
+    scoring.load_entry(RatingEntry(defects=["color_shift"]))
+    assert scoring._severity_rows["color_shift"]._severity is None
+
+
 def test_out_of_range_defect_index_is_ignored(scoring):
     assert scoring.toggle_defect_index(99) is None
 
