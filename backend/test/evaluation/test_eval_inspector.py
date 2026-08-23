@@ -747,6 +747,24 @@ def test_defect_tags_toggle_by_index(scoring):
     assert scoring.entry().defects == []
 
 
+def test_defect_severity_is_per_output_and_keeps_legacy_tag_projection(scoring):
+    scoring.set_defect_severity("color_shift", 3)
+    assert scoring.entry().severity("asp", "color_shift") == 3
+    assert scoring.entry().defects == ["color_shift"]
+
+    scoring._set_severity_image("simple")
+    scoring.set_defect_severity("color_shift", 1)
+    assert scoring.entry().severity("simple", "color_shift") == 1
+    assert scoring._severity_rows["color_shift"]._severity == 1
+
+    scoring._set_severity_image("asp")
+    scoring.set_defect_severity("color_shift", 0)
+    assert scoring.entry().defects == ["color_shift"]
+    scoring._set_severity_image("simple")
+    scoring.set_defect_severity("color_shift", 0)
+    assert scoring.entry().defects == []
+
+
 def test_out_of_range_defect_index_is_ignored(scoring):
     assert scoring.toggle_defect_index(99) is None
 

@@ -212,6 +212,47 @@ def test_bbox_defect_and_severity_round_trip(tmp_path):
     assert box.defect in DEFECT_KEYS
 
 
+def test_per_output_defect_severity_round_trips_and_projects_to_legacy_tags(tmp_path):
+    entry = RatingEntry()
+    entry.set_severity("asp", "color_shift", 3)
+    entry.set_severity("simple", "color_shift", 1)
+    entry.set_severity("asp", "seam_line", 2)
+
+    out = str(tmp_path / "out.json")
+    save_evaluations(out, {"t": entry})
+    raw = json.loads(open(out).read())["t"]
+    assert raw["defect_severity"] == {
+        "asp": {"color_shift": 3, "seam_line": 2},
+        "simple": {"color_shift": 1},
+    }
+    assert raw["defects"] == ["color_shift", "seam_line"]
+
+    restored = load_evaluations(out)["t"]
+    assert restored.severity("asp", "color_shift") == 3
+    assert restored.severity("simple", "color_shift") == 1
+    assert restored.severity("simple", "seam_line") == 0
+
+
+@pytest.mark.parametrize("image,defect,severity", [
+    ("unknown", "color_shift", 1),
+    ("asp", "unknown", 1),
+    ("asp", "color_shift", 4),
+])
+def test_per_output_defect_severity_rejects_invalid_values(image, defect, severity):
+    with pytest.raises(ValueError):
+        RatingEntry().set_severity(image, defect, severity)
+
+
+def test_clearing_one_output_keeps_the_binary_tag_until_all_outputs_clear():
+    entry = RatingEntry()
+    entry.set_severity("asp", "banding", 3)
+    entry.set_severity("simple", "banding", 1)
+    entry.set_severity("asp", "banding", 0)
+    assert entry.defects == ["banding"]
+    entry.set_severity("simple", "banding", 0)
+    assert entry.defects == []
+
+
 def test_edge_round_trip(tmp_path):
     entry = RatingEntry(edges=[Edge(
         points=[

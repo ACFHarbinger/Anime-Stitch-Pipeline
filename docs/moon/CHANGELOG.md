@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Per-output defect severity (2026-08-23, Codex):** the evaluation inspector
+  now grades every defect for the selected output as absent/trace/noticeable/
+  severe. The additive `defect_severity` schema maps output and defect to
+  1–3; legacy `defects` remains its binary projection. Existing evaluations
+  load unchanged and are not silently backfilled. Focused schema/inspector
+  tests: 97 passed.
+
 > **Continuity note (2026-08-06):** `docs/moon/ROADMAP.md` cites specific
 > session numbers (e.g. "S214", "S216") as being documented "in
 > `docs/moon/CHANGELOG.md`". That detailed, session-by-session history

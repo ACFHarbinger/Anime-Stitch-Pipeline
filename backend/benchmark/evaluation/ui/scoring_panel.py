@@ -36,10 +36,12 @@ from ..constants.schema import (
     DEFECTS,
     DIM_COHERENCE,
     DIMENSIONS,
+    IMAGE_ASP,
     PREFERENCES,
     SCORE_LABELS,
     SCORE_MAX,
     SCORE_MIN,
+    SEVERITY_LABELS,
 )
 from ..other.schema import RatingEntry
 from .theme import current_palette, score_chip_style, subtle
@@ -152,6 +154,42 @@ class ImageScoreBlock(QGroupBox):
             row.refresh_theme()
 
 
+class DefectSeverityRow(QWidget):
+    """One ordinal 0--3 severity row for the selected comparator output."""
+
+    severityChanged = Signal(str, int)
+
+    def __init__(self, defect: str, title: str, hint: str, parent=None):
+        super().__init__(parent)
+        self.defect = defect
+        self._severity = 0
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(3)
+        label = QLabel(title)
+        label.setMinimumWidth(116)
+        label.setToolTip(hint)
+        layout.addWidget(label)
+        self._buttons: dict[int, QPushButton] = {}
+        for value, text in ((0, "0 absent"), *sorted(SEVERITY_LABELS.items())):
+            btn = QPushButton(text)
+            btn.setCheckable(True)
+            btn.setToolTip("No defect" if value == 0 else f"Severity {value}: {text}")
+            btn.clicked.connect(lambda _checked, v=value: self._on_clicked(v))
+            layout.addWidget(btn)
+            self._buttons[value] = btn
+        layout.addStretch(1)
+
+    def _on_clicked(self, severity: int) -> None:
+        self.set_severity(severity)
+        self.severityChanged.emit(self.defect, severity)
+
+    def set_severity(self, severity: int) -> None:
+        self._severity = severity
+        for value, button in self._buttons.items():
+            button.setChecked(value == severity)
+
+
 class ScoringPanel(QWidget):
     """The whole feedback form for one test."""
 
@@ -162,6 +200,7 @@ class ScoringPanel(QWidget):
         self._entry = RatingEntry()
         self._loading = False
         self.blocks: dict[str, ImageScoreBlock] = {}
+        self._severity_image = IMAGE_ASP
 
         self._blocks_host = QWidget()
         self._blocks_layout = QVBoxLayout(self._blocks_host)
@@ -235,9 +274,13 @@ class ScoringPanel(QWidget):
         return box
 
     def _build_defects_box(self) -> QGroupBox:
-        box = QGroupBox("Defect tags (0-9 toggles the ten numbered tags)")
-        grid = QGridLayout(box)
-        grid.setContentsMargins(8, 4, 8, 6)
+        box = QGroupBox("Defects by output (0=absent, 1=trace, 2=noticeable, 3=severe)")
+        outer = QVBoxLayout(box)
+        outer.setContentsMargins(8, 4, 8, 6)
+        outer.setSpacing(6)
+        grid_host = QWidget()
+        grid = QGridLayout(grid_host)
+        grid.setContentsMargins(0, 0, 0, 0)
         grid.setSpacing(4)
         self._defect_buttons: dict[str, QPushButton] = {}
         # The last entry ("Other") is deliberately unnumbered — it has no
@@ -259,6 +302,26 @@ class ScoringPanel(QWidget):
         other_btn.clicked.connect(lambda _c, k=other_key: self.toggle_defect(k))
         grid.addWidget(other_btn, other_row, 0, 1, 2)  # span both columns
         self._defect_buttons[other_key] = other_btn
+        outer.addWidget(grid_host)
+
+        self._severity_selector = QHBoxLayout()
+        self._severity_selector.setSpacing(4)
+        self._severity_selector.addWidget(subtle("Grade output:"))
+        self._severity_selector.addStretch(1)
+        outer.addLayout(self._severity_selector)
+        self._severity_image_buttons: dict[str, QPushButton] = {}
+
+        self._severity_rows: dict[str, DefectSeverityRow] = {}
+        severity_host = QWidget()
+        severity_layout = QVBoxLayout(severity_host)
+        severity_layout.setContentsMargins(0, 0, 0, 0)
+        severity_layout.setSpacing(2)
+        for key, title, hint in DEFECTS:
+            row = DefectSeverityRow(key, title, hint)
+            row.severityChanged.connect(self._on_severity_changed)
+            severity_layout.addWidget(row)
+            self._severity_rows[key] = row
+        outer.addWidget(severity_host)
         return box
 
     def _build_notes_box(self) -> QGroupBox:
@@ -288,6 +351,7 @@ class ScoringPanel(QWidget):
             self._blocks_layout.addWidget(block)
             block.set_detailed(self._detail_toggle.isChecked())
             self.blocks[key] = block
+        self._set_severity_comparators(keys)
 
     def load_entry(self, entry: RatingEntry) -> None:
         self._loading = True
@@ -298,6 +362,7 @@ class ScoringPanel(QWidget):
                 block.set_detailed(self._detail_toggle.isChecked())
             self._sync_preference_buttons()
             self._sync_defect_buttons()
+            self._sync_severity_rows()
             self.notes_edit.setPlainText(entry.notes)
         finally:
             self._loading = False
@@ -348,10 +413,13 @@ class ScoringPanel(QWidget):
         self._emit_changed()
 
     def toggle_defect(self, key: str) -> None:
-        tags = set(self._entry.defects)
-        tags.symmetric_difference_update({key})
-        self._entry.defects = sorted(tags)
+        severity = self._entry.severity(self._severity_image, key)
+        self.set_defect_severity(key, 0 if severity else 1)
+
+    def set_defect_severity(self, key: str, severity: int) -> None:
+        self._entry.set_severity(self._severity_image, key, severity)
         self._sync_defect_buttons()
+        self._sync_severity_rows()
         self._emit_changed()
 
     def toggle_defect_index(self, index: int) -> str | None:
@@ -365,6 +433,31 @@ class ScoringPanel(QWidget):
         self._entry.notes = self.notes_edit.toPlainText()
         self._emit_changed()
 
+    def _set_severity_comparators(self, keys: list[str]) -> None:
+        eligible = [key for key in keys if key in self.blocks]
+        for button in self._severity_image_buttons.values():
+            self._severity_selector.removeWidget(button)
+            button.deleteLater()
+        self._severity_image_buttons = {}
+        if not eligible:
+            return
+        if self._severity_image not in eligible:
+            self._severity_image = eligible[0]
+        for key in eligible:
+            button = QPushButton(COMPARATOR_TITLES.get(key, key))
+            button.setCheckable(True)
+            button.clicked.connect(lambda _checked, k=key: self._set_severity_image(k))
+            self._severity_selector.insertWidget(self._severity_selector.count() - 1, button)
+            self._severity_image_buttons[key] = button
+        self._sync_severity_rows()
+
+    def _set_severity_image(self, image: str) -> None:
+        self._severity_image = image
+        self._sync_severity_rows()
+
+    def _on_severity_changed(self, defect: str, severity: int) -> None:
+        self.set_defect_severity(defect, severity)
+
     def _sync_preference_buttons(self) -> None:
         for key, btn in self._pref_buttons.items():
             btn.setChecked(self._entry.preference == key)
@@ -375,6 +468,12 @@ class ScoringPanel(QWidget):
         active = set(self._entry.defects)
         for key, btn in self._defect_buttons.items():
             btn.setChecked(key in active)
+
+    def _sync_severity_rows(self) -> None:
+        for key, button in self._severity_image_buttons.items():
+            button.setChecked(key == self._severity_image)
+        for key, row in self._severity_rows.items():
+            row.set_severity(self._entry.severity(self._severity_image, key))
 
     # -- status --------------------------------------------------------------
 

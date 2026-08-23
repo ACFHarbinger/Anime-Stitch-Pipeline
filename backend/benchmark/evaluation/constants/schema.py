@@ -118,7 +118,11 @@ DEFECT_TITLES = {key: title for key, title, _ in DEFECTS}
 
 SEVERITY_MIN = 1
 SEVERITY_MAX = 3
-SEVERITY_LABELS = {1: "cosmetic", 2: "noticeable", 3: "disqualifying"}
+SEVERITY_LABELS = {
+    1: "trace",
+    2: "noticeable",
+    3: "severe / decision-driving",
+}
 
 
 # ---------------------------------------------------------------------------

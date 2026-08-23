@@ -165,7 +165,14 @@ Deliverables:
 - Treat score ordering as the canonical quantitative human verdict. Preserve
   preference disagreements and nulls without silently rewriting them.
 - Extend future annotations so score dimensions and defect tags belong to a
-  specific output, not the comparison as a whole.
+  specific output, not the comparison as a whole. **Inspector severity slice
+  landed (2026-08-23, Codex):** optional
+  `defect_severity[output][defect] = 1..3` records trace/noticeable/severe
+  ordinal judgments per comparator; `0` is absent. The inspector selects an
+  output before grading each defect. The legacy `defects` list remains the
+  binary projection (any severity > 0), and old binary-only records remain
+  ungraded rather than being silently assigned a severity. Frozen labels were
+  not rewritten; the next review pass supplies the new data.
 - Define one versioned **case/provenance envelope** referenced by all three
   output artifacts. It owns corpus membership, source/licence and
   redistribution facts, GT qualifications, content/safety assessments, and

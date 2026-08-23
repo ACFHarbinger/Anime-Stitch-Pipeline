@@ -28,6 +28,8 @@ import json
 import os
 
 from ..constants.schema import (
+    COMPARATOR_KEYS,
+    DEFECT_KEYS,
     DIM_COHERENCE,
     DIMENSION_KEYS,
     IMAGE_ASP,
@@ -138,6 +140,9 @@ class RatingEntry:
     preference: str | None = None  # constants.schema.PREFERENCE_KEYS
     confidence: int | None = None  # 1-3
     defects: list[str] = dataclasses.field(default_factory=list)  # DEFECT_KEYS
+    # {output: {defect: 1..3}}. ``defects`` remains the compatible binary
+    # projection: a defect is present whenever any output has severity > 0.
+    defect_severity: dict[str, dict[str, int]] = dataclasses.field(default_factory=dict)
     reviewed: bool = False
     skipped: bool = False
     updated_at: str = ""
@@ -171,6 +176,31 @@ class RatingEntry:
     def touch(self) -> None:
         self.updated_at = datetime.datetime.now().isoformat(timespec="seconds")
 
+    def severity(self, image: str, defect: str) -> int:
+        """Return the ordinal severity; absent and malformed values read as 0."""
+        value = self.defect_severity.get(image, {}).get(defect, 0)
+        return value if isinstance(value, int) and 1 <= value <= 3 else 0
+
+    def set_severity(self, image: str, defect: str, severity: int) -> None:
+        """Set one output's defect severity and keep the legacy tag in sync."""
+        if image not in COMPARATOR_KEYS:
+            raise ValueError(f"unknown comparator: {image}")
+        if defect not in DEFECT_KEYS:
+            raise ValueError(f"unknown defect: {defect}")
+        if severity not in (0, 1, 2, 3):
+            raise ValueError(f"severity must be 0..3, got {severity}")
+        if severity:
+            self.defect_severity.setdefault(image, {})[defect] = severity
+            self.defects = sorted(set(self.defects) | {defect})
+            return
+        values = self.defect_severity.get(image)
+        if values is not None:
+            values.pop(defect, None)
+            if not values:
+                self.defect_severity.pop(image, None)
+        if not any(defect in values for values in self.defect_severity.values()):
+            self.defects = [tag for tag in self.defects if tag != defect]
+
     # -- serialization ------------------------------------------------------
 
     def to_dict(self) -> dict:
@@ -197,6 +227,12 @@ class RatingEntry:
             doc["confidence"] = self.confidence
         if self.defects:
             doc["defects"] = sorted(set(self.defects))
+        if self.defect_severity:
+            doc["defect_severity"] = {
+                image: dict(sorted(values.items()))
+                for image, values in sorted(self.defect_severity.items())
+                if values
+            }
         if self.reviewed:
             doc["reviewed"] = True
         if self.skipped:
@@ -233,6 +269,18 @@ class RatingEntry:
             skipped=bool(d.get("skipped", False)),
             updated_at=d.get("updated_at", ""),
         )
+        for image, values in (d.get("defect_severity") or {}).items():
+            if image not in COMPARATOR_KEYS or not isinstance(values, dict):
+                continue
+            for defect, severity in values.items():
+                if defect not in DEFECT_KEYS:
+                    continue
+                try:
+                    parsed = int(severity)
+                except (TypeError, ValueError):
+                    continue
+                if 1 <= parsed <= 3:
+                    entry.set_severity(image, defect, parsed)
         # A legacy file has no `reviewed` key; infer it from the scores so a
         # genuinely-rated old entry isn't re-queued, while an all-null
         # visited entry correctly reads as never reviewed.
