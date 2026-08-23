@@ -44,7 +44,7 @@ from ..constants.schema import (
     SEVERITY_LABELS,
 )
 from ..other.schema import RatingEntry
-from .theme import current_palette, score_chip_style, subtle
+from .theme import current_palette, score_chip_style, severity_chip_style, subtle
 
 
 class ScoreRow(QWidget):
@@ -155,7 +155,7 @@ class ImageScoreBlock(QGroupBox):
 
 
 class DefectSeverityRow(QWidget):
-    """One ordinal 0--3 severity row for the selected comparator output."""
+    """One ordinal 0--3 severity row for the selected comparator output, styled with crisp color-coded score chips."""
 
     severityChanged = Signal(str, int)
 
@@ -164,20 +164,28 @@ class DefectSeverityRow(QWidget):
         self.defect = defect
         self._severity: int | None = 0
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(3)
+        layout.setContentsMargins(4, 2, 4, 2)
+        layout.setSpacing(4)
+
         label = QLabel(title)
-        label.setMinimumWidth(116)
+        label.setMinimumWidth(125)
         label.setToolTip(hint)
+        self._title_label = label
         layout.addWidget(label)
+
+        self._group = QButtonGroup(self)
+        self._group.setExclusive(True)
         self._buttons: dict[int, QPushButton] = {}
         for value, text in ((0, "0 absent"), *sorted(SEVERITY_LABELS.items())):
             btn = QPushButton(text)
             btn.setCheckable(True)
-            btn.setToolTip("No defect" if value == 0 else f"Severity {value}: {text}")
+            btn.setToolTip("No defect (0)" if value == 0 else f"Severity {value}: {text}")
+            btn.setStyleSheet(severity_chip_style(value))
             btn.clicked.connect(lambda _checked, v=value: self._on_clicked(v))
+            self._group.addButton(btn, value)
             layout.addWidget(btn)
             self._buttons[value] = btn
+
         self._legacy_label = subtle("legacy: ungraded")
         self._legacy_label.hide()
         layout.addWidget(self._legacy_label)
@@ -192,6 +200,10 @@ class DefectSeverityRow(QWidget):
         for value, button in self._buttons.items():
             button.setChecked(value == severity)
         self._legacy_label.setVisible(severity is None)
+
+    def refresh_theme(self) -> None:
+        for value, button in self._buttons.items():
+            button.setStyleSheet(severity_chip_style(value))
 
 
 class ScoringPanel(QWidget):
@@ -489,6 +501,8 @@ class ScoringPanel(QWidget):
         change (see ``ScoreRow.refresh_theme``)."""
         for block in self.blocks.values():
             block.refresh_theme()
+        for row in self._severity_rows.values():
+            row.refresh_theme()
 
     def missing_required(self) -> list[str]:
         """Which required scores are still blank. Only the ASP and Simple

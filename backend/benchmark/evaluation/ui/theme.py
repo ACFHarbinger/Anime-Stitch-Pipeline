@@ -314,3 +314,30 @@ def score_chip_style(score: int) -> str:
         f"QPushButton:hover {{ border-color: {color}; color: {color}; }}"
         f"QPushButton:checked {{ background: {color}; color: {palette['bg']}; border-color: {color}; }}"
     )
+
+
+def severity_chip_style(severity: int) -> str:
+    """Inline style for 0-3 defect severity chips."""
+    palette = current_palette()
+    # 0: absent (muted/neutral), 1: trace (warn/yellow), 2: noticeable (orange), 3: severe (bad/red)
+    colors = {
+        0: palette["good"],
+        1: palette["warn"],
+        2: "#ff9f68",
+        3: palette["bad"],
+    }
+    color = colors.get(severity, palette["border"])
+    if severity == 0:
+        return (
+            f"QPushButton {{ border: 1px solid {palette['border']}; border-radius: 4px;"
+            f" background: {palette['surface_hi']}; color: {palette['text_dim']}; font-size: 11px; padding: 2px 6px; }}"
+            f"QPushButton:hover {{ border-color: {color}; color: {color}; }}"
+            f"QPushButton:checked {{ background: {color}; color: {palette['bg']}; border-color: {color}; font-weight: 600; }}"
+        )
+    return (
+        f"QPushButton {{ border: 1px solid {palette['border']}; border-radius: 4px;"
+        f" background: {palette['surface_hi']}; color: {palette['text_dim']}; font-size: 11px; padding: 2px 6px; }}"
+        f"QPushButton:hover {{ border-color: {color}; color: {color}; }}"
+        f"QPushButton:checked {{ background: {color}; color: {palette['bg']}; border-color: {color}; font-weight: 600; }}"
+    )
+
