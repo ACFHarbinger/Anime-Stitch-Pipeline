@@ -167,6 +167,7 @@ def test_any_real_input_is_persisted(out_path, mutate, expected_key):
     session = EvaluationSession(NAMES, out_path)
     mutate(session.entry("asp_test01"))
     session.commit("asp_test01")
+    session.save()  # saving is explicit now; commit alone stays in memory
     with open(out_path) as f:
         doc = json.loads(f.read())
 
@@ -264,3 +265,27 @@ def test_autosave_off_defers_until_save(out_path):
     session.save()
     with open(out_path) as f:
         assert "asp_test01" in json.loads(f.read())
+
+
+def test_autosave_defaults_off(out_path):
+    """Navigating must not write the file — the 2026-08-23 ground-truth loss."""
+    session = EvaluationSession(NAMES, out_path)
+    _rate(session, "asp_test01")
+    session.advance()
+    session.go_back()
+    assert not os.path.exists(out_path)
+
+
+def test_is_dirty_tracks_unsaved_edits(out_path):
+    session = EvaluationSession(NAMES, out_path)
+    assert not session.is_dirty
+    _rate(session, "asp_test01")
+    assert session.is_dirty
+    session.save()
+    assert not session.is_dirty
+
+
+def test_is_dirty_sees_uncommitted_working_entry(out_path):
+    session = EvaluationSession(NAMES, out_path)
+    session.entry("asp_test01").notes = "typed but never committed"
+    assert session.is_dirty

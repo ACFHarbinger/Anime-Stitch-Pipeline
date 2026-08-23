@@ -51,9 +51,12 @@ class EvaluationSession:
         names: list[str],
         out_path: str,
         redo: bool = False,
-        autosave: bool = True,
+        autosave: bool = False,
         on_change: Callable[[], None] | None = None,
     ):
+        # autosave defaults off: navigating used to write the file on every
+        # move, so idly clicking through tests rewrote the ratings. Edits now
+        # live in memory until an explicit save (Ctrl+S / the Save button).
         self.out_path = out_path
         self.redo = redo
         self.autosave = autosave
@@ -119,6 +122,17 @@ class EvaluationSession:
 
     def can_go_back(self) -> bool:
         return bool(self._history)
+
+    @property
+    def is_dirty(self) -> bool:
+        """True when committed edits have not reached disk yet.
+
+        Also true while only a *working* entry has content, so closing right
+        after typing into a test still warns instead of dropping the input.
+        """
+        if self._dirty:
+            return True
+        return any(self._has_content(entry) for entry in self._pending.values())
 
     # -- persistence ---------------------------------------------------------
 

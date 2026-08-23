@@ -41,6 +41,7 @@ class InspectorToolbar(QWidget):
     zoomRequested = Signal(float)
     queuePanelToggled = Signal(bool)
     sidePanelToggled = Signal(bool)
+    saveRequested = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -134,10 +135,21 @@ class InspectorToolbar(QWidget):
         self._side_toggle.setToolTip("Show/hide the scoring sidebar")
         self._side_toggle.toggled.connect(self.sidePanelToggled.emit)
         layout.addWidget(self._side_toggle)
+
+        # Ratings only reach disk from here (or Ctrl+S). The label carries the
+        # unsaved marker so the state is visible without reading the footer.
+        self._save_btn = QPushButton("Save ratings")
+        self._save_btn.setToolTip("Write ratings to the evaluations file (Ctrl+S)")
+        self._save_btn.clicked.connect(self.saveRequested.emit)
+        layout.addWidget(self._save_btn)
         self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
 
     def minimumSizeHint(self) -> QSize:  # noqa: D102 - Qt override
         return QSize(400, 32)
+
+    def set_dirty(self, dirty: bool) -> None:
+        """Mark whether there are unsaved ratings."""
+        self._save_btn.setText("Save ratings *" if dirty else "Save ratings")
 
     def set_comparators(self, available: list[str], visible: list[str]) -> None:
         for check in self._checks.values():

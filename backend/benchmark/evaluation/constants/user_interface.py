@@ -170,7 +170,7 @@ KEY_HINTS = (
     ("Ctrl+0-9", "toggle defect tag N"),
     ("Space", "save and next"),
     ("Backspace", "previous test"),
-    ("Ctrl+S", "save now"),
+    ("Ctrl+S", "save ratings (nothing is written until you do)"),
     ("Enter", "finish a multi-point link"),
     ("Esc", "cancel the in-progress link"),
 )

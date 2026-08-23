@@ -329,3 +329,29 @@ def test_save_is_atomic_and_leaves_no_temp_file(tmp_path):
 
 def test_missing_file_loads_as_empty(tmp_path):
     assert load_evaluations(str(tmp_path / "nope.json")) == {}
+
+
+def test_unknown_keys_survive_a_round_trip():
+    """A schema change must never delete the previous schema's fields.
+
+    The tool rewrites the whole file on save, so dropping an unrecognised key
+    wipes it from every entry — how the 97-case `defect_attribution` ground
+    truth was lost on 2026-08-23.
+    """
+    src = {
+        "asp": 3,
+        "simple": 4,
+        "preference": "simple",
+        "defect_attribution": {"asp": ["blur"], "simple": ["crop_loss"]},
+        "a_field_from_the_future": {"nested": [1, 2]},
+    }
+    out = RatingEntry.from_dict(src).to_dict()
+    assert out["defect_attribution"] == {"asp": ["blur"], "simple": ["crop_loss"]}
+    assert out["a_field_from_the_future"] == {"nested": [1, 2]}
+    assert out["asp"] == 3 and out["preference"] == "simple"
+
+
+def test_known_fields_win_over_carried_extras():
+    entry = RatingEntry.from_dict({"asp": 3})
+    entry.extra["asp"] = 99  # a stale copy must never shadow the real field
+    assert entry.to_dict()["asp"] == 3

@@ -265,6 +265,7 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         self.toolbar.lockToggled.connect(lambda locked: self.grid.set_locked(locked))
         self.toolbar.fitRequested.connect(self._fit_all)
         self.toolbar.zoomRequested.connect(lambda step: self.grid.zoom_focused(step))
+        self.toolbar.saveRequested.connect(self._save_now)
         page_layout.addWidget(self.toolbar)
 
         self.grid = PanelGrid()
@@ -406,10 +407,13 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         self.title_label.setText(name)
         missing = self.scoring_panel.missing_required()
         state = "complete" if not missing else f"needs {', '.join(missing)}"
+        dirty = self.session.is_dirty
         self.status_label.setText(
             f"#{progress.position}/{progress.total} · {progress.rated} rated · "
             f"{progress.skipped} skipped · this test: {state}"
+            + (" · unsaved changes" if dirty else "")
         )
+        self.toolbar.set_dirty(dirty)
         self.queue_panel.refresh()
 
     # -- toolbar / view ------------------------------------------------------
@@ -570,9 +574,12 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
     def _save_now(self) -> None:
         self._commit()
         self.session.save()
+        self._update_header()
         self.status_label.setText(f"Saved to {self.session.out_path}")
 
     def _load_evaluation_file(self) -> None:
+        if not self._confirm_discard("Load evaluation file"):
+            return
         path, _ = QFileDialog.getOpenFileName(
             self,
             "Load previous benchmark evaluation",
@@ -668,9 +675,34 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
             _dbg("  starting _resize_timer (150 ms debounce -> _fit_all)")
             self._resize_timer.start(150)
 
-    def closeEvent(self, event) -> None:  # noqa: D102 - Qt override
+    def _confirm_discard(self, title: str) -> bool:
+        """Ask before dropping unsaved ratings. True = it is safe to proceed.
+
+        Saving is explicit now, so an unsaved session is the normal state
+        rather than an error — this is the only thing standing between a
+        rating pass and a closed window.
+        """
         self._commit()
-        self.session.save()
+        if not self.session.is_dirty:
+            return True
+        choice = QMessageBox.question(
+            self,
+            title,
+            "You have unsaved ratings. Save them before continuing?",
+            QMessageBox.StandardButton.Save
+            | QMessageBox.StandardButton.Discard
+            | QMessageBox.StandardButton.Cancel,
+            QMessageBox.StandardButton.Save,
+        )
+        if choice == QMessageBox.StandardButton.Save:
+            self.session.save()
+            return True
+        return choice == QMessageBox.StandardButton.Discard
+
+    def closeEvent(self, event) -> None:  # noqa: D102 - Qt override
+        if not self._confirm_discard("Close inspector"):
+            event.ignore()
+            return
         super().closeEvent(event)
 
 

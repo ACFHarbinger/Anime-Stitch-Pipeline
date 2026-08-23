@@ -123,6 +123,27 @@ class Edge:
         return Edge(points=points, label=d.get("label", ""))
 
 
+# Every key `from_dict` reads. Anything else in an entry is kept in `extra`
+# and written back untouched; keep this in step when adding a field.
+_KNOWN_KEYS = frozenset(
+    {
+        "asp",
+        "simple",
+        "notes",
+        "bboxes",
+        "edges",
+        "dimensions",
+        "preference",
+        "confidence",
+        "defects",
+        "defect_severity",
+        "reviewed",
+        "skipped",
+        "updated_at",
+    }
+)
+
+
 @dataclasses.dataclass
 class RatingEntry:
     # -- the original, bench-facing fields (never rename or retype these) ---
@@ -146,6 +167,12 @@ class RatingEntry:
     reviewed: bool = False
     skipped: bool = False
     updated_at: str = ""
+    # Every key `from_dict` did not recognise, round-tripped verbatim by
+    # `to_dict`. Without this a schema change silently deletes the previous
+    # schema's fields from *every* entry on the next save, because the tool
+    # rewrites the whole file — which is how the 97-case `defect_attribution`
+    # ground truth was lost on 2026-08-23.
+    extra: dict = dataclasses.field(default_factory=dict)
 
     # -- score accessors ----------------------------------------------------
 
@@ -239,6 +266,10 @@ class RatingEntry:
             doc["skipped"] = True
         if self.updated_at:
             doc["updated_at"] = self.updated_at
+        # Unrecognised keys last, and never over a key this schema owns: a
+        # field we understand always wins over the stale copy we carried.
+        for key, value in self.extra.items():
+            doc.setdefault(key, value)
         return doc
 
     @staticmethod
@@ -290,6 +321,7 @@ class RatingEntry:
         for image, top in ((IMAGE_ASP, asp), (IMAGE_SIMPLE, simple)):
             if top is not None:
                 entry.dimensions.setdefault(image, {})[DIM_COHERENCE] = top
+        entry.extra = {k: v for k, v in d.items() if k not in _KNOWN_KEYS}
         return entry
 
 
