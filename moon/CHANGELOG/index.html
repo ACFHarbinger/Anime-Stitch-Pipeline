@@ -1684,6 +1684,26 @@
 <p>All notable changes to this project are documented in this file.</p>
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<ul>
+<li>
+<p><strong>Per-output defect severity (2026-08-23, Codex):</strong> the evaluation inspector
+  now grades every defect for the selected output as absent/trace/noticeable/
+  severe. The additive <code>defect_severity</code> schema maps output and defect to
+  1–3; legacy <code>defects</code> remains its binary projection. Existing evaluations
+  load unchanged and are not silently backfilled. Focused schema/inspector
+  tests: 97 passed.</p>
+</li>
+<li>
+<p><strong>Raw ASP quality proposal (2026-08-23, Codex):</strong> recorded default-off
+  renderer and assisted-recovery candidates for seam/blending, content
+  integrity, and matching connectivity. The proposal requires
+  production/benchmark photometric telemetry parity and Harbinger-selected
+  small-slice review before any authorized corpus run.
+  The first slice puts a single coherent pose before seam cleanup: seam
+  03/05/17/37/42/78; content 01/41/65/68/74/82/28/83; controls 67/73;
+  connectivity 21/46/52 plus hard controls 51/89.</p>
+</li>
+</ul>
 <blockquote>
 <p><strong>Continuity note (2026-08-06):</strong> <code>docs/moon/ROADMAP.md</code> cites specific
 session numbers (e.g. "S214", "S216") as being documented "in
