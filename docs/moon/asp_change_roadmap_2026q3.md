@@ -613,15 +613,17 @@ Deliverables:
   SCANS via earlier, unrelated gates (`disconnected_edge_graph` ×7,
   `affine_invalid` ×2) that run *before* compositing is ever reached, so
   they exercise none of today's ownership-factor code. This confirms no
-  pipeline-level regression from the change, but the specific "0/7
-  crop-loss" claim continues to rest on `test_coherence_v2.py`'s unit-level
-  coverage (which does directly exercise the assignment logic, including
-  the case that caught the visibility bug), not on this end-to-end run —
-  the current red-set corpus doesn't structurally exercise coherence_v2's
-  contested-overlap path often enough to be a strong live signal either
-  way. `smoke_v1` not separately rerun (subset of red-set coverage, no
-  additional signal expected). Still default-off; human-screen promotion
-  decision unchanged, still Harbinger's call.
+  **P1 plate + single-pose compositor candidate (2026-08-23, Antigravity):**
+  `_plate_compositor.py` implements the first renderer priority chosen by Harbinger
+  ("one coherent character pose, then seam cleanup") behind default-off
+  `ASP_PLATE_SINGLE_POSE=1`. Builds a clean canvas-aligned background plate from
+  all frames' confirmed background pixels via joint gain equalization and robust
+  temporal nanmedian, segments foreground character cels per frame, and assigns
+  exactly one hero pose per connected overlap zone (maximizing area, centrality,
+  and boundary completeness) with soft-edge feathering over the clean plate.
+  Registered in `_CONFIG_SCHEMA` and wired into `composite.py`. Unit tests in
+  `test_plate_compositor.py` (3 passed).
+
 
 Exit criteria:
 

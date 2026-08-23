@@ -62,6 +62,18 @@ def _composite_foreground(
     # Warp inputs
     warped_list, warped_bg = _warp_inputs(frames, affines, bg_masks, H, W, N)
 
+    # P1 candidate: default-off canvas-aligned background plate + single foreground pose
+    from ._plate_compositor import composite_plate_single_pose, plate_single_pose_enabled
+
+    if plate_single_pose_enabled() and N >= 2:
+        result, claimed, plate_meta = composite_plate_single_pose(warped_list, warped_bg, canvas)
+        if seam_meta_out is not None:
+            seam_meta_out["plate_single_pose"] = True
+            seam_meta_out["n_claimed"] = int((claimed >= 0).sum())
+            seam_meta_out["plate_ownership"] = plate_meta
+        print("[Stitch]   plate_single_pose composite (ASP_PLATE_SINGLE_POSE=1).")
+        return result
+
     # M3 candidate: default-off §9.2 single-pose apply. Live seam loop below.
     if coherence_v2_enabled() and N >= 2:
         from .coherence_v2 import composite_coherence_v2, fg_mask_from_warped

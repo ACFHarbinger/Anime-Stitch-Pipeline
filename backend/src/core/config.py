@@ -97,6 +97,7 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     # ── Compositing (Stage 11) ───────────────────────────────────────────
     "ASP_PHASE_COMPOSITE": (int, 0, 1, "§2.3 phase-consistent compositing: never midpoint-warp across an animation-phase boundary, escalate to single-pose instead (default OFF pending A/B)"),
     "ASP_COHERENCE_V2": (int, 0, 1, "M3 default-off §9.2 Stage 2 compositor candidate: one pose per foreground overlap region; not wired into the live seam loop"),
+    "ASP_PLATE_SINGLE_POSE": (int, 0, 1, "P1 default-off candidate: canvas-aligned background plate + single foreground pose per connected region"),
     "ASP_GRAPHCUT_SEAM": (int, 0, 1, "GraphCut global multi-image seam (§4.2; default OFF — measured worse seam_visibility than DP path)"),
     "ASP_GC_FEATHER_PX": (int, 0, None, "Feather width at GraphCut ownership boundaries"),
     "ASP_BLOCKS_GAIN_COMP": (int, 0, 1, "32×32 blocks BGR gain compensation in blend zones (§4.1)"),
