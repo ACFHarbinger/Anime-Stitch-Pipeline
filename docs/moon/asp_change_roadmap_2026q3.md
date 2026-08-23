@@ -81,6 +81,14 @@ content-integrity, and connectivity validation sets; no metric-derived subset
 or corpus run promotes a candidate. Full proposal:
 `.agent/reports/codex/asp_quality_proposal_2026-08-23.md`.
 
+**First validation slice locked (2026-08-23):** P1's one-coherent-pose
+contract is before P2 seam cleanup. Harbinger selected seam cases
+03/05/17/37/42/78; content cases 01/41/65/68/74/82/28/83; clean/near-clean
+regression controls 67/73. Connectivity uses 21/46/52, where the offline
+overlap proposal found bridge candidates, and hard controls 51/89, where its
+anchors were too sparse. These are review slices, not authorization for a
+benchmark run.
+
 ## 3. Evidence baseline
 
 The completed `asp_evaluations_20260810.json` contains 97 reviewed cases:

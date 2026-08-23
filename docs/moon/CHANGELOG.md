@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   integrity, and matching connectivity. The proposal requires
   production/benchmark photometric telemetry parity and Harbinger-selected
   small-slice review before any authorized corpus run.
+  The first slice puts a single coherent pose before seam cleanup: seam
+  03/05/17/37/42/78; content 01/41/65/68/74/82/28/83; controls 67/73;
+  connectivity 21/46/52 plus hard controls 51/89.
 
 > **Continuity note (2026-08-06):** `docs/moon/ROADMAP.md` cites specific
 > session numbers (e.g. "S214", "S216") as being documented "in
