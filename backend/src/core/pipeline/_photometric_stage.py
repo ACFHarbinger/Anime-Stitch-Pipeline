@@ -39,18 +39,44 @@ def _apply_background_photometric_normalization(
     matching the pre-split behaviour).
     """
     bg_frame_means: list[np.ndarray | None] = []
+    frame_rows: list[dict] = []
     for _i, (_frame, _mask) in enumerate(zip(frames, bg_masks, strict=False)):
+        bg_pixels = 0
         if _mask is not None:
             _bg_px = _frame[_mask > 127].astype(np.float32)
-            if len(_bg_px) >= 1000:
-                bg_frame_means.append(_bg_px.mean(axis=0))
+            bg_pixels = int(len(_bg_px))
+            if bg_pixels >= 1000:
+                _mean = _bg_px.mean(axis=0)
+                bg_frame_means.append(_mean)
+                frame_rows.append(
+                    {
+                        "frame": int(_i),
+                        "background_pixels": bg_pixels,
+                        "eligible": True,
+                        "background_mean_bgr": [round(float(x), 4) for x in _mean],
+                        "background_luminance": round(
+                            float(np.dot(_mean, [0.114, 0.587, 0.299])), 4
+                        ),
+                    }
+                )
                 continue
         bg_frame_means.append(None)
+        frame_rows.append(
+            {
+                "frame": int(_i),
+                "background_pixels": bg_pixels,
+                "eligible": False,
+                "background_mean_bgr": None,
+                "background_luminance": None,
+            }
+        )
 
     _valid_means = [m for m in bg_frame_means if m is not None]
     gain_rows: list[dict] = []
+    ref_luminance: float | None = None
     if len(_valid_means) >= 3:
         _ref_mean = np.median(_valid_means, axis=0)  # (3,) BGR reference
+        ref_luminance = float(np.dot(_ref_mean, [0.114, 0.587, 0.299]))
         for _i in range(N):
             _bg_mean_i = bg_frame_means[_i]
             if _bg_mean_i is None:
@@ -63,23 +89,32 @@ def _apply_background_photometric_normalization(
             _unclamped = np.asarray(_gain, dtype=np.float32)
             _gain = np.clip(_gain, _gain_lo, _gain_hi)
             _clamped = bool(np.any(np.abs(_unclamped - _gain) > 1e-6))
-            gain_rows.append(
+            _row = frame_rows[_i]
+            _row.update(
                 {
-                    "frame": int(_i),
                     "gain_bgr": [round(float(x), 4) for x in _gain],
                     "unclamped_bgr": [round(float(x), 4) for x in _unclamped],
                     "clamped": _clamped,
                     "clamp_lo": float(_gain_lo),
                     "clamp_hi": float(_gain_hi),
                     "residual": round(float(np.mean(np.abs(_gain - 1.0))), 4),
+                    "applied": not np.allclose(_gain, 1.0, atol=0.01),
                 }
             )
+            gain_rows.append(_row)
             if not np.allclose(_gain, 1.0, atol=0.01):
                 frames[_i] = np.clip(
                     frames[_i].astype(np.float32) * _gain, 0, 255
                 ).astype(np.uint8)
     if telemetry is not None:
-        telemetry["frames"] = gain_rows
+        telemetry["frames"] = frame_rows
+        telemetry["eligible_mask_count"] = len(_valid_means)
+        telemetry["reference_luminance"] = (
+            round(ref_luminance, 4) if ref_luminance is not None else None
+        )
+        telemetry["applied_gain_count"] = sum(
+            1 for row in gain_rows if row["applied"]
+        )
         telemetry["n_clamped"] = sum(1 for row in gain_rows if row["clamped"])
         telemetry["mean_residual"] = (
             round(float(np.mean([row["residual"] for row in gain_rows])), 4)

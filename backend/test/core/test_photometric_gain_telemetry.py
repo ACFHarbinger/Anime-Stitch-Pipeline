@@ -24,9 +24,14 @@ def test_gain_telemetry_records_clamp_and_residual():
     out = _apply_background_photometric_normalization(frames, masks, 3, telemetry=telem)
     assert len(out) == 3
     assert telem["frames"]
+    assert telem["eligible_mask_count"] == 3
+    assert telem["reference_luminance"] is not None
     assert "n_clamped" in telem
     assert "mean_residual" in telem
     dark = next(row for row in telem["frames"] if row["frame"] == 1)
+    assert dark["background_pixels"] == 1600
+    assert dark["eligible"] is True
+    assert dark["background_luminance"] is not None
     assert dark["residual"] >= 0.0
     assert dark["clamp_lo"] < dark["clamp_hi"]
     assert len(dark["gain_bgr"]) == 3
@@ -38,3 +43,18 @@ def test_no_telemetry_arg_is_still_pixel_compatible():
         frames, [_bg_mask()] * 3, 3
     )
     assert len(out) == 3
+
+
+def test_gain_telemetry_records_ineligible_masks_without_inventing_gain():
+    frames = [_frame(80, 20, 20) for _ in range(3)]
+    masks = [_bg_mask(20, 20) for _ in range(3)]
+    telem: dict = {}
+
+    _apply_background_photometric_normalization(frames, masks, 3, telemetry=telem)
+
+    assert telem["eligible_mask_count"] == 0
+    assert telem["reference_luminance"] is None
+    assert telem["applied_gain_count"] == 0
+    assert all(row["background_pixels"] == 400 for row in telem["frames"])
+    assert all(row["eligible"] is False for row in telem["frames"])
+    assert all("gain_bgr" not in row for row in telem["frames"])

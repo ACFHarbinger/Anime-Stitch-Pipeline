@@ -85,9 +85,16 @@ or corpus run promotes a candidate. Full proposal:
 contract is before P2 seam cleanup. Harbinger selected seam cases
 03/05/17/37/42/78; content cases 01/41/65/68/74/82/28/83; clean/near-clean
 regression controls 67/73. Connectivity uses 21/46/52, where the offline
-overlap proposal found bridge candidates, and hard controls 51/89, where its
-anchors were too sparse. These are review slices, not authorization for a
-benchmark run.
+overlap proposal found bridge candidates, plus 89 (anchors too sparse) and 25
+(`no_valid_edges`). Test51 was removed: its frozen fallback is `seam_vis_gate`,
+not connectivity. These are review slices, not authorization for a benchmark
+run.
+
+**P0 landed (2026-08-23, Codex):** canonical benchmark reports now read the
+production Stage 4.5 gain record from `PipelineSession`, including per-frame
+background-pixel eligibility/luminance, BGR gains, clamp hits, residuals, and
+reference luminance. No gain is recomputed in the adapter and no pixel path
+changed. Legacy A/B output is explicitly labeled `legacy_harness`.
 
 ## 3. Evidence baseline
 

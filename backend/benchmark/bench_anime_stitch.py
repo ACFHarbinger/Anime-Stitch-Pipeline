@@ -1203,6 +1203,7 @@ def _process_dataset_canonical(
         hugin_img=hugin_img,
         hugin_path=(hugin_path if hugin_img is not None else None),
         stage_memory_rss_mb=stage_memory_rss_mb,
+        photometric_telemetry=session.gain_telemetry,
     )
     built["raw_asp_path"] = result.raw_asp_path
     built["safe_asp_path"] = result.safe_asp_path
@@ -2078,6 +2079,30 @@ def process_dataset(dataset_dir: str) -> dict | None:  # noqa: C901
 # ============================================================================
 
 
+def _production_photometric_result(payload: dict) -> dict:
+    """Serialize the canonical pipeline's Stage 4.5 telemetry verbatim enough
+    for existing benchmark readers while retaining the per-frame production
+    record. No gain is recomputed in the benchmark adapter."""
+    rows = list(payload.get("frames") or [])
+    scalar_gains = [
+        round(float(np.mean(row["gain_bgr"])), 4)
+        for row in rows
+        if isinstance(row.get("gain_bgr"), list)
+    ]
+    return {
+        "source": "production_stage",
+        "ref_lum": payload.get("reference_luminance"),
+        "bg_lums": [row.get("background_luminance") for row in rows],
+        "applied_gains": scalar_gains,
+        "frames_corrected": int(payload.get("applied_gain_count") or 0),
+        "gain_range": [min(scalar_gains), max(scalar_gains)] if scalar_gains else None,
+        "eligible_mask_count": int(payload.get("eligible_mask_count") or 0),
+        "n_clamped": int(payload.get("n_clamped") or 0),
+        "mean_residual": payload.get("mean_residual"),
+        "frames": rows,
+    }
+
+
 def _build_result(
     dataset_name: str,
     anime_path: str,
@@ -2116,6 +2141,7 @@ def _build_result(
     hugin_img: np.ndarray | None = None,
     hugin_path: str | None = None,
     stage_memory_rss_mb: dict[str, float] | None = None,
+    photometric_telemetry: dict | None = None,
 ) -> dict:
     asp_metrics = _compute_all_metrics(asp_img, affines) if asp_img is not None else {}
     sim_metrics = _compute_all_metrics(sim_img) if sim_img is not None else {}
@@ -2202,6 +2228,23 @@ def _build_result(
     ref_lum = round(float(np.median(valid_lums)), 2) if valid_lums else None
     non_trivial_gains = sum(1 for g in applied_gains if abs(g - 1.0) > 0.01)
 
+    photometric = {
+        "source": "legacy_harness",
+        "ref_lum": ref_lum,
+        "bg_lums": [
+            round(lum, 2) if lum is not None else None for lum in bg_frame_lums
+        ],
+        "applied_gains": [round(g, 4) for g in applied_gains],
+        "frames_corrected": non_trivial_gains,
+        "gain_range": (
+            [round(min(applied_gains), 4), round(max(applied_gains), 4)]
+            if applied_gains
+            else None
+        ),
+    }
+    if photometric_telemetry is not None:
+        photometric = _production_photometric_result(photometric_telemetry)
+
     return {
         "name": dataset_name,
         "anime_path": anime_path,
@@ -2265,19 +2308,7 @@ def _build_result(
             "reason": getattr(health, "reason", "canonical_adapter"),
         },
         # --- photometric correction ---
-        "photometric": {
-            "ref_lum": ref_lum,
-            "bg_lums": [
-                round(lum, 2) if lum is not None else None for lum in bg_frame_lums
-            ],
-            "applied_gains": [round(g, 4) for g in applied_gains],
-            "frames_corrected": non_trivial_gains,
-            "gain_range": (
-                [round(min(applied_gains), 4), round(max(applied_gains), 4)]
-                if applied_gains
-                else None
-            ),
-        },
+        "photometric": photometric,
         # --- quality metrics ---
         "metrics_asp": asp_metrics,
         "metrics_simple": sim_metrics,
