@@ -88,6 +88,9 @@ StyleCopReport.xml
 *.tlh
 *.tmp
 *.tmp_proj
+
+# Inspector save backups — the tracked evaluations file is the history now
+*.json.bak
 *_wpftmp.csproj
 *.log
 *.tlog

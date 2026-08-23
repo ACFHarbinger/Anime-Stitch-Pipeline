@@ -26,6 +26,7 @@ import dataclasses
 import datetime
 import json
 import os
+import shutil
 
 from ..constants.schema import (
     COMPARATOR_KEYS,
@@ -333,8 +334,28 @@ def load_evaluations(path: str) -> dict[str, RatingEntry]:
     return {name: RatingEntry.from_dict(entry) for name, entry in raw.items()}
 
 
+def _write_backup(path: str) -> None:
+    """Copy the current file to ``<path>.bak`` before it is overwritten.
+
+    Only when what is already on disk parses and is non-empty, so a corrupt or
+    truncated file can never replace a good backup — the point is to survive a
+    bad *save*, and a bad save is exactly when the source is untrustworthy.
+    Backing up is best-effort: a failure here must never block the save.
+    """
+    if not os.path.exists(path):
+        return
+    try:
+        with open(path) as fh:
+            if not json.load(fh):
+                return
+        shutil.copy2(path, f"{path}.bak")
+    except (OSError, ValueError):
+        return
+
+
 def save_evaluations(path: str, evaluations: dict[str, RatingEntry]) -> None:
     doc = {name: entry.to_dict() for name, entry in evaluations.items()}
+    _write_backup(path)
     tmp_path = f"{path}.tmp"
     with open(tmp_path, "w") as fh:
         json.dump(doc, fh, indent=2, sort_keys=True)

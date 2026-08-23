@@ -355,3 +355,28 @@ def test_known_fields_win_over_carried_extras():
     entry = RatingEntry.from_dict({"asp": 3})
     entry.extra["asp"] = 99  # a stale copy must never shadow the real field
     assert entry.to_dict()["asp"] == 3
+
+
+def test_save_writes_a_backup_of_the_previous_contents(tmp_path):
+    path = str(tmp_path / "evals.json")
+    save_evaluations(path, {"asp_test01": RatingEntry(asp=3, simple=4)})
+    assert not os.path.exists(f"{path}.bak")  # nothing to back up on first save
+
+    save_evaluations(path, {"asp_test02": RatingEntry(asp=1, simple=2)})
+    with open(f"{path}.bak") as fh:
+        assert json.load(fh)["asp_test01"]["asp"] == 3
+    with open(path) as fh:
+        assert "asp_test01" not in json.load(fh)
+
+
+def test_backup_is_not_clobbered_by_a_corrupt_current_file(tmp_path):
+    """A bad save is exactly when the on-disk copy must not become the backup."""
+    path = str(tmp_path / "evals.json")
+    save_evaluations(path, {"asp_test01": RatingEntry(asp=3, simple=4)})
+    save_evaluations(path, {"asp_test02": RatingEntry(asp=1, simple=2)})
+    with open(path, "w") as fh:
+        fh.write("{ truncated")
+
+    save_evaluations(path, {"asp_test03": RatingEntry(asp=2, simple=2)})
+    with open(f"{path}.bak") as fh:
+        assert json.load(fh)["asp_test01"]["asp"] == 3  # still the good copy
