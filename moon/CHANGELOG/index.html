@@ -1701,7 +1701,15 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   small-slice review before any authorized corpus run.
   The first slice puts a single coherent pose before seam cleanup: seam
   03/05/17/37/42/78; content 01/41/65/68/74/82/28/83; controls 67/73;
-  connectivity 21/46/52 plus hard controls 51/89.</p>
+  connectivity 21/46/52 plus controls 89/25. Test51 was removed because its
+  frozen fallback is <code>seam_vis_gate</code>, not connectivity.</p>
+</li>
+<li>
+<p><strong>Production photometric telemetry parity (2026-08-23, Codex):</strong> canonical
+  benchmark output now serializes the exact Stage 4.5 gain telemetry held by
+  <code>PipelineSession</code>: frame-level eligible background pixels/luminance, BGR
+  gains, clamps, residuals, and reference luminance. It does not recompute a
+  benchmark-only correction; legacy A/B output is explicitly labeled.</p>
 </li>
 </ul>
 <blockquote>

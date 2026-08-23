@@ -2075,9 +2075,15 @@ or corpus run promotes a candidate. Full proposal:
 contract is before P2 seam cleanup. Harbinger selected seam cases
 03/05/17/37/42/78; content cases 01/41/65/68/74/82/28/83; clean/near-clean
 regression controls 67/73. Connectivity uses 21/46/52, where the offline
-overlap proposal found bridge candidates, and hard controls 51/89, where its
-anchors were too sparse. These are review slices, not authorization for a
-benchmark run.</p>
+overlap proposal found bridge candidates, plus 89 (anchors too sparse) and 25
+(<code>no_valid_edges</code>). Test51 was removed: its frozen fallback is <code>seam_vis_gate</code>,
+not connectivity. These are review slices, not authorization for a benchmark
+run.</p>
+<p><strong>P0 landed (2026-08-23, Codex):</strong> canonical benchmark reports now read the
+production Stage 4.5 gain record from <code>PipelineSession</code>, including per-frame
+background-pixel eligibility/luminance, BGR gains, clamp hits, residuals, and
+reference luminance. No gain is recomputed in the adapter and no pixel path
+changed. Legacy A/B output is explicitly labeled <code>legacy_harness</code>.</p>
 <h2 id="3-evidence-baseline">3. Evidence baseline</h2>
 <p>The completed <code>asp_evaluations_20260810.json</code> contains 97 reviewed cases:</p>
 <table>
@@ -2602,15 +2608,16 @@ segmentation model.</p>
   SCANS via earlier, unrelated gates (<code>disconnected_edge_graph</code> ×7,
   <code>affine_invalid</code> ×2) that run <em>before</em> compositing is ever reached, so
   they exercise none of today's ownership-factor code. This confirms no
-  pipeline-level regression from the change, but the specific "0/7
-  crop-loss" claim continues to rest on <code>test_coherence_v2.py</code>'s unit-level
-  coverage (which does directly exercise the assignment logic, including
-  the case that caught the visibility bug), not on this end-to-end run —
-  the current red-set corpus doesn't structurally exercise coherence_v2's
-  contested-overlap path often enough to be a strong live signal either
-  way. <code>smoke_v1</code> not separately rerun (subset of red-set coverage, no
-  additional signal expected). Still default-off; human-screen promotion
-  decision unchanged, still Harbinger's call.</p>
+  <strong>P1 plate + single-pose compositor candidate (2026-08-23, Antigravity):</strong>
+  <code>_plate_compositor.py</code> implements the first renderer priority chosen by Harbinger
+  ("one coherent character pose, then seam cleanup") behind default-off
+  <code>ASP_PLATE_SINGLE_POSE=1</code>. Builds a clean canvas-aligned background plate from
+  all frames' confirmed background pixels via joint gain equalization and robust
+  temporal nanmedian, segments foreground character cels per frame, and assigns
+  exactly one hero pose per connected overlap zone (maximizing area, centrality,
+  and boundary completeness) with soft-edge feathering over the clean plate.
+  Registered in <code>_CONFIG_SCHEMA</code> and wired into <code>composite.py</code>. Unit tests in
+  <code>test_plate_compositor.py</code> (3 passed).</p>
 <p>Exit criteria:</p>
 <ul>
 <li>No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the
