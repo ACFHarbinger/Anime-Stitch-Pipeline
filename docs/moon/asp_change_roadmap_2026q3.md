@@ -131,6 +131,13 @@ translation consensus. It accepts only a fully connected consensus graph,
 records component and missing-adjacent-edge counts, and leaves the ratio gate
 unchanged. Targeted tests pass; test94 measurement is authorized separately.
 
+**test94 measurement (2026-08-24, Codex):** The authorized deterministic,
+one-thread run with CleanCP enabled did not reproduce the older ratio failure:
+12 post-dedup frames retained 18 filtered edges and passed BA, before Safe ASP
+fell back at seam visibility. The benchmark summary does not retain session
+artifacts, so this is not evidence that CleanCP repaired the historic gaps.
+Evidence: `.agent/reports/chat/asp_test94_cleancp_2026-08-24.md`.
+
 **Locked renderer slice capacity stop (2026-08-24, Codex):** The authorized
 deterministic baseline completed 03/05/17/37/42/78 only; P1/P2 has not begun.
 An in-process sweep retained RSS (3.6→5.8 GB), so subsequent cases use one
