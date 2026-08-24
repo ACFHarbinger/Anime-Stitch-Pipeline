@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Deterministic rerun gate passed (2026-08-24, Codex):** authorized,
+  fresh-process repeats of `asp_test28`, `asp_test82`, and Raw-ASP control
+  `asp_test67` matched selection, dedup/edge counts, routing, and final PNG
+  SHA-256 under `ASP_DETERMINISTIC=1`, seed 1729, and one native/OpenCV/Torch
+  thread. P1/P2 may resume only under this recorded environment; this does not
+  establish equivalence with the older frozen corpus.
+
 - **Deterministic-run auditability (2026-08-24, Codex):** `PipelineSession`
   now records thread-pool settings, native thread env, device, cuDNN and
   Torch deterministic flags, and Python/NumPy/OpenCV/Torch/CUDA seed policy

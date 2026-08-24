@@ -109,6 +109,14 @@ native thread caps before importing numerical libraries. Next action requires
 Harbinger approval for 2–3 cases run twice under identical settings; only
 identical routing clears this prerequisite.
 
+**Determinism check passed (2026-08-24, Codex):** Authorized fresh-process
+repeats of selection-drift cases 28/82 and Raw-ASP control 67 used
+`ASP_DETERMINISTIC=1`, seed 1729, and one native/OpenCV/Torch thread. All
+three pairs had identical selection, post-dedup/edge counts, routing, and PNG
+SHA-256. The P1/P2 A/B may resume only under this recorded environment; this
+does not make its new baseline comparable to the older frozen corpus. Evidence:
+`.agent/reports/codex/asp_determinism_check_2026-08-24.md`.
+
 ## 3. Evidence baseline
 
 The completed `asp_evaluations_20260810.json` contains 97 reviewed cases:
