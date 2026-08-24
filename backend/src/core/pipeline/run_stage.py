@@ -365,7 +365,16 @@ class _RunStageMixin(_Base):
             session.mark(PipelineStage.PHASE, skipped=True, error=str(_phase_exc))
 
         print("[Stitch]   Phase detection complete; filtering edges...", flush=True)
+        raw_registration_edges = list(edges)
         edges = self._filter_edges(edges, image_paths, H, W, frames, bg_masks)
+        if os.environ.get("ASP_CLEANCP_RESOLVE", "0") == "1":
+            from ._cleancp_recovery import recover_clean_correspondence_edges
+
+            if not edges or not _check_edge_graph_connectivity(edges, N):
+                edges, cleancp_telemetry = recover_clean_correspondence_edges(
+                    raw_registration_edges, edges, N
+                )
+                session.record_artifact("cleancp_recovery", cleancp_telemetry)
         session.mark(PipelineStage.FILTER_EDGES, n_edges=len(edges))
         session.record_artifact("n_edges", len(edges))
 

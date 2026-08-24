@@ -88,6 +88,7 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_LOFTR_BG_RATIO_MIN": (float, 0.0, 1.0, "Min fraction of LoFTR matches on background (0=off)"),
     "ASP_SIMILARITY_MODE": (int, 0, 1, "4-DOF similarity constraint for per-pair affines"),
     "ASP_ALIGN_GATE_DX": (float, 0.0, None, "75th-pct |dx| gate for vertical-scroll alignment"),
+    "ASP_CLEANCP_RESOLVE": (int, 0, 1, "Default-off CleanCP local edge recovery after filtering disconnects the graph"),
     "ASP_BA_F_SCALE": (float, 0.0, None, "Cauchy loss f_scale (px) in bundle adjustment"),
     "ASP_GNC_OUTER": (int, 1, 32, "GNC outer continuation iterations in BA"),
     "ASP_DY_CV_MAX": (float, 0.0, None, "dy_cv gate: SCANS fallback above this step-CV (0=off)"),
@@ -331,7 +332,7 @@ _DUMP_SECTIONS: dict[str, list[str]] = {
     "masking": ["ASP_USE_SAM2"],
     "alignment": [
         "ASP_MATCH_SPREAD_CEIL", "ASP_LOFTR_BG_RATIO_MIN", "ASP_SIMILARITY_MODE",
-        "ASP_ALIGN_GATE_DX", "ASP_BA_F_SCALE", "ASP_GNC_OUTER", "ASP_DY_CV_MAX",
+        "ASP_ALIGN_GATE_DX", "ASP_CLEANCP_RESOLVE", "ASP_BA_F_SCALE", "ASP_GNC_OUTER", "ASP_DY_CV_MAX",
     ],
     "fg_register": [
         "ASP_FG_REGISTER", "ASP_FLOW_ENGINE", "ASP_ARAP_PUSH", "ASP_FG_MAX_RESIDUAL",

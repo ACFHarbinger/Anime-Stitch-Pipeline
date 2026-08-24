@@ -124,6 +124,12 @@ contiguous shot rather than producing an impossible cross-shot correspondence.
 Unit-tested only (88 frame-selection tests); it needs a separately authorized
 measurement before promotion.
 
+**Connectivity recovery restored (2026-08-24, Codex):** Default-off
+`ASP_CLEANCP_RESOLVE=1` retries a disconnected post-filter graph using locally
+cleaned raw correspondences and translation consensus. It accepts only a fully
+connected consensus graph, records its decision artifact, and leaves the ratio
+gate unchanged. Targeted tests pass; test94 measurement needs separate approval.
+
 **Locked renderer slice capacity stop (2026-08-24, Codex):** The authorized
 deterministic baseline completed 03/05/17/37/42/78 only; P1/P2 has not begun.
 An in-process sweep retained RSS (3.6→5.8 GB), so subsequent cases use one
