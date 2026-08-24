@@ -124,6 +124,14 @@ contiguous shot rather than producing an impossible cross-shot correspondence.
 Unit-tested only (88 frame-selection tests); it needs a separately authorized
 measurement before promotion.
 
+**Locked renderer slice capacity stop (2026-08-24, Codex):** The authorized
+deterministic baseline completed 03/05/17/37/42/78 only; P1/P2 has not begun.
+An in-process sweep retained RSS (3.6→5.8 GB), so subsequent cases use one
+fresh interpreter per dataset. Full swap and external IDE/language-service RAM
+then brought the host to the 80% guardrail. Resume only after host capacity is
+freed and rechecked. Evidence:
+`.agent/reports/codex/asp_locked_slice_partial_2026-08-24.md`.
+
 ## 3. Evidence baseline
 
 The completed `asp_evaluations_20260810.json` contains 97 reviewed cases:
