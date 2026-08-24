@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 
 from ._audit import _adapt_feathers_and_synthesize, _audit_and_annotate_composite
