@@ -153,6 +153,8 @@ class TestPipelineSession:
         assert obs["gain"]["n_clamped"] == 1
         assert obs["seam"]["feasible"] is True
         assert "seam_crops" not in obs["seam"]
+        assert "reproducibility" in obs
+        assert "torch_device" in obs["reproducibility"]
         assert session.as_dict()["fallback_reason"] == "coverage_gate"
 
     def test_pause_is_noop_without_hook(self):

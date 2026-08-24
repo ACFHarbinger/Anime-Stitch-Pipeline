@@ -23,10 +23,24 @@ import sys
 import time
 from pathlib import Path
 
-import cv2
-import numpy as np
-import psutil
-import torch
+# Native thread pools read these settings at import time. Keep this before
+# NumPy/OpenCV/Torch so a deterministic benchmark does not inherit host-wide
+# parallel reductions into frame selection's phase correlation.
+_THREAD_CAP = os.environ.get("ASP_BENCH_THREAD_CAP", "4")
+for _v in (
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+):
+    os.environ.setdefault(_v, _THREAD_CAP)
+
+import cv2  # noqa: E402
+import numpy as np  # noqa: E402
+import psutil  # noqa: E402
+import torch  # noqa: E402
 
 # Same NVIDIA GPU as PyTorch CUDA. Must be off before BaSiC/BiRefNet (#49).
 try:
@@ -113,10 +127,6 @@ from asp_backend.rendering.rendering import _render_median  # noqa: E402
 # usage regardless of what the deeper cause turns out to be, and makes any
 # per-thread cost far less severe. These MUST be set before numpy/cv2/torch
 # are imported — they read these env vars once at native library load time.
-_THREAD_CAP = os.environ.get("ASP_BENCH_THREAD_CAP", "4")
-for _v in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
-    os.environ.setdefault(_v, _THREAD_CAP)
-
 cv2.setNumThreads(int(_THREAD_CAP))
 try:
     # torch is imported above so the OpenMP environment variables are too late

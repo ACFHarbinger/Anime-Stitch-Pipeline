@@ -99,6 +99,16 @@ The guarded validation runner also applies `ASP_BENCH_THREAD_CAP` to PyTorch's
 runtime thread pools; its environment-only setting was too late after the
 benchmark's import order.
 
+**Determinism prerequisite (2026-08-24, Codex):** The P1/P2 A/B is paused
+because the 21-case baseline changed frame selection relative to the frozen
+corpus. Each `PipelineSession` now persists its thread settings, native thread
+environment, device, cuDNN/Torch deterministic settings, and effective RNG
+seed policy. `ASP_DETERMINISTIC=1` with `ASP_REPRO_SEED` pins Python, NumPy,
+OpenCV, and Torch process-local state; it is default-off. The benchmark applies
+native thread caps before importing numerical libraries. Next action requires
+Harbinger approval for 2–3 cases run twice under identical settings; only
+identical routing clears this prerequisite.
+
 ## 3. Evidence baseline
 
 The completed `asp_evaluations_20260810.json` contains 97 reviewed cases:

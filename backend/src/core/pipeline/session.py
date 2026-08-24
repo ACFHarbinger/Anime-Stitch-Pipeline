@@ -210,6 +210,7 @@ class PipelineSession:
     output_hashes: dict[str, str | None] = field(default_factory=dict)
     model_versions: dict[str, Any] = field(default_factory=dict)
     effective_env: dict[str, str] = field(default_factory=dict)
+    reproducibility: dict[str, Any] = field(default_factory=dict)
     _open: StageRecord | None = field(default=None, init=False, repr=False)
     _span_id: str | None = field(default=None, init=False, repr=False)
     _otel_span_id: str | None = field(default=None, init=False, repr=False)
@@ -230,13 +231,16 @@ class PipelineSession:
             snapshot_pipeline_config(host) if host is not None else {}
         )
         from .manifest import (
+            configure_reproducibility,
             current_profile,
             effective_asp_env,
             git_identity,
             hash_paths,
             model_versions,
+            reproducibility_snapshot,
         )
 
+        configure_reproducibility()
         sink = telemetry if telemetry is not None else sink_from_env()
         return cls(
             inputs=PipelineInputs(
@@ -252,6 +256,7 @@ class PipelineSession:
             input_hashes=hash_paths(list(image_paths)),
             model_versions=model_versions(),
             effective_env=effective_asp_env(),
+            reproducibility=reproducibility_snapshot(),
         )
 
     def start_stage(self, stage: PipelineStage | str, **notes: Any) -> StageRecord:
@@ -373,6 +378,7 @@ class PipelineSession:
             "pose_provenance": list(self.pose_provenance),
             "gain": dict(self.gain_telemetry),
             "seam": dict(self.seam_feasibility),
+            "reproducibility": dict(self.reproducibility),
             "fallback_reason": self.fallback_reason,
         }
 

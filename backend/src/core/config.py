@@ -49,6 +49,14 @@ _DEFAULT_CONFIG_NAME = Path(__file__).resolve().parent.parent.parent.parent / "c
 # Tuple: (expected_type, min_val, max_val, description)
 # min_val / max_val are None when the bound is open.
 _CONFIG_SCHEMA: dict[str, tuple] = {
+    # ── Reproducibility ─────────────────────────────────────────────────
+    "ASP_DETERMINISTIC": (
+        int,
+        0,
+        1,
+        "Pin Python/NumPy/OpenCV/Torch RNGs and deterministic runtime kernels",
+    ),
+    "ASP_REPRO_SEED": (int, 0, 2**63 - 1, "Seed used when ASP_DETERMINISTIC=1"),
     # ── Frame selection ─────────────────────────────────────────────────
     "ASP_HOLD_THRESHOLD": (float, 0.0, 1.0, "MAD hold-detection threshold [0, 1]"),
     "ASP_HOLD_DHASH_THRESH": (int, 0, 64, "dHash Hamming floor for hold detection (0=off)"),

@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import random
 import subprocess
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -28,6 +29,123 @@ _REPO_ROOT = Path(__file__).resolve().parents[4]
 _HASH_CHUNK = 1 << 20
 _GIT_CACHE: dict[str, Any] | None = None
 _MODEL_CACHE: dict[str, Any] | None = None
+_REPRO_ENV_KEYS = (
+    "ASP_DETERMINISTIC",
+    "ASP_REPRO_SEED",
+    "ASP_BENCH_THREAD_CAP",
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+    "PYTHONHASHSEED",
+    "CUBLAS_WORKSPACE_CONFIG",
+)
+
+
+def _repro_seed() -> int:
+    try:
+        return int(os.environ.get("ASP_REPRO_SEED", "1729"))
+    except ValueError:
+        return 1729
+
+
+def configure_reproducibility() -> dict[str, Any]:
+    """Pin process-local RNGs and runtime kernels when explicitly requested.
+
+    Native BLAS/OpenMP environment variables are intentionally not modified
+    here: those libraries consume them at process start. The caller must set
+    them before importing NumPy, OpenCV, or Torch; the resulting values are
+    recorded by :func:`reproducibility_snapshot` for auditability.
+    """
+    requested = os.environ.get("ASP_DETERMINISTIC", "0") != "0"
+    seed = _repro_seed()
+    applied = False
+    if requested:
+        random.seed(seed)
+        try:
+            import numpy as np
+
+            np.random.seed(seed)
+        except Exception:
+            pass
+        try:
+            import cv2
+
+            cv2.setRNGSeed(seed)
+            cv2.setNumThreads(1)
+        except Exception:
+            pass
+        try:
+            import torch
+
+            torch.manual_seed(seed)
+            if torch.cuda.is_available():
+                torch.cuda.manual_seed_all(seed)
+            torch.backends.cudnn.benchmark = False
+            torch.backends.cudnn.deterministic = True
+            torch.use_deterministic_algorithms(True, warn_only=True)
+            torch.set_num_threads(1)
+            try:
+                torch.set_num_interop_threads(1)
+            except RuntimeError:
+                pass
+        except Exception:
+            pass
+        applied = True
+    return {"requested": requested, "seed": seed, "applied": applied}
+
+
+def reproducibility_snapshot() -> dict[str, Any]:
+    """Return the execution settings that can change routing decisions."""
+    requested = os.environ.get("ASP_DETERMINISTIC", "0") != "0"
+    seed = _repro_seed()
+    payload: dict[str, Any] = {
+        "requested": requested,
+        "seed": seed,
+        "environment": {key: os.environ.get(key) for key in _REPRO_ENV_KEYS},
+        "python_random_seeded": requested,
+        "numpy_random_seeded": requested,
+        "opencv_rng_seed": seed if requested else None,
+        "torch_rng_seed": seed if requested else None,
+        "cuda_rng_seed": seed if requested else None,
+    }
+    try:
+        import cv2
+
+        payload["opencv_threads"] = cv2.getNumThreads()
+    except Exception:
+        payload["opencv_threads"] = None
+    try:
+        import torch
+
+        payload.update(
+            {
+                "torch_threads": torch.get_num_threads(),
+                "torch_interop_threads": torch.get_num_interop_threads(),
+                "torch_device": "cuda" if torch.cuda.is_available() else "cpu",
+                "cuda_device_name": (
+                    torch.cuda.get_device_name(0) if torch.cuda.is_available() else None
+                ),
+                "cudnn_deterministic": bool(torch.backends.cudnn.deterministic),
+                "cudnn_benchmark": bool(torch.backends.cudnn.benchmark),
+                "deterministic_algorithms": bool(torch.are_deterministic_algorithms_enabled()),
+            }
+        )
+    except Exception:
+        payload.update(
+            {
+                "torch_threads": None,
+                "torch_interop_threads": None,
+                "torch_device": None,
+                "cuda_device_name": None,
+                "cudnn_deterministic": None,
+                "cudnn_benchmark": None,
+                "deterministic_algorithms": None,
+            }
+        )
+    return payload
 
 
 def git_identity(repo_root: Path | None = None) -> dict[str, Any]:
@@ -243,6 +361,7 @@ def build_experiment_manifest(session: PipelineSession) -> dict[str, Any]:
         "profile": getattr(session, "profile", None) or current_profile(),
         "config": json_safe(session.config),
         "effective_env": getattr(session, "effective_env", None) or effective_asp_env(),
+        "reproducibility": getattr(session, "reproducibility", None) or reproducibility_snapshot(),
         "model_versions": getattr(session, "model_versions", None) or model_versions(),
         "inputs": {
             "image_paths": list(session.inputs.image_paths),
@@ -284,11 +403,13 @@ __all__ = [
     "TraceDiff",
     "build_experiment_manifest",
     "compare_traces",
+    "configure_reproducibility",
     "current_profile",
     "effective_asp_env",
     "git_identity",
     "hash_file",
     "hash_paths",
     "model_versions",
+    "reproducibility_snapshot",
     "write_manifest",
 ]

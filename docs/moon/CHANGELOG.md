@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Deterministic-run auditability (2026-08-24, Codex):** `PipelineSession`
+  now records thread-pool settings, native thread env, device, cuDNN and
+  Torch deterministic flags, and Python/NumPy/OpenCV/Torch/CUDA seed policy
+  in both observability and experiment manifests. `ASP_DETERMINISTIC=1`
+  explicitly pins those process-local settings using `ASP_REPRO_SEED` (1729
+  by default); it remains off by default. The benchmark now sets all native
+  thread caps before importing NumPy/OpenCV/Torch, so its documented cap
+  applies to phase-correlation reductions as well.
+
 - **Per-output defect severity (2026-08-23, Codex):** the evaluation inspector
   now grades every defect for the selected output as absent/trace/noticeable/
   severe. The additive `defect_severity` schema maps output and defect to

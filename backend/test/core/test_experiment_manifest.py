@@ -59,6 +59,10 @@ class TestManifest:
         assert payload["profile"]
         assert payload["config"]["renderer"] == "median"
         assert "effective_env" in payload
+        assert "reproducibility" in payload
+        assert "torch_threads" in payload["reproducibility"]
+        assert "cudnn_deterministic" in payload["reproducibility"]
+        assert "OMP_NUM_THREADS" in payload["reproducibility"]["environment"]
         assert "model_versions" in payload
         assert payload["inputs"]["hashes"][str(frame)] == hash_file(frame)
         assert payload["trace"]["digest"] == session.digest()
@@ -106,6 +110,16 @@ class TestManifest:
         assert session.input_hashes["missing-a.png"] is None
         payload = session.experiment_manifest()
         assert payload["inputs"]["hashes"]["missing-a.png"] is None
+
+    def test_deterministic_request_is_recorded(self, monkeypatch):
+        monkeypatch.setenv("ASP_DETERMINISTIC", "1")
+        monkeypatch.setenv("ASP_REPRO_SEED", "19")
+        session = _session()
+        repro = session.reproducibility
+        assert repro["requested"] is True
+        assert repro["seed"] == 19
+        assert repro["opencv_rng_seed"] == 19
+        assert repro["torch_rng_seed"] == 19
 
 
 class TestResources:
