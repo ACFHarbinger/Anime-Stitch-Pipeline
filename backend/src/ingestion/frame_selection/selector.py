@@ -30,7 +30,9 @@ from ._quality_filters import (
     _BLUR_REJECT_THRESH,
     _CONTRAST_REJECT_THRESH,
     _NEAR_DUP_LUMA,
+    _SHOT_BOUNDARY_THRESH,
     _TEMPORAL_VAR_THRESH,
+    _filter_shot_boundaries,
     _near_dup_luma_filter,
     _reject_blurry_frames,
     _reject_low_contrast_frames,
@@ -123,6 +125,18 @@ def smart_select_frames(  # noqa: C901
 
     # ── 1. Load thumbnails ─────────────────────────────────────────────────
     thumbs = _load_thumbs_parallel(frames_paths)
+
+    # ── 1a. Stage-1 shot-boundary pre-filter ──────────────────────────────
+    if _SHOT_BOUNDARY_THRESH > 0.0 and N > 2:
+        thumbs, frames_paths, _n_shot_drop = _filter_shot_boundaries(
+            thumbs, frames_paths, _SHOT_BOUNDARY_THRESH
+        )
+        N = len(frames_paths)
+        if verbose and _n_shot_drop > 0:
+            print(
+                f"  [ShotBoundary] Kept longest contiguous shot; dropped "
+                f"{_n_shot_drop} frame(s) → {N} remain"
+            )
 
     # ── 0. §1.64: Exact-duplicate dHash guard ─────────────────────────────
     # Drop consecutive frames whose 64-bit dHash is bit-for-bit identical —

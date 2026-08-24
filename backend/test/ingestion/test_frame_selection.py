@@ -35,6 +35,7 @@ from asp_backend.ingestion.frame_selection import (
     _drop_exact_dhash_duplicates,
     _estimate_background_plate,
     _fg_center_diff,
+    _filter_shot_boundaries,
     _hold_block_average,
     _near_dup_luma_filter,
     _otsu_bg_mask_pair,
@@ -65,6 +66,34 @@ def _make_fg_mask(h: int = 144, w: int = 256, region: str = "center") -> np.ndar
     elif region == "left":
         mask[:, : w // 2] = 1.0
     return mask
+
+
+class TestShotBoundaryFilter:
+    def test_zero_threshold_keeps_all_frames(self):
+        thumbs = [_make_thumb(fill=value) for value in (0.1, 0.1, 0.9, 0.9)]
+        kept, paths, dropped = _filter_shot_boundaries(
+            thumbs, ["a", "b", "c", "d"], threshold=0.0
+        )
+        assert len(kept) == 4
+        assert paths == ["a", "b", "c", "d"]
+        assert dropped == 0
+
+    def test_keeps_longest_contiguous_shot(self):
+        thumbs = [_make_thumb(fill=value) for value in (0.1, 0.1, 0.8, 0.8, 0.8)]
+        kept, paths, dropped = _filter_shot_boundaries(
+            thumbs, ["a", "b", "c", "d", "e"], threshold=0.5
+        )
+        assert len(kept) == 3
+        assert paths == ["c", "d", "e"]
+        assert dropped == 2
+
+    def test_equal_length_shots_keep_earlier_segment(self):
+        thumbs = [_make_thumb(fill=value) for value in (0.1, 0.1, 0.8, 0.8)]
+        _, paths, dropped = _filter_shot_boundaries(
+            thumbs, ["a", "b", "c", "d"], threshold=0.5
+        )
+        assert paths == ["a", "b"]
+        assert dropped == 2
 
 
 class TestFgCenterDiffNearZeroForIdentical:

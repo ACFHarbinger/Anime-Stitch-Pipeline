@@ -117,6 +117,13 @@ SHA-256. The P1/P2 A/B may resume only under this recorded environment; this
 does not make its new baseline comparable to the older frozen corpus. Evidence:
 `.agent/reports/codex/asp_determinism_check_2026-08-24.md`.
 
+**Stage-1 shot boundary (2026-08-24, Codex):** Default-off
+`ASP_SHOT_BOUNDARY_THRESH` performs deterministic thumbnail-histogram cut
+detection before smart selection. When a cut is detected, it keeps the longest
+contiguous shot rather than producing an impossible cross-shot correspondence.
+Unit-tested only (88 frame-selection tests); it needs a separately authorized
+measurement before promotion.
+
 ## 3. Evidence baseline
 
 The completed `asp_evaluations_20260810.json` contains 97 reviewed cases:

@@ -51,6 +51,7 @@ Split by role
   _native.py           -- shared base.frame_selection C++ extension probe
   _hold_detection.py   -- "on twos/threes" hold-block detection (MAD/dHash)
   _quality_filters.py  -- temporal-variance/blur/contrast/near-dup filters
+                          plus default-off shot-boundary pre-filter
   _thumbs.py             -- thumbnail I/O + per-pair Otsu bg masking
   _pose.py                -- fg-masked pixel L1 + DINOv2 pose similarity
   _hold_average.py     -- ECC-aligned hold-block sub-pixel averaging
@@ -75,6 +76,7 @@ from ._hold_detection import (
 )
 from ._pose import _DINOV2_CACHE, _compute_dinov2_features, _fg_center_diff
 from ._quality_filters import (
+    _filter_shot_boundaries,
     _near_dup_luma_filter,
     _reject_blurry_frames,
     _reject_low_contrast_frames,
@@ -101,6 +103,7 @@ __all__ = [
     "_reject_blurry_frames",
     "_reject_low_contrast_frames",
     "_near_dup_luma_filter",
+    "_filter_shot_boundaries",
     "_compute_dinov2_features",
     "_fg_center_diff",
     "_load_thumbs_parallel",
@@ -108,4 +111,3 @@ __all__ = [
     "_hold_block_average",
     "_DINOV2_CACHE",
 ]
-

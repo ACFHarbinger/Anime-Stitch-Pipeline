@@ -68,6 +68,7 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_CONTRAST_THRESH": (float, 0.0, None, "Pixel-std floor for low-contrast frame rejection (0=off)"),
     "ASP_NEAR_DUP_LUMA": (float, 0.0, 255.0, "Near-dup luma dedup ceiling (0=off)"),
     "ASP_TEMPORAL_VAR_THRESH": (float, 0.0, 1.0, "Static-frame temporal variance floor (0=off)"),
+    "ASP_SHOT_BOUNDARY_THRESH": (float, 0.0, 1.0, "Stage-1 histogram shot-boundary threshold (0=off)"),
     "ASP_OTSU_BG_CORR": (int, 0, 1, "Per-pair Otsu bg mask for phase correlation"),
     "ASP_TWO_CHANNEL_SELECT": (int, 0, 1, "BiRefNet two-channel camera/animation selection (experimental)"),
     "ASP_POSE_WINDOW_PX": (int, 0, None, "DINOv2 pose-consistent selection window (0=off, experimental)"),

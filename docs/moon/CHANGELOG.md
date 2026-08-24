@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Default-off shot-boundary pre-filter (2026-08-24, Codex):**
+  `ASP_SHOT_BOUNDARY_THRESH` detects deterministic grayscale-histogram scene
+  cuts before smart selection and retains the longest contiguous shot, so
+  matching is never asked to bridge a cut. Default `0.0` preserves existing
+  behavior. Focused plus frame-selection tests: 88 passed; no benchmark run.
+
 - **Deterministic rerun gate passed (2026-08-24, Codex):** authorized,
   fresh-process repeats of `asp_test28`, `asp_test82`, and Raw-ASP control
   `asp_test67` matched selection, dedup/edge counts, routing, and final PNG

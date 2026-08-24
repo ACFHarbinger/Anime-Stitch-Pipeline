@@ -53,6 +53,49 @@ try:
 except ValueError:
     _NEAR_DUP_LUMA = 0.0
 
+# Stage-1 shot-boundary pre-filter. A scene cut has no stable geometric
+# relation to the preceding shot, so retain one contiguous shot rather than
+# handing an impossible cross-cut edge to matching. Default 0.0 = disabled.
+try:
+    _SHOT_BOUNDARY_THRESH = float(os.environ.get("ASP_SHOT_BOUNDARY_THRESH", "0.0"))
+except ValueError:
+    _SHOT_BOUNDARY_THRESH = 0.0
+
+
+def _filter_shot_boundaries(
+    thumbs: list[np.ndarray],
+    paths: list[str],
+    threshold: float,
+) -> tuple[list[np.ndarray], list[str], int]:
+    """Keep the longest contiguous shot when a histogram discontinuity occurs.
+
+    Bhattacharyya distance between 32-bin grayscale histograms is stable across
+    threads and does not require a model. Ties retain the earlier shot, keeping
+    results deterministic. A zero threshold preserves the current selector
+    exactly.
+    """
+    if threshold <= 0.0 or len(thumbs) < 3:
+        return list(thumbs), list(paths), 0
+
+    starts = [0]
+    previous = cv2.normalize(
+        cv2.calcHist([thumbs[0]], [0], None, [32], [0.0, 1.0]), None
+    )
+    for i, thumb in enumerate(thumbs[1:], start=1):
+        current = cv2.normalize(
+            cv2.calcHist([thumb], [0], None, [32], [0.0, 1.0]), None
+        )
+        if cv2.compareHist(previous, current, cv2.HISTCMP_BHATTACHARYYA) >= threshold:
+            starts.append(i)
+        previous = current
+    starts.append(len(thumbs))
+    if len(starts) == 2:
+        return list(thumbs), list(paths), 0
+
+    segments = list(zip(starts, starts[1:], strict=False))
+    start, end = max(segments, key=lambda segment: segment[1] - segment[0])
+    return list(thumbs[start:end]), list(paths[start:end]), len(thumbs) - (end - start)
+
 
 def _temporal_variance_filter(
     thumbs: list[np.ndarray],
