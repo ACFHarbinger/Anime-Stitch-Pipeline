@@ -22,12 +22,23 @@ sys.path.insert(0, _repo_root)
 
 from asp_backend.core.validation import (  # noqa: E402
     AffineHealth,  # noqa: F401
+    _affine_gap_stats,
     _check_translation_monotonicity,
     _compute_adaptive_min_gap,
     _compute_adaptive_rot_scale,
     _validate_affines,
 )
 from conftest import make_rotation_affine, make_translation_affine  # noqa: E402
+
+
+def test_affine_gap_stats_reports_full_gap_distribution():
+    affines = [make_translation_affine(ty=float(ty)) for ty in (0, 20, 50, 150)]
+
+    assert _affine_gap_stats(affines) == {
+        "min_gap": 20.0,
+        "median_gap": 30.0,
+        "max_gap": 100.0,
+    }
 
 # ---------------------------------------------------------------------------
 # 1. Clean affines — should pass

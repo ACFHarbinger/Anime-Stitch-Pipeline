@@ -43,6 +43,7 @@ from asp_backend.alignment.canvas import (
     _telea_fill_gaps,
 )
 from asp_backend.core.validation import (
+    _affine_gap_stats,
     _compute_adaptive_min_gap,
     _compute_adaptive_rot_scale,
     _validate_affines,
@@ -454,6 +455,20 @@ class _RunStageMixin(_Base):
             max_rotation=_adaptive_rot,
             max_scale_dev=_adaptive_sc,
         )
+        _missing_adjacent = sum(
+            not any(edge["i"] == i and edge["j"] == i + 1 for edge in edges)
+            for i in range(N - 1)
+        )
+        _affine_health_artifact = {
+            "initial": {
+                **_affine_gap_stats(affines),
+                "ratio": float(health.ratio),
+                "valid": bool(health.valid),
+                "reason": str(health.reason),
+            },
+            "missing_adjacent_edge_count": _missing_adjacent,
+        }
+        session.record_artifact("affine_health", _affine_health_artifact)
         logger.debug(
             f"[Stitch]   Affine health: valid={health.valid}, "
             f"ratio={health.ratio:.1f}×, min_gap={health.min_gap:.0f}px "
@@ -477,6 +492,13 @@ class _RunStageMixin(_Base):
             )
             if health.valid:
                 _pose_source = "affine_recovery"
+            _affine_health_artifact["final"] = {
+                **_affine_gap_stats(affines),
+                "ratio": float(health.ratio),
+                "valid": bool(health.valid),
+                "reason": str(health.reason),
+            }
+            session.record_artifact("affine_health", _affine_health_artifact)
             if not health.valid:
                 # §1.3B: PANORAMA stitcher handles scale/rotation that
                 # translation-only validation rejects; try before SCANS.

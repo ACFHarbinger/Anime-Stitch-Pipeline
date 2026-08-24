@@ -139,6 +139,29 @@ class AffineHealth(NamedTuple):
     reason: str
 
 
+def _affine_gap_stats(affines: list[np.ndarray]) -> dict[str, float]:
+    """Return primary-order Euclidean gap diagnostics for telemetry."""
+    if len(affines) < 2:
+        return {"min_gap": 0.0, "median_gap": 0.0, "max_gap": 0.0}
+
+    txs = np.array([float(a[0, 2]) for a in affines])
+    tys = np.array([float(a[1, 2]) for a in affines])
+    scroll_axis = _detect_scroll_axis(affines)
+    if scroll_axis == "horizontal":
+        order = np.argsort(txs)
+    elif scroll_axis == "diagonal":
+        order = np.argsort(np.hypot(txs - txs[0], tys - tys[0]))
+    else:
+        order = np.argsort(tys)
+
+    gaps = np.hypot(np.diff(txs[order]), np.diff(tys[order]))
+    return {
+        "min_gap": float(gaps.min()),
+        "median_gap": float(np.median(gaps)),
+        "max_gap": float(gaps.max()),
+    }
+
+
 def _validate_affines(
     affines: list[np.ndarray],
     min_step: float = 25.0,
@@ -338,6 +361,7 @@ def _compute_adaptive_rot_scale(
 
 __all__ = [
     "AffineHealth",
+    "_affine_gap_stats",
     "_validate_affines",
     "_compute_adaptive_min_gap",
     "_compute_adaptive_rot_scale",
