@@ -125,10 +125,11 @@ Unit-tested only (88 frame-selection tests); it needs a separately authorized
 measurement before promotion.
 
 **Connectivity recovery restored (2026-08-24, Codex):** Default-off
-`ASP_CLEANCP_RESOLVE=1` retries a disconnected post-filter graph using locally
-cleaned raw correspondences and translation consensus. It accepts only a fully
-connected consensus graph, records its decision artifact, and leaves the ratio
-gate unchanged. Targeted tests pass; test94 measurement needs separate approval.
+`ASP_CLEANCP_RESOLVE=1` retries a post-filter graph that is disconnected or
+lacks any adjacent-frame link, using locally cleaned raw correspondences and
+translation consensus. It accepts only a fully connected consensus graph,
+records component and missing-adjacent-edge counts, and leaves the ratio gate
+unchanged. Targeted tests pass; test94 measurement is authorized separately.
 
 **Locked renderer slice capacity stop (2026-08-24, Codex):** The authorized
 deterministic baseline completed 03/05/17/37/42/78 only; P1/P2 has not begun.

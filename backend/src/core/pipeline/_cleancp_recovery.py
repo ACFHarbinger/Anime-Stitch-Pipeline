@@ -10,6 +10,16 @@ _MIN_RESIDUAL_CUTOFF_PX = 5.0
 _MIN_TRANSLATION_CUTOFF_PX = 20.0
 
 
+def _missing_adjacent_edge_count(edges: list[dict], n_frames: int) -> int:
+    """Count frame-neighbour links absent from an edge set."""
+    present = {
+        (min(int(edge.get("i", -1)), int(edge.get("j", -1))),
+         max(int(edge.get("i", -1)), int(edge.get("j", -1))))
+        for edge in edges
+    }
+    return sum((index, index + 1) not in present for index in range(n_frames - 1))
+
+
 def _edge_graph_components(edges: list[dict], n_frames: int) -> list[list[int]]:
     """Return sorted undirected edge-graph components without telemetry imports."""
     neighbours = [set() for _ in range(n_frames)]
@@ -82,6 +92,10 @@ def recover_clean_correspondence_edges(
         "correspondences_removed": 0,
         "outlier_candidates_removed": 0,
         "components": {"before": before_components, "after": before_components},
+        "missing_adjacent_edge_count": {
+            "before": _missing_adjacent_edge_count(filtered_edges, n_frames),
+            "after": _missing_adjacent_edge_count(filtered_edges, n_frames),
+        },
     }
     if n_frames <= 1 or len(raw_edges) < _MIN_CONSENSUS_EDGES:
         telemetry["stopped_reason"] = "insufficient_raw_candidates"
@@ -125,6 +139,13 @@ def recover_clean_correspondence_edges(
                 "candidate_consensus": _edge_graph_components(consensus_edges, n_frames),
                 "after": before_components,
             },
+            "missing_adjacent_edge_count": {
+                "before": _missing_adjacent_edge_count(filtered_edges, n_frames),
+                "candidate_consensus": _missing_adjacent_edge_count(
+                    consensus_edges, n_frames
+                ),
+                "after": _missing_adjacent_edge_count(filtered_edges, n_frames),
+            },
         }
     )
     after_components = _edge_graph_components(consensus_edges, n_frames)
@@ -134,6 +155,9 @@ def recover_clean_correspondence_edges(
 
     telemetry["accepted"] = True
     telemetry["components"]["after"] = after_components
+    telemetry["missing_adjacent_edge_count"]["after"] = _missing_adjacent_edge_count(
+        consensus_edges, n_frames
+    )
     return consensus_edges, telemetry
 
 

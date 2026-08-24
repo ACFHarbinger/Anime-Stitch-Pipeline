@@ -368,9 +368,17 @@ class _RunStageMixin(_Base):
         raw_registration_edges = list(edges)
         edges = self._filter_edges(edges, image_paths, H, W, frames, bg_masks)
         if os.environ.get("ASP_CLEANCP_RESOLVE", "0") == "1":
-            from ._cleancp_recovery import recover_clean_correspondence_edges
+            from ._cleancp_recovery import (
+                _missing_adjacent_edge_count,
+                recover_clean_correspondence_edges,
+            )
 
-            if not edges or not _check_edge_graph_connectivity(edges, N):
+            missing_adjacent_edges = _missing_adjacent_edge_count(edges, N)
+            if (
+                not edges
+                or missing_adjacent_edges
+                or not _check_edge_graph_connectivity(edges, N)
+            ):
                 edges, cleancp_telemetry = recover_clean_correspondence_edges(
                     raw_registration_edges, edges, N
                 )

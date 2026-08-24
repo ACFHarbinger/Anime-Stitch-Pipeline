@@ -32,6 +32,11 @@ def test_recovers_connected_consensus_and_removes_bad_control_point():
     assert telemetry["correspondences_removed"] == 1
     assert telemetry["outlier_candidates_removed"] == 1
     assert telemetry["components"]["after"] == [[0, 1, 2, 3]]
+    assert telemetry["missing_adjacent_edge_count"] == {
+        "before": 3,
+        "candidate_consensus": 0,
+        "after": 0,
+    }
 
 
 def test_keeps_filtered_edges_when_consensus_cannot_connect_graph():
