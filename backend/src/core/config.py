@@ -72,6 +72,8 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_VIDEO_KEYFRAMES_ONLY": (int, 0, 1, "Decode only keyframes in the proxy pass"),
     # ── Masking ─────────────────────────────────────────────────────────
     "ASP_USE_SAM2": (int, 0, 1, "Use SAM-2 video predictor instead of BiRefNet"),
+    "ASP_TRAPPED_BALL": (int, 0, 1, "Classical deterministic trapped-ball line-art segmentation (Zhang 2009) for background masking"),
+    "ASP_TRAPPED_BALL_RADIUS": (int, 1, 32, "Trapped-ball structuring element radius (px) for closing line-art gaps"),
     # ── Matching / alignment ────────────────────────────────────────────
     "ASP_MATCH_SPREAD_CEIL": (float, 0.0, None, "Max MAD of per-match displacements (0=off)"),
     "ASP_LOFTR_BG_RATIO_MIN": (float, 0.0, 1.0, "Min fraction of LoFTR matches on background (0=off)"),

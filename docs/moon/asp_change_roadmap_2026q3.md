@@ -639,6 +639,14 @@ Deliverables:
   (`ASP_PLATE_MULTIBAND=1`) over the clean background plate to resolve blur,
   seam lines, and banding while protecting high-frequency line art and character
   crispness. Unit tests in `test_plate_compositor.py` (4 passed).
+  **Trapped-Ball classical background masking (2026-08-24, Antigravity):**
+  Implemented deterministic trapped-ball segmentation (`trapped_ball.py`, Zhang et al.
+  2009) behind default-off `ASP_TRAPPED_BALL=1` and `ASP_TRAPPED_BALL_RADIUS=4`.
+  Closes line-art gaps (< 2r px) via structuring-element morphology and flood-fills
+  background borders deterministically without neural network inference drift.
+  Registered in `_CONFIG_SCHEMA` and integrated into `masking.py::_compute_fg_masks`.
+  Unit tests in `test_trapped_ball.py` (5 passed).
+
 
 
 

@@ -60,6 +60,12 @@ def _compute_fg_masks(
     use_birefnet: bool = True,
 ) -> list[np.ndarray | None]:
     """Returns list of background masks (255 = safe background, 0 = character)."""
+    from .trapped_ball import compute_trapped_ball_masks, trapped_ball_enabled
+
+    if trapped_ball_enabled():
+        print(f"[Stitch]   Generating Trapped-Ball background masks ({len(frames)} frames)...", flush=True)
+        return compute_trapped_ball_masks(frames)
+
     if not use_birefnet or birefnet_wrapper is None:
         return [None] * len(frames)
 
