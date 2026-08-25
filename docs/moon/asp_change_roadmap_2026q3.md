@@ -138,6 +138,13 @@ fell back at seam visibility. The benchmark summary does not retain session
 artifacts, so this is not evidence that CleanCP repaired the historic gaps.
 Evidence: `.agent/reports/chat/asp_test94_cleancp_2026-08-24.md`.
 
+**test94 frozen-selection reproduction (2026-08-25, Codex):** With spatial
+dedup disabled only for measurement, the frozen 13-frame path reproduced
+`ratio=3.90229>3`. Accepted CleanCP reduced missing adjacent links from seven
+to three but did not change affine gaps, so SCANS fallback held. Connectivity
+recovery is incomplete; the ratio gate remains unchanged. Evidence:
+`.agent/reports/chat/asp_test94_frozen_repro_2026-08-25.md`.
+
 **Locked renderer slice capacity stop (2026-08-24, Codex):** The authorized
 deterministic baseline completed 03/05/17/37/42/78 only; P1/P2 has not begun.
 An in-process sweep retained RSS (3.6→5.8 GB), so subsequent cases use one
