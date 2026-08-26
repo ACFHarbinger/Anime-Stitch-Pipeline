@@ -1310,3 +1310,13 @@ Harbinger and Gemini brainstormed the interactive dev tool, visualization method
 - **3D Exploded-View Layer Stack:** Interactive WebGL 3D view in `docs/website/` showing the warped background mesh, seam boundary planes, and floating segmented character cels with orbit controls.
 - **3D Feature Match Point Clouds:** Interactive particle graph visualizing LoFTR keypoint correspondences in 3D feature space.
 - **Lightweight 3D Mascots & Viewfinders:** Fast-loading `.glb` interactive assets for the web portal adhering to the Optic Lab / Blueprint theme.
+
+## 20. Locked renderer review export completed (2026-08-26)
+
+- The held-out 16-case review bundle now contains labelled baseline, P1, and
+  P1+P2 PNGs for every case (48 files) under
+  `.agent/reports/chat/locked_renderer_exports_2026-08-24/`.
+- Regeneration used a fresh one-thread deterministic process per arm with
+  resource guards. Cases 74, 28, 83, and 73 were independently reproduced in
+  all arms and were byte-identical safety fallbacks. This is review provenance,
+  not an M2 quality decision.
