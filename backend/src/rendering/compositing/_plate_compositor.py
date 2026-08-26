@@ -101,7 +101,11 @@ def _build_aligned_background_plate(
     for i in range(N):
         wf = warped_norm[i]
         if i < len(warped_bg) and warped_bg[i] is not None:
-            bg = warped_bg[i] > 127 if warped_bg[i].dtype == np.uint8 else warped_bg[i].astype(bool)
+            if warped_bg[i].dtype == np.uint8:
+                # P4: 255 = confirmed bg, 128 = uncertain (excluded), 0 = fg
+                bg = warped_bg[i] > 200
+            else:
+                bg = warped_bg[i].astype(bool)
             m = bg
         else:
             m = wf.max(axis=2) > 0
@@ -215,8 +219,11 @@ def composite_plate_single_pose(
         wf = warped_frames[i]
         has_content = wf.max(axis=2) > 5
         if i < len(warped_bg) and warped_bg[i] is not None:
-            bg = warped_bg[i] > 127 if warped_bg[i].dtype == np.uint8 else warped_bg[i].astype(bool)
-            fg = has_content & ~bg
+            if warped_bg[i].dtype == np.uint8:
+                # Foreground is confirmed character cel (value < 64)
+                fg = has_content & (warped_bg[i] < 64)
+            else:
+                fg = has_content & ~warped_bg[i].astype(bool)
         else:
             fg = np.zeros((H, W), dtype=bool)
         fg_masks.append(fg)

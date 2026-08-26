@@ -609,4 +609,6 @@ __all__ = [
     "_cleanup_sam2_state",
     "_compute_fg_masks_grounded_sam2",
     "_refine_masks_with_clicks",
+    "compute_temporal_mask_uncertainty",
+    "mask_uncertainty_enabled",
 ]

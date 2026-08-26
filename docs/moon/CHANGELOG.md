@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **P3 regularized TPS residual background-only local warp (2026-08-26, Antigravity):**
+  Added default-off `ASP_RESIDUAL_WARP=1` (`_residual_warp.py`) for regularized Thin
+  Plate Spline background refinement with bending energy and max displacement
+  safety gates. 5 unit tests passed.
+
+- **P4 segmentation uncertainty and Trapped-Ball disagreement refinement (2026-08-26, Antigravity):**
+  Added default-off `ASP_MASK_UNCERTAINTY=1` (`mask_uncertainty.py`) computing temporal
+  mask disagreement across provisional alignments, resolving disputed regions via
+  classical Trapped-Ball segmentation, and emitting ternary masks to exclude uncertain
+  pixels from P1/P2 background plate samples. 9 unit tests passed.
+
 - **Default-off shot-boundary pre-filter (2026-08-24, Codex):**
   `ASP_SHOT_BOUNDARY_THRESH` detects deterministic grayscale-histogram scene
   cuts before smart selection and retains the longest contiguous shot, so

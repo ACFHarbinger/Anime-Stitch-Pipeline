@@ -94,3 +94,26 @@ def test_plate_compositor_p2_multiband_and_edge_preserve():
     # Background should be non-zero and blend smoothly
     assert result.mean() > 0
 
+
+def test_plate_compositor_p4_ternary_uncertainty_exclusion():
+    """Verify that uncertain pixels (value 128) are excluded from background plate generation."""
+    H, W = 80, 80
+    bg_clean = np.full((H, W, 3), 100, dtype=np.uint8)
+
+    # Frame 0: Clean background everywhere
+    f0 = bg_clean.copy()
+    m0 = np.full((H, W), 255, dtype=np.uint8)
+
+    # Frame 1: Contaminated leak in patch (20:40, 20:40)
+    f1 = bg_clean.copy()
+    f1[20:40, 20:40] = 255  # Contaminating color
+    # Ternary mask: marks the contaminated patch as uncertain (128)
+    m1 = np.full((H, W), 255, dtype=np.uint8)
+    m1[20:40, 20:40] = 128
+
+    plate, valid = _build_aligned_background_plate([f0, f1], [m0, m1], H, W)
+    assert valid.all()
+    # In the patch (20:40, 20:40), Frame 1 was excluded, so the plate must match Frame 0 (100) exactly
+    assert np.all(plate[20:40, 20:40] == 100)
+
+

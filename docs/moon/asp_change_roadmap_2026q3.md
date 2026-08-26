@@ -693,13 +693,20 @@ Deliverables:
   (`ASP_PLATE_MULTIBAND=1`) over the clean background plate to resolve blur,
   seam lines, and banding while protecting high-frequency line art and character
   crispness. Unit tests in `test_plate_compositor.py` (4 passed).
-  **Trapped-Ball classical background masking (2026-08-24, Antigravity):**
-  Implemented deterministic trapped-ball segmentation (`trapped_ball.py`, Zhang et al.
-  2009) behind default-off `ASP_TRAPPED_BALL=1` and `ASP_TRAPPED_BALL_RADIUS=4`.
-  Closes line-art gaps (< 2r px) via structuring-element morphology and flood-fills
-  background borders deterministically without neural network inference drift.
-  Registered in `_CONFIG_SCHEMA` and integrated into `masking.py::_compute_fg_masks`.
-  Unit tests in `test_trapped_ball.py` (5 passed).
+  **P3 regularized TPS residual background-only local warp (2026-08-26, Antigravity):**
+  Implemented default-off `ASP_RESIDUAL_WARP=1` (`_residual_warp.py`). Estimates
+  regularized Thin Plate Spline (TPS) residual flow from background correspondences,
+  with bending-energy safety checks (`ASP_RESIDUAL_WARP_MAX_BENDING`) and max-displacement
+  rejection (`ASP_RESIDUAL_WARP_MAX_PX`) to avoid distortion. Applies non-rigid
+  refinement strictly to confirmed background regions while smoothly modulating to zero
+  near foreground boundaries. Unit tests in `test_residual_warp.py` (5 passed).
+  **P4 mask temporal uncertainty & Trapped-Ball disagreement refinement (2026-08-26, Antigravity):**
+  Implemented default-off `ASP_MASK_UNCERTAINTY=1` (`mask_uncertainty.py`). Computes
+  pairwise temporal disagreement between aligned masks, resolves disputed regions
+  using classical Trapped-Ball structural segmentation, and emits ternary masks
+  (255=confirmed bg, 128=uncertain/excluded, 0=fg) so that downstream P1/P2 plate
+  compositing strictly excludes uncertain pixels from background plate sampling.
+  Unit tests in `test_mask_uncertainty.py` and `test_plate_compositor.py` (9 passed).
 
 
 

@@ -83,6 +83,7 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_USE_SAM2": (int, 0, 1, "Use SAM-2 video predictor instead of BiRefNet"),
     "ASP_TRAPPED_BALL": (int, 0, 1, "Classical deterministic trapped-ball line-art segmentation (Zhang 2009) for background masking"),
     "ASP_TRAPPED_BALL_RADIUS": (int, 1, 32, "Trapped-ball structuring element radius (px) for closing line-art gaps"),
+    "ASP_MASK_UNCERTAINTY": (int, 0, 1, "P4 default-off candidate: temporal disagreement mask uncertainty with trapped-ball alternate background refinement"),
     # ── Matching / alignment ────────────────────────────────────────────
     "ASP_MATCH_SPREAD_CEIL": (float, 0.0, None, "Max MAD of per-match displacements (0=off)"),
     "ASP_LOFTR_BG_RATIO_MIN": (float, 0.0, 1.0, "Min fraction of LoFTR matches on background (0=off)"),
@@ -112,6 +113,10 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_PLATE_SINGLE_POSE": (int, 0, 1, "P1 default-off candidate: canvas-aligned background plate + single foreground pose per connected region"),
     "ASP_PLATE_MULTIBAND": (int, 0, 1, "P2 default-off candidate: multi-band pyramid blending on background plate transitions"),
     "ASP_PLATE_EDGE_PRESERVE": (int, 0, 1, "P2 edge-preserving sharp background source selection in multi-sample zones"),
+    "ASP_RESIDUAL_WARP": (int, 0, 1, "P3 default-off candidate: regularized Thin Plate Spline residual background-only local warp"),
+    "ASP_RESIDUAL_WARP_SMOOTHING": (float, 0.01, None, "P3 TPS regularizer smoothing factor (default 1.0)"),
+    "ASP_RESIDUAL_WARP_MAX_PX": (float, 1.0, None, "P3 max allowed residual warp displacement in pixels before rejection (default 15.0)"),
+    "ASP_RESIDUAL_WARP_MAX_BENDING": (float, 0.0001, None, "P3 max allowed TPS bending energy before fallback to global affine (default 0.05)"),
     "ASP_GRAPHCUT_SEAM": (int, 0, 1, "GraphCut global multi-image seam (§4.2; default OFF — measured worse seam_visibility than DP path)"),
     "ASP_GC_FEATHER_PX": (int, 0, None, "Feather width at GraphCut ownership boundaries"),
     "ASP_BLOCKS_GAIN_COMP": (int, 0, 1, "32×32 blocks BGR gain compensation in blend zones (§4.1)"),
