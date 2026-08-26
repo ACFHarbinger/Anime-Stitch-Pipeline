@@ -1327,3 +1327,13 @@ Harbinger and Gemini brainstormed the interactive dev tool, visualization method
   resource guards. Cases 74, 28, 83, and 73 were independently reproduced in
   all arms and were byte-identical safety fallbacks. This is review provenance,
   not an M2 quality decision.
+
+## 21. CleanCP implementation reconciliation (2026-08-26)
+
+- Compared the `0363410` prototype with the restored and extended current path
+  (`43d83eb` + `465328c`). The prototype imports a removed registration
+  telemetry module, so it cannot be merged directly.
+- Retain the current self-contained helper: it preserves MAD cleanup,
+  span-normalized consensus, and full-graph acceptance while recording adjacent
+  gap telemetry and triggering for connected skip-edge graphs. Default remains
+  off; the ratio gate is unchanged. Focused tests: 3 passed.
