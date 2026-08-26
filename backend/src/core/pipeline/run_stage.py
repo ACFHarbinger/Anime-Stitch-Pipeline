@@ -460,6 +460,31 @@ class _RunStageMixin(_Base):
             f"(mode={_motion_model})."
         )
 
+        # ── Stage 7.2: Wave correction (chain-drift straightening, default off) ──
+        # Experimental candidate from the 2026-08-23 roadmap critique round:
+        # the 2D translation-domain analog of OpenCV detail::waveCorrect.
+        # Only rewrites translation slots of the BA output -- never touches the
+        # 2x2 part and never runs the validity gate, so it cannot collide with
+        # the affine_invalid/min_gap rejection path.
+        if os.environ.get("ASP_WAVE_CORRECT", "0") == "1":
+            from ._wave_correction import wave_correct_affines
+
+            _wc_kind = os.environ.get("ASP_WAVE_CORRECT_KIND", "auto")
+            _wc_before = np.array(
+                [[float(a[0, 2]), float(a[1, 2])] for a in affines], dtype=np.float64
+            )
+            affines = wave_correct_affines(affines, kind=_wc_kind)
+            _wc_after = np.array(
+                [[float(a[0, 2]), float(a[1, 2])] for a in affines], dtype=np.float64
+            )
+            _wc_delta = float(np.max(np.abs(_wc_before - _wc_after))) if len(_wc_before) else 0.0
+            print(
+                f"[Stitch]   Wave correction applied (kind={_wc_kind}, "
+                f"max_|delta|={_wc_delta:.2f}px)",
+                flush=True,
+            )
+            session.mark(PipelineStage.BUNDLE_ADJUST, wave_corrected=True)
+
         # ── Stage 7b: Affine validation gate ─────────────────────────────────
         # §0.5C: adaptive min_gap — scales with canvas span so fast-scroll
         # (4K, >400 px/frame) applies a proportionally higher floor than the

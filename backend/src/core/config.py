@@ -92,6 +92,8 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_CLEANCP_RESOLVE": (int, 0, 1, "Default-off CleanCP local edge recovery after filtering disconnects the graph"),
     "ASP_BA_F_SCALE": (float, 0.0, None, "Cauchy loss f_scale (px) in bundle adjustment"),
     "ASP_GNC_OUTER": (int, 1, 32, "GNC outer continuation iterations in BA"),
+    "ASP_WAVE_CORRECT": (int, 0, 1, "EXPERIMENTAL, default-off: 2D translation-domain wave correction (chain-drift straightening) on the BA output, the analog of OpenCV detail::waveCorrect; does not change the rejection path"),
+    "ASP_WAVE_CORRECT_KIND": (str, None, None, "Wave-correction dominant axis: auto | horizontal | vertical"),
     "ASP_DY_CV_MAX": (float, 0.0, None, "dy_cv gate: SCANS fallback above this step-CV (0=off)"),
     # ── Foreground registration (Stage 8.5) ─────────────────────────────
     "ASP_FG_REGISTER": (int, 0, 1, "Enable Stage 8.5 foreground pose registration"),
