@@ -66,6 +66,8 @@ class SafeAspPolicy:
     ghost_floor: float = 40.0
     seam_vis_ratio: float = 3.0
     seam_vis_floor: float = 35.0
+    registration_gate_enabled: bool = False
+    uncertain_result_policy: str = "prompt"
     # Default-off M2 candidates. Do not flip until the promotion ladder
     # (five-case → red set → 97) reports no human-worse selection.
     ghost_telemetry_only: bool = False
@@ -76,6 +78,7 @@ class SafeAspPolicy:
     def from_environ(cls) -> SafeAspPolicy:
         """Same env knobs the benchmark already documents."""
         both = os.environ.get("ASP_COMPOSITE_TELEMETRY_ONLY", "0") == "1"
+        registration_gate_enabled = os.environ.get("ASP_REGISTRATION_GATE_ENABLED", "0") == "1"
         return cls(
             composite_sc_floor=_env_float("ASP_GATE_SC", 38.0),
             composite_sb_floor=_env_float("ASP_GATE_SB", 35.0),
@@ -83,6 +86,8 @@ class SafeAspPolicy:
             ghost_floor=_env_float("ASP_GATE_GHOST_FLOOR", 40.0),
             seam_vis_ratio=_env_float("ASP_GATE_SEAM_VIS", 3.0),
             seam_vis_floor=_env_float("ASP_GATE_SEAM_VIS_FLOOR", 35.0),
+            registration_gate_enabled=registration_gate_enabled,
+            uncertain_result_policy=os.environ.get("ASP_UNCERTAIN_RESULT_POLICY", "prompt"),
             ghost_telemetry_only=os.environ.get("ASP_GHOST_TELEMETRY_ONLY", "0") == "1",
             composite_sb_telemetry_only=both
             or os.environ.get("ASP_COMPOSITE_SB_TELEMETRY_ONLY", "0") == "1",
@@ -307,19 +312,29 @@ class SafeAspPolicy:
         )
         session.record_artifact("safe_asp_selected", "scans")
 
+    def evaluate_registration_risk(self, telemetry: dict[str, Any] | None, affine_health: dict[str, Any] | None = None, crop_coverage: float | None = None) -> GateDecision:
+        from .registration_gate import RegistrationRiskGate
+        return RegistrationRiskGate().evaluate(telemetry, affine_health, crop_coverage)
+
     def evaluate_all(
         self,
         asp_img: np.ndarray,
         scans_img: np.ndarray | None,
         affines: list[np.ndarray] | None,
+        *, telemetry: dict[str, Any] | None = None,
+        affine_health: dict[str, Any] | None = None,
+        crop_coverage: float | None = None,
     ) -> list[GateDecision]:
-        return [
+        decisions = [
             self.evaluate_composite(asp_img, scans_img, affines),
             self.evaluate_ghost(asp_img, scans_img),
             self.evaluate_seam_vis(asp_img, scans_img),
         ]
+        if self.registration_gate_enabled and telemetry is not None:
+            decisions.insert(0, self.evaluate_registration_risk(telemetry, affine_health, crop_coverage))
+        return decisions
 
-    def snapshot(self) -> dict[str, float]:
+    def snapshot(self) -> dict[str, float | str]:
         return {
             "composite_sc_floor": self.composite_sc_floor,
             "composite_sb_floor": self.composite_sb_floor,
@@ -328,6 +343,8 @@ class SafeAspPolicy:
             "ghost_floor": self.ghost_floor,
             "seam_vis_ratio": self.seam_vis_ratio,
             "seam_vis_floor": self.seam_vis_floor,
+            "registration_gate_enabled": 1.0 if self.registration_gate_enabled else 0.0,
+            "uncertain_result_policy": self.uncertain_result_policy,
             "ghost_telemetry_only": 1.0 if self.ghost_telemetry_only else 0.0,
             "composite_sb_telemetry_only": (
                 1.0 if self.composite_sb_telemetry_only else 0.0
@@ -369,17 +386,21 @@ def safe_asp_counterfactual(
 ) -> dict[str, Any]:
     """Typed per-case Safe ASP what-if, independent of what was published."""
     first_reject = next((d for d in decisions if not d.accept), None)
+    uncertain = next((d for d in decisions if d.status == "uncertain"), None)
     if not raw_available:
         would_select = None
         unavailable = "raw_unavailable"
     elif not scans_available:
         would_select = "raw_asp"
         unavailable = "no_scans"
-    elif first_reject is None:
-        would_select = "raw_asp"
+    elif first_reject is not None:
+        would_select = "scans"
+        unavailable = None
+    elif uncertain is not None:
+        would_select = policy.uncertain_result_policy
         unavailable = None
     else:
-        would_select = "scans"
+        would_select = "raw_asp"
         unavailable = None
     return {
         "would_select": would_select,

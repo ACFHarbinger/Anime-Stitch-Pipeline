@@ -1337,3 +1337,10 @@ Harbinger and Gemini brainstormed the interactive dev tool, visualization method
   span-normalized consensus, and full-graph acceptance while recording adjacent
   gap telemetry and triggering for connected skip-edge graphs. Default remains
   off; the ratio gate is unchanged. Focused tests: 3 passed.
+
+## 22. M2 registration telemetry and gate recovered (2026-08-26)
+
+- Restored solve-independent registration telemetry and the default-off
+  `RegistrationRiskGate`. Hard BA/cycle/edge failures reject; the calibrated
+  ambiguity band is `uncertain` and defaults to review prompt in
+  counterfactuals. Focused tests: 20 passed; no benchmark run.

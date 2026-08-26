@@ -98,6 +98,7 @@ _CONFIG_KEYS = (
     "use_sea_raft",
     "use_jamma",
     "use_ecc",
+    "bg_masked_matching",
     "renderer",
     "composite_fg",
     "bands",

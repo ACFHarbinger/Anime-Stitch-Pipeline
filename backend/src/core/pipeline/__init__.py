@@ -50,6 +50,7 @@ from ._probes import _ALIKED_OK, _BIREFNET_OK, _DY_CV_MAX, _ELOFTR_OK, _LOFTR_OK
 from .bench_adapter import bench_legacy_enabled, run_canonical_asp
 from .manager import AnimeStitchPipeline
 from .safety_policy import SafeAspPolicy, default_benchmark_policy
+from .registration_gate import RegistrationRiskGate, RegistrationThresholds, RiskLevel
 from .session import (
     HitlCheckpoint,
     PipelineSession,
@@ -75,6 +76,9 @@ __all__ = [
     "ResultIdentity",
     "TelemetrySink",
     "SafeAspPolicy",
+    "RegistrationRiskGate",
+    "RegistrationThresholds",
+    "RiskLevel",
     "bench_legacy_enabled",
     "default_benchmark_policy",
     "run_canonical_asp",
