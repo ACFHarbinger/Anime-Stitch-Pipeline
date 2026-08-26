@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Orphaned lineage recovery — P2 overlap bridge, MAGSAC++, multiband (2026-08-26, Antigravity):**
+  Recovered `_overlap_proposal.py` (provisional geometry overlap/component bridge proposals,
+  `ASP_OVERLAP_PROPOSAL`), `_estimators.py` (MAGSAC++ estimator swap via `ASP_USAC_MAGSAC`),
+  and `_multiband.py` (M5 frequency-split Laplacian pyramid blending, `ASP_MULTIBAND_BLEND`).
+  Reconciled `_pairwise.py`, `efficient_loftr_wrapper.py`, and `jamma_wrapper.py`.
+  14 new unit tests across `test_overlap_proposal.py`, `test_estimators.py`, and
+  `test_multiband.py` passed (28 passed in total suite sweep).
+
 - **P3 regularized TPS residual background-only local warp (2026-08-26, Antigravity):**
   Added default-off `ASP_RESIDUAL_WARP=1` (`_residual_warp.py`) for regularized Thin
   Plate Spline background refinement with bending energy and max displacement

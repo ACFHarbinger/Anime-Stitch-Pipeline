@@ -87,8 +87,11 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     # ── Matching / alignment ────────────────────────────────────────────
     "ASP_MATCH_SPREAD_CEIL": (float, 0.0, None, "Max MAD of per-match displacements (0=off)"),
     "ASP_LOFTR_BG_RATIO_MIN": (float, 0.0, 1.0, "Min fraction of LoFTR matches on background (0=off)"),
+    "ASP_BG_MASKED_MATCHING": (int, 0, 1, "M4: restrict Stage 5/6 feature detection/matching to static background pixels via ~fg_mask (default OFF)"),
     "ASP_SIMILARITY_MODE": (int, 0, 1, "4-DOF similarity constraint for per-pair affines"),
+    "ASP_USAC_MAGSAC": (int, 0, 1, "EXPERIMENTAL, default-off: swap Stage 5/6 RANSAC estimators to MAGSAC++ (cv2.USAC_MAGSAC) for affine/homography fits"),
     "ASP_ALIGN_GATE_DX": (float, 0.0, None, "75th-pct |dx| gate for vertical-scroll alignment"),
+    "ASP_OVERLAP_PROPOSAL": (int, 0, 1, "EXPERIMENTAL, default-off: P2 connectivity — provisional phase-correlation anchors + background-mask overlap add/prioritize bridge pairs before matching"),
     "ASP_CLEANCP_RESOLVE": (int, 0, 1, "Default-off CleanCP local edge recovery after filtering disconnects the graph"),
     "ASP_BA_F_SCALE": (float, 0.0, None, "Cauchy loss f_scale (px) in bundle adjustment"),
     "ASP_GNC_OUTER": (int, 1, 32, "GNC outer continuation iterations in BA"),
@@ -131,6 +134,9 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_SP_SOFT_PX": (int, 0, None, "Single-pose soft-edge half-width (px)"),
     "ASP_BG_NORM_MIN_PX": (int, 0, None, "Min bg pixels for normalisation gain estimate (0=200)"),
     "ASP_POST_SEAM_WARN_THRESH": (float, 0.0, None, "Post-composite seam lum-step warning threshold"),
+    "ASP_MULTIBAND_BLEND": (int, 0, 1, "M5: multi-band / Laplacian pyramid blending on background plate regions (default OFF)"),
+    "ASP_MULTIBAND_LEVELS": (int, 2, 8, "M5: multi-band pyramid octave count (default 5)"),
+    "ASP_MULTIBAND_HF_LOCK": (int, 0, 1, "M5: lock Level 0 detail to discrete DP seam cut to prevent line-art softening (default 1)"),
     # ── C++ acceleration ─────────────────────────────────────────────────
     "ASP_BATCH_GPU": (int, 0, 1, "GPU dispatch for C++ base kernels"),
     # ── Bundle adjustment (previously hardcoded module constants) ────────

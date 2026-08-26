@@ -7,6 +7,8 @@ from __future__ import annotations
 import logging
 import os
 import time
+from dataclasses import asdict, dataclass
+from typing import Any
 
 import cv2
 import numpy as np
@@ -16,6 +18,7 @@ from backend.src.constants import MATCH_EDGE_CROP, MAX_DX_DRIFT_RATIO
 from ._matchers import _phase_correlate, _segment_guided_match, _template_match
 from ._math import _compute_bg_match_ratio, _compute_translation_spread, _extract_similarity
 from ._sampling import _sample_bg_points_grid
+from ._estimators import estimate_affine2d, estimate_affine_partial2d
 
 logger = logging.getLogger(__name__)
 
@@ -40,12 +43,89 @@ _MATCH_SPREAD_CEIL: float = float(os.environ.get("ASP_MATCH_SPREAD_CEIL", "0.0")
 # Set to 0.0 to disable (default); recommend 0.15 for real sequences.
 _LOFTR_BG_RATIO_MIN: float = float(os.environ.get("ASP_LOFTR_BG_RATIO_MIN", "0.0"))
 
+# M4: Background-masked matching. Feeds inverted BiRefNet masks (~fg_mask)
+# directly into feature detectors/matchers to avoid cel motion contamination.
+_BG_MASKED_MATCHING: bool = os.environ.get("ASP_BG_MASKED_MATCHING", "0") == "1"
+
 # asp_test83 hung 1+ hour after "Loading weights: 100%" with no further
 # logs: 18×1080p frames × (adj+skip1+skip2) pairs × LoFTR/LG/RoMa looks
 # like a stall. Budget stops matching and keeps whatever edges exist so
 # the pipeline can fall back to SCANS instead of spinning forever.
 # 0 disables the budget.
 _MATCH_BUDGET_SEC: float = float(os.environ.get("ASP_MATCH_BUDGET_SEC", "180"))
+
+
+@dataclass(frozen=True)
+class TemporalPairProposal:
+    """One deterministic Stage 5–6 candidate pair and its selection reason."""
+
+    i: int
+    j: int
+    span: int
+    reason: str
+
+
+def propose_temporal_pairs(N: int, range_width: int = 3) -> list[TemporalPairProposal]:
+    """Return the deterministic temporal pair policy used before matching.
+
+    ``range_width=3`` exactly preserves the historical ordering: all adjacent
+    pairs, then all span-two pairs, then all span-three pairs.  The proposal
+    is deliberately pure so P0 can measure it without changing matchers or
+    graph filtering.  Adjacent pairs are explicitly marked as the connectivity
+    backbone for later policy experiments.
+    """
+    if N < 0:
+        raise ValueError("N must be non-negative")
+    if range_width < 1:
+        raise ValueError("range_width must be at least 1")
+
+    proposals: list[TemporalPairProposal] = []
+    for span in range(1, min(range_width, N - 1) + 1):
+        reason = "adjacent_backbone" if span == 1 else "temporal_skip"
+        proposals.extend(
+            TemporalPairProposal(i=i, j=i + span, span=span, reason=reason)
+            for i in range(N - span)
+        )
+    return proposals
+
+
+
+def _ransac_metrics(
+    points_i: np.ndarray | None, points_j: np.ndarray | None
+) -> dict[str, float | int | bool | None]:
+    """Measure RANSAC agreement for real matcher correspondences only."""
+    if points_i is None or points_j is None or len(points_i) < 3:
+        return {
+            "observed_correspondences": False,
+            "ransac_inlier_count": None,
+            "ransac_inlier_ratio": None,
+            "reprojection_rms": None,
+        }
+    matrix, inliers = estimate_affine_partial2d(points_i, points_j, ransacReprojThreshold=5.0)
+    if matrix is None or inliers is None:
+        return {
+            "observed_correspondences": True,
+            "ransac_inlier_count": 0,
+            "ransac_inlier_ratio": 0.0,
+            "reprojection_rms": None,
+        }
+    mask = inliers.ravel().astype(bool)
+    count = int(mask.sum())
+    if not count:
+        return {
+            "observed_correspondences": True,
+            "ransac_inlier_count": 0,
+            "ransac_inlier_ratio": 0.0,
+            "reprojection_rms": None,
+        }
+    projected = points_i[mask] @ matrix[:, :2].T + matrix[:, 2]
+    residuals = np.linalg.norm(projected - points_j[mask], axis=1)
+    return {
+        "observed_correspondences": True,
+        "ransac_inlier_count": count,
+        "ransac_inlier_ratio": round(count / len(points_i), 4),
+        "reprojection_rms": round(float(np.sqrt(np.mean(np.square(residuals)))), 4),
+    }
 
 
 def _match_pair(  # noqa: C901
@@ -60,6 +140,7 @@ def _match_pair(  # noqa: C901
     motion_model: str = "translation",
     aliked_wrapper=None,
     roma_wrapper=None,
+    bg_masked_matching: bool = False,
 ) -> dict | None:
     """
     Try to match frame i to frame j. Optimized for vertical anime pans.
@@ -77,6 +158,17 @@ def _match_pair(  # noqa: C901
     match_m_i = m_i[ec_h:-ec_h, ec_w:-ec_w] if m_i is not None else None
     match_m_j = m_j[ec_h:-ec_h, ec_w:-ec_w] if m_j is not None else None
 
+    # M4: Background-masked matching restricts input to static pixels if enabled
+    match_in_i = match_img_i
+    match_in_j = match_img_j
+    if bg_masked_matching or _BG_MASKED_MATCHING:
+        if match_m_i is not None and (match_m_i <= 127).any():
+            match_in_i = match_img_i.copy()
+            match_in_i[match_m_i <= 127] = 0
+        if match_m_j is not None and (match_m_j <= 127).any():
+            match_in_j = match_img_j.copy()
+            match_in_j[match_m_j <= 127] = 0
+
     def _is_valid(M):
         if M is None:
             return False
@@ -87,6 +179,8 @@ def _match_pair(  # noqa: C901
     mean_conf = 0.0
     actual_pts_i: np.ndarray | None = None
     actual_pts_j: np.ndarray | None = None
+    observed_pts_i: np.ndarray | None = None
+    observed_pts_j: np.ndarray | None = None
     _loftr_bg_pts: int = 0  # track how many BG keypoints LoFTR found (for 1b trigger)
 
     # ── Attempt 1: LoFTR ───────────────────────────────────────────────────
@@ -95,12 +189,13 @@ def _match_pair(  # noqa: C901
         _match_started = time.perf_counter()
         logger.info("[Stitch]   %d→%d: %s matching started.", i, j, _matcher_name)
         try:
-            pts1, pts2, conf = loftr_wrapper.match(match_img_i, match_img_j)
+            pts1, pts2, conf = loftr_wrapper.match(match_in_i, match_in_j)
             print(
                 f"[Stitch]   {i}→{j}: {_matcher_name} matching finished "
                 f"in {time.perf_counter() - _match_started:.1f}s ({len(pts1)} points).",
                 flush=True,
             )
+
             logger.info(
                 "[Stitch]   %d→%d: %s matching finished (%d points).",
                 i,
@@ -167,8 +262,8 @@ def _match_pair(  # noqa: C901
                                     f"> {_MATCH_SPREAD_CEIL:.0f}px)"
                                 )
                     else:
-                        M_raw, inliers = cv2.estimateAffine2D(
-                            pts1, pts2, method=cv2.RANSAC, ransacReprojThreshold=5.0
+                        M_raw, inliers = estimate_affine2d(
+                            pts1, pts2, ransacReprojThreshold=5.0
                         )
                         if _is_valid(M_raw):
                             inl = inliers.ravel().astype(bool)
@@ -181,6 +276,8 @@ def _match_pair(  # noqa: C901
                     if M is not None:
                         actual_pts_i = pts1 + [ec_w, ec_h]
                         actual_pts_j = pts2 + [ec_w, ec_h]
+                        observed_pts_i = actual_pts_i
+                        observed_pts_j = actual_pts_j
                         logger.debug(
                             f"[Stitch]   {i}→{j}: LoFTR dx={M[0, 2]:.1f} dy={M[1, 2]:.1f} conf={mean_conf:.3f} (pts={len(pts1)})"
                         )
@@ -204,7 +301,7 @@ def _match_pair(  # noqa: C901
         print(f"[Stitch]   {i}→{j}: ALIKED+LightGlue fallback started...", flush=True)
         try:
             M_alg, c_alg, pts_alg_i, pts_alg_j = aliked_wrapper.get_translation(
-                match_img_i, match_img_j, match_m_i, match_m_j
+                match_in_i, match_in_j, match_m_i, match_m_j
             )
             print(
                 f"[Stitch]   {i}→{j}: ALIKED+LightGlue fallback finished "
@@ -215,6 +312,8 @@ def _match_pair(  # noqa: C901
                 M, mean_conf = M_alg, c_alg
                 actual_pts_i = pts_alg_i + [ec_w, ec_h]
                 actual_pts_j = pts_alg_j + [ec_w, ec_h]
+                observed_pts_i = actual_pts_i
+                observed_pts_j = actual_pts_j
                 logger.debug(
                     f"[Stitch]   {i}→{j}: ALIKED+LG dx={M[0, 2]:.1f} dy={M[1, 2]:.1f} "
                     f"conf={mean_conf:.3f} (pts={len(pts_alg_i)})"
@@ -229,7 +328,7 @@ def _match_pair(  # noqa: C901
     # ── Attempt 2: Template Match (Fallback) ───────────────────────────────
     if M is None:
         M_tm, c_tm = _template_match(
-            match_img_i, match_img_j, match_m_i, match_m_j, match_img_i.shape[0]
+            match_in_i, match_in_j, match_m_i, match_m_j, match_in_i.shape[0]
         )
         if M_tm is not None and c_tm > 0.6:
             M, mean_conf = M_tm, c_tm
@@ -240,7 +339,7 @@ def _match_pair(  # noqa: C901
     # ── Attempt 3a: Masked phase correlation ───────────────────────────────
     if M is None:
         M_pc, c_pc = _phase_correlate(
-            match_img_i, match_img_j, match_m_i, match_m_j, use_mask=True
+            match_in_i, match_in_j, match_m_i, match_m_j, use_mask=True
         )
         if M_pc is not None and _is_valid(M_pc) and c_pc > 0.25:
             M, mean_conf = M_pc, c_pc
@@ -267,7 +366,7 @@ def _match_pair(  # noqa: C901
     if M is None:
         try:
             M_sg, c_sg = _segment_guided_match(
-                match_img_i, match_img_j, match_m_i, match_m_j
+                match_in_i, match_in_j, match_m_i, match_m_j
             )
             if M_sg is not None and _is_valid(M_sg):
                 M, mean_conf = M_sg, c_sg
@@ -283,7 +382,7 @@ def _match_pair(  # noqa: C901
     if M is None and roma_wrapper is not None:
         try:
             M_roma, c_roma = roma_wrapper.match_translation(
-                match_img_i, match_img_j, match_m_i, match_m_j
+                match_in_i, match_in_j, match_m_i, match_m_j
             )
             if M_roma is not None and _is_valid(M_roma):
                 M, mean_conf = M_roma, c_roma
@@ -328,6 +427,7 @@ def _match_pair(  # noqa: C901
         "pts_i": pts_i,
         "pts_j": pts_j,
         "weight": mean_conf,
+        "registration_metrics": _ransac_metrics(observed_pts_i, observed_pts_j),
     }
 
 
@@ -339,26 +439,39 @@ def _pairwise_match(
     motion_model: str = "translation",
     aliked_wrapper=None,
     roma_wrapper=None,
+    bg_masked_matching: bool = False,
+    proposal_telemetry: dict[str, Any] | None = None,
+    extra_proposals: list[TemporalPairProposal] | None = None,
 ) -> list[dict]:
     """
     Build pairwise correspondence edges using LoFTR -> template match -> PC fallback.
-    Adds consecutive (i->i+1) plus skip-pair (i->i+2, i->i+3) edges.
+    Default proposals are consecutive (i->i+1) plus spans two and three.
+    ``extra_proposals`` (P2 connectivity, default-off) are appended additively —
+    never used to remove or reorder the temporal backbone.
     """
     N = len(frames)
     H, W = frames[0].shape[:2]
 
-    # Build list of (i, j) pairs to try
-    pairs: list[tuple[int, int]] = []
-    for i in range(N - 1):
-        pairs.append((i, i + 1))
-    for i in range(N - 2):
-        pairs.append((i, i + 2))  # skip-1
-    for i in range(N - 3):
-        pairs.append((i, i + 3))  # skip-2
+    rw = int(os.environ.get('ASP_TEMPORAL_RANGE', '3'))
+    proposals = propose_temporal_pairs(N, range_width=rw)
+    if extra_proposals:
+        existing_keys = {(p.i, p.j) for p in proposals}
+        proposals = proposals + [
+            p for p in extra_proposals if (p.i, p.j) not in existing_keys
+        ]
+    if proposal_telemetry is not None:
+        proposal_telemetry.update(
+            {
+                "range_width": rw,
+                "candidates": [asdict(proposal) for proposal in proposals],
+                "extra_proposals_added": len(extra_proposals) if extra_proposals else 0,
+            }
+        )
 
     edges: list[dict] = []
     t0 = time.perf_counter()
-    for _idx, (i, j) in enumerate(pairs):
+    for _idx, proposal in enumerate(proposals):
+        i, j = proposal.i, proposal.j
         elapsed = time.perf_counter() - t0
         if _MATCH_BUDGET_SEC > 0 and elapsed > _MATCH_BUDGET_SEC:
             logger.warning(
@@ -366,12 +479,12 @@ def _pairwise_match(
                 "(%d edges) — stopping so SCANS can run (asp_test83 hang class).",
                 _MATCH_BUDGET_SEC,
                 _idx,
-                len(pairs),
+                len(proposals),
                 len(edges),
             )
             break
         print(
-            f"[Stitch]   Pair {_idx + 1}/{len(pairs)} ({i}→{j}, {elapsed:.0f}s elapsed)...",
+            f"[Stitch]   Pair {_idx + 1}/{len(proposals)} ({i}→{j}, {elapsed:.0f}s elapsed)...",
             flush=True,
         )
         edge = _match_pair(
@@ -386,9 +499,14 @@ def _pairwise_match(
             motion_model=motion_model,
             aliked_wrapper=aliked_wrapper,
             roma_wrapper=roma_wrapper,
+            bg_masked_matching=bg_masked_matching,
         )
+
         if edge is not None:
             edges.append(edge)
+
+    if proposal_telemetry is not None:
+        proposal_telemetry["matched_edges"] = len(edges)
 
     # Moving tensors back to CPU in the matcher already synchronizes the work.
     # Avoid forcing a device-wide synchronize and allocator flush after every

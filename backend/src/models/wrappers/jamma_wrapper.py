@@ -35,6 +35,7 @@ from copy import deepcopy
 import cv2
 import numpy as np
 import torch
+from asp_backend.alignment.matching._estimators import estimate_affine_partial2d
 from backend.src.constants.models import _CKPT_FILE, _HF_REPO, _JAMMA_ERR, _JAMMA_OK, _MIN_INLIERS
 from backend.src.models.core.base import ModelWrapper, lazy_load
 from huggingface_hub import hf_hub_download
@@ -217,9 +218,8 @@ class JamMaWrapper(ModelWrapper):
         if len(pts1) < min_inliers:
             return None, 0.0
 
-        M_raw, inliers = cv2.estimateAffinePartial2D(
+        M_raw, inliers = estimate_affine_partial2d(
             pts1, pts2,
-            method=cv2.RANSAC,
             ransacReprojThreshold=2.0,
             confidence=0.999,
             maxIters=10_000,

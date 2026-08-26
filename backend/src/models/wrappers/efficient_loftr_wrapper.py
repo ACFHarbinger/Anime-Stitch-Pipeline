@@ -23,6 +23,11 @@ from __future__ import annotations
 import logging
 
 import cv2
+
+from asp_backend.alignment.matching._estimators import (
+    estimate_affine_partial2d,
+    find_homography,
+)
 import numpy as np
 import torch
 from backend.src.constants.models import WRAPPERS__HF_REPO, WRAPPERS__MIN_INLIERS
@@ -228,10 +233,9 @@ class EfficientLoFTRWrapper(ModelWrapper):
         if len(pts1) < min_inliers:
             return None, 0.0
 
-        M_raw, inliers = cv2.estimateAffinePartial2D(
+        M_raw, inliers = estimate_affine_partial2d(
             pts1,
             pts2,
-            method=cv2.RANSAC,
             ransacReprojThreshold=2.0,
             confidence=0.999,
             maxIters=10_000,
@@ -257,5 +261,5 @@ class EfficientLoFTRWrapper(ModelWrapper):
         keep = conf > 0.5
         if keep.sum() < 4:
             return None
-        H_mat, status = cv2.findHomography(pts1[keep], pts2[keep], cv2.RANSAC, 5.0)
+        H_mat, status = find_homography(pts1[keep], pts2[keep], ransacReprojThreshold=5.0)
         return H_mat if (status is not None and status.sum() > 4) else None

@@ -12,7 +12,7 @@ here for backward compatibility.
 from ._matcher_plugins import PhaseCorrelateMatcher, SegmentGuidedMatcher, TemplateMatcher
 from ._matchers import _phase_correlate, _segment_guided_match, _template_match
 from ._math import _compute_bg_match_ratio, _compute_translation_spread, _extract_similarity
-from ._pairwise import _match_pair, _pairwise_match
+from ._pairwise import TemporalPairProposal, _match_pair, _pairwise_match, propose_temporal_pairs
 from ._sampling import _sample_bg_points, _sample_bg_points_grid
 from .matcher_base import Matcher, MatcherRegistry
 
@@ -29,8 +29,9 @@ __all__ = [
     "_segment_guided_match",
     "_match_pair",
     "_pairwise_match",
+    "TemporalPairProposal",
+    "propose_temporal_pairs",
     "_extract_similarity",
     "_compute_translation_spread",
     "_compute_bg_match_ratio",
 ]
-
