@@ -8,12 +8,12 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import Qt, QThreadPool, Slot
+from PySide6.QtCore import QAbstractAnimation, Qt, QThreadPool, Slot
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QFileDialog, QMessageBox, QWidget
 
 from ..helpers import StitchWorker
-from ._thumb_workers import _MetricsTask
+from ._thumb_workers import _MetricsTask, _ScansComparisonTask
 
 if TYPE_CHECKING:
     from ._stitch_tab_protocol import _StitchTabHost
@@ -245,30 +245,69 @@ class _StitchExecutionMixin(_Base):
     # ── Result preview helpers (§2.11 / 2.6B+C) ─────────────────────────
 
     def _show_stitch_result(self, output_path: str) -> None:
-        """Load result + first-frame thumbnails, show preview group, start metrics."""
+        """Show the ASP result and offer an on-demand SCANS comparison."""
         self._result_pix: QPixmap | None = QPixmap(output_path)
-        self._before_pix: QPixmap | None = None
-        if self._frame_paths:
-            pm = QPixmap(self._frame_paths[0])
-            if not pm.isNull():
-                self._before_pix = pm
+        self._scans_pix = None
+        self._comparison_metrics.clear()
         self._result_group.setVisible(True)
         self._btn_before_after.setChecked(False)
-        self._btn_before_after.setText("◀ Before")
+        self._btn_before_after.setText("ASP ◀")
+        self._btn_before_after.setEnabled(False)
+        self._btn_generate_scans.setEnabled(len(self._frame_paths) >= 2)
+        self._btn_generate_scans.setText("Generate SCANS Comparison")
         self._result_metrics_label.setText("Computing metrics…")
         self._update_result_preview()
         QThreadPool.globalInstance().start(
             _MetricsTask(output_path, self._metrics_signals)
         )
 
-    def _toggle_before_after(self, checked: bool) -> None:
-        self._btn_before_after.setText("◀ Before" if checked else "After ▶")
+    def _generate_scans_comparison(self) -> None:
+        """Create a SCANS baseline alongside the completed ASP panorama."""
+        if not self._result_pix or self._result_pix.isNull() or len(self._frame_paths) < 2:
+            return
+        output_path = self._output_path.text().strip()
+        root, ext = os.path.splitext(output_path)
+        scans_output_path = f"{root}_scans{ext or '.png'}"
+        self._btn_generate_scans.setEnabled(False)
+        self._btn_generate_scans.setText("Generating SCANS…")
+        self._result_metrics_label.setText("Generating SCANS comparison…")
+        QThreadPool.globalInstance().start(
+            _ScansComparisonTask(
+                list(self._frame_paths),
+                output_path,
+                scans_output_path,
+                self._scans_comparison_signals,
+            )
+        )
+
+    @Slot(str, object)
+    def _on_scans_comparison_ready(self, output_path: str, metrics: object) -> None:
+        scans_pix = QPixmap(output_path)
+        if scans_pix.isNull():
+            self._on_scans_comparison_failed("OpenCV SCANS did not produce a readable image.")
+            return
+        self._scans_pix = scans_pix
+        self._comparison_metrics = dict(metrics) if isinstance(metrics, dict) else {}
+        self._btn_before_after.setEnabled(True)
+        self._btn_generate_scans.setText("SCANS comparison ready")
         self._update_result_preview()
 
+    @Slot(str)
+    def _on_scans_comparison_failed(self, message: str) -> None:
+        self._btn_generate_scans.setEnabled(True)
+        self._btn_generate_scans.setText("Retry SCANS Comparison")
+        self._result_metrics_label.setText("SCANS comparison unavailable")
+        self._log_append(f"[Stitch] SCANS comparison failed: {message}")
+
+    def _toggle_before_after(self, checked: bool) -> None:
+        self._btn_before_after.setText("SCANS ▶" if checked else "ASP ◀")
+        if self._result_fade.state() == QAbstractAnimation.State.Running:
+            self._result_fade.stop()
+        self._result_fade.start()
+
     def _update_result_preview(self) -> None:
-        pix = (
-            self._before_pix if self._btn_before_after.isChecked() else self._result_pix
-        )
+        is_scans = self._btn_before_after.isChecked()
+        pix = self._scans_pix if is_scans else self._result_pix
         if pix is None or pix.isNull():
             return
         lw = self._result_preview_label.width()
@@ -280,6 +319,9 @@ class _StitchExecutionMixin(_Base):
             Qt.TransformationMode.SmoothTransformation,
         )
         self._result_preview_label.setPixmap(scaled)
+        label = "SCANS" if is_scans else "ASP"
+        if label in self._comparison_metrics:
+            self._result_metrics_label.setText(f"{label}: {self._comparison_metrics[label]}")
 
     @Slot(str)
     def _on_metrics_ready(self, metrics: str) -> None:

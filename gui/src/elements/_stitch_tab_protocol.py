@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
+from PySide6.QtCore import QSequentialAnimationGroup
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import (
     QComboBox,
@@ -40,7 +41,7 @@ from PySide6.QtWidgets import (
 
 from ..helpers import AnimClusterWorker, StatsWorker, StitchWorker
 from ._match_editor import _MatchScene, _MatchView
-from ._thumb_workers import _MetricsSignals, _ThumbHub
+from ._thumb_workers import _MetricsSignals, _ScansComparisonSignals, _ThumbHub
 
 
 class _StitchTabHost(Protocol):
@@ -55,9 +56,10 @@ class _StitchTabHost(Protocol):
     _frame_paths: list[str]
     _stitch_worker: StitchWorker | None
     _metrics_signals: _MetricsSignals
+    _scans_comparison_signals: _ScansComparisonSignals
     _tab_widget: QTabWidget
     _result_pix: QPixmap | None
-    _before_pix: QPixmap | None
+    _scans_pix: QPixmap | None
     _stats_worker: StatsWorker | None
     _anim_cluster_worker: AnimClusterWorker | None
 
@@ -90,10 +92,12 @@ class _StitchTabHost(Protocol):
     _match_view: _MatchView
     _match_count_label: QLabel
     _btn_before_after: QPushButton
+    _btn_generate_scans: QPushButton
     _btn_inspect_edges: QPushButton
     _btn_inspect_canvas: QPushButton
     _result_group: QGroupBox
     _result_preview_label: QLabel
+    _result_fade: QSequentialAnimationGroup
     _result_metrics_label: QLabel
     _progress: QProgressBar
     _stage_label: QLabel
@@ -129,6 +133,8 @@ class _StitchTabHost(Protocol):
     def _on_frame_selection_changed(self, *args: Any, **kwargs: Any) -> Any: ...
     def _on_load_session(self, *args: Any, **kwargs: Any) -> Any: ...
     def _on_metrics_ready(self, metrics: str) -> None: ...
+    def _on_scans_comparison_failed(self, message: str) -> None: ...
+    def _on_scans_comparison_ready(self, output_path: str, metrics: object) -> None: ...
     def _on_pair_changed(self, idx: int) -> Any: ...
     def _on_rows_reordered(self, *args: Any, **kwargs: Any) -> Any: ...
     def _on_video_mode_toggled(self, *args: Any, **kwargs: Any) -> Any: ...
@@ -152,6 +158,7 @@ class _StitchTabHost(Protocol):
     def _stats_build_recommendations(self, *args: Any, **kwargs: Any) -> Any: ...
     def _stats_on_error(self, msg: str) -> Any: ...
     def _toggle_before_after(self, checked: bool) -> None: ...
+    def _generate_scans_comparison(self) -> None: ...
 
 
 __all__ = ["_StitchTabHost"]

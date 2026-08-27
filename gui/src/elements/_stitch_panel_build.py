@@ -18,12 +18,13 @@ from typing import TYPE_CHECKING
 
 from gui.src.styles import apply_shadow_effect
 from gui.src.windows.settings.splitter_persistence import persist_splitter
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QPropertyAnimation, QSequentialAnimationGroup, QSize, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFormLayout,
+    QGraphicsOpacityEffect,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
@@ -532,16 +533,24 @@ class _StitchPanelBuildMixin(_Base):
         result_layout.setSpacing(4)
 
         result_toolbar = QHBoxLayout()
-        self._btn_before_after = QPushButton("◀ Before")
+        self._btn_before_after = QPushButton("ASP ◀")
         self._btn_before_after.setCheckable(True)
         self._btn_before_after.setFixedWidth(88)
         self._btn_before_after.setToolTip(
-            "Toggle between the first source frame (Before) and the stitched result (After)."
+            "Toggle between the ASP result and its SCANS comparison output."
         )
+        self._btn_before_after.setEnabled(False)
         self._btn_before_after.toggled.connect(self._toggle_before_after)
+        self._btn_generate_scans = QPushButton("Generate SCANS Comparison")
+        self._btn_generate_scans.setToolTip(
+            "Create an OpenCV SCANS baseline from the source frames without "
+            "blocking the interface."
+        )
+        self._btn_generate_scans.clicked.connect(self._generate_scans_comparison)
         self._result_metrics_label = QLabel("")
         self._result_metrics_label.setStyleSheet("color: #aaa; font-size: 10px;")
         result_toolbar.addWidget(self._btn_before_after)
+        result_toolbar.addWidget(self._btn_generate_scans)
         result_toolbar.addStretch()
         result_toolbar.addWidget(self._result_metrics_label)
         result_layout.addLayout(result_toolbar)
@@ -556,10 +565,26 @@ class _StitchPanelBuildMixin(_Base):
         self._result_preview_label.setStyleSheet(
             "background:#1a1a1a; border:1px solid #333;"
         )
+        self._result_fade_effect = QGraphicsOpacityEffect(self._result_preview_label)
+        self._result_preview_label.setGraphicsEffect(self._result_fade_effect)
+        self._result_fade = QSequentialAnimationGroup(self._result_preview_label)
+        self._result_fade_out = QPropertyAnimation(self._result_fade_effect, b"opacity")
+        self._result_fade_out.setDuration(50)
+        self._result_fade_out.setStartValue(1.0)
+        self._result_fade_out.setEndValue(0.0)
+        self._result_fade_out.finished.connect(self._update_result_preview)
+        self._result_fade_in = QPropertyAnimation(self._result_fade_effect, b"opacity")
+        self._result_fade_in.setDuration(50)
+        self._result_fade_in.setStartValue(0.0)
+        self._result_fade_in.setEndValue(1.0)
+        self._result_fade.addAnimation(self._result_fade_out)
+        self._result_fade.addAnimation(self._result_fade_in)
         result_layout.addWidget(self._result_preview_label)
         bottom_layout.addWidget(self._result_group)
 
         self._metrics_signals.ready.connect(self._on_metrics_ready)
+        self._scans_comparison_signals.ready.connect(self._on_scans_comparison_ready)
+        self._scans_comparison_signals.failed.connect(self._on_scans_comparison_failed)
 
         root.addWidget(bottom)
 

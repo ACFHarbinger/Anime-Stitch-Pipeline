@@ -42,7 +42,7 @@ from ._stitch_execution import _StitchExecutionMixin
 from ._stitch_frames import _StitchFramesMixin
 from ._stitch_hitl_review import _StitchHitlReviewMixin
 from ._stitch_panel_build import _StitchPanelBuildMixin
-from ._thumb_workers import _MetricsSignals, _ThumbHub
+from ._thumb_workers import _MetricsSignals, _ScansComparisonSignals, _ThumbHub
 
 
 class StitchTab(
@@ -84,8 +84,10 @@ class StitchTab(
 
         # ── Result preview state (§2.11 / 2.6B+C) ───────────────────────
         self._result_pix: QPixmap | None = None
-        self._before_pix: QPixmap | None = None
+        self._scans_pix: QPixmap | None = None
+        self._comparison_metrics: dict[str, str] = {}
         self._metrics_signals = _MetricsSignals()
+        self._scans_comparison_signals = _ScansComparisonSignals()
         self._match_thread: QThread | None = None
         self._match_worker: MatchWorker | None = None
         self._mask_thread: QThread | None = None
