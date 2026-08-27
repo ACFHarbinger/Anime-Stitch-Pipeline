@@ -56,11 +56,15 @@ def plate_multiband_enabled() -> bool:
 def plate_single_pose_safe_for_phases(
     phase_ids: list[int] | None,
     n_frames: int,
+    source_has_multiple_phases: bool = False,
 ) -> bool:
     """A single plate requires aligned, single-phase provenance."""
     return (
-        not phase_ids
-        or (len(phase_ids) == n_frames and len(set(phase_ids)) <= 1)
+        not source_has_multiple_phases
+        and (
+            not phase_ids
+            or (len(phase_ids) == n_frames and len(set(phase_ids)) <= 1)
+        )
     )
 
 

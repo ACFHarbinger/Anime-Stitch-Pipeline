@@ -349,6 +349,15 @@ class _RunStageMixin(_Base):
         session.mark_dropped_paths(image_paths, "near_static")
         session.mark(PipelineStage.DEDUP, n=N)
 
+        # P1's one-plate model must not cross a pose change. Keep this
+        # conservative source-sequence signal even if later spatial dedup
+        # changes the aligned per-frame phase vector used by seam logic.
+        try:
+            _plate_source_phase_ids = detect_animation_phases(image_paths)
+            plate_source_has_multiple_phases = len(set(_plate_source_phase_ids)) > 1
+        except Exception:
+            plate_source_has_multiple_phases = False
+
         # ── Stage 5-6: Pairwise matching (+ skip-pair edges) ────────────────
         # ── Matcher selection (P1.4 EfficientLoFTR / P3.2 JamMa) ───────────────
         _active_loftr = self._select_matcher(H, W)
@@ -1001,6 +1010,7 @@ class _RunStageMixin(_Base):
                 seam_path_cache=self._seam_path_cache,
                 exclusion_masks=self.exclusion_masks or None,
                 phase_ids=phase_ids,
+                source_has_multiple_phases=plate_source_has_multiple_phases,
                 seam_meta_out=_seam_meta,
             )
             _single = _seam_meta.get("seam_single_pose") or {}

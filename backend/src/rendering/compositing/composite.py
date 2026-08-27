@@ -35,6 +35,7 @@ def _composite_foreground(
     seam_meta_out: dict | None = None,
     seam_overrides: dict | None = None,
     phase_ids: list[int] | None = None,
+    source_has_multiple_phases: bool = False,
 ) -> np.ndarray:
     N = len(frames)
     print("[Stitch]   Laplacian-blend composite (foreground-only deghost)...")
@@ -84,7 +85,7 @@ def _composite_foreground(
     )
 
     if plate_single_pose_enabled() and N >= 2 and plate_single_pose_safe_for_phases(
-        phase_ids, N
+        phase_ids, N, source_has_multiple_phases
     ):
         edge_preserve = os.environ.get("ASP_PLATE_EDGE_PRESERVE", "1") != "0"
         multiband = plate_multiband_enabled()

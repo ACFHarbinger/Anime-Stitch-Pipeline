@@ -25,6 +25,7 @@ def test_plate_single_pose_rejects_multiple_phases():
     assert plate_single_pose_safe_for_phases([0, 0, 0], 3)
     assert not plate_single_pose_safe_for_phases([0, 1, 1], 3)
     assert not plate_single_pose_safe_for_phases([0, 0, 0], 2)
+    assert not plate_single_pose_safe_for_phases([0, 0, 0], 3, True)
 
 
 def test_build_aligned_background_plate_reconstruction():
