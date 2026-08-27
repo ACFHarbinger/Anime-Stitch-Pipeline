@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from asp_backend.rendering.compositing._normalization import _warp_inputs
 from asp_backend.rendering.compositing._plate_compositor import (
     _build_aligned_background_plate,
     composite_plate_single_pose,
@@ -133,3 +134,18 @@ def test_plate_compositor_p4_ternary_uncertainty_exclusion():
     assert valid.all()
     # Frame 1 is excluded from the uncertain patch, so the plate matches Frame 0.
     assert np.all(plate[20:40, 20:40] == 100)
+
+
+def test_warp_inputs_preserves_p4_uncertainty_for_plate_path():
+    """The P1/P2 path must retain 128 rather than treating it as background."""
+    frame = np.full((8, 8, 3), 100, dtype=np.uint8)
+    mask = np.full((8, 8), 255, dtype=np.uint8)
+    mask[2:6, 2:6] = 128
+    affine = np.array([[1, 0, 0], [0, 1, 0]], dtype=np.float32)
+
+    _frames, warped_bg, _valid = _warp_inputs(
+        [frame], [affine], [mask], 8, 8, 1, include_valid=True, preserve_ternary=True
+    )
+
+    assert warped_bg[0].dtype == np.uint8
+    assert np.all(warped_bg[0][2:6, 2:6] == 128)

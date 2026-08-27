@@ -75,6 +75,7 @@ def _warp_inputs(
     N: int,
     *,
     include_valid: bool = False,
+    preserve_ternary: bool = False,
 ) -> tuple:
     # Warp every frame to the full canvas.
     warped_list = []
@@ -115,9 +116,13 @@ def _warp_inputs(
                 borderMode=cv2.BORDER_CONSTANT,
                 borderValue=255,
             )
-            # P4 ternary support: if mask contains 128 (uncertain), only confirmed bg (>200) is True
-            thresh = 200 if (bg_masks[i] == 128).any() else 127
-            warped_bg.append(wm > thresh)
+            # P1/P2 needs the uncertainty state to exclude it from both plate
+            # and foreground ownership. The legacy compositor consumes bools.
+            if preserve_ternary and (bg_masks[i] == 128).any():
+                warped_bg.append(wm)
+            else:
+                thresh = 200 if (bg_masks[i] == 128).any() else 127
+                warped_bg.append(wm > thresh)
         else:
             warped_bg.append(None)
     if include_valid:

@@ -62,9 +62,17 @@ def _composite_foreground(
     if preset_boundaries is not None and len(preset_boundaries) == N - 1:
         initial_boundaries = np.asarray(preset_boundaries, dtype=np.float64)
 
-    # Warp inputs
+    # Warp inputs. Preserve P4's uncertain-mask state for the P1/P2 plate;
+    # the legacy compositor retains its boolean-mask contract.
     warped_list, warped_bg, warped_valid = _warp_inputs(
-        frames, affines, bg_masks, H, W, N, include_valid=True
+        frames,
+        affines,
+        bg_masks,
+        H,
+        W,
+        N,
+        include_valid=True,
+        preserve_ternary=os.environ.get("ASP_PLATE_SINGLE_POSE", "0") == "1",
     )
 
     # P1/P2 candidate: default-off canvas-aligned background plate + single foreground pose
