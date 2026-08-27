@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Sequence
 
 import cv2
 import numpy as np

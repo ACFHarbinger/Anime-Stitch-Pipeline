@@ -18,20 +18,16 @@ import logging
 import os
 import warnings
 from dataclasses import dataclass
-from typing import Sequence
 
 import cv2
 import numpy as np
 
 from ._flags import (
     _JOINT_GAIN_ROBUST,
-    _JOINT_GAIN_SIGMA_G,
-    _JOINT_GAIN_SIGMA_N,
 )
+from ._gain_compensation import _apply_joint_gain_solve
 
 _SP_SOFT_PX: int = int(os.environ.get("ASP_SP_SOFT_PX", "8"))
-from ._gain_compensation import _apply_joint_gain_solve
-from ._normalization import _warp_inputs
 
 logger = logging.getLogger(__name__)
 
@@ -137,12 +133,15 @@ def _build_aligned_background_plate(
         if valid.any():
             band_plate = np.clip(med[valid], 0, 255).astype(np.uint8)
 
-            # P2 Edge-Preserving refinement: in regions with line art, pick the sharpest single source
+            # P2 Edge-Preserving refinement: in regions with line art, pick
+            # the sharpest single source
             if edge_preserve and N >= 2:
                 # Compute gradient magnitude of median vs individual samples
                 valid_band_mask = np.zeros((bh, W), dtype=bool)
                 valid_band_mask[valid] = True
-                gray_med = cv2.cvtColor(np.clip(np.nan_to_num(med), 0, 255).astype(np.uint8), cv2.COLOR_BGR2GRAY)
+                gray_med = cv2.cvtColor(
+                    np.clip(np.nan_to_num(med), 0, 255).astype(np.uint8), cv2.COLOR_BGR2GRAY
+                )
                 edges = cv2.Canny(gray_med, 50, 150) > 0
                 edge_overlap = edges & valid_band_mask
 

@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Sequence
 
 import cv2
 import numpy as np
@@ -126,7 +125,9 @@ def fit_background_residual_tps(
     meta["max_residual_px"] = max_observed_res
 
     if max_observed_res > max_residual_px:
-        meta["reason"] = f"max_residual_exceeded ({max_observed_res:.1f}px > {max_residual_px:.1f}px)"
+        meta["reason"] = (
+            f"max_residual_exceeded ({max_observed_res:.1f}px > {max_residual_px:.1f}px)"
+        )
         return None, meta
 
     # Bending energy check
@@ -146,8 +147,12 @@ def fit_background_residual_tps(
     grid_pts = np.column_stack([gx.ravel() * grid_step, gy.ravel() * grid_step]).astype(np.float64)
 
     try:
-        rbf_x = RBFInterpolator(pred_canvas, residuals[:, 0], kernel="thin_plate_spline", smoothing=smoothing)
-        rbf_y = RBFInterpolator(pred_canvas, residuals[:, 1], kernel="thin_plate_spline", smoothing=smoothing)
+        rbf_x = RBFInterpolator(
+            pred_canvas, residuals[:, 0], kernel="thin_plate_spline", smoothing=smoothing
+        )
+        rbf_y = RBFInterpolator(
+            pred_canvas, residuals[:, 1], kernel="thin_plate_spline", smoothing=smoothing
+        )
 
         grid_dx = rbf_x(grid_pts).reshape(gh, gw).astype(np.float32)
         grid_dy = rbf_y(grid_pts).reshape(gh, gw).astype(np.float32)
