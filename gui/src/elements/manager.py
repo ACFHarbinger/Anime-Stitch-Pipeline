@@ -14,7 +14,7 @@ import os
 
 import numpy as np
 from PySide6.QtCore import QThread, QTimer
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QKeyEvent, QPixmap
 from PySide6.QtWidgets import QListWidgetItem, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget
 
 from ..helpers import (
@@ -28,6 +28,7 @@ from ..helpers import (
     StatsWorker,
     StitchWorker,
 )
+from gui.src.utils.manager.shortcut_manager import get_registry
 from ._adjust_panel import _AdjustPanelMixin
 from ._anim_clusters_panel import _AnimClustersPanelMixin
 from ._canvas_panel import _CanvasPanelMixin
@@ -163,6 +164,24 @@ class StitchTab(
         self._anim_item_map: dict[str, QTableWidgetItem] = {}
 
         self._init_ui()
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        """Dispatch configurable Stitch-scope shortcuts through their buttons."""
+        reg = get_registry()
+        actions = (
+            ("stitch.run", "_btn_stitch"),
+            ("stitch.cancel", "_btn_cancel"),
+            ("stitch.compute_matches", "_btn_compute"),
+            ("stitch.generate_scans_comparison", "_btn_generate_scans"),
+        )
+        for action_id, button_name in actions:
+            if reg.matches(event, action_id):
+                button = getattr(self, button_name)
+                if button.isEnabled():
+                    button.click()
+                event.accept()
+                return
+        super().keyPressEvent(event)
 
     # ======================================================================
     # Top-level UI
