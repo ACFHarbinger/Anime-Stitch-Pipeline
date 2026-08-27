@@ -102,7 +102,7 @@ def _build_aligned_background_plate(
                 bg = warped_bg[i] > 200
             else:
                 bg = warped_bg[i].astype(bool)
-            m = bg
+            m = bg & (wf.max(axis=2) > 0)
         else:
             m = wf.max(axis=2) > 0
         contribution_masks.append(m)

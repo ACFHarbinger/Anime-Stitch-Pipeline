@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.rendering.compositing._plate_compositor import (
     _build_aligned_background_plate,
     composite_plate_single_pose,
@@ -64,13 +62,29 @@ def test_composite_plate_single_pose_one_character():
     bg1[35:55, 35:55] = False
 
     canvas = bg_base.copy()
-    result, claimed, meta = composite_plate_single_pose([f0, f1], [bg0, bg1], canvas, soft_edge_px=0)
+    result, claimed, meta = composite_plate_single_pose(
+        [f0, f1], [bg0, bg1], canvas, soft_edge_px=0
+    )
 
     assert meta["n_claimed_pixels"] > 0
     assert len(meta["zones"]) == 1
     # Frame 1 has larger coverage so it must be chosen
     assert meta["zones"][0]["chosen_frame"] == 1
     assert np.all(result[35:55, 35:55] == 250)
+
+
+def test_composite_preserves_canvas_where_warp_padding_has_no_content():
+    """Zero-filled warp padding must not claim background plate ownership."""
+    H, W = 80, 80
+    canvas = np.full((H, W, 3), 41, dtype=np.uint8)
+    frame = np.zeros((H, W, 3), dtype=np.uint8)
+    frame[20:60, 20:60] = 120
+    bg = np.ones((H, W), dtype=bool)
+
+    result, _claimed, _meta = composite_plate_single_pose([frame], [bg], canvas)
+
+    assert np.all(result[:20] == 41)
+    assert np.all(result[20:60, 20:60] == 120)
 
 
 def test_plate_compositor_p2_multiband_and_edge_preserve():
@@ -113,7 +127,5 @@ def test_plate_compositor_p4_ternary_uncertainty_exclusion():
 
     plate, valid = _build_aligned_background_plate([f0, f1], [m0, m1], H, W)
     assert valid.all()
-    # In the patch (20:40, 20:40), Frame 1 was excluded, so the plate must match Frame 0 (100) exactly
+    # Frame 1 is excluded from the uncertain patch, so the plate matches Frame 0.
     assert np.all(plate[20:40, 20:40] == 100)
-
-
