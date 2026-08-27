@@ -964,10 +964,12 @@ class _RunStageMixin(_Base):
             )
             _single = _seam_meta.get("seam_single_pose") or {}
             _bounds = _seam_meta.get("boundaries") or []
+            _plate_sp = bool(_seam_meta.get("plate_single_pose"))
+            _coherence = bool(_seam_meta.get("coherence_v2"))
             session.note_seam_feasibility(
                 {
                     "attempted": True,
-                    "feasible": bool(_bounds),
+                    "feasible": bool(_bounds or _plate_sp or _coherence),
                     "n_boundaries": len(_bounds),
                     "n_single_pose": sum(1 for v in _single.values() if v),
                     "max_seam_lum_step": _seam_meta.get("max_seam_lum_step"),
@@ -977,6 +979,9 @@ class _RunStageMixin(_Base):
                     # M3 (#34): coherence_v2 ownership decisions, present only
                     # when ASP_COHERENCE_V2=1 took the single-pose path.
                     "coherence_ownership": _seam_meta.get("coherence_ownership"),
+                    # P1/P2/P3: plate_single_pose ownership decisions and claimed pixels
+                    "plate_single_pose": _plate_sp,
+                    "plate_ownership": _seam_meta.get("plate_ownership"),
                 }
             )
             session.mark(PipelineStage.COMPOSITE)

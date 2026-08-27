@@ -243,8 +243,8 @@ def _register_foreground_poses(
                 fi_b = int(order[k + 1])
                 if warped_bg[fi_a] is None or warped_bg[fi_b] is None:
                     continue
-                fg_a = ~warped_bg[fi_a]
-                fg_b = ~warped_bg[fi_b]
+                fg_a = (warped_bg[fi_a] <= 127) if warped_bg[fi_a].dtype == np.uint8 else ~warped_bg[fi_a].astype(bool)
+                fg_b = (warped_bg[fi_b] <= 127) if warped_bg[fi_b].dtype == np.uint8 else ~warped_bg[fi_b].astype(bool)
 
                 if _check_preemptive_escalations(
                     k, by, fi_a, fi_b, fg_a, fg_b, affines, warped_norm, feathers, seam_overrides, seam_single_pose, seam_post_diffs, H, phase_ids

@@ -91,15 +91,20 @@ def _warp_inputs(
     warped_bg = []
     for i in range(N):
         if bg_masks[i] is not None:
+            m_u8 = bg_masks[i].astype(np.uint8)
+            if bg_masks[i].dtype == bool:
+                m_u8 = m_u8 * 255
             wm = cv2.warpAffine(
-                bg_masks[i].astype(np.uint8),
+                m_u8,
                 affines[i],
                 (W, H),
                 flags=cv2.INTER_NEAREST,
                 borderMode=cv2.BORDER_CONSTANT,
                 borderValue=255,
             )
-            warped_bg.append(wm > 127)
+            # P4 ternary support: if mask contains 128 (uncertain), only confirmed bg (>200) is True
+            thresh = 200 if (bg_masks[i] == 128).any() else 127
+            warped_bg.append(wm > thresh)
         else:
             warped_bg.append(None)
     return warped_list, warped_bg

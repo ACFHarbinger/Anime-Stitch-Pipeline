@@ -88,8 +88,15 @@ def _contribution_masks(
     masks: list[np.ndarray] = []
     for i, wf in enumerate(warped_frames):
         presence = wf.max(axis=2) > 10
-        bg = warped_bg[i] if warped_bg[i] is not None else presence
-        m = bg & presence
+        if warped_bg[i] is not None:
+            bg_bool = (
+                warped_bg[i] > 127
+                if warped_bg[i].dtype == np.uint8
+                else warped_bg[i].astype(bool)
+            )
+        else:
+            bg_bool = presence
+        m = bg_bool & presence
         if i == hero_frame_idx:
             m = m & ~hero_cel_footprint
         masks.append(m)
