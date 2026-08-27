@@ -739,6 +739,26 @@ def test_optional_dimensions_do_not_block_completion(scoring):
     assert scoring.entry().score("asp", "sharpness") == 1
 
 
+def test_renderer_export_bundle_requires_nothing(qapp):
+    """A bundle (baseline / P1 / P1+P2, no asp/simple) feeds no benchmark
+    veto, so navigation is never blocked on a required score."""
+    from asp_backend_evaluation.other.schema import RatingEntry
+
+    panel = ScoringPanel()
+    panel.set_comparators(["baseline", "p1_single_pose", "p1p2_multiband"])
+    panel.load_entry(RatingEntry())
+    assert panel.missing_required() == []
+
+
+def test_partial_primary_only_requires_the_present_one(qapp):
+    from asp_backend_evaluation.other.schema import RatingEntry
+
+    panel = ScoringPanel()
+    panel.set_comparators(["simple", "overmix"])  # no asp
+    panel.load_entry(RatingEntry())
+    assert panel.missing_required() == ["Simple coherence"]
+
+
 def test_preference_toggles_off_when_reselected(scoring):
     scoring.set_preference("asp")
     assert scoring.entry().preference == "asp"

@@ -37,6 +37,7 @@ from ..constants.schema import (
     DIM_COHERENCE,
     DIMENSIONS,
     IMAGE_ASP,
+    IMAGE_SIMPLE,
     PREFERENCES,
     PRIMARY_KEYS,
     SCORE_LABELS,
@@ -524,10 +525,15 @@ class ScoringPanel(QWidget):
         """Which required scores are still blank. Only the ASP and Simple
         coherence rows are required — those two are what the benchmark's veto
         logic reads, and demanding all 20 sub-scores would make the pass
-        unaffordable."""
-        missing = []
-        if self._entry.asp is None:
-            missing.append("ASP coherence")
-        if self._entry.simple is None:
-            missing.append("Simple coherence")
-        return missing
+        unaffordable.
+
+        Keyed on which primary comparators are actually on screen: a
+        renderer-export bundle (baseline / P1 / P1+P2, no asp/simple) has no
+        benchmark veto to feed, so nothing is required and navigation is never
+        blocked — it is a visual-inspection pass."""
+        labels = {IMAGE_ASP: "ASP", IMAGE_SIMPLE: "Simple"}
+        return [
+            f"{labels.get(k, COMPARATOR_TITLES.get(k, k))} coherence"
+            for k in PRIMARY_KEYS
+            if k in self.blocks and self._entry.score(k, DIM_COHERENCE) is None
+        ]

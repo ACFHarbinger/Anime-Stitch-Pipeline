@@ -663,8 +663,8 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         if missing:
             QMessageBox.warning(
                 self, "Incomplete evaluation",
-                "Set both ASP and Simple coherence (0-4) before continuing, or press Skip "
-                f"to defer this test.\n\nStill missing: {', '.join(missing)}",
+                f"Set {', '.join(missing)} (0-4) before continuing, or press Skip "
+                "to defer this test.",
             )
             return
         if self.session.accept() is None:
