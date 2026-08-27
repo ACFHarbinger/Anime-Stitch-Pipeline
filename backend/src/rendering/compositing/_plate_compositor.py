@@ -28,6 +28,7 @@ from ._flags import (
 from ._gain_compensation import _apply_joint_gain_solve
 
 _SP_SOFT_PX: int = int(os.environ.get("ASP_SP_SOFT_PX", "8"))
+_PLATE_MIN_BG_SAMPLES: int = max(1, int(os.environ.get("ASP_PLATE_MIN_BG_SAMPLES", "2")))
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +62,7 @@ def _build_aligned_background_plate(
     warped_valid: list[np.ndarray] | None = None,
     robust_gain: bool = _JOINT_GAIN_ROBUST,
     edge_preserve: bool = False,
+    min_background_samples: int = 1,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Build a canvas-aligned background plate from warped frames and background masks.
 
@@ -129,12 +131,14 @@ def _build_aligned_background_plate(
                 continue
             samples[i][m_band] = warped_norm[i][y0:y1][m_band].astype(np.float32)
 
+        sample_count = np.count_nonzero(~np.isnan(samples[..., 0]), axis=0)
+
         # Suppress benign All-NaN slice warnings when scanning unpopulated regions
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", message="All-NaN slice encountered")
             with np.errstate(invalid="ignore"):
                 med = np.nanmedian(samples, axis=0)
-                valid = ~np.isnan(med[..., 0])
+                valid = (~np.isnan(med[..., 0])) & (sample_count >= min_background_samples)
 
         if valid.any():
             band_plate = np.clip(med[valid], 0, 255).astype(np.uint8)
@@ -166,9 +170,10 @@ def _build_aligned_background_plate(
             plate[y0:y1][valid] = band_plate
             valid_plate_mask[y0:y1][valid] = True
 
-    # 4. Fill residual voids from warped frame content (nearest available sample)
+    # 4. Fill residual voids only when a single source is accepted. P1 uses
+    # the temporal canvas for uncorroborated plate pixels to avoid strip seams.
     void_mask = ~valid_plate_mask
-    if void_mask.any():
+    if min_background_samples <= 1 and void_mask.any():
         for i in range(N):
             presence = void_mask & (warped_norm[i].max(axis=2) > 0)
             if presence.any():
@@ -211,7 +216,13 @@ def composite_plate_single_pose(
 
     # 1. Build clean background plate (with optional P2 edge preservation)
     plate, plate_valid = _build_aligned_background_plate(
-        warped_frames, warped_bg, H, W, warped_valid=warped_valid, edge_preserve=edge_preserve
+        warped_frames,
+        warped_bg,
+        H,
+        W,
+        warped_valid=warped_valid,
+        edge_preserve=edge_preserve,
+        min_background_samples=min(_PLATE_MIN_BG_SAMPLES, len(warped_frames)),
     )
     result = plate.copy()
     if not plate_valid.all() and canvas is not None and canvas.shape == plate.shape:

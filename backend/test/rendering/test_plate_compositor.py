@@ -92,6 +92,26 @@ def test_composite_preserves_canvas_where_warp_padding_has_no_content():
     assert np.all(result[20:60, 20:60] == 120)
 
 
+def test_composite_uses_canvas_for_single_sample_background():
+    """P1 must not turn a one-frame plate contribution into a visible strip."""
+    H, W = 40, 40
+    canvas = np.full((H, W, 3), 41, dtype=np.uint8)
+    frame0 = np.full((H, W, 3), 100, dtype=np.uint8)
+    frame1 = frame0.copy()
+    bg0 = np.ones((H, W), dtype=bool)
+    bg1 = np.ones((H, W), dtype=bool)
+    valid1 = np.ones((H, W), dtype=bool)
+    valid1[10:30, :] = False
+
+    result, _claimed, _meta = composite_plate_single_pose(
+        [frame0, frame1], [bg0, bg1], canvas, warped_valid=[np.ones((H, W), bool), valid1],
+        soft_edge_px=0,
+    )
+
+    assert np.all(result[:10] == 100)
+    assert np.all(result[10:30] == 41)
+
+
 def test_plate_compositor_p2_multiband_and_edge_preserve():
     """Verify P2 multiband blending runs cleanly over the background plate."""
     H, W = 128, 128
