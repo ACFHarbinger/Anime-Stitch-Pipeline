@@ -93,6 +93,16 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_ALIGN_GATE_DX": (float, 0.0, None, "75th-pct |dx| gate for vertical-scroll alignment"),
     "ASP_OVERLAP_PROPOSAL": (int, 0, 1, "EXPERIMENTAL, default-off: P2 connectivity — provisional phase-correlation anchors + background-mask overlap add/prioritize bridge pairs before matching"),
     "ASP_CLEANCP_RESOLVE": (int, 0, 1, "Default-off CleanCP local edge recovery after filtering disconnects the graph"),
+    "ASP_DEFER_MIN_GAP_TO_REGISTRATION_GATE": (
+        int, 0, 1,
+        "M2 experiment, default-off: defer only affine-invalid min_gap failures "
+        "to the frozen registration-risk rule (clean metrics -> uncertain review, "
+        "never silent low-risk)",
+    ),
+    "ASP_DISABLE_PANORAMA_FALLBACK": (
+        int, 0, 1,
+        "Default-off: skip the OpenCV PANORAMA fallback, go straight to SCANS",
+    ),
     "ASP_BA_F_SCALE": (float, 0.0, None, "Cauchy loss f_scale (px) in bundle adjustment"),
     "ASP_GNC_OUTER": (int, 1, 32, "GNC outer continuation iterations in BA"),
     "ASP_WAVE_CORRECT": (int, 0, 1, "EXPERIMENTAL, default-off: 2D translation-domain wave correction (chain-drift straightening) on the BA output, the analog of OpenCV detail::waveCorrect; does not change the rejection path"),

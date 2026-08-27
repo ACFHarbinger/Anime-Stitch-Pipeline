@@ -43,7 +43,6 @@ from asp_backend.alignment.canvas import (
     _telea_fill_gaps,
 )
 from asp_backend.core.validation import (
-    _affine_gap_stats,
     _compute_adaptive_min_gap,
     _compute_adaptive_rot_scale,
     _validate_affines,
@@ -89,6 +88,26 @@ def _panorama_fallback_allowed(n_frames: int) -> bool:
     except ValueError:
         max_frames = 12
     return max_frames > 0 and n_frames <= max_frames
+
+
+def _stage4_memory_snapshot() -> dict[str, float | None]:
+    """Return lightweight host/CUDA evidence around foreground masking."""
+    snapshot: dict[str, float | None] = {
+        "rss_mb": None,
+        "cuda_allocated_mb": None,
+        "cuda_reserved_mb": None,
+    }
+    try:
+        import psutil
+
+        snapshot["rss_mb"] = round(psutil.Process().memory_info().rss / 1024**2, 1)
+    except Exception:
+        pass
+    if torch.cuda.is_available():
+        snapshot["cuda_allocated_mb"] = round(torch.cuda.memory_allocated() / 1024**2, 1)
+        snapshot["cuda_reserved_mb"] = round(torch.cuda.memory_reserved() / 1024**2, 1)
+    return snapshot
+
 
 if TYPE_CHECKING:
     from asp_backend.models.wrappers.aliked_lg_wrapper import ALIKEDLightGlueWrapper
@@ -232,6 +251,7 @@ class _RunStageMixin(_Base):
             logger.info("[Stitch] Stage 3 skipped (use_basic=False).")
 
         # ── Stage 4: Foreground masking ──────────────────────────────────────
+        _mask_memory_before = _stage4_memory_snapshot()
         if self.use_birefnet and self._birefnet is None:
             from backend.src.models.wrappers.birefnet_wrapper import (
                 BiRefNetWrapper,
@@ -247,6 +267,20 @@ class _RunStageMixin(_Base):
             with contextlib.suppress(Exception):
                 self._birefnet.unload()
             self._birefnet = None
+        _mask_memory_after = _stage4_memory_snapshot()
+        session.record_artifact(
+            "stage4_mask_memory",
+            {
+                "before": _mask_memory_before,
+                "after": _mask_memory_after,
+                "rss_delta_mb": (
+                    round(_mask_memory_after["rss_mb"] - _mask_memory_before["rss_mb"], 1)
+                    if _mask_memory_before["rss_mb"] is not None
+                    and _mask_memory_after["rss_mb"] is not None
+                    else None
+                ),
+            },
+        )
         session.mark(
             PipelineStage.MASK,
             use_birefnet=bool(self.use_birefnet),
@@ -290,7 +324,10 @@ class _RunStageMixin(_Base):
         # ── Stage 5-6: Pairwise matching (+ skip-pair edges) ────────────────
         # ── Matcher selection (P1.4 EfficientLoFTR / P3.2 JamMa) ───────────────
         _active_loftr = self._select_matcher(H, W)
-        edges = self._pairwise_match_with(frames, bg_masks, _active_loftr)
+        _pair_proposal_telemetry: dict = {}
+        edges = self._pairwise_match_with(
+            frames, bg_masks, _active_loftr, proposal_telemetry=_pair_proposal_telemetry
+        )
         print(
             f"[Stitch]   Pairwise matching complete ({len(edges)} edges); "
             "starting spatial dedup...",
@@ -367,24 +404,62 @@ class _RunStageMixin(_Base):
         print("[Stitch]   Phase detection complete; filtering edges...", flush=True)
         raw_registration_edges = list(edges)
         edges = self._filter_edges(edges, image_paths, H, W, frames, bg_masks)
-        if os.environ.get("ASP_CLEANCP_RESOLVE", "0") == "1":
-            from ._cleancp_recovery import (
-                _missing_adjacent_edge_count,
-                recover_clean_correspondence_edges,
-            )
+        from asp_backend.alignment.registration_telemetry import (
+            collect_registration_telemetry,
+            edge_graph_components,
+        )
 
-            missing_adjacent_edges = _missing_adjacent_edge_count(edges, N)
-            if (
-                not edges
-                or missing_adjacent_edges
-                or not _check_edge_graph_connectivity(edges, N)
-            ):
-                edges, cleancp_telemetry = recover_clean_correspondence_edges(
-                    raw_registration_edges, edges, N
+        _proposed_adjacent = [
+            candidate
+            for candidate in _pair_proposal_telemetry.get("candidates", [])
+            if candidate.get("span") == 1
+        ]
+        _raw_adjacent = [edge for edge in raw_registration_edges if edge["j"] == edge["i"] + 1]
+        _filtered_adjacent = [edge for edge in edges if edge["j"] == edge["i"] + 1]
+        _pair_proposal_telemetry.update(
+            {
+                "adjacent_pair_survival": {
+                    "proposed": len(_proposed_adjacent),
+                    "matched_pre_filter": len(_raw_adjacent),
+                    "survived_filter": len(_filtered_adjacent),
+                },
+                "components": {
+                    "pre_filter": edge_graph_components(raw_registration_edges, N),
+                    "post_filter": edge_graph_components(edges, N),
+                },
+            }
+        )
+        if os.environ.get("ASP_CLEANCP_RESOLVE", "0") == "1" and (
+            not edges or len(edge_graph_components(edges, N)) != 1
+        ):
+            from ._cleancp_recovery import recover_clean_correspondence_edges
+
+            edges, cleancp_telemetry = recover_clean_correspondence_edges(
+                raw_registration_edges, edges, N
+            )
+            _pair_proposal_telemetry["cleancp_recovery"] = cleancp_telemetry
+            if cleancp_telemetry["accepted"]:
+                logger.info(
+                    "[Stitch] CleanCP local re-solve accepted %d robust edges.", len(edges)
                 )
-                session.record_artifact("cleancp_recovery", cleancp_telemetry)
+            else:
+                logger.info(
+                    "[Stitch] CleanCP local re-solve stopped: %s.",
+                    cleancp_telemetry.get("stopped_reason"),
+                )
         session.mark(PipelineStage.FILTER_EDGES, n_edges=len(edges))
         session.record_artifact("n_edges", len(edges))
+        session.record_artifact("pair_proposal_telemetry", _pair_proposal_telemetry)
+
+        # Persist pair evidence even if connectivity rejects the graph before
+        # bundle adjustment; the M2 probe needs to distinguish that failure
+        # from a clean graph with a bad rendered result.
+        session.record_artifact(
+            "registration_telemetry",
+            collect_registration_telemetry(
+                raw_registration_edges, edges, [], pair_proposal=_pair_proposal_telemetry
+            ),
+        )
 
         # §3.16B: apply HITL drop_edges after filter
         if _hitl_pipeline_state.get("boundaries"):
@@ -453,6 +528,12 @@ class _RunStageMixin(_Base):
             use_affine=use_affine_ba,
             motion_model=_motion_model,
         )
+        session.record_artifact(
+            "registration_telemetry",
+            collect_registration_telemetry(
+                raw_registration_edges, edges, affines, pair_proposal=_pair_proposal_telemetry
+            ),
+        )
         print("[Stitch]   Bundle adjustment complete.", flush=True)
         session.mark(PipelineStage.BUNDLE_ADJUST, motion_model=_motion_model)
         logger.debug(
@@ -497,20 +578,6 @@ class _RunStageMixin(_Base):
             max_rotation=_adaptive_rot,
             max_scale_dev=_adaptive_sc,
         )
-        _missing_adjacent = sum(
-            not any(edge["i"] == i and edge["j"] == i + 1 for edge in edges)
-            for i in range(N - 1)
-        )
-        _affine_health_artifact = {
-            "initial": {
-                **_affine_gap_stats(affines),
-                "ratio": float(health.ratio),
-                "valid": bool(health.valid),
-                "reason": str(health.reason),
-            },
-            "missing_adjacent_edge_count": _missing_adjacent,
-        }
-        session.record_artifact("affine_health", _affine_health_artifact)
         logger.debug(
             f"[Stitch]   Affine health: valid={health.valid}, "
             f"ratio={health.ratio:.1f}×, min_gap={health.min_gap:.0f}px "
@@ -519,6 +586,7 @@ class _RunStageMixin(_Base):
             f"scale_dev={health.max_scale_dev:.4f} (thresh={_adaptive_sc:.2f})"
         )
         _pose_source = "bundle_adjust"
+        _deferred_min_gap = False
         if not health.valid:
             affines, health = _recover_affine_health(
                 edges,
@@ -534,62 +602,116 @@ class _RunStageMixin(_Base):
             )
             if health.valid:
                 _pose_source = "affine_recovery"
-            _affine_health_artifact["final"] = {
-                **_affine_gap_stats(affines),
-                "ratio": float(health.ratio),
-                "valid": bool(health.valid),
-                "reason": str(health.reason),
-            }
-            session.record_artifact("affine_health", _affine_health_artifact)
             if not health.valid:
-                # §1.3B: PANORAMA stitcher handles scale/rotation that
-                # translation-only validation rejects; try before SCANS.
-                if _panorama_fallback_allowed(N):
-                    try:
+                _affine_health = {
+                    "valid": bool(health.valid),
+                    "reason": health.reason,
+                    "ratio": float(health.ratio),
+                    "min_gap": float(health.min_gap),
+                    "max_rotation": float(health.max_rotation),
+                    "max_scale_dev": float(health.max_scale_dev),
+                }
+                session.record_artifact("affine_health", _affine_health)
+                # M2 experiment: defer only the adaptive min-gap heuristic to
+                # the frozen registration-risk rule.  The flag is default-off;
+                # ratio, rotation, scale, and monotonicity failures still take
+                # the existing safe fallback path unchanged.
+                if (
+                    os.environ.get("ASP_DEFER_MIN_GAP_TO_REGISTRATION_GATE", "0") == "1"
+                    and health.reason.startswith("min_gap=")
+                ):
+                    from .registration_gate import RegistrationRiskGate
+
+                    _deferred_decision = RegistrationRiskGate().evaluate(
+                        session.artifacts.get("registration_telemetry"),
+                        affine_health=_affine_health,
+                    )
+                    session.record_artifact(
+                        "deferred_min_gap_registration_decision",
+                        {
+                            "accept": _deferred_decision.accept,
+                            "reason": _deferred_decision.reason,
+                            "status": _deferred_decision.status,
+                            "scores": _deferred_decision.scores,
+                        },
+                    )
+                    if _deferred_decision.accept:
+                        _deferred_min_gap = True
+                        logger.warning(
+                            "[Stitch] Deferring affine min-gap failure to registration "
+                            "review (%s).",
+                            _deferred_decision.reason,
+                        )
+                        health = health._replace(
+                            valid=True,
+                            reason="deferred_min_gap_to_registration_review",
+                        )
+                if not health.valid:
+                    # §1.3B: PANORAMA stitcher handles scale/rotation that
+                    # translation-only validation rejects; try before SCANS.
+                    _disable_panorama = os.environ.get(
+                        "ASP_DISABLE_PANORAMA_FALLBACK", "0"
+                    ) == "1"
+                    if _panorama_fallback_allowed(N) and not _disable_panorama:
+                        try:
+                            print(
+                                f"[Stitch]   Affine recovery failed; trying PANORAMA "
+                                f"fallback for {N} frames...",
+                                flush=True,
+                            )
+                            _sf = scans_frames or _reload_scans_frames(image_paths)
+                            _pano = _panorama_stitch_fallback(_sf, output_path)
+                            # PANORAMA is a safe-policy fallback algorithm, not a
+                            # fourth output identity. Raw/Safe/SCANS stay disjoint for
+                            # the M0 result schema and future parity comparisons.
+                            session.record_fallback(
+                                ResultIdentity.SAFE_ASP,
+                                str(health.reason),
+                                algorithm="panorama",
+                            )
+                            session.record_artifact("safe_asp_path", output_path)
+                            session.record_artifact("fallback_algorithm", "panorama")
+                            session.finish(success=True, identity=ResultIdentity.SAFE_ASP)
+                            return _pano
+                        except Exception as _pano_e:
+                            logger.info(
+                                f"[Stitch]   PANORAMA fallback failed ({_pano_e}); using SCANS."
+                            )
+                    else:
+                        logger.info(
+                            "[Stitch]   Skipping PANORAMA fallback for %d frames "
+                            "(disabled=%s, ASP_PANORAMA_MAX_FRAMES=%s); using SCANS.",
+                            N,
+                            _disable_panorama,
+                            os.environ.get("ASP_PANORAMA_MAX_FRAMES", "12"),
+                        )
                         print(
-                            f"[Stitch]   Affine recovery failed; trying PANORAMA "
-                            f"fallback for {N} frames...",
+                            f"[Stitch]   Affine recovery failed; {N} frames exceed the "
+                            "PANORAMA safety limit, using SCANS.",
                             flush=True,
                         )
-                        _sf = scans_frames or _reload_scans_frames(image_paths)
-                        _pano = _panorama_stitch_fallback(_sf, output_path)
-                        # PANORAMA is a safe-policy fallback algorithm, not a
-                        # fourth output identity. Raw/Safe/SCANS stay disjoint for
-                        # the M0 result schema and future parity comparisons.
-                        session.record_fallback(
-                            ResultIdentity.SAFE_ASP,
-                            str(health.reason),
-                            algorithm="panorama",
-                        )
-                        session.record_artifact("safe_asp_path", output_path)
-                        session.record_artifact("fallback_algorithm", "panorama")
-                        session.finish(success=True, identity=ResultIdentity.SAFE_ASP)
-                        return _pano
-                    except Exception as _pano_e:
-                        logger.info(
-                            f"[Stitch]   PANORAMA fallback failed ({_pano_e}); using SCANS."
-                        )
-                else:
-                    logger.info(
-                        "[Stitch]   Skipping PANORAMA fallback for %d frames "
-                        "(ASP_PANORAMA_MAX_FRAMES=%s); using SCANS.",
-                        N,
-                        os.environ.get("ASP_PANORAMA_MAX_FRAMES", "12"),
+                    warnings.warn(
+                        f"[Stitch] Affine validation FAILED ({health.reason}) after retries. "
+                        f"Falling back to SCANS stitch.", stacklevel=2
                     )
-                    print(
-                        f"[Stitch]   Affine recovery failed; {N} frames exceed the "
-                        "PANORAMA safety limit, using SCANS.",
-                        flush=True,
-                    )
-                warnings.warn(
-                    f"[Stitch] Affine validation FAILED ({health.reason}) after retries. "
-                    f"Falling back to SCANS stitch.", stacklevel=2
-                )
-                session.record_fallback(ResultIdentity.SCANS, f"affine_invalid:{health.reason}")
-                session.record_artifact("scans_path", output_path)
-                session.finish(success=True, identity=ResultIdentity.SCANS)
-                _sf = scans_frames or _reload_scans_frames(image_paths)
-                return _scan_stitch_fallback(_sf, output_path)
+                    session.record_fallback(ResultIdentity.SCANS, f"affine_invalid:{health.reason}")
+                    session.record_artifact("scans_path", output_path)
+                    session.finish(success=True, identity=ResultIdentity.SCANS)
+                    _sf = scans_frames or _reload_scans_frames(image_paths)
+                    return _scan_stitch_fallback(_sf, output_path)
+        if not session.artifacts.get("affine_health"):
+            session.record_artifact(
+                "affine_health",
+                {
+                    "valid": bool(health.valid),
+                    "reason": health.reason,
+                    "ratio": float(health.ratio),
+                    "min_gap": float(health.min_gap),
+                    "max_rotation": float(health.max_rotation),
+                    "max_scale_dev": float(health.max_scale_dev),
+                    "deferred_min_gap": _deferred_min_gap,
+                },
+            )
         session.mark(
             PipelineStage.AFFINE_VALIDATE,
             valid=bool(health.valid),
@@ -925,11 +1047,34 @@ class _RunStageMixin(_Base):
 
         return out
 
-    def _pairwise_match_with(self, frames, bg_masks, active_loftr):
+    def _pairwise_match_with(self, frames, bg_masks, active_loftr, proposal_telemetry=None):
         """Stage 5-6's actual pairwise-match call, using the matcher chosen by
         ``_select_matcher``. Split out of ``run()`` only to keep that one call
         readable; not a meaningful behavioural boundary on its own."""
         from asp_backend.alignment.matching import _pairwise_match
+
+        # P2 connectivity (Hugin CalculateOverlap/ImageGraph analog, default-off):
+        # provisional phase-correlation anchors -> overlap/component bridge pairs.
+        extra_proposals = None
+        if os.environ.get("ASP_OVERLAP_PROPOSAL", "0") == "1":
+            from asp_backend.alignment.matching._overlap_proposal import (
+                propose_overlap_bridge_pairs,
+            )
+
+            extra_proposals, ov_telemetry = propose_overlap_bridge_pairs(
+                frames, bg_masks
+            )
+            if proposal_telemetry is not None:
+                proposal_telemetry["overlap_proposal"] = ov_telemetry
+            if ov_telemetry.get("stopped_reason"):
+                logger.warning(
+                    "[Stitch]   Overlap proposal stopped: %s "
+                    "(anchors=%d, bridges=%d)",
+                    ov_telemetry["stopped_reason"],
+                    ov_telemetry["provisional_anchors"],
+                    ov_telemetry["overlap_bridge_added"]
+                    + ov_telemetry["component_bridge_added"],
+                )
 
         return _pairwise_match(
             frames,
@@ -939,6 +1084,9 @@ class _RunStageMixin(_Base):
             motion_model=self.motion_model,
             aliked_wrapper=self._aliked if self.use_aliked else None,
             roma_wrapper=self._roma if self.use_roma else None,
+            bg_masked_matching=getattr(self, "bg_masked_matching", False),
+            proposal_telemetry=proposal_telemetry,
+            extra_proposals=extra_proposals,
         )
 
     def _refine_subpixel(self, frames, affines, bg_masks):
