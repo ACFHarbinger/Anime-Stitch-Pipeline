@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
+from asp_backend.ingestion import mask_uncertainty as mask_uncertainty_module
 from asp_backend.ingestion.mask_uncertainty import (
     compute_pairwise_mask_disagreement,
     compute_temporal_mask_uncertainty,
@@ -50,7 +49,7 @@ def test_resolve_disputed_mask_region():
     # Flat background connected to border
     frame_bgr = np.full((H, W, 3), 180, dtype=np.uint8)
 
-    # Simulated BiRefNet error: falsely marked an open background patch (20:30, 20:30) as foreground (0)
+    # Simulated BiRefNet error: falsely marks an open patch as foreground.
     birefnet_mask = np.full((H, W), 255, dtype=np.uint8)
     birefnet_mask[20:30, 20:30] = 0
 
@@ -63,6 +62,24 @@ def test_resolve_disputed_mask_region():
     assert (refined[20:30, 20:30] == 128).all()
     # Undisputed background remains 255
     assert (refined[0:10, 0:10] == 255).all()
+
+
+def test_resolve_disputed_region_bounds_alternate_segmenter(monkeypatch):
+    frame = np.full((1080, 1920, 3), 180, dtype=np.uint8)
+    mask = np.full((1080, 1920), 255, dtype=np.uint8)
+    disagreement = np.zeros((1080, 1920), dtype=bool)
+    disagreement[100:200, 100:200] = True
+    seen = []
+
+    def fake_trapped_ball(image, *, ball_radius=None):
+        seen.append(image.shape[:2])
+        return np.full(image.shape[:2], 255, dtype=np.uint8)
+
+    monkeypatch.setattr(mask_uncertainty_module, "trapped_ball_segmentation", fake_trapped_ball)
+    refined = resolve_disputed_mask_region(frame, mask, disagreement, max_side=256)
+
+    assert seen == [(144, 256)]
+    assert refined.shape == mask.shape
 
 
 def test_compute_temporal_mask_uncertainty_sequence():

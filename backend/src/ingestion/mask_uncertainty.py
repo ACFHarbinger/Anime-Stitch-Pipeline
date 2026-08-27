@@ -31,6 +31,14 @@ def mask_uncertainty_enabled() -> bool:
     return os.environ.get("ASP_MASK_UNCERTAINTY", "0") == "1"
 
 
+def _uncertainty_max_side() -> int:
+    """Bound the classical alternate segmenter on full-resolution input."""
+    try:
+        return max(64, int(os.environ.get("ASP_MASK_UNCERTAINTY_MAX_SIDE", "512")))
+    except ValueError:
+        return 512
+
+
 def compute_pairwise_mask_disagreement(
     mask_a: np.ndarray,
     mask_b: np.ndarray,
@@ -87,6 +95,7 @@ def resolve_disputed_mask_region(
     disagreement_mask: np.ndarray,
     *,
     ball_radius: int | None = None,
+    max_side: int | None = None,
 ) -> np.ndarray:
     """Resolve disputed mask regions using trapped-ball structural segmentation.
 
@@ -110,28 +119,27 @@ def resolve_disputed_mask_region(
     if not disagreement_mask.any():
         return refined
 
-    # Compute classical trapped-ball segmentation
-    tb_mask = trapped_ball_segmentation(frame_bgr, ball_radius=ball_radius)
-    tb_bg = tb_mask > 127
+    limit = _uncertainty_max_side() if max_side is None else max(64, max_side)
+    if max(H, W) > limit:
+        scale = limit / float(max(H, W))
+        size = (max(1, round(W * scale)), max(1, round(H * scale)))
+        tb_input = cv2.resize(frame_bgr, size, interpolation=cv2.INTER_AREA)
+    else:
+        tb_input = frame_bgr
+
+    tb_mask = trapped_ball_segmentation(tb_input, ball_radius=ball_radius)
+    tb_bg = cv2.resize(tb_mask, (W, H), interpolation=cv2.INTER_NEAREST) > 127
     bn_bg = birefnet_mask > 127
 
     # In disputed regions:
     # 1. If Trapped-Ball AND BiRefNet agree on background -> confirmed background (255)
     # 2. If Trapped-Ball AND BiRefNet agree on foreground -> confirmed foreground (0)
     # 3. If Trapped-Ball and BiRefNet disagree -> mark uncertain (128)
-    disputed_pixels = disagreement_mask
-
-    for y in range(H):
-        for x in range(W):
-            if not disputed_pixels[y, x]:
-                continue
-            b_val = bn_bg[y, x]
-            t_val = tb_bg[y, x]
-            if b_val == t_val:
-                refined[y, x] = 255 if b_val else 0
-            else:
-                # Disagreement remains between classical and neural estimates -> mark uncertain
-                refined[y, x] = 128
+    disputed_pixels = disagreement_mask.astype(bool)
+    agreement = tb_bg == bn_bg
+    confirmed = disputed_pixels & agreement
+    refined[confirmed] = np.where(bn_bg[confirmed], 255, 0)
+    refined[disputed_pixels & ~agreement] = 128
 
     return refined
 
