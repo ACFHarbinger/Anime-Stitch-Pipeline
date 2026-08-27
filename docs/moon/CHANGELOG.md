@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Orphaned lineage recovery — Stitch-tab ASP/SCANS comparison (2026-08-26,
+  deepseek):** restored the on-demand SCANS comparison preview unique to the
+  orphaned lineage — `_ScansComparisonSignals`/`_ScansComparisonTask` in
+  `_thumb_workers.py` (off-thread OpenCV SCANS baseline + ASP/SCANS quality
+  readouts), the `Generate SCANS Comparison` button, the ASP/SCANS preview
+  toggle with fade transition, and protocol/manager state wiring. New
+  `test_stitch_comparison.py`. 31 stitch-tab tests green.
 - **Orphaned lineage recovery — run_stage.py reconciliation (2026-08-26,
   deepseek):** applied the last orphaned-lineage diff to `run_stage.py` after
   `registration_gate.py`/`registration_telemetry.py` landed (`65e7192`).
