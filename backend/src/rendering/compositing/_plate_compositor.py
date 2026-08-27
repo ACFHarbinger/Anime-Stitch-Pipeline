@@ -58,6 +58,7 @@ def _build_aligned_background_plate(
     H: int,
     W: int,
     *,
+    warped_valid: list[np.ndarray] | None = None,
     robust_gain: bool = _JOINT_GAIN_ROBUST,
     edge_preserve: bool = False,
 ) -> tuple[np.ndarray, np.ndarray]:
@@ -96,15 +97,20 @@ def _build_aligned_background_plate(
     contribution_masks: list[np.ndarray] = []
     for i in range(N):
         wf = warped_norm[i]
+        valid = (
+            warped_valid[i].astype(bool)
+            if warped_valid is not None and i < len(warped_valid)
+            else np.ones((H, W), dtype=bool)
+        )
         if i < len(warped_bg) and warped_bg[i] is not None:
             if warped_bg[i].dtype == np.uint8:
                 # P4: 255 = confirmed bg, 128 = uncertain (excluded), 0 = fg
                 bg = warped_bg[i] > 200
             else:
                 bg = warped_bg[i].astype(bool)
-            m = bg & (wf.max(axis=2) > 0)
+            m = bg & valid
         else:
-            m = wf.max(axis=2) > 0
+            m = valid & (wf.max(axis=2) > 0)
         contribution_masks.append(m)
 
     # 3. Chunked temporal median over valid background samples
@@ -178,6 +184,7 @@ def composite_plate_single_pose(
     warped_bg: list[np.ndarray | None],
     canvas: np.ndarray,
     *,
+    warped_valid: list[np.ndarray] | None = None,
     soft_edge_px: int = _SP_SOFT_PX,
     edge_preserve: bool = False,
     multiband: bool = False,
@@ -204,7 +211,7 @@ def composite_plate_single_pose(
 
     # 1. Build clean background plate (with optional P2 edge preservation)
     plate, plate_valid = _build_aligned_background_plate(
-        warped_frames, warped_bg, H, W, edge_preserve=edge_preserve
+        warped_frames, warped_bg, H, W, warped_valid=warped_valid, edge_preserve=edge_preserve
     )
     result = plate.copy()
     if not plate_valid.all() and canvas is not None and canvas.shape == plate.shape:

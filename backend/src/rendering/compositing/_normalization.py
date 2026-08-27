@@ -73,9 +73,12 @@ def _warp_inputs(
     H: int,
     W: int,
     N: int,
+    *,
+    include_valid: bool = False,
 ) -> tuple:
     # Warp every frame to the full canvas.
     warped_list = []
+    warped_valid = []
     for i in range(N):
         wf = cv2.warpAffine(
             frames[i],
@@ -86,6 +89,16 @@ def _warp_inputs(
             borderValue=0,
         )
         warped_list.append(wf)
+        source_valid = np.full(frames[i].shape[:2], 255, dtype=np.uint8)
+        valid = cv2.warpAffine(
+            source_valid,
+            affines[i],
+            (W, H),
+            flags=cv2.INTER_NEAREST,
+            borderMode=cv2.BORDER_CONSTANT,
+            borderValue=0,
+        ) > 127
+        warped_valid.append(valid)
 
     # Warp bg_masks to canvas space (True = background pixel).
     warped_bg = []
@@ -107,6 +120,8 @@ def _warp_inputs(
             warped_bg.append(wm > thresh)
         else:
             warped_bg.append(None)
+    if include_valid:
+        return warped_list, warped_bg, warped_valid
     return warped_list, warped_bg
 
 
@@ -153,7 +168,8 @@ def _compute_skip_normalization_mask(
             )
         else:
             print(
-                f"[Stitch]   Color coherence OK (max adj diff={_max_adj_diff:.1f}). Applying normalization."
+                f"[Stitch]   Color coherence OK (max adj diff={_max_adj_diff:.1f}). "
+                "Applying normalization."
             )
     return _skip_norm
 

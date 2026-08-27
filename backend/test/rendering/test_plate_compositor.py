@@ -80,8 +80,12 @@ def test_composite_preserves_canvas_where_warp_padding_has_no_content():
     frame = np.zeros((H, W, 3), dtype=np.uint8)
     frame[20:60, 20:60] = 120
     bg = np.ones((H, W), dtype=bool)
+    valid = np.zeros((H, W), dtype=bool)
+    valid[20:60, 20:60] = True
 
-    result, _claimed, _meta = composite_plate_single_pose([frame], [bg], canvas)
+    result, _claimed, _meta = composite_plate_single_pose(
+        [frame], [bg], canvas, warped_valid=[valid]
+    )
 
     assert np.all(result[:20] == 41)
     assert np.all(result[20:60, 20:60] == 120)

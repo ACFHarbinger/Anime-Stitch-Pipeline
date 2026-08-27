@@ -46,7 +46,8 @@ def _composite_foreground(
     tx_range = float(txs.max() - txs.min())
     if tx_range > 0 and ty_range / max(tx_range, 1.0) < 0.1:
         print(
-            "[Stitch]   Horizontal scroll — temporal median is already optimal, skipping zone composite."
+            "[Stitch]   Horizontal scroll — temporal median is already optimal, "
+            "skipping zone composite."
         )
         return canvas.copy()
 
@@ -62,7 +63,9 @@ def _composite_foreground(
         initial_boundaries = np.asarray(preset_boundaries, dtype=np.float64)
 
     # Warp inputs
-    warped_list, warped_bg = _warp_inputs(frames, affines, bg_masks, H, W, N)
+    warped_list, warped_bg, warped_valid = _warp_inputs(
+        frames, affines, bg_masks, H, W, N, include_valid=True
+    )
 
     # P1/P2 candidate: default-off canvas-aligned background plate + single foreground pose
     from ._plate_compositor import (
@@ -78,6 +81,7 @@ def _composite_foreground(
             warped_list,
             warped_bg,
             canvas,
+            warped_valid=warped_valid,
             edge_preserve=edge_preserve,
             multiband=multiband,
         )
@@ -85,7 +89,10 @@ def _composite_foreground(
             seam_meta_out["plate_single_pose"] = True
             seam_meta_out["n_claimed"] = int((claimed >= 0).sum())
             seam_meta_out["plate_ownership"] = plate_meta
-        print(f"[Stitch]   plate_single_pose composite (ASP_PLATE_SINGLE_POSE=1, multiband={multiband}).")
+        print(
+            "[Stitch]   plate_single_pose composite "
+            f"(ASP_PLATE_SINGLE_POSE=1, multiband={multiband})."
+        )
         return result
 
     # M3 candidate: default-off §9.2 single-pose apply. Live seam loop below.
@@ -111,17 +118,20 @@ def _composite_foreground(
 
     # Optimize boundary placement and feathers
     boundaries, feathers = _optimize_boundaries_and_feathers(
-        warped_norm, order, initial_boundaries, bg_masks, affines, frames, frame_gains, warped_bg, H, W, N
+        warped_norm, order, initial_boundaries, bg_masks, affines, frames,
+        frame_gains, warped_bg, H, W, N,
     )
 
     # Foreground pose registration
     seam_single_pose, seam_post_diffs, seam_synthesized = _register_foreground_poses(
-        warped_norm, warped_bg, order, boundaries, feathers, affines, frames, seam_overrides, ty_range, tx_range, H, W, N, phase_ids
+        warped_norm, warped_bg, order, boundaries, feathers, affines, frames,
+        seam_overrides, ty_range, tx_range, H, W, N, phase_ids,
     )
 
     # Adaptive feather refinement and canonical crop synthesis
     seam_canonical_crops = _adapt_feathers_and_synthesize(
-        seam_post_diffs, seam_single_pose, seam_synthesized, feathers, boundaries, order, affines, frames, warped_norm, H, W
+        seam_post_diffs, seam_single_pose, seam_synthesized, feathers,
+        boundaries, order, affines, frames, warped_norm, H, W,
     )
 
     # Equalise inter-frame luminance before seam finding.
