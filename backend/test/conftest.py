@@ -51,6 +51,40 @@ _load_package("asp_backend_evaluation", _REPO_ROOT / "backend" / "benchmark" / "
 
 
 # ----------------------------------------------------------------------
+# gc_heavy marker — used by memory-heavy rendering/alignment tests
+# (test_compositing.py, test_filter_edges.py, test_hitl_session.py). It was
+# referenced with no registration and no effect; here it is both. Running a
+# full collection + a glibc heap trim after each marked test keeps large
+# NumPy/OpenCV buffers from accumulating across a long run on this repo's
+# memory-tight host (see AGENTS.md RESOURCE RULE).
+# ----------------------------------------------------------------------
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line(
+        "markers",
+        "gc_heavy: force a gc.collect() + malloc_trim after each test in this "
+        "module (memory-heavy rendering/alignment cases)",
+    )
+
+
+def pytest_runtest_teardown(item: pytest.Item) -> None:
+    if item.get_closest_marker("gc_heavy") is None:
+        return
+    import ctypes
+    import ctypes.util
+    import gc
+
+    gc.collect()
+    libc_name = ctypes.util.find_library("c")
+    if libc_name:
+        try:
+            ctypes.CDLL(libc_name).malloc_trim(0)
+        except (OSError, AttributeError, ValueError):
+            pass  # non-glibc / no malloc_trim — the gc.collect() still ran
+
+
+# ----------------------------------------------------------------------
 # Anime stitch pipeline helpers
 # Shared builders for backend/test/ alignment, core, and rendering tests —
 # pure NumPy/OpenCV so tests run without any GPU or model dependency.
