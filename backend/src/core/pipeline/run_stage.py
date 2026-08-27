@@ -48,6 +48,10 @@ from asp_backend.core.validation import (
     _validate_affines,
 )
 from asp_backend.ingestion.frame_selection import detect_animation_phases
+from asp_backend.ingestion.mask_uncertainty import (
+    compute_temporal_mask_uncertainty,
+    mask_uncertainty_enabled,
+)
 from asp_backend.ingestion.masking import _compute_fg_masks
 from asp_backend.rendering.compositing import _composite_foreground
 from asp_backend.rendering.photometric import _apply_basic, _correct_vignetting
@@ -107,6 +111,30 @@ def _stage4_memory_snapshot() -> dict[str, float | None]:
         snapshot["cuda_allocated_mb"] = round(torch.cuda.memory_allocated() / 1024**2, 1)
         snapshot["cuda_reserved_mb"] = round(torch.cuda.memory_reserved() / 1024**2, 1)
     return snapshot
+
+
+def _refine_masks_for_plate(
+    frames: list[np.ndarray],
+    bg_masks: list[np.ndarray | None],
+    affines: list[np.ndarray],
+) -> tuple[list[np.ndarray | None], int]:
+    """Apply P4 only for the P1/P2 consumer after alignment is final."""
+    if not mask_uncertainty_enabled():
+        return bg_masks, 0
+
+    refined = compute_temporal_mask_uncertainty(frames, bg_masks, affines)
+    if len(refined) != len(bg_masks):
+        logger.warning(
+            "P4 mask refinement returned %d masks for %d frames; retaining originals.",
+            len(refined),
+            len(bg_masks),
+        )
+        return bg_masks, 0
+
+    uncertain_px = sum(
+        int(np.count_nonzero(mask == 128)) for mask in refined if mask is not None
+    )
+    return refined, uncertain_px
 
 
 if TYPE_CHECKING:
@@ -902,6 +930,19 @@ class _RunStageMixin(_Base):
         )
         session.mark(PipelineStage.RENDER, renderer=effective_renderer)
         logger.info("[Stitch] Stage 10 complete: temporal render done.")
+
+        # P4 is deliberately late: temporal rendering retains its established
+        # binary-mask behavior, while the P1/P2 plate receives uncertain pixels.
+        bg_masks, _p4_uncertain_px = _refine_masks_for_plate(frames, bg_masks, affines)
+        if mask_uncertainty_enabled():
+            session.record_artifact(
+                "mask_uncertainty",
+                {"enabled": True, "uncertain_pixels": _p4_uncertain_px},
+            )
+            logger.info(
+                "[Stitch] P4 mask uncertainty refinement complete (%d uncertain pixels).",
+                _p4_uncertain_px,
+            )
 
         # ── Stage 10.5: Multi-frame canvas coverage gate (§0 item 2) ─────────
         # For each canvas row count how many frames contribute content.

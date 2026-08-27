@@ -12,7 +12,6 @@ Tests for pipeline.py module-level functions:
 import cv2
 import numpy as np
 import pytest
-from asp_backend.core.pipeline.run_stage import _panorama_fallback_allowed
 from asp_backend.core.pipeline import (  # noqa: E402
     _apply_hires_keyframes,
     _check_edge_graph_connectivity,
@@ -22,7 +21,9 @@ from asp_backend.core.pipeline import (  # noqa: E402
     _reload_scans_frames,
     _sort_frames_by_index,
     _spatial_dedup_frames,
+    run_stage,
 )
+from asp_backend.core.pipeline.run_stage import _panorama_fallback_allowed, _refine_masks_for_plate
 from backend.src.constants.animation import (  # noqa: E402
     HIGH_CONF_EDGE_THRESH,
 )
@@ -59,6 +60,38 @@ class TestPanoramaFallbackSafety:
         assert _panorama_fallback_allowed(22)
         monkeypatch.setenv("ASP_PANORAMA_MAX_FRAMES", "0")
         assert not _panorama_fallback_allowed(2)
+
+
+class TestP4MaskRefinement:
+    def test_is_disabled_by_default(self, monkeypatch):
+        monkeypatch.delenv("ASP_MASK_UNCERTAINTY", raising=False)
+        masks = [_make_mask(), _make_mask()]
+        affines = [_make_affine(0), _make_affine(1)]
+
+        refined, uncertain_px = _refine_masks_for_plate(
+            [_make_frame(), _make_frame()], masks, affines
+        )
+
+        assert refined is masks
+        assert uncertain_px == 0
+
+    def test_refines_after_alignment_when_enabled(self, monkeypatch):
+        monkeypatch.setenv("ASP_MASK_UNCERTAINTY", "1")
+        masks = [_make_mask(), _make_mask()]
+        refined_mask = _make_mask()
+        refined_mask[1:3, 1:3] = 128
+        monkeypatch.setattr(
+            run_stage,
+            "compute_temporal_mask_uncertainty",
+            lambda frames, original_masks, affines: [refined_mask, masks[1]],
+        )
+
+        refined, uncertain_px = _refine_masks_for_plate(
+            [_make_frame(), _make_frame()], masks, [_make_affine(0), _make_affine(1)]
+        )
+
+        assert refined[0] is refined_mask
+        assert uncertain_px == 4
 
 
 class TestSpatialDedupFrames:
@@ -924,8 +957,6 @@ class TestAdaptiveDyCvMax:
 # ===========================================================================
 # §5.53: Stage 11.42 Strip Contrast CV Gate
 # ===========================================================================
-
-
 
 
 
