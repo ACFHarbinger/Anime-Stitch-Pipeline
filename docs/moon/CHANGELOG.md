@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Orphaned lineage recovery — run_stage.py reconciliation (2026-08-26,
+  deepseek):** applied the last orphaned-lineage diff to `run_stage.py` after
+  `registration_gate.py`/`registration_telemetry.py` landed (`65e7192`).
+  Adds `_stage4_memory_snapshot` + Stage-4 mask-memory artifact,
+  `_pair_proposal_telemetry` (adjacent-survival + pre/post-filter components),
+  post-filter/post-BA `collect_registration_telemetry`, the
+  `ASP_DEFER_MIN_GAP_TO_REGISTRATION_GATE` RegistrationRiskGate deferral,
+  the `ASP_DISABLE_PANORAMA_FALLBACK` guard, and the P2 overlap-proposal
+  wiring in `_pairwise_match_with`. CleanCP folded into pair-proposal
+  telemetry via `edge_graph_components`. 382 core/alignment tests green;
+  `run_stage.py` ruff-clean. No bench run.
 - **Orphaned lineage recovery — P2 overlap bridge, MAGSAC++, multiband (2026-08-26, Antigravity):**
   Recovered `_overlap_proposal.py` (provisional geometry overlap/component bridge proposals,
   `ASP_OVERLAP_PROPOSAL`), `_estimators.py` (MAGSAC++ estimator swap via `ASP_USAC_MAGSAC`),
