@@ -53,6 +53,11 @@ def plate_multiband_enabled() -> bool:
     return os.environ.get("ASP_PLATE_MULTIBAND", "0") == "1"
 
 
+def plate_single_pose_safe_for_phases(phase_ids: list[int] | None) -> bool:
+    """A single plate is unsafe when registration identified multiple phases."""
+    return not phase_ids or len(set(phase_ids)) <= 1
+
+
 def _build_aligned_background_plate(
     warped_frames: list[np.ndarray],
     warped_bg: list[np.ndarray | None],
@@ -356,6 +361,7 @@ def composite_plate_single_pose(
 __all__ = [
     "plate_single_pose_enabled",
     "plate_multiband_enabled",
+    "plate_single_pose_safe_for_phases",
     "composite_plate_single_pose",
     "PlateCompositeResult",
 ]

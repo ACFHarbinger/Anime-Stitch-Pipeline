@@ -9,6 +9,7 @@ from asp_backend.rendering.compositing._plate_compositor import (
     _build_aligned_background_plate,
     composite_plate_single_pose,
     plate_single_pose_enabled,
+    plate_single_pose_safe_for_phases,
 )
 
 
@@ -17,6 +18,12 @@ def test_plate_compositor_enabled_flag(monkeypatch):
     assert not plate_single_pose_enabled()
     monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
     assert plate_single_pose_enabled()
+
+
+def test_plate_single_pose_rejects_multiple_phases():
+    assert plate_single_pose_safe_for_phases(None)
+    assert plate_single_pose_safe_for_phases([0, 0, 0])
+    assert not plate_single_pose_safe_for_phases([0, 1, 1])
 
 
 def test_build_aligned_background_plate_reconstruction():
