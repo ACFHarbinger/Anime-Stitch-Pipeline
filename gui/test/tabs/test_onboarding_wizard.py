@@ -59,9 +59,9 @@ class TestOnboardingSeenFlag:
 class TestHybridStitchOnboardingWizard:
     def test_has_a_page_per_panel_section(self, q_app):
         wizard = HybridStitchOnboardingWizard(panel=None)
-        # Welcome + sidebar + 5 tool tabs (Control Points, Color Correct,
-        # Seam Painter, Mesh Warp, Render).
-        assert wizard.pageIds() == list(range(7))
+        # Welcome + sample projects + sidebar + 5 tool tabs (Control Points,
+        # Color Correct, Seam Painter, Mesh Warp, Render).
+        assert wizard.pageIds() == list(range(8))
 
     def test_pages_reference_real_tool_tab_names(self, q_app):
         wizard = HybridStitchOnboardingWizard(panel=None)
