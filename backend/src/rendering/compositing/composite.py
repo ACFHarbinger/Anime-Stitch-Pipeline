@@ -110,7 +110,6 @@ def _composite_foreground(
         print("[Stitch]   plate_single_pose skipped for multi-phase sequence.")
         if seam_meta_out is not None:
             seam_meta_out["plate_single_pose_skipped"] = "multiple_phases"
-        return canvas.copy()
 
     # M3 candidate: default-off §9.2 single-pose apply. Live seam loop below.
     if coherence_v2_enabled() and N >= 2:

@@ -211,3 +211,30 @@ def test_flagged_composite_records_coherence_v2(monkeypatch):
     )
     assert meta.get("coherence_v2") is True
     assert out.shape == canvas.shape
+
+
+def test_multi_phase_plate_skip_falls_through_to_legacy_candidates(monkeypatch):
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.setenv("ASP_COHERENCE_V2", "1")
+    from asp_backend.rendering.compositing.composite import _composite_foreground
+
+    h, w = 20, 24
+    a = np.zeros((h, w, 3), dtype=np.uint8)
+    b = np.zeros((h, w, 3), dtype=np.uint8)
+    a[2:8, 2:10] = (0, 0, 180)
+    b[10:16, 12:20] = (180, 0, 0)
+    canvas = np.zeros((h, w, 3), dtype=np.uint8)
+    eye = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], dtype=np.float32)
+    ty = eye.copy()
+    ty[1, 2] = 2.0
+    meta: dict = {}
+
+    _composite_foreground(
+        [], [], canvas, h, w, [a, b], [eye, ty], [None, None],
+        seam_meta_out=meta,
+        phase_ids=[0, 1],
+        source_has_multiple_phases=True,
+    )
+
+    assert meta["plate_single_pose_skipped"] == "multiple_phases"
+    assert meta["coherence_v2"] is True
