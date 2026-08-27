@@ -38,6 +38,7 @@ from ..constants.schema import (
     DIMENSIONS,
     IMAGE_ASP,
     PREFERENCES,
+    PRIMARY_KEYS,
     SCORE_LABELS,
     SCORE_MAX,
     SCORE_MIN,
@@ -254,6 +255,7 @@ class ScoringPanel(QWidget):
 
     def _build_preference_box(self) -> QGroupBox:
         box = QGroupBox("Which is better? (ASP vs Simple)")
+        self._pref_box = box
         layout = QVBoxLayout(box)
         layout.setContentsMargins(8, 4, 8, 6)
         layout.setSpacing(4)
@@ -368,6 +370,10 @@ class ScoringPanel(QWidget):
             block.set_detailed(self._detail_toggle.isChecked())
             self.blocks[key] = block
         self._set_severity_comparators(keys)
+        # The ASP-vs-Simple pairwise preference only has a valid target when at
+        # least one primary comparator is on screen — hide it for e.g. a
+        # renderer-export bundle (baseline / P1 / P1+P2 only).
+        self._pref_box.setVisible(any(k in PRIMARY_KEYS for k in keys))
 
     def load_entry(self, entry: RatingEntry) -> None:
         self._loading = True

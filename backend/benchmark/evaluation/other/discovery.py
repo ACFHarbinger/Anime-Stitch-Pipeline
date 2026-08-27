@@ -37,6 +37,7 @@ from ..constants.schema import (
     IMAGE_HUGIN,
     IMAGE_OVERMIX,
     IMAGE_SIMPLE,
+    RENDERER_EXPORT_FILES,
 )
 
 
@@ -71,11 +72,45 @@ class TestAssets:
 
 
 def discover_datasets(base_dir: str) -> list[str]:
+    """Dataset names available under ``base_dir``.
+
+    Standard benchmark layout: ``{base_dir}/output/{name}_anime_stitch.png``.
+    Renderer-export bundle layout: ``{base_dir}/{name}/`` subdirectories each
+    holding at least one of ``baseline.png`` / ``p1_single_pose.png`` /
+    ``p1p2_multiband.png`` (see :func:`is_renderer_export_dir`). Both are
+    merged so a directory that happens to have both is fully discovered.
+    """
     out_dir = os.path.join(base_dir, "output")
-    names = []
+    names: set[str] = set()
     for p in sorted(glob.glob(os.path.join(out_dir, "asp_test*_anime_stitch.png"))):
-        names.append(os.path.basename(p)[: -len("_anime_stitch.png")])
+        names.add(os.path.basename(p)[: -len("_anime_stitch.png")])
+    names.update(_discover_renderer_export_datasets(base_dir))
+    return sorted(names)
+
+
+_EXPORT_FILENAMES = tuple(fname for fname, _ in RENDERER_EXPORT_FILES)
+
+
+def _discover_renderer_export_datasets(base_dir: str) -> list[str]:
+    """``asp_test*`` immediate subdirectories of ``base_dir`` that contain at
+    least one renderer-export arm image."""
+    names: list[str] = []
+    for entry in sorted(glob.glob(os.path.join(base_dir, "asp_test*"))):
+        if not os.path.isdir(entry):
+            continue
+        if any(os.path.exists(os.path.join(entry, f)) for f in _EXPORT_FILENAMES):
+            names.append(os.path.basename(entry))
     return names
+
+
+def is_renderer_export_dir(base_dir: str) -> bool:
+    """True when ``base_dir`` looks like a renderer-export bundle rather than a
+    standard benchmark base dir — i.e. it has ``asp_test*`` arm subdirectories
+    and no ``output/*_anime_stitch.png``."""
+    if not os.path.isdir(base_dir):
+        return False
+    has_std = bool(glob.glob(os.path.join(base_dir, "output", "asp_test*_anime_stitch.png")))
+    return not has_std and bool(_discover_renderer_export_datasets(base_dir))
 
 
 def _find_gt_path(name: str, gt_dir: str) -> str | None:
@@ -153,9 +188,25 @@ def _first_existing(*candidates: str | None) -> str | None:
     return None
 
 
+def _load_renderer_export_assets(base_dir: str, name: str) -> TestAssets:
+    """Assets for one case of a renderer-export bundle. Self-contained: only
+    the arm images under ``{base_dir}/{name}/`` — no benchmark results JSON,
+    no comparator/GT lookup, no plots/stages (a bundle carries none of that)."""
+    export_dir = os.path.join(base_dir, name)
+    paths = {}
+    for fname, key in RENDERER_EXPORT_FILES:
+        p = _first_existing(os.path.join(export_dir, fname))
+        if p:
+            paths[key] = p
+    return TestAssets(name=name, paths=paths, plots_dir=None, stage_dir=None, metrics={})
+
+
 def load_test_assets(
     base_dir: str, name: str, repo_root: str, results_path: str | None = None
 ) -> TestAssets:
+    if is_renderer_export_dir(base_dir):
+        return _load_renderer_export_assets(base_dir, name)
+
     out_dir = os.path.join(base_dir, "output")
     test_out_dir = os.path.join(base_dir, name, "output")
     gt_dir = os.path.join(base_dir, "ground_truth")
@@ -183,6 +234,12 @@ def load_test_assets(
         ),
         IMAGE_GROUND_TRUTH: _find_gt_path(name, gt_dir),
     }
+
+    # Renderer-export arms, when this is a bundle directory. The files live
+    # directly under {base_dir}/{name}/ (no output/ level).
+    export_dir = os.path.join(base_dir, name)
+    for fname, key in RENDERER_EXPORT_FILES:
+        resolved[key] = _first_existing(os.path.join(export_dir, fname))
 
     plots_dir = json_paths.get("plots_dir") or os.path.join(test_out_dir, "plots")
     stage_dir = json_paths.get("stage_dir") or os.path.join(test_out_dir, "panorama_stages")

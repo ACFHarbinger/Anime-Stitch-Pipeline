@@ -20,6 +20,16 @@ IMAGE_OVERMIX = "overmix"
 IMAGE_HUGIN = "hugin"
 IMAGE_GROUND_TRUTH = "ground_truth"
 
+# Renderer-export arms. Present only when the inspector is pointed at a
+# renderer-export bundle (a directory of asp_testXX/ subdirs each holding
+# baseline.png / p1_single_pose.png / p1p2_multiband.png, as produced for a
+# locked-slice review). A normal benchmark corpus never has these files, so
+# discovery never yields them and they stay invisible everywhere the UI keys
+# off assets.available().
+IMAGE_BASELINE = "baseline"
+IMAGE_P1 = "p1_single_pose"
+IMAGE_P1P2 = "p1p2_multiband"
+
 COMPARATORS = (
     (IMAGE_ASP, "ASP"),
     # Display label only — "OpenCV (SCANS)" now that there's more than one
@@ -29,13 +39,29 @@ COMPARATORS = (
     (IMAGE_SIMPLE, "OpenCV (SCANS)"),
     (IMAGE_OVERMIX, "Overmix"),
     (IMAGE_HUGIN, "Hugin"),
+    (IMAGE_BASELINE, "Baseline"),
+    (IMAGE_P1, "P1 (single-pose)"),
+    (IMAGE_P1P2, "P1+P2 (multiband)"),
     (IMAGE_GROUND_TRUTH, "Ground Truth"),
 )
 COMPARATOR_KEYS = tuple(key for key, _ in COMPARATORS)
 COMPARATOR_TITLES = dict(COMPARATORS)
 
+# The three renderer-export arms, in display order — used by discovery to map
+# on-disk filenames to comparator keys and by the loader to recognise a bundle.
+RENDERER_EXPORT_FILES = (
+    ("baseline.png", IMAGE_BASELINE),
+    ("p1_single_pose.png", IMAGE_P1),
+    ("p1p2_multiband.png", IMAGE_P1P2),
+)
+RENDERER_EXPORT_KEYS = tuple(key for _, key in RENDERER_EXPORT_FILES)
+
 # Ground truth is a reference, not a pipeline output — it is displayed and
 # annotated but never scored, so it is excluded from the scoring UI.
+# Renderer-export arms are scorable too, but only ever appear in the scoring
+# panel (they have no metrics blocks, so metrics_view keys off this tuple
+# unchanged); the inspector adds RENDERER_EXPORT_KEYS to what it treats as
+# scorable at runtime.
 SCORABLE_KEYS = (IMAGE_ASP, IMAGE_SIMPLE, IMAGE_OVERMIX, IMAGE_HUGIN)
 
 # The two the ASP objective is actually defined against; the pairwise

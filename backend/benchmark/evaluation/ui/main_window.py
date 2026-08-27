@@ -17,6 +17,7 @@ can't reach. The key map lives in ``shortcuts.py`` and the annotation flow in
 
 from __future__ import annotations
 
+import os
 import traceback as _traceback
 
 from PySide6.QtCore import Qt, QTimer
@@ -227,8 +228,16 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         self.load_eval_btn = QPushButton("Load Evaluation…")
         self.load_eval_btn.setToolTip("Resume an existing benchmark evaluation JSON")
         self.load_eval_btn.clicked.connect(self._load_evaluation_file)
+        self.load_dir_btn = QPushButton("Load Directory…")
+        self.load_dir_btn.setToolTip(
+            "Point the inspector at another data directory — a benchmark base dir, "
+            "or a renderer-export bundle of asp_testXX/ subdirectories. Only the "
+            "asp_testXX datasets present there are shown."
+        )
+        self.load_dir_btn.clicked.connect(self._load_directory)
         header.addWidget(self.title_label)
         header.addWidget(self.status_label, stretch=1)
+        header.addWidget(self.load_dir_btn)
         header.addWidget(self.load_eval_btn)
         header.addWidget(self.settings_btn)
         outer.addLayout(header)
@@ -388,9 +397,9 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         self._schedule_fit(0)
 
     def scorable(self) -> list[str]:
-        from ..constants.schema import SCORABLE_KEYS
+        from ..constants.schema import RENDERER_EXPORT_KEYS, SCORABLE_KEYS
 
-        return list(SCORABLE_KEYS)
+        return [*SCORABLE_KEYS, *RENDERER_EXPORT_KEYS]
 
     def _run_label(self) -> str:
         metrics = discovery.load_metrics(self.repo_root, self.results_path)
@@ -596,6 +605,56 @@ class InspectorWindow(AnnotationFlowMixin, SettingsFlowMixin, QMainWindow):
         else:
             self._update_header()
         self.status_label.setText(f"Resumed evaluation from {self.session.out_path}")
+
+    def _load_directory(self) -> None:
+        """Re-point the inspector at another data directory and rebuild the
+        session from whatever asp_testXX datasets it holds — a standard
+        benchmark base dir (``output/*_anime_stitch.png``) or a renderer-export
+        bundle (``asp_testXX/`` arm subdirectories)."""
+        if not self._confirm_discard("Load directory"):
+            return
+        chosen = QFileDialog.getExistingDirectory(
+            self,
+            "Load data directory (benchmark base dir or renderer-export bundle)",
+            self.base_dir,
+            options=QFileDialog.Option.DontUseNativeDialog | QFileDialog.Option.ShowDirsOnly,
+        )
+        if not chosen:
+            return
+
+        names = discovery.discover_datasets(chosen)
+        if not names:
+            QMessageBox.information(
+                self,
+                "No datasets found",
+                f"No asp_testXX datasets found under:\n{chosen}\n\n"
+                "Expected either an 'output/' directory with "
+                "'*_anime_stitch.png' files, or 'asp_testXX/' subdirectories "
+                "containing 'baseline.png' / 'p1_single_pose.png' / "
+                "'p1p2_multiband.png'.",
+            )
+            return
+
+        self.base_dir = chosen
+        # Ratings for a directory live alongside it, so switching directories
+        # and back resumes cleanly. A fresh session starts at the first
+        # unrated case (redo=False), mirroring a normal inspector launch.
+        out_path = os.path.join(chosen, "asp_evaluations.json")
+        self.session = EvaluationSession(names, out_path, redo=False)
+        self.total_datasets = len(names)
+        self.queue_panel.set_session(self.session)
+        if self.session.current:
+            self._load_current()
+        else:
+            self._update_header()
+        kind = (
+            "renderer-export bundle"
+            if discovery.is_renderer_export_dir(chosen)
+            else "benchmark dir"
+        )
+        self.status_label.setText(
+            f"Loaded {len(names)} datasets from {chosen} ({kind})"
+        )
 
     # -- navigation ----------------------------------------------------------
 

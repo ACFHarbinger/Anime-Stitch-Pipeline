@@ -36,6 +36,7 @@ sys.path.insert(0, _repo_root)
 
 pytest.importorskip("PySide6", reason="the inspector needs PySide6")
 
+from asp_backend_evaluation.constants.schema import RENDERER_EXPORT_KEYS  # noqa: E402
 from asp_backend_evaluation.constants.user_interface import (  # noqa: E402
     DISPLAY_PIXEL,
     DISPLAY_RAW,
@@ -52,6 +53,12 @@ from asp_backend_evaluation.constants.user_interface import (  # noqa: E402
 from asp_backend_evaluation.ui.image_panel import ImagePanel  # noqa: E402
 from asp_backend_evaluation.ui.panel_grid import PanelGrid  # noqa: E402
 from asp_backend_evaluation.ui.scoring_panel import ScoringPanel  # noqa: E402
+
+# Renderer-export arm keys (baseline / p1_single_pose / p1p2_multiband) trail
+# the four benchmark comparators in COMPARATOR_KEYS order and are appended to
+# any grid ordering the same way; spelled here so the order assertions below
+# stay readable.
+_TRAIL = list(RENDERER_EXPORT_KEYS)
 from PySide6.QtCore import QPoint  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
@@ -585,7 +592,7 @@ def test_ground_truth_checkbox_off_reflows_the_remaining_panels(grid):
 
 def test_reorder_moves_source_into_targets_slot(grid):
     grid.reorder("ground_truth", "asp")
-    assert grid.order() == ["ground_truth", "asp", "simple", "overmix", "hugin"]
+    assert grid.order() == ["ground_truth", "asp", "simple", "overmix", "hugin", *_TRAIL]
     assert grid.visible() == ["ground_truth", "asp", "simple", "overmix"]
 
 
@@ -631,12 +638,12 @@ def test_custom_order_persists_across_a_new_tests_images(grid):
 
 def test_set_order_replaces_and_appends_missing_keys(grid):
     grid.set_order(["ground_truth", "simple"])
-    assert grid.order() == ["ground_truth", "simple", "asp", "overmix", "hugin"]
+    assert grid.order() == ["ground_truth", "simple", "asp", "overmix", "hugin", *_TRAIL]
 
 
 def test_set_order_ignores_unknown_keys(grid):
     grid.set_order(["ground_truth", "not_a_real_key", "asp"])
-    assert grid.order() == ["ground_truth", "asp", "simple", "overmix", "hugin"]
+    assert grid.order() == ["ground_truth", "asp", "simple", "overmix", "hugin", *_TRAIL]
 
 
 def test_order_changed_signal_fires_on_reorder(grid):
