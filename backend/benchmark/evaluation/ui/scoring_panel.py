@@ -496,8 +496,18 @@ class ScoringPanel(QWidget):
             button.setChecked(key == self._severity_image)
         for key, row in self._severity_rows.items():
             severity = self._entry.severity(self._severity_image, key)
+            # "legacy: ungraded" is only for a genuine pre-per-output entry —
+            # the defect is tagged at test level but *no* output carries a
+            # per-output severity. Once any output is graded, a 0 on another
+            # output is a real "absent", not an inherited/ungraded state, so
+            # grading one output must not flip the others' rows.
+            graded_anywhere = any(
+                key in per_output for per_output in self._entry.defect_severity.values()
+            )
             row.set_severity(
-                None if severity == 0 and key in self._entry.defects else severity
+                None
+                if severity == 0 and key in self._entry.defects and not graded_anywhere
+                else severity
             )
 
     # -- status --------------------------------------------------------------
