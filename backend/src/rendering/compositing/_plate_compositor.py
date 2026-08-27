@@ -53,9 +53,15 @@ def plate_multiband_enabled() -> bool:
     return os.environ.get("ASP_PLATE_MULTIBAND", "0") == "1"
 
 
-def plate_single_pose_safe_for_phases(phase_ids: list[int] | None) -> bool:
-    """A single plate is unsafe when registration identified multiple phases."""
-    return not phase_ids or len(set(phase_ids)) <= 1
+def plate_single_pose_safe_for_phases(
+    phase_ids: list[int] | None,
+    n_frames: int,
+) -> bool:
+    """A single plate requires aligned, single-phase provenance."""
+    return (
+        not phase_ids
+        or (len(phase_ids) == n_frames and len(set(phase_ids)) <= 1)
+    )
 
 
 def _build_aligned_background_plate(

@@ -83,7 +83,9 @@ def _composite_foreground(
         plate_single_pose_safe_for_phases,
     )
 
-    if plate_single_pose_enabled() and N >= 2 and plate_single_pose_safe_for_phases(phase_ids):
+    if plate_single_pose_enabled() and N >= 2 and plate_single_pose_safe_for_phases(
+        phase_ids, N
+    ):
         edge_preserve = os.environ.get("ASP_PLATE_EDGE_PRESERVE", "1") != "0"
         multiband = plate_multiband_enabled()
         result, claimed, plate_meta = composite_plate_single_pose(

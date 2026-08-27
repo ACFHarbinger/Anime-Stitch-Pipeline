@@ -21,9 +21,10 @@ def test_plate_compositor_enabled_flag(monkeypatch):
 
 
 def test_plate_single_pose_rejects_multiple_phases():
-    assert plate_single_pose_safe_for_phases(None)
-    assert plate_single_pose_safe_for_phases([0, 0, 0])
-    assert not plate_single_pose_safe_for_phases([0, 1, 1])
+    assert plate_single_pose_safe_for_phases(None, 3)
+    assert plate_single_pose_safe_for_phases([0, 0, 0], 3)
+    assert not plate_single_pose_safe_for_phases([0, 1, 1], 3)
+    assert not plate_single_pose_safe_for_phases([0, 0, 0], 2)
 
 
 def test_build_aligned_background_plate_reconstruction():
