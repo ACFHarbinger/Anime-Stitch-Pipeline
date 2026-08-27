@@ -10,6 +10,11 @@ from ._flags import _JOINT_GAIN_SIGMA_G, _JOINT_GAIN_SIGMA_N
 from ._native import BATCH_AVAILABLE, batch
 
 
+def _confirmed_background(mask: np.ndarray) -> np.ndarray:
+    """Return a boolean background selector for binary or P4 ternary masks."""
+    return mask > 200 if mask.dtype == np.uint8 else mask.astype(bool)
+
+
 def _blocks_gain_compensate(
     fa_zone: np.ndarray,
     fb_zone: np.ndarray,
@@ -191,14 +196,16 @@ def _joint_gain_solve(
 
     overlaps: list[tuple[int, int, float, float, int]] = []
     for i in range(N):
-        bg_i = warped_bg[i]
-        if bg_i is None:
+        bg_i_raw = warped_bg[i]
+        if bg_i_raw is None:
             continue
+        bg_i = _confirmed_background(bg_i_raw)
         has_i = warped_frames[i].max(axis=2) > 10
         for j in range(i + 1, N):
-            bg_j = warped_bg[j]
-            if bg_j is None:
+            bg_j_raw = warped_bg[j]
+            if bg_j_raw is None:
                 continue
+            bg_j = _confirmed_background(bg_j_raw)
             shared = bg_i & bg_j
             if not shared.any():
                 continue
@@ -316,7 +323,7 @@ def _apply_joint_gain_solve(
             result.append(wf.copy())
             continue
         out = wf.astype(np.float32)
-        bg_sel = warped_bg[i] & (wf.max(axis=2) > 10)
+        bg_sel = _confirmed_background(warped_bg[i]) & (wf.max(axis=2) > 10)
         out[bg_sel] = np.clip(out[bg_sel] * gain, 0, 255)
         result.append(out.astype(np.uint8))
     return result

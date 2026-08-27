@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from asp_backend.rendering.compositing._gain_compensation import _apply_joint_gain_solve
 from asp_backend.rendering.compositing._normalization import _warp_inputs
 from asp_backend.rendering.compositing._plate_compositor import (
     _build_aligned_background_plate,
@@ -169,3 +170,18 @@ def test_warp_inputs_preserves_p4_uncertainty_for_plate_path():
 
     assert warped_bg[0].dtype == np.uint8
     assert np.all(warped_bg[0][2:6, 2:6] == 128)
+
+
+def test_joint_gain_uses_boolean_selector_for_p4_masks():
+    """Ternary P4 masks must not become uint8 advanced-index selectors."""
+    frames = [
+        np.full((8, 8, 3), 100, dtype=np.uint8),
+        np.full((8, 8, 3), 120, dtype=np.uint8),
+    ]
+    masks = [np.full((8, 8), 255, dtype=np.uint8) for _ in frames]
+    masks[0][2:6, 2:6] = 128
+
+    out = _apply_joint_gain_solve(frames, masks)
+
+    assert len(out) == 2
+    assert out[0].shape == frames[0].shape
