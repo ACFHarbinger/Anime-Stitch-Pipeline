@@ -11,7 +11,11 @@ from ._boundaries import _optimize_boundaries_and_feathers
 from ._fg_pose import _register_foreground_poses
 from ._fill import _initial_hard_partition_fill, _process_single_seam
 from ._flags import _GLOBAL_GAIN_COMP, _JOINT_GAIN_ROBUST, _JOINT_GAIN_SOLVE
-from ._gain_compensation import _apply_joint_gain_solve, _equalize_warped_gains
+from ._gain_compensation import (
+    _apply_joint_gain_solve,
+    _confirmed_background,
+    _equalize_warped_gains,
+)
 from ._graphcut import _try_global_seam_composite
 from ._normalization import _normalize_warped_frames, _warp_inputs
 from ._seam_cache import _precompute_seam_paths
@@ -126,6 +130,13 @@ def _composite_foreground(
             seam_meta_out["coherence_ownership"] = claimed_meta
         print("[Stitch]   coherence_v2 single-pose composite (ASP_COHERENCE_V2=1).")
         return result
+
+    # P4 ternary masks are only consumed by P1/M3. Legacy seam code has a
+    # boolean-mask contract, so normalize the handoff after a plate skip.
+    warped_bg = [
+        _confirmed_background(mask) if mask is not None else None
+        for mask in warped_bg
+    ]
 
     # Normalise warped frames
     warped_norm, frame_gains = _normalize_warped_frames(

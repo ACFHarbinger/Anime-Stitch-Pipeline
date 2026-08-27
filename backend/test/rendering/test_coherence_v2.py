@@ -238,3 +238,30 @@ def test_multi_phase_plate_skip_falls_through_to_legacy_candidates(monkeypatch):
 
     assert meta["plate_single_pose_skipped"] == "multiple_phases"
     assert meta["coherence_v2"] is True
+
+
+def test_multi_phase_plate_skip_booleanizes_ternary_masks_for_legacy(monkeypatch):
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.setenv("ASP_COHERENCE_V2", "0")
+    from asp_backend.rendering.compositing.composite import _composite_foreground
+
+    h, w = 20, 24
+    a = np.full((h, w, 3), 30, dtype=np.uint8)
+    b = np.full((h, w, 3), 50, dtype=np.uint8)
+    canvas = np.zeros((h + 2, w, 3), dtype=np.uint8)
+    eye = np.array([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]], dtype=np.float32)
+    ty = eye.copy()
+    ty[1, 2] = 2.0
+    ternary = np.full((h, w), 255, dtype=np.uint8)
+    ternary[5:10, 5:10] = 128
+    meta: dict = {}
+
+    out = _composite_foreground(
+        [], [], canvas, h + 2, w, [a, b], [eye, ty], [ternary, ternary],
+        seam_meta_out=meta,
+        phase_ids=[0, 1],
+        source_has_multiple_phases=True,
+    )
+
+    assert meta["plate_single_pose_skipped"] == "multiple_phases"
+    assert out.shape == canvas.shape
