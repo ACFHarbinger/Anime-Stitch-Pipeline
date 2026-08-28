@@ -1977,6 +1977,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#20-locked-renderer-review-export-completed-2026-08-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        20. Locked renderer review export completed (2026-08-26)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#21-cleancp-implementation-reconciliation-2026-08-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        21. CleanCP implementation reconciliation (2026-08-26)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#22-m2-registration-telemetry-and-gate-recovered-2026-08-26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        22. M2 registration telemetry and gate recovered (2026-08-26)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2083,7 +2116,57 @@ run.</p>
 production Stage 4.5 gain record from <code>PipelineSession</code>, including per-frame
 background-pixel eligibility/luminance, BGR gains, clamp hits, residuals, and
 reference luminance. No gain is recomputed in the adapter and no pixel path
-changed. Legacy A/B output is explicitly labeled <code>legacy_harness</code>.</p>
+changed. Legacy A/B output is explicitly labeled <code>legacy_harness</code>.
+The guarded validation runner also applies <code>ASP_BENCH_THREAD_CAP</code> to PyTorch's
+runtime thread pools; its environment-only setting was too late after the
+benchmark's import order.</p>
+<p><strong>Determinism prerequisite (2026-08-24, Codex):</strong> The P1/P2 A/B is paused
+because the 21-case baseline changed frame selection relative to the frozen
+corpus. Each <code>PipelineSession</code> now persists its thread settings, native thread
+environment, device, cuDNN/Torch deterministic settings, and effective RNG
+seed policy. <code>ASP_DETERMINISTIC=1</code> with <code>ASP_REPRO_SEED</code> pins Python, NumPy,
+OpenCV, and Torch process-local state; it is default-off. The benchmark applies
+native thread caps before importing numerical libraries. Next action requires
+Harbinger approval for 2–3 cases run twice under identical settings; only
+identical routing clears this prerequisite.</p>
+<p><strong>Determinism check passed (2026-08-24, Codex):</strong> Authorized fresh-process
+repeats of selection-drift cases 28/82 and Raw-ASP control 67 used
+<code>ASP_DETERMINISTIC=1</code>, seed 1729, and one native/OpenCV/Torch thread. All
+three pairs had identical selection, post-dedup/edge counts, routing, and PNG
+SHA-256. The P1/P2 A/B may resume only under this recorded environment; this
+does not make its new baseline comparable to the older frozen corpus. Evidence:
+<code>.agent/reports/codex/asp_determinism_check_2026-08-24.md</code>.</p>
+<p><strong>Stage-1 shot boundary (2026-08-24, Codex):</strong> Default-off
+<code>ASP_SHOT_BOUNDARY_THRESH</code> performs deterministic thumbnail-histogram cut
+detection before smart selection. When a cut is detected, it keeps the longest
+contiguous shot rather than producing an impossible cross-shot correspondence.
+Unit-tested only (88 frame-selection tests); it needs a separately authorized
+measurement before promotion.</p>
+<p><strong>Connectivity recovery restored (2026-08-24, Codex):</strong> Default-off
+<code>ASP_CLEANCP_RESOLVE=1</code> retries a post-filter graph that is disconnected or
+lacks any adjacent-frame link, using locally cleaned raw correspondences and
+translation consensus. It accepts only a fully connected consensus graph,
+records component and missing-adjacent-edge counts, and leaves the ratio gate
+unchanged. Targeted tests pass; test94 measurement is authorized separately.</p>
+<p><strong>test94 measurement (2026-08-24, Codex):</strong> The authorized deterministic,
+one-thread run with CleanCP enabled did not reproduce the older ratio failure:
+12 post-dedup frames retained 18 filtered edges and passed BA, before Safe ASP
+fell back at seam visibility. The benchmark summary does not retain session
+artifacts, so this is not evidence that CleanCP repaired the historic gaps.
+Evidence: <code>.agent/reports/chat/asp_test94_cleancp_2026-08-24.md</code>.</p>
+<p><strong>test94 frozen-selection reproduction (2026-08-25, Codex):</strong> With spatial
+dedup disabled only for measurement, the frozen 13-frame path reproduced
+<code>ratio=3.90229&gt;3</code>. Accepted CleanCP reduced missing adjacent links from seven
+to three but did not change affine gaps, so SCANS fallback held. Connectivity
+recovery is incomplete; the ratio gate remains unchanged. Evidence:
+<code>.agent/reports/chat/asp_test94_frozen_repro_2026-08-25.md</code>.</p>
+<p><strong>Locked renderer slice capacity stop (2026-08-24, Codex):</strong> The authorized
+deterministic baseline completed 03/05/17/37/42/78 only; P1/P2 has not begun.
+An in-process sweep retained RSS (3.6→5.8 GB), so subsequent cases use one
+fresh interpreter per dataset. Full swap and external IDE/language-service RAM
+then brought the host to the 80% guardrail. Resume only after host capacity is
+freed and rechecked. Evidence:
+<code>.agent/reports/codex/asp_locked_slice_partial_2026-08-24.md</code>.</p>
 <h2 id="3-evidence-baseline">3. Evidence baseline</h2>
 <p>The completed <code>asp_evaluations_20260810.json</code> contains 97 reviewed cases:</p>
 <table>
@@ -2617,7 +2700,49 @@ segmentation model.</p>
   exactly one hero pose per connected overlap zone (maximizing area, centrality,
   and boundary completeness) with soft-edge feathering over the clean plate.
   Registered in <code>_CONFIG_SCHEMA</code> and wired into <code>composite.py</code>. Unit tests in
-  <code>test_plate_compositor.py</code> (3 passed).</p>
+  <code>test_plate_compositor.py</code> (3 passed).
+  <strong>P2 edge-preserving &amp; multi-band seam cleanup (2026-08-23, Antigravity):</strong>
+  Added edge-preserving sharp background source selection in multi-sample zones
+  (<code>ASP_PLATE_EDGE_PRESERVE=1</code>) and multi-scale Laplacian pyramid blending
+  (<code>ASP_PLATE_MULTIBAND=1</code>) over the clean background plate to resolve blur,
+  seam lines, and banding while protecting high-frequency line art and character
+  crispness. Unit tests in <code>test_plate_compositor.py</code> (4 passed).
+  <strong>P3 regularized TPS residual background-only local warp (2026-08-26, Antigravity):</strong>
+  Implemented default-off <code>ASP_RESIDUAL_WARP=1</code> (<code>_residual_warp.py</code>). Estimates
+  regularized Thin Plate Spline (TPS) residual flow from background correspondences,
+  with bending-energy safety checks (<code>ASP_RESIDUAL_WARP_MAX_BENDING</code>) and max-displacement
+  rejection (<code>ASP_RESIDUAL_WARP_MAX_PX</code>) to avoid distortion. Applies non-rigid
+  refinement strictly to confirmed background regions while smoothly modulating to zero
+  near foreground boundaries. Unit tests in <code>test_residual_warp.py</code> (5 passed).
+  <strong>P4 mask temporal uncertainty &amp; Trapped-Ball disagreement refinement (2026-08-26, Antigravity):</strong>
+  Implemented default-off <code>ASP_MASK_UNCERTAINTY=1</code> (<code>mask_uncertainty.py</code>). Computes
+  pairwise temporal disagreement between aligned masks, resolves disputed regions
+  using classical Trapped-Ball structural segmentation, and emits ternary masks
+  (255=confirmed bg, 128=uncertain/excluded, 0=fg) so that downstream P1/P2 plate
+  compositing strictly excludes uncertain pixels from background plate sampling.
+  Unit tests in <code>test_mask_uncertainty.py</code> and <code>test_plate_compositor.py</code> (9 passed).</p>
+<p><strong>Known gap — P1 is unsafe for multi-phase sequences (2026-08-28, Codex/Antigravity/Claude):</strong>
+  A single canvas-aligned background plate cannot represent a sequence that
+  contains more than one animation phase (a pose change / cut mid-pan). P1 now
+  detects this from the pre- and post-dedup phase signal and skips
+  (<code>seam_meta["plate_single_pose_skipped"] = "multiple_phases"</code>), falling
+  through to the legacy seam compositor — earlier it early-returned the raw
+  temporal-median canvas, which would have regressed multi-phase cases
+  (<code>c3931b93</code>); a P4 ternary-mask → legacy boolean-mask handoff crash surfaced
+  by that fall-through is fixed in <code>646932a3</code>.
+  Scope: <strong>59 / 97 frozen-corpus cases (60.8%) are multi-phase</strong>, so with
+  <code>ASP_PLATE_SINGLE_POSE=1</code> the plate path is inert for the majority of the
+  corpus. An authorized 5-case sweep of multi-phase cases that were RAW_ASP in
+  the frozen corpus (<code>05, 36, 51, 67, 73</code>) confirmed the skip is bounded (no
+  OOM) but <strong>quality routing is not neutral</strong>: <code>05</code>/<code>67</code> stayed <code>raw_asp</code>,
+  <code>36</code> fell back at <code>seam_vis_gate</code>, <code>51</code> at <code>composite_gate_sb</code>, <code>73</code> at
+  affine validation. P1 is <strong>not</strong> ready for promotion beyond single-phase
+  sequences.
+  Case 17 routing to SCANS via this gate is its <strong>pre-existing</strong> Safe-ASP
+  fallback restored, <strong>not</strong> a solved problem — recorded here as future work,
+  not "resolved". A real multi-phase renderer needs piecewise multi-plate
+  synthesis or per-phase hero-cel extraction (see M4's §9.2 Stage 0
+  phase-group work).</p>
 <p>Exit criteria:</p>
 <ul>
 <li>No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the
@@ -3288,6 +3413,33 @@ questions from this review round; Claude proceeds to file the §9 issues next.</
 <li><strong>3D Exploded-View Layer Stack:</strong> Interactive WebGL 3D view in <code>docs/website/</code> showing the warped background mesh, seam boundary planes, and floating segmented character cels with orbit controls.</li>
 <li><strong>3D Feature Match Point Clouds:</strong> Interactive particle graph visualizing LoFTR keypoint correspondences in 3D feature space.</li>
 <li><strong>Lightweight 3D Mascots &amp; Viewfinders:</strong> Fast-loading <code>.glb</code> interactive assets for the web portal adhering to the Optic Lab / Blueprint theme.</li>
+</ul>
+<h2 id="20-locked-renderer-review-export-completed-2026-08-26">20. Locked renderer review export completed (2026-08-26)</h2>
+<ul>
+<li>The held-out 16-case review bundle now contains labelled baseline, P1, and
+  P1+P2 PNGs for every case (48 files) under
+  <code>.agent/reports/chat/locked_renderer_exports_2026-08-24/</code>.</li>
+<li>Regeneration used a fresh one-thread deterministic process per arm with
+  resource guards. Cases 74, 28, 83, and 73 were independently reproduced in
+  all arms and were byte-identical safety fallbacks. This is review provenance,
+  not an M2 quality decision.</li>
+</ul>
+<h2 id="21-cleancp-implementation-reconciliation-2026-08-26">21. CleanCP implementation reconciliation (2026-08-26)</h2>
+<ul>
+<li>Compared the <code>0363410</code> prototype with the restored and extended current path
+  (<code>43d83eb</code> + <code>465328c</code>). The prototype imports a removed registration
+  telemetry module, so it cannot be merged directly.</li>
+<li>Retain the current self-contained helper: it preserves MAD cleanup,
+  span-normalized consensus, and full-graph acceptance while recording adjacent
+  gap telemetry and triggering for connected skip-edge graphs. Default remains
+  off; the ratio gate is unchanged. Focused tests: 3 passed.</li>
+</ul>
+<h2 id="22-m2-registration-telemetry-and-gate-recovered-2026-08-26">22. M2 registration telemetry and gate recovered (2026-08-26)</h2>
+<ul>
+<li>Restored solve-independent registration telemetry and the default-off
+  <code>RegistrationRiskGate</code>. Hard BA/cycle/edge failures reject; the calibrated
+  ambiguity band is <code>uncertain</code> and defaults to review prompt in
+  counterfactuals. Focused tests: 20 passed; no benchmark run.</li>
 </ul>
 
 

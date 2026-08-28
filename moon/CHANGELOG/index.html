@@ -1685,6 +1685,71 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
+<li><strong>Orphaned lineage recovery — Stitch-tab ASP/SCANS comparison (2026-08-26,
+  deepseek):</strong> restored the on-demand SCANS comparison preview unique to the
+  orphaned lineage — <code>_ScansComparisonSignals</code>/<code>_ScansComparisonTask</code> in
+  <code>_thumb_workers.py</code> (off-thread OpenCV SCANS baseline + ASP/SCANS quality
+  readouts), the <code>Generate SCANS Comparison</code> button, the ASP/SCANS preview
+  toggle with fade transition, and protocol/manager state wiring. New
+  <code>test_stitch_comparison.py</code>. 31 stitch-tab tests green.</li>
+<li><strong>Orphaned lineage recovery — run_stage.py reconciliation (2026-08-26,
+  deepseek):</strong> applied the last orphaned-lineage diff to <code>run_stage.py</code> after
+  <code>registration_gate.py</code>/<code>registration_telemetry.py</code> landed (<code>65e7192</code>).
+  Adds <code>_stage4_memory_snapshot</code> + Stage-4 mask-memory artifact,
+  <code>_pair_proposal_telemetry</code> (adjacent-survival + pre/post-filter components),
+  post-filter/post-BA <code>collect_registration_telemetry</code>, the
+  <code>ASP_DEFER_MIN_GAP_TO_REGISTRATION_GATE</code> RegistrationRiskGate deferral,
+  the <code>ASP_DISABLE_PANORAMA_FALLBACK</code> guard, and the P2 overlap-proposal
+  wiring in <code>_pairwise_match_with</code>. CleanCP folded into pair-proposal
+  telemetry via <code>edge_graph_components</code>. 382 core/alignment tests green;
+  <code>run_stage.py</code> ruff-clean. No bench run.</li>
+<li>
+<p><strong>Orphaned lineage recovery — P2 overlap bridge, MAGSAC++, multiband (2026-08-26, Antigravity):</strong>
+  Recovered <code>_overlap_proposal.py</code> (provisional geometry overlap/component bridge proposals,
+  <code>ASP_OVERLAP_PROPOSAL</code>), <code>_estimators.py</code> (MAGSAC++ estimator swap via <code>ASP_USAC_MAGSAC</code>),
+  and <code>_multiband.py</code> (M5 frequency-split Laplacian pyramid blending, <code>ASP_MULTIBAND_BLEND</code>).
+  Reconciled <code>_pairwise.py</code>, <code>efficient_loftr_wrapper.py</code>, and <code>jamma_wrapper.py</code>.
+  14 new unit tests across <code>test_overlap_proposal.py</code>, <code>test_estimators.py</code>, and
+  <code>test_multiband.py</code> passed (28 passed in total suite sweep).</p>
+</li>
+<li>
+<p><strong>P3 regularized TPS residual background-only local warp (2026-08-26, Antigravity):</strong>
+  Added default-off <code>ASP_RESIDUAL_WARP=1</code> (<code>_residual_warp.py</code>) for regularized Thin
+  Plate Spline background refinement with bending energy and max displacement
+  safety gates. 5 unit tests passed.</p>
+</li>
+<li>
+<p><strong>P4 segmentation uncertainty and Trapped-Ball disagreement refinement (2026-08-26, Antigravity):</strong>
+  Added default-off <code>ASP_MASK_UNCERTAINTY=1</code> (<code>mask_uncertainty.py</code>) computing temporal
+  mask disagreement across provisional alignments, resolving disputed regions via
+  classical Trapped-Ball segmentation, and emitting ternary masks to exclude uncertain
+  pixels from P1/P2 background plate samples. 9 unit tests passed.</p>
+</li>
+<li>
+<p><strong>Default-off shot-boundary pre-filter (2026-08-24, Codex):</strong>
+  <code>ASP_SHOT_BOUNDARY_THRESH</code> detects deterministic grayscale-histogram scene
+  cuts before smart selection and retains the longest contiguous shot, so
+  matching is never asked to bridge a cut. Default <code>0.0</code> preserves existing
+  behavior. Focused plus frame-selection tests: 88 passed; no benchmark run.</p>
+</li>
+<li>
+<p><strong>Deterministic rerun gate passed (2026-08-24, Codex):</strong> authorized,
+  fresh-process repeats of <code>asp_test28</code>, <code>asp_test82</code>, and Raw-ASP control
+  <code>asp_test67</code> matched selection, dedup/edge counts, routing, and final PNG
+  SHA-256 under <code>ASP_DETERMINISTIC=1</code>, seed 1729, and one native/OpenCV/Torch
+  thread. P1/P2 may resume only under this recorded environment; this does not
+  establish equivalence with the older frozen corpus.</p>
+</li>
+<li>
+<p><strong>Deterministic-run auditability (2026-08-24, Codex):</strong> <code>PipelineSession</code>
+  now records thread-pool settings, native thread env, device, cuDNN and
+  Torch deterministic flags, and Python/NumPy/OpenCV/Torch/CUDA seed policy
+  in both observability and experiment manifests. <code>ASP_DETERMINISTIC=1</code>
+  explicitly pins those process-local settings using <code>ASP_REPRO_SEED</code> (1729
+  by default); it remains off by default. The benchmark now sets all native
+  thread caps before importing NumPy/OpenCV/Torch, so its documented cap
+  applies to phase-correlation reductions as well.</p>
+</li>
 <li>
 <p><strong>Per-output defect severity (2026-08-23, Codex):</strong> the evaluation inspector
   now grades every defect for the selected output as absent/trace/noticeable/
@@ -1710,6 +1775,12 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   <code>PipelineSession</code>: frame-level eligible background pixels/luminance, BGR
   gains, clamps, residuals, and reference luminance. It does not recompute a
   benchmark-only correction; legacy A/B output is explicitly labeled.</p>
+</li>
+<li>
+<p><strong>Benchmark thread cap (2026-08-23, Codex):</strong> <code>ASP_BENCH_THREAD_CAP</code> now
+  also sets PyTorch's runtime intra-op/inter-op pools. The environment-only
+  cap was too late because the benchmark imports Torch first; guarded slice
+  runs can now actually enforce one Torch thread.</p>
 </li>
 </ul>
 <blockquote>
