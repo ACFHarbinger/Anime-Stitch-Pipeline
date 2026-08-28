@@ -708,6 +708,29 @@ Deliverables:
   compositing strictly excludes uncertain pixels from background plate sampling.
   Unit tests in `test_mask_uncertainty.py` and `test_plate_compositor.py` (9 passed).
 
+  **Known gap — P1 is unsafe for multi-phase sequences (2026-08-28, Codex/Antigravity/Claude):**
+  A single canvas-aligned background plate cannot represent a sequence that
+  contains more than one animation phase (a pose change / cut mid-pan). P1 now
+  detects this from the pre- and post-dedup phase signal and skips
+  (`seam_meta["plate_single_pose_skipped"] = "multiple_phases"`), falling
+  through to the legacy seam compositor — earlier it early-returned the raw
+  temporal-median canvas, which would have regressed multi-phase cases
+  (`c3931b93`); a P4 ternary-mask → legacy boolean-mask handoff crash surfaced
+  by that fall-through is fixed in `646932a3`.
+  Scope: **59 / 97 frozen-corpus cases (60.8%) are multi-phase**, so with
+  `ASP_PLATE_SINGLE_POSE=1` the plate path is inert for the majority of the
+  corpus. An authorized 5-case sweep of multi-phase cases that were RAW_ASP in
+  the frozen corpus (`05, 36, 51, 67, 73`) confirmed the skip is bounded (no
+  OOM) but **quality routing is not neutral**: `05`/`67` stayed `raw_asp`,
+  `36` fell back at `seam_vis_gate`, `51` at `composite_gate_sb`, `73` at
+  affine validation. P1 is **not** ready for promotion beyond single-phase
+  sequences.
+  Case 17 routing to SCANS via this gate is its **pre-existing** Safe-ASP
+  fallback restored, **not** a solved problem — recorded here as future work,
+  not "resolved". A real multi-phase renderer needs piecewise multi-plate
+  synthesis or per-phase hero-cel extraction (see M4's §9.2 Stage 0
+  phase-group work).
+
 
 
 
