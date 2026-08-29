@@ -83,6 +83,31 @@ open problem this whole roadmap exists to close) is unchanged, as
 expected — nothing this session touched the compositing/matching
 algorithms themselves.
 
+**Full-corpus checkpoint (2026-08-29, `anime_stitch_20260829_100756.json`)
+— ⚠️ NOT comparable to the entries above; measures a different code path.**
+First full-97 run since 2026-08-07. Default config, no plate flags. Result:
+**8 RAW_ASP / 89 fallback** (26 safe_asp + 63 SCANS), of which **65 fall
+back at the alignment stage** (40 `disconnected_edge_graph` + 12
+`no_valid_edges` + 10 `affine_invalid` + 3 misc) vs. ~1 historically; GT-SSIM
+ASP 0.664 < simple 0.694. This looks like a catastrophic registration
+regression but **bisects to `b20d02c` (M1b canonical bench adapter,
+2026-08-15)**: M1b switched the default benchmark from a hand-tuned inline
+stitch sequence in `bench_anime_stitch.py` (still there behind
+`ASP_BENCH_LEGACY=1`) to `AnimeStitchPipeline.run()`. `ASP_BENCH_LEGACY=1`
+at HEAD composites the bisection probe cases fine — the alignment primitives
+are healthy; the product runner just lacked the inline path's sparse-graph
+recovery. **So the "43 → 8" drop is the measurement switch, not pipeline
+rot; the 2026-07-28 / 08-07 checkpoints measured the legacy inline path and
+the ~08-15-onward ones measure the product runner. The Ground-Rule #1
+reference needs re-basing against whichever path is canonical going
+forward.** The GUI stitch tab uses the same product runner, so its weakness
+here is user-facing. Fix `3983f76` (edge-graph gate falls through to
+`_recover_affine_health` instead of hard-bailing; `ASP_STRICT_EDGE_GRAPH_GATE=1`
+to revert) is in HEAD; its full-97 validation run was interrupted by an
+OOM-kill at 29/97 (partial: 7 raw_asp / 12 safe_asp / 10 scans, scans rate
+roughly halved vs. pre-fix), resumable from checkpoint. Full analysis:
+`.agent/reports/chat/asp_full97_baseline_2026-08-29.md`.
+
 **Full-session code review (2026-08-07, `/code-review high 0f3196a~1..HEAD`,
 278 files).** Despite the session's volume of change (packaging fixes,
 evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both

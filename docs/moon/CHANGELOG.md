@@ -5,6 +5,45 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Disconnected edge graph → recovery instead of hard-bail (2026-08-29,
+  Claude, `3983f76`):** the §1.15 `_check_edge_graph_connectivity` gate in
+  `run_stage.py` returned SCANS the instant the edge graph wasn't fully
+  connected — before bundle adjustment, before Stage 7b's
+  `_recover_affine_health` (adjacent-only bundle + sequential gap-fill that
+  reconstructs isolated frames from the pan step), before PANORAMA fallback.
+  The legacy inline benchmark harness never had this gate; when M1b
+  (`b20d02c`, 2026-08-15) routed the default benchmark through
+  `AnimeStitchPipeline.run()`, the full-97 RAW_ASP count dropped from 43
+  (2026-08-07) to 8. The GUI stitch tab uses the same runner. The gate now
+  records the disconnection + component count and falls through to the
+  existing BA → validate → recover → PANORAMA → SCANS machinery;
+  `ASP_STRICT_EDGE_GRAPH_GATE=1` restores the hard bail. Probe (`asp_test10/
+  27/51`, previously all `disconnected_edge_graph`): all three now reach the
+  compositor, `test27` → clean RAW_ASP. 21 pipeline/edge/recovery unit tests
+  green. A full-97 validation run was started (partial: 7 raw_asp / 12
+  safe_asp / 10 scans at 29/97, vs. ~3/5/21 pre-fix) — interrupted by an
+  OOM-kill on a PANORAMA-fallback spike; resumable from checkpoint, best run
+  with `ASP_DISABLE_PANORAMA_FALLBACK=1` under desktop load. See
+  `.agent/reports/chat/asp_full97_baseline_2026-08-29.md`.
+- **Gated multi-phase (piecewise per-phase P1) plate renderer (2026-08-29,
+  Claude/Codex/Agy, `84af1be` + `7e352ba` + `cefd4df`):** new default-off
+  `ASP_PLATE_MULTIPHASE` (presupposes `ASP_PLATE_SINGLE_POSE`). For a
+  multi-phase pan whose phase spans map to one contiguous canvas-`ty` band
+  each (~70 % of the frozen-`RAW_ASP` multi-phase set, per the §4
+  measurement `7d08ff68`), runs `composite_plate_single_pose` per span and
+  joins the per-phase plates with a plate-to-plate feather + Laplacian blend
+  (`_blend_phase_plates`); a hard runtime contiguity gate
+  (`_multiphase_plate_plan`, one `ty`-run per phase, forward or reverse)
+  routes everything else to the unchanged legacy skip. `n_phases==1` is
+  byte-identical to single-phase P1. Sweep on the 20-case discriminating set
+  (2 arms): mechanically sound, memory-safe (~5 GB peak, not the estimated
+  11), 2 stable RAW_ASP wins (`test05`, `test41`); the rest engage but fail
+  `seam_vis_gate` / `composite_gate_sb` on the band join — next work item is
+  the seam (`.agent/reports/chat/asp_multiphase_seam_fix_direction_2026-08-29.md`).
+  Option B (`ASP_PHASE_COMPOSITE` on/off) flipped zero verdicts → dropped.
+  Full design + sign-off: `.agent/reports/chat/asp_multiphase_renderer_design_2026-08-28.md`
+  (issue #463).
+
 - **Orphaned lineage recovery — Stitch-tab ASP/SCANS comparison (2026-08-26,
   deepseek):** restored the on-demand SCANS comparison preview unique to the
   orphaned lineage — `_ScansComparisonSignals`/`_ScansComparisonTask` in
