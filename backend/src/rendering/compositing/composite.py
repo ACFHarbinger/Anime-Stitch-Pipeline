@@ -29,10 +29,21 @@ def _multiphase_plate_plan(
     n_frames: int,
 ) -> tuple[list[tuple[int, int, int]], list[int], str] | None:
     """Return selection spans and physical phase order, or reject unsafe input."""
+    _dbg = os.environ.get("ASP_PLATE_MULTIPHASE_DEBUG", "0") == "1"
     if phase_ids is None or len(phase_ids) != n_frames:
+        if _dbg:
+            print(
+                f"[Stitch]   plate_multiphase plan: reject (phase_ids len "
+                f"{None if phase_ids is None else len(phase_ids)} vs n_frames {n_frames})"
+            )
         return None
     spans = phase_spans(phase_ids)
     if not spans or any(end - start + 1 < 2 for _phase, start, end in spans):
+        if _dbg:
+            print(
+                f"[Stitch]   plate_multiphase plan: reject (thin/empty span; "
+                f"phase_ids={list(phase_ids)} spans={spans})"
+            )
         return None
     sorted_indices = sorted(range(n_frames), key=lambda index: float(affines[index][1, 2]))
     physical_order: list[int] = []
@@ -43,6 +54,11 @@ def _multiphase_plate_plan(
     # A phase may own exactly one canvas band. Repeated runs mean its plate
     # cannot be represented by the vertical-band join model.
     if len(set(physical_order)) != len(physical_order) or len(physical_order) != len(spans):
+        if _dbg:
+            print(
+                f"[Stitch]   plate_multiphase plan: reject (interleaved ty order; "
+                f"phase_ids={list(phase_ids)} physical_order={physical_order} spans={spans})"
+            )
         return None
     deltas = np.diff(np.asarray(physical_order, dtype=np.int64))
     if np.all(deltas >= 0):
@@ -50,7 +66,17 @@ def _multiphase_plate_plan(
     elif np.all(deltas <= 0):
         direction = "reverse"
     else:
+        if _dbg:
+            print(
+                f"[Stitch]   plate_multiphase plan: reject (non-monotone physical_order "
+                f"{physical_order})"
+            )
         return None
+    if _dbg:
+        print(
+            f"[Stitch]   plate_multiphase plan: ACCEPT ({len(spans)} phases, "
+            f"{direction}, physical_order={physical_order})"
+        )
     return spans, physical_order, direction
 
 
