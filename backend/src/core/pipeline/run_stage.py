@@ -539,24 +539,44 @@ class _RunStageMixin(_Base):
             return _scan_stitch_fallback(_sf, output_path)
 
         # ── §1.15: Edge graph connectivity gate ───────────────────────────────
-        # A disconnected edge graph means BA will assign wrong translations to
-        # isolated frames.  Detect and fall back to SCANS before the bad solve.
+        # A disconnected edge graph would make bundle adjustment assign wrong
+        # translations to isolated frames. This used to hard-bail to SCANS
+        # right here -- but Stage 7b's ``_recover_affine_health`` (adjacent-
+        # only bundle, then sequential gap-fill that reconstructs isolated
+        # frames from the pan step) exists precisely for that case, and
+        # ``_validate_affines`` is the backstop if recovery can't produce a
+        # trustworthy solve. Rejecting a whole pan because one pair went
+        # unmatched is what dropped the full-corpus RAW_ASP rate from ~51/97
+        # to ~8/97 once M1b routed the benchmark through this path (the
+        # legacy inline harness never had this gate). So: record the
+        # disconnection and fall through to recovery, unless
+        # ``ASP_STRICT_EDGE_GRAPH_GATE=1`` restores the hard bail.
         print("[Stitch]   Checking edge-graph connectivity...", flush=True)
-        if not _check_edge_graph_connectivity(edges, N):
+        _edge_graph_connected = _check_edge_graph_connectivity(edges, N)
+        session.record_artifact("edge_graph_connected", bool(_edge_graph_connected))
+        if not _edge_graph_connected:
+            _n_components = len(edge_graph_components(edges, N))
             logger.info(
-                "[Stitch] §1.15: Edge graph is disconnected (%d edges, %d frames) "
-                "→ SCANS fallback.",
+                "[Stitch] §1.15: Edge graph is disconnected (%d edges, %d frames, "
+                "%d components).",
                 len(edges),
                 N,
+                _n_components,
             )
-            session.record_fallback(ResultIdentity.SCANS, "disconnected_edge_graph")
-            session.record_artifact("scans_path", output_path)
-            session.finish(success=True, identity=ResultIdentity.SCANS)
-            _sf = scans_frames or _reload_scans_frames(image_paths)
-            return _scan_stitch_fallback(_sf, output_path)
+            if os.environ.get("ASP_STRICT_EDGE_GRAPH_GATE", "0") == "1":
+                session.record_fallback(ResultIdentity.SCANS, "disconnected_edge_graph")
+                session.record_artifact("scans_path", output_path)
+                session.finish(success=True, identity=ResultIdentity.SCANS)
+                _sf = scans_frames or _reload_scans_frames(image_paths)
+                return _scan_stitch_fallback(_sf, output_path)
+            logger.info(
+                "[Stitch] §1.15: proceeding to bundle adjust + affine recovery "
+                "(gap-fill reconstructs isolated frames; set "
+                "ASP_STRICT_EDGE_GRAPH_GATE=1 to hard-bail instead)."
+            )
 
         # ── Stage 7: Global bundle adjustment ────────────────────────────────
-        print("[Stitch]   Edge graph connected; starting bundle adjustment...", flush=True)
+        print("[Stitch]   Starting bundle adjustment...", flush=True)
         _motion_model = getattr(self, "motion_model", "affine")
         use_affine_ba = _motion_model == "affine"
         affines = _bundle_adjust_affine(
