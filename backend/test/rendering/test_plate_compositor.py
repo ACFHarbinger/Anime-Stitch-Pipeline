@@ -11,6 +11,7 @@ from asp_backend.rendering.compositing._plate_compositor import (
     plate_single_pose_enabled,
     plate_single_pose_safe_for_phases,
 )
+from asp_backend.rendering.compositing.composite import _composite_foreground
 
 
 def test_plate_compositor_enabled_flag(monkeypatch):
@@ -194,3 +195,110 @@ def test_joint_gain_uses_boolean_selector_for_p4_masks():
 
     assert len(out) == 2
     assert out[0].shape == frames[0].shape
+
+
+def _multiphase_inputs(n_frames=4):
+    """Small vertical-pan inputs with two frames per contiguous phase."""
+    H, W = 96, 40
+    canvas = np.full((H, W, 3), 35, dtype=np.uint8)
+    frames = []
+    masks = []
+    affines = []
+    for index, ty in enumerate(range(0, n_frames * 8, 8)):
+        frame = np.full((64, W, 3), 80 + index * 10, dtype=np.uint8)
+        mask = np.ones((64, W), dtype=bool)
+        if index in (1, 2):
+            frame[24:40, 12:28] = 220
+            mask[24:40, 12:28] = False
+        frames.append(frame)
+        masks.append(mask)
+        affines.append(np.array([[1, 0, 0], [0, 1, ty]], dtype=np.float32))
+    return canvas, frames, masks, affines, H, W
+
+
+def _run_multiphase(canvas, frames, masks, affines, H, W, phase_ids, meta):
+    return _composite_foreground(
+        frames, masks, canvas, H, W, frames, affines, masks,
+        phase_ids=phase_ids, seam_meta_out=meta,
+    )
+
+
+def test_plate_multiphase_forward_uses_global_ownership(monkeypatch):
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.setenv("ASP_PLATE_MULTIPHASE", "1")
+    canvas, frames, masks, affines, H, W = _multiphase_inputs()
+    meta = {}
+
+    result = _run_multiphase(canvas, frames, masks, affines, H, W, [0, 0, 1, 1], meta)
+
+    assert result.shape == canvas.shape
+    assert meta["plate_multiphase"] is True
+    assert meta["plate_multiphase_direction"] == "forward"
+    ownership = meta["plate_ownership"]
+    assert [span["phase"] for span in ownership["spans"]] == [0, 1]
+    chosen = [zone["chosen_frame"] for span in ownership["spans"] for zone in span["zones"]]
+    assert chosen and all(0 <= index < len(frames) for index in chosen)
+    assert any(index >= 2 for index in chosen)
+
+
+def test_plate_multiphase_reverse_pan_joins_canvas_order(monkeypatch):
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.setenv("ASP_PLATE_MULTIPHASE", "1")
+    canvas, frames, masks, affines, H, W = _multiphase_inputs()
+    # Phase ids stay selection ordered; reversing ty is a reverse pan in canvas order.
+    for index, affine in enumerate(affines):
+        affine[1, 2] = (len(affines) - 1 - index) * 8
+    meta = {}
+
+    result = _run_multiphase(canvas, frames, masks, affines, H, W, [0, 0, 1, 1], meta)
+
+    assert result.shape == canvas.shape
+    assert meta["plate_multiphase_direction"] == "reverse"
+    assert meta["plate_ownership"]["phase_order"] == [1, 0]
+
+
+def test_plate_multiphase_interleaved_phases_fall_through(monkeypatch):
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.setenv("ASP_PLATE_MULTIPHASE", "1")
+    canvas, frames, masks, affines, H, W = _multiphase_inputs()
+    meta = {}
+
+    _run_multiphase(canvas, frames, masks, affines, H, W, [0, 1, 0, 1], meta)
+
+    assert meta["plate_single_pose_skipped"] == "multiple_phases"
+    assert "plate_multiphase" not in meta
+
+
+def test_plate_multiphase_thin_span_falls_through_without_index_error(monkeypatch):
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.setenv("ASP_PLATE_MULTIPHASE", "1")
+    canvas, frames, masks, affines, H, W = _multiphase_inputs()
+    meta = {}
+
+    _run_multiphase(canvas, frames, masks, affines, H, W, [0, 0, 1, 2], meta)
+
+    assert meta["plate_single_pose_skipped"] == "multiple_phases"
+    assert "plate_multiphase" not in meta
+
+
+def test_plate_multiphase_one_phase_is_single_pose_byte_identical(monkeypatch):
+    canvas, frames, masks, affines, H, W = _multiphase_inputs()
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.delenv("ASP_PLATE_MULTIPHASE", raising=False)
+    single = _run_multiphase(canvas, frames, masks, affines, H, W, [0, 0, 0, 0], {})
+    monkeypatch.setenv("ASP_PLATE_MULTIPHASE", "1")
+    multi = _run_multiphase(canvas, frames, masks, affines, H, W, [0, 0, 0, 0], {})
+
+    assert np.array_equal(single, multi)
+
+
+def test_plate_multiphase_flag_off_retains_skip(monkeypatch):
+    monkeypatch.setenv("ASP_PLATE_SINGLE_POSE", "1")
+    monkeypatch.delenv("ASP_PLATE_MULTIPHASE", raising=False)
+    canvas, frames, masks, affines, H, W = _multiphase_inputs()
+    meta = {}
+
+    _run_multiphase(canvas, frames, masks, affines, H, W, [0, 0, 1, 1], meta)
+
+    assert meta["plate_single_pose_skipped"] == "multiple_phases"
+    assert "plate_multiphase" not in meta

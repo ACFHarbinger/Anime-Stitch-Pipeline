@@ -38,6 +38,11 @@ def plate_single_pose_enabled() -> bool:
     return os.environ.get("ASP_PLATE_SINGLE_POSE", "0") == "1"
 
 
+def plate_multiphase_enabled() -> bool:
+    """True when the default-off piecewise multi-phase P1 candidate is enabled."""
+    return os.environ.get("ASP_PLATE_MULTIPHASE", "0") == "1"
+
+
 @dataclass(frozen=True)
 class PlateCompositeResult:
     """Output of plate + single-pose compositing."""
@@ -209,7 +214,8 @@ def composite_plate_single_pose(
     edge_preserve: bool = False,
     multiband: bool = False,
     multiband_levels: int = 4,
-) -> tuple[np.ndarray, np.ndarray, dict]:
+    return_plate_valid: bool = False,
+) -> tuple[np.ndarray, np.ndarray, dict] | tuple[np.ndarray, np.ndarray, dict, np.ndarray]:
     """Composite single foreground character poses onto a clean canvas-aligned background plate.
 
     Parameters
@@ -294,6 +300,8 @@ def composite_plate_single_pose(
         meta["multiband_applied"] = True
 
     if not union_fg.any():
+        if return_plate_valid:
+            return result, claimed_map, meta, plate_valid
         return result, claimed_map, meta
 
     # 5. Connected components on union foreground
@@ -365,13 +373,167 @@ def composite_plate_single_pose(
         })
 
     meta["n_claimed_pixels"] = int((claimed_map >= 0).sum())
+    if return_plate_valid:
+        return result, claimed_map, meta, plate_valid
     return result, claimed_map, meta
+
+
+def _laplacian_blend(left: np.ndarray, right: np.ndarray, alpha: np.ndarray) -> np.ndarray:
+    """Blend two equal canvas images with a soft mask in Laplacian space."""
+    levels = min(4, max(1, int(np.log2(min(left.shape[:2]))) - 2))
+    gp_left = [left.astype(np.float32)]
+    gp_right = [right.astype(np.float32)]
+    gp_alpha = [alpha.astype(np.float32)]
+    for _ in range(levels):
+        gp_left.append(cv2.pyrDown(gp_left[-1]))
+        gp_right.append(cv2.pyrDown(gp_right[-1]))
+        gp_alpha.append(cv2.pyrDown(gp_alpha[-1]))
+    lp_left = [gp_left[-1]]
+    lp_right = [gp_right[-1]]
+    for level in range(levels, 0, -1):
+        size = (gp_left[level - 1].shape[1], gp_left[level - 1].shape[0])
+        lp_left.append(gp_left[level - 1] - cv2.pyrUp(gp_left[level], dstsize=size))
+        lp_right.append(gp_right[level - 1] - cv2.pyrUp(gp_right[level], dstsize=size))
+    merged = lp_left[0] * gp_alpha[-1][:, :, None] + lp_right[0] * (1.0 - gp_alpha[-1][:, :, None])
+    for level in range(1, len(lp_left)):
+        size = (lp_left[level].shape[1], lp_left[level].shape[0])
+        merged = cv2.pyrUp(merged, dstsize=size)
+        alpha_level = gp_alpha[-1 - level][:, :, None]
+        merged += lp_left[level] * alpha_level + lp_right[level] * (1.0 - alpha_level)
+    return np.clip(merged, 0, 255).astype(np.uint8)
+
+
+def _blend_phase_plates(
+    left: np.ndarray,
+    left_claimed: np.ndarray,
+    left_valid: np.ndarray,
+    right: np.ndarray,
+    right_claimed: np.ndarray,
+    right_valid: np.ndarray,
+    seam_y: int,
+    *,
+    blend_width: int = 48,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Join adjacent physical phase bands without feathering hero cels."""
+    H, W = left.shape[:2]
+    y0 = max(0, seam_y - blend_width)
+    y1 = min(H, seam_y + blend_width + 1)
+    rows = np.arange(H, dtype=np.float32)
+    right_weight = np.clip((rows - y0) / max(1, y1 - y0 - 1), 0.0, 1.0)
+    alpha_left = 1.0 - np.broadcast_to(right_weight[:, None], (H, W))
+    bg_blend = _laplacian_blend(left, right, alpha_left)
+
+    result = left.copy()
+    claimed = left_claimed.copy()
+    right_only = right_valid & ~left_valid
+    right_side = np.broadcast_to((rows >= seam_y)[:, None], (H, W))
+    use_right = right_only | (left_valid & right_valid & right_side)
+    result[use_right] = right[use_right]
+    claimed[use_right] = right_claimed[use_right]
+
+    both_bg = left_valid & right_valid & (left_claimed < 0) & (right_claimed < 0)
+    band = np.zeros((H, W), dtype=bool)
+    band[y0:y1] = True
+    blend_bg = both_bg & band
+    result[blend_bg] = bg_blend[blend_bg]
+
+    # Re-apply the phase-local cels with a short soft edge after the background
+    # blend. This prevents the plate seam from attenuating either hero pose.
+    for source, source_claimed, select_right in (
+        (left, left_claimed, False),
+        (right, right_claimed, True),
+    ):
+        cel = source_claimed >= 0
+        if not cel.any():
+            continue
+        distance = cv2.distanceTransform(cel.astype(np.uint8), cv2.DIST_L2, 3)
+        cel_alpha = np.clip(distance / float(max(1, _SP_SOFT_PX)), 0.0, 1.0)
+        if select_right:
+            cel_alpha *= np.broadcast_to(right_weight[:, None], (H, W))
+        else:
+            cel_alpha *= alpha_left
+        a3 = cel_alpha[:, :, None]
+        active_cel = cel & (cel_alpha > 0.0)
+        result[active_cel] = np.clip(
+            source[active_cel] * a3[active_cel]
+            + result[active_cel] * (1.0 - a3[active_cel]),
+            0,
+            255,
+        ).astype(np.uint8)
+        claimed[active_cel] = source_claimed[active_cel]
+    return result, claimed
+
+
+def composite_plate_multiphase(
+    warped_frames: list[np.ndarray],
+    warped_bg: list[np.ndarray | None],
+    canvas: np.ndarray,
+    warped_valid: list[np.ndarray],
+    spans: list[tuple[int, int, int]],
+    physical_phase_order: list[int],
+    *,
+    edge_preserve: bool,
+    multiband: bool,
+) -> tuple[np.ndarray, np.ndarray, dict]:
+    """Build P1 plates for phase spans and join them in canvas-``ty`` order."""
+    phase_results: dict[int, tuple[np.ndarray, np.ndarray, dict, np.ndarray, int, int]] = {}
+    for phase, start, end in spans:
+        result, claimed, meta, plate_valid = composite_plate_single_pose(
+            warped_frames[start:end + 1],
+            warped_bg[start:end + 1],
+            canvas,
+            warped_valid=warped_valid[start:end + 1],
+            edge_preserve=edge_preserve,
+            multiband=multiband,
+            return_plate_valid=True,
+        )
+        global_claimed = claimed.copy()
+        claimed_pixels = global_claimed >= 0
+        global_claimed[claimed_pixels] += start
+        phase_results[phase] = (result, global_claimed, meta, plate_valid, start, end)
+
+    first = physical_phase_order[0]
+    result, claimed, _meta, valid, _start, _end = phase_results[first]
+    ownership_spans: list[dict] = []
+    for phase in physical_phase_order:
+        _result, phase_claimed, meta, _valid, start, end = phase_results[phase]
+        zones = []
+        for zone in meta["zones"]:
+            zone_out = dict(zone)
+            zone_out["chosen_frame"] += start
+            zone_out["candidates"] = [
+                (idx + start, area, score) for idx, area, score in zone["candidates"]
+            ]
+            zones.append(zone_out)
+        ownership_spans.append({"phase": phase, "start": start, "end": end, "zones": zones,
+                                "n_claimed_pixels": int((phase_claimed >= 0).sum())})
+
+    for phase in physical_phase_order[1:]:
+        right, right_claimed, _meta, right_valid, _start, _end = phase_results[phase]
+        left_rows = np.flatnonzero(valid.any(axis=1))
+        right_rows = np.flatnonzero(right_valid.any(axis=1))
+        if len(left_rows) == 0 or len(right_rows) == 0:
+            continue
+        seam_y = int(round((left_rows[-1] + right_rows[0]) / 2.0))
+        result, claimed = _blend_phase_plates(
+            result, claimed, valid, right, right_claimed, right_valid, seam_y
+        )
+        valid |= right_valid
+
+    metadata = {
+        "phase_order": physical_phase_order,
+        "spans": ownership_spans,
+        "n_claimed_pixels": int((claimed >= 0).sum()),
+    }
+    return result, claimed, metadata
 
 
 __all__ = [
     "plate_single_pose_enabled",
+    "plate_multiphase_enabled",
     "plate_multiband_enabled",
     "plate_single_pose_safe_for_phases",
     "composite_plate_single_pose",
+    "composite_plate_multiphase",
     "PlateCompositeResult",
 ]

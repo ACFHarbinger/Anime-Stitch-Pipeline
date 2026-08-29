@@ -126,6 +126,10 @@ _CONFIG_SCHEMA: dict[str, tuple] = {
     "ASP_PHASE_COMPOSITE": (int, 0, 1, "§2.3 phase-consistent compositing: never midpoint-warp across an animation-phase boundary, escalate to single-pose instead (default OFF pending A/B)"),
     "ASP_COHERENCE_V2": (int, 0, 1, "M3 default-off §9.2 Stage 2 compositor candidate: one pose per foreground overlap region; not wired into the live seam loop"),
     "ASP_PLATE_SINGLE_POSE": (int, 0, 1, "P1 default-off candidate: canvas-aligned background plate + single foreground pose per connected region"),
+    "ASP_PLATE_MULTIPHASE": (
+        int, 0, 1,
+        "P1 default-off candidate: piecewise per-phase plate synthesis for multi-phase sequences; presupposes ASP_PLATE_SINGLE_POSE",
+    ),
     "ASP_PLATE_MULTIBAND": (int, 0, 1, "P2 default-off candidate: multi-band pyramid blending on background plate transitions"),
     "ASP_PLATE_EDGE_PRESERVE": (int, 0, 1, "P2 edge-preserving sharp background source selection in multi-sample zones"),
     "ASP_RESIDUAL_WARP": (int, 0, 1, "P3 default-off candidate: regularized Thin Plate Spline residual background-only local warp"),
@@ -365,7 +369,9 @@ _DUMP_SECTIONS: dict[str, list[str]] = {
         "ASP_GAIN_DRIFT_MAX", "ASP_GPU_MEDIAN", "ASP_COV_MIN_MULTI_PCT",
     ],
     "compositing": [
-        "ASP_PHASE_COMPOSITE", "ASP_COHERENCE_V2", "ASP_GRAPHCUT_SEAM", "ASP_GC_FEATHER_PX", "ASP_BLOCKS_GAIN_COMP",
+        "ASP_PHASE_COMPOSITE", "ASP_COHERENCE_V2", "ASP_PLATE_SINGLE_POSE",
+        "ASP_PLATE_MULTIPHASE", "ASP_PLATE_MULTIBAND", "ASP_PLATE_EDGE_PRESERVE",
+        "ASP_GRAPHCUT_SEAM", "ASP_GC_FEATHER_PX", "ASP_BLOCKS_GAIN_COMP",
         "ASP_BLOCKS_LUM_COMP", "ASP_GLOBAL_GAIN_COMP", "ASP_JOINT_GAIN_SOLVE",
         "ASP_JOINT_GAIN_SIGMA_N", "ASP_JOINT_GAIN_SIGMA_G", "ASP_JOINT_GAIN_ROBUST", "ASP_SP_SOFT_PX",
         "ASP_BG_NORM_MIN_PX", "ASP_POST_SEAM_WARN_THRESH",

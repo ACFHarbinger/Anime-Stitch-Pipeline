@@ -6,6 +6,7 @@ import os
 
 import numpy as np
 
+from ...ingestion.frame_selection.phases import phase_spans
 from ._audit import _adapt_feathers_and_synthesize, _audit_and_annotate_composite
 from ._boundaries import _optimize_boundaries_and_feathers
 from ._fg_pose import _register_foreground_poses
@@ -20,6 +21,37 @@ from ._graphcut import _try_global_seam_composite
 from ._normalization import _normalize_warped_frames, _warp_inputs
 from ._seam_cache import _precompute_seam_paths
 from .coherence_v2 import coherence_v2_enabled
+
+
+def _multiphase_plate_plan(
+    phase_ids: list[int] | None,
+    affines: list[np.ndarray],
+    n_frames: int,
+) -> tuple[list[tuple[int, int, int]], list[int], str] | None:
+    """Return selection spans and physical phase order, or reject unsafe input."""
+    if phase_ids is None or len(phase_ids) != n_frames:
+        return None
+    spans = phase_spans(phase_ids)
+    if not spans or any(end - start + 1 < 2 for _phase, start, end in spans):
+        return None
+    sorted_indices = sorted(range(n_frames), key=lambda index: float(affines[index][1, 2]))
+    physical_order: list[int] = []
+    for index in sorted_indices:
+        phase = phase_ids[index]
+        if not physical_order or phase != physical_order[-1]:
+            physical_order.append(phase)
+    # A phase may own exactly one canvas band. Repeated runs mean its plate
+    # cannot be represented by the vertical-band join model.
+    if len(set(physical_order)) != len(physical_order) or len(physical_order) != len(spans):
+        return None
+    deltas = np.diff(np.asarray(physical_order, dtype=np.int64))
+    if np.all(deltas >= 0):
+        direction = "forward"
+    elif np.all(deltas <= 0):
+        direction = "reverse"
+    else:
+        return None
+    return spans, physical_order, direction
 
 
 def _composite_foreground(
@@ -77,13 +109,18 @@ def _composite_foreground(
         W,
         N,
         include_valid=True,
-        preserve_ternary=os.environ.get("ASP_PLATE_SINGLE_POSE", "0") == "1",
+        preserve_ternary=(
+            os.environ.get("ASP_PLATE_SINGLE_POSE", "0") == "1"
+            or os.environ.get("ASP_PLATE_MULTIPHASE", "0") == "1"
+        ),
     )
 
     # P1/P2 candidate: default-off canvas-aligned background plate + single foreground pose
     from ._plate_compositor import (
+        composite_plate_multiphase,
         composite_plate_single_pose,
         plate_multiband_enabled,
+        plate_multiphase_enabled,
         plate_single_pose_enabled,
         plate_single_pose_safe_for_phases,
     )
@@ -110,6 +147,38 @@ def _composite_foreground(
             f"(ASP_PLATE_SINGLE_POSE=1, multiband={multiband})."
         )
         return result
+    if plate_single_pose_enabled() and plate_multiphase_enabled() and N >= 2:
+        plan = _multiphase_plate_plan(phase_ids, affines, N)
+        if plan is not None:
+            spans, physical_order, direction = plan
+            n_phases = len(spans)
+            estimate = 2.0 + 3.0 * n_phases
+            print(
+                f"[Stitch]   plate_multiphase: {n_phases} phases -> "
+                f"~{estimate:.1f} GiB peak RSS estimated"
+            )
+            edge_preserve = os.environ.get("ASP_PLATE_EDGE_PRESERVE", "1") != "0"
+            multiband = plate_multiband_enabled()
+            result, claimed, plate_meta = composite_plate_multiphase(
+                warped_list,
+                warped_bg,
+                canvas,
+                warped_valid,
+                spans,
+                physical_order,
+                edge_preserve=edge_preserve,
+                multiband=multiband,
+            )
+            if seam_meta_out is not None:
+                seam_meta_out["plate_multiphase"] = True
+                seam_meta_out["plate_multiphase_direction"] = direction
+                seam_meta_out["n_claimed"] = int((claimed >= 0).sum())
+                seam_meta_out["plate_ownership"] = plate_meta
+            print(
+                "[Stitch]   plate_multiphase composite "
+                f"({n_phases} phases, direction={direction}, multiband={multiband})."
+            )
+            return result
     if plate_single_pose_enabled() and N >= 2:
         print("[Stitch]   plate_single_pose skipped for multi-phase sequence.")
         if seam_meta_out is not None:
