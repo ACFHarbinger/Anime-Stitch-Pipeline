@@ -195,7 +195,12 @@ def _build_aligned_background_plate(
     void_mask = ~valid_plate_mask
     if min_background_samples <= 1 and void_mask.any():
         for i in range(N):
-            presence = void_mask & (warped_norm[i].max(axis=2) > 0)
+            valid = (
+                warped_valid[i].astype(bool)
+                if warped_valid is not None and i < len(warped_valid)
+                else np.ones((H, W), dtype=bool)
+            )
+            presence = void_mask & valid & (warped_norm[i].max(axis=2) > 0)
             if presence.any():
                 plate[presence] = warped_norm[i][presence]
                 void_mask[presence] = False
@@ -416,6 +421,14 @@ def _blend_phase_plates(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Join adjacent physical phase bands without feathering hero cels."""
     H, W = left.shape[:2]
+    overlap_rows = np.flatnonzero((left_valid & right_valid).any(axis=1))
+    if len(overlap_rows):
+        available_overlap = min(
+            seam_y - int(overlap_rows[0]), int(overlap_rows[-1]) - seam_y
+        )
+        blend_width = min(blend_width, max(0, available_overlap))
+    else:
+        blend_width = 0
     y0 = max(0, seam_y - blend_width)
     y1 = min(H, seam_y + blend_width + 1)
     rows = np.arange(H, dtype=np.float32)
@@ -432,35 +445,24 @@ def _blend_phase_plates(
     claimed[use_right] = right_claimed[use_right]
 
     both_bg = left_valid & right_valid & (left_claimed < 0) & (right_claimed < 0)
-    band = np.zeros((H, W), dtype=bool)
-    band[y0:y1] = True
-    blend_bg = both_bg & band
-    result[blend_bg] = bg_blend[blend_bg]
+    if blend_width > 0:
+        band = np.zeros((H, W), dtype=bool)
+        band[y0:y1] = True
+        blend_bg = both_bg & band
+        result[blend_bg] = bg_blend[blend_bg]
 
-    # Re-apply the phase-local cels with a short soft edge after the background
-    # blend. This prevents the plate seam from attenuating either hero pose.
-    for source, source_claimed, select_right in (
-        (left, left_claimed, False),
-        (right, right_claimed, True),
+    # Apply upper-band then lower-band cels: in an overlap, the lower physical
+    # band wins. Each source already carries composite_plate_single_pose's
+    # silhouette feather, so never apply the background transition ramp here.
+    for source, source_claimed in (
+        (left, left_claimed),
+        (right, right_claimed),
     ):
         cel = source_claimed >= 0
         if not cel.any():
             continue
-        distance = cv2.distanceTransform(cel.astype(np.uint8), cv2.DIST_L2, 3)
-        cel_alpha = np.clip(distance / float(max(1, _SP_SOFT_PX)), 0.0, 1.0)
-        if select_right:
-            cel_alpha *= np.broadcast_to(right_weight[:, None], (H, W))
-        else:
-            cel_alpha *= alpha_left
-        a3 = cel_alpha[:, :, None]
-        active_cel = cel & (cel_alpha > 0.0)
-        result[active_cel] = np.clip(
-            source[active_cel] * a3[active_cel]
-            + result[active_cel] * (1.0 - a3[active_cel]),
-            0,
-            255,
-        ).astype(np.uint8)
-        claimed[active_cel] = source_claimed[active_cel]
+        result[cel] = source[cel]
+        claimed[cel] = source_claimed[cel]
     return result, claimed
 
 

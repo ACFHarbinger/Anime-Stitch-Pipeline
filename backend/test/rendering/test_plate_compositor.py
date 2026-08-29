@@ -106,6 +106,21 @@ def test_composite_preserves_canvas_where_warp_padding_has_no_content():
     assert np.all(result[20:60, 20:60] == 120)
 
 
+def test_build_aligned_background_plate_single_source_respects_warped_valid():
+    """Single-source void fill must not treat out-of-frame pixels as plate data."""
+    H, W = 40, 24
+    frame = np.full((H, W, 3), 100, dtype=np.uint8)
+    valid = np.ones((H, W), dtype=bool)
+    valid[:9] = False
+
+    _plate, plate_valid = _build_aligned_background_plate(
+        [frame], [None], H, W, warped_valid=[valid]
+    )
+
+    assert not plate_valid[:9].any()
+    assert plate_valid[9:].all()
+
+
 def test_composite_uses_canvas_for_single_sample_background():
     """P1 must not turn a one-frame plate contribution into a visible strip."""
     H, W = 40, 40
@@ -261,11 +276,30 @@ def test_blend_phase_plates_preserves_claimed_cel_across_seam():
         left, left_claimed, valid, right, right_claimed, valid, seam_y=36, blend_width=8
     )
 
-    # The cel crosses the feather band, but its fully opaque core on the left
-    # side must remain the original cel rather than the background blend.
-    protected_core = cel & (np.arange(H)[:, None] < 28)
-    assert np.array_equal(result[protected_core], left[protected_core])
-    assert np.array_equal(claimed[protected_core], left_claimed[protected_core])
+    # The full cel, including its pre-composited silhouette feather, crosses
+    # the seam verbatim rather than being multiplied by the background ramp.
+    assert np.array_equal(result[cel], left[cel])
+    assert np.array_equal(claimed[cel], left_claimed[cel])
+
+
+def test_blend_phase_plates_narrow_overlap_has_no_luminance_step():
+    """The background feather must fit wholly inside a narrow valid overlap."""
+    H, W = 80, 12
+    left = np.full((H, W, 3), 30, dtype=np.uint8)
+    right = np.full_like(left, 130)
+    left_valid = np.zeros((H, W), dtype=bool)
+    right_valid = np.zeros((H, W), dtype=bool)
+    left_valid[:51] = True
+    right_valid[31:] = True
+    unclaimed = np.full((H, W), -1, dtype=np.int32)
+
+    result, _claimed = _blend_phase_plates(
+        left, unclaimed, left_valid, right, unclaimed, right_valid, seam_y=40
+    )
+
+    values = result[30:52, W // 2, 0].astype(np.int16)
+    assert np.max(np.abs(np.diff(values))) <= 8
+    assert result[31, W // 2, 0] < result[50, W // 2, 0]
 
 
 def test_composite_plate_multiphase_reverse_order_uses_canvas_order():
