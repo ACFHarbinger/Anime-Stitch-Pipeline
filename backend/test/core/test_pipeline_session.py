@@ -6,6 +6,8 @@ from types import SimpleNamespace
 
 import numpy as np
 import pytest
+from asp_backend import AnimeStitchPipeline
+from asp_backend.core.pipeline.run_stage import _RunStageMixin
 from asp_backend.core.pipeline.session import (
     HitlCheckpoint,
     PipelineSession,
@@ -14,7 +16,6 @@ from asp_backend.core.pipeline.session import (
     json_safe,
     snapshot_pipeline_config,
 )
-from asp_backend import AnimeStitchPipeline
 from asp_gui.helpers._progress_pipeline import _ProgressPipeline
 from backend.src.errors import PipelineError
 from PIL import Image
@@ -141,6 +142,10 @@ class TestPipelineSession:
         session.note_seam_feasibility(
             {"attempted": True, "feasible": True, "seam_crops": "drop-me"}
         )
+        session.record_artifact(
+            "edge_stage_counts",
+            {"matched_before_spatial_dedup": 12, "filter_output": 3},
+        )
         session.record_fallback(ResultIdentity.SCANS, "coverage_gate")
         session.finish(success=True, identity=ResultIdentity.SCANS)
 
@@ -153,9 +158,36 @@ class TestPipelineSession:
         assert obs["gain"]["n_clamped"] == 1
         assert obs["seam"]["feasible"] is True
         assert "seam_crops" not in obs["seam"]
+        assert obs["edge_stage_counts"]["matched_before_spatial_dedup"] == 12
+        assert obs["edge_stage_counts"]["filter_output"] == 3
         assert "reproducibility" in obs
         assert "torch_device" in obs["reproducibility"]
         assert session.as_dict()["fallback_reason"] == "coverage_gate"
+
+    def test_edgeless_reproposal_matches_only_retained_neighbours(self, monkeypatch):
+        import asp_backend.alignment.matching as matching
+
+        calls = []
+
+        def fake_match(_frames, _masks, i, j, *_args, **_kwargs):
+            calls.append((i, j))
+            return {"i": i, "j": j, "M": np.eye(2, 3)}
+
+        monkeypatch.setattr(matching, "_match_pair", fake_match)
+        host = SimpleNamespace(
+            motion_model="translation",
+            _aliked=None,
+            use_aliked=False,
+            _roma=None,
+            use_roma=False,
+            bg_masked_matching=False,
+        )
+        frames = [np.zeros((8, 8, 3), dtype=np.uint8) for _ in range(3)]
+
+        edges = _RunStageMixin._rematch_retained_adjacent_edges(host, frames, [None] * 3, None)
+
+        assert calls == [(0, 1), (1, 2)]
+        assert [(edge["i"], edge["j"]) for edge in edges] == calls
 
     def test_pause_is_noop_without_hook(self):
         session = PipelineSession.create(["a.png"], "out.png", config={})

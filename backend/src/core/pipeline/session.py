@@ -379,6 +379,7 @@ class PipelineSession:
             "pose_provenance": list(self.pose_provenance),
             "gain": dict(self.gain_telemetry),
             "seam": dict(self.seam_feasibility),
+            "edge_stage_counts": dict(self.artifacts.get("edge_stage_counts") or {}),
             "reproducibility": dict(self.reproducibility),
             "fallback_reason": self.fallback_reason,
         }

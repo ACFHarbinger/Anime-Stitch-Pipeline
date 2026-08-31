@@ -122,6 +122,14 @@ legacy 43-composite checkpoint comparable. The host's 30-minute process cap
 split collection into 1–29 and 30–97 segments; the merged JSON and report are
 manifested at `~/Downloads/Data/Tests/asp-470-full97-20260831/output/`.
 
+**Edgeless post-dedup recovery (2026-08-31, #472).** Stage telemetry showed
+all 15 `no_valid_edges` inputs match before spatial dedup, which leaves 2–5
+retained frames and no valid original proposal. The bounded repair re-matches
+only adjacent retained pairs when normal filtering is empty, then uses the
+same filters; it does not relax the 50px static-edge protection. Unit coverage
+passes; the standard five-case slice completed in guarded segments without a
+normal-path regression. A full-corpus measurement needs separate authorization.
+
 **Full-session code review (2026-08-07, `/code-review high 0f3196a~1..HEAD`,
 278 files).** Despite the session's volume of change (packaging fixes,
 evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both

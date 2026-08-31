@@ -365,6 +365,10 @@ class _RunStageMixin(_Base):
         edges = self._pairwise_match_with(
             frames, bg_masks, _active_loftr, proposal_telemetry=_pair_proposal_telemetry
         )
+        edge_stage_counts = {
+            "frames_before_spatial_dedup": N,
+            "matched_before_spatial_dedup": len(edges),
+        }
         print(
             f"[Stitch]   Pairwise matching complete ({len(edges)} edges); "
             "starting spatial dedup...",
@@ -405,6 +409,13 @@ class _RunStageMixin(_Base):
                     _sf = scans_frames or _reload_scans_frames(image_paths)
                     return _scan_stitch_fallback(_sf, output_path)
         session.mark(PipelineStage.SPATIAL_DEDUP, dropped=_total_spa_dropped)
+        edge_stage_counts.update(
+            {
+                "spatial_dedup_dropped": _total_spa_dropped,
+                "frames_after_spatial_dedup": N,
+                "edges_after_spatial_dedup": len(edges),
+            }
+        )
         session.record_artifact("frame_count", N)
         session.mark_dropped_paths(image_paths, "spatial_dedup")
         if _total_spa_dropped:
@@ -441,6 +452,32 @@ class _RunStageMixin(_Base):
         print("[Stitch]   Phase detection complete; filtering edges...", flush=True)
         raw_registration_edges = list(edges)
         edges = self._filter_edges(edges, image_paths, H, W, frames, bg_masks)
+        edge_stage_counts.update(
+            {
+                "filter_input": len(raw_registration_edges),
+                "filter_output": len(edges),
+            }
+        )
+        # Spatial dedup can make frames that were farther apart than the
+        # initial temporal window become neighbours.  Their old skip edge was
+        # deliberately removed with the dropped frames, so give only those
+        # new neighbours one normal matcher pass before conceding SCANS.
+        if not edges and N >= 2:
+            reproposed_edges = self._rematch_retained_adjacent_edges(
+                frames, bg_masks, _active_loftr
+            )
+            edges = self._filter_edges(reproposed_edges, image_paths, H, W, frames, bg_masks)
+            edge_stage_counts.update(
+                {
+                    "edgeless_reproposal_input": len(reproposed_edges),
+                    "edgeless_reproposal_output": len(edges),
+                }
+            )
+            if edges:
+                logger.info(
+                    "[Stitch] Edgeless spatial-dedup recovery retained %d adjacent edges.",
+                    len(edges),
+                )
         from asp_backend.alignment.registration_telemetry import (
             collect_registration_telemetry,
             edge_graph_components,
@@ -504,6 +541,9 @@ class _RunStageMixin(_Base):
                 f"[Stitch] §3.16B: HITL preset '{_test_name}' — "
                 f"forced_boundaries={_hitl_pipeline_state['boundaries']}."
             )
+        edge_stage_counts["hitl_dropped"] = 0
+        edge_stage_counts["final_edges"] = len(edges)
+        session.record_artifact("edge_stage_counts", edge_stage_counts)
 
         print(
             f"[Stitch]   Edge filtering complete ({len(edges)} edges); unloading matchers...",
@@ -1164,6 +1204,31 @@ class _RunStageMixin(_Base):
             proposal_telemetry=proposal_telemetry,
             extra_proposals=extra_proposals,
         )
+
+    def _rematch_retained_adjacent_edges(self, frames, bg_masks, active_loftr):
+        """Match only neighbours created by spatial dedup's frame removal."""
+        from asp_backend.alignment.matching import _match_pair
+
+        H, W = frames[0].shape[:2]
+        edges: list[dict] = []
+        for i in range(len(frames) - 1):
+            edge = _match_pair(
+                frames,
+                bg_masks,
+                i,
+                i + 1,
+                H,
+                W,
+                loftr_wrapper=active_loftr,
+                use_loftr=active_loftr is not None,
+                motion_model=self.motion_model,
+                aliked_wrapper=self._aliked if self.use_aliked else None,
+                roma_wrapper=self._roma if self.use_roma else None,
+                bg_masked_matching=getattr(self, "bg_masked_matching", False),
+            )
+            if edge is not None:
+                edges.append(edge)
+        return edges
 
     def _refine_subpixel(self, frames, affines, bg_masks):
         """Stage 8: SEA-RAFT flow refinement (preferred) or ECC fallback.

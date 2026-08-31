@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Edgeless post-dedup recovery (2026-08-31, Codex, #472):** when spatial
+  dedup removes every originally proposed edge and normal filtering is empty,
+  re-match only the newly adjacent retained frames, then apply the unchanged
+  filters. This covers gaps that grew beyond the initial three-frame proposal
+  window without relaxing static-edge safeguards. Added persisted per-stage
+  edge counts and a unit test; the normal five-case verification slice passed
+  in two resource-guarded segments.
+
 - **Disconnected edge graph → recovery instead of hard-bail (2026-08-29,
   Claude, `3983f76`):** the §1.15 `_check_edge_graph_connectivity` gate in
   `run_stage.py` returned SCANS the instant the edge graph wasn't fully
