@@ -1685,7 +1685,17 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
-<li><strong>Disconnected edge graph → recovery instead of hard-bail (2026-08-29,
+<li>
+<p><strong>Edgeless post-dedup recovery (2026-08-31, Codex, #472):</strong> when spatial
+  dedup removes every originally proposed edge and normal filtering is empty,
+  re-match only the newly adjacent retained frames, then apply the unchanged
+  filters. This covers gaps that grew beyond the initial three-frame proposal
+  window without relaxing static-edge safeguards. Added persisted per-stage
+  edge counts and a unit test; the normal five-case verification slice passed
+  in two resource-guarded segments.</p>
+</li>
+<li>
+<p><strong>Disconnected edge graph → recovery instead of hard-bail (2026-08-29,
   Claude, <code>3983f76</code>):</strong> the §1.15 <code>_check_edge_graph_connectivity</code> gate in
   <code>run_stage.py</code> returned SCANS the instant the edge graph wasn't fully
   connected — before bundle adjustment, before Stage 7b's
@@ -1704,7 +1714,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   safe_asp / 10 scans at 29/97, vs. ~3/5/21 pre-fix) — interrupted by an
   OOM-kill on a PANORAMA-fallback spike; resumable from checkpoint, best run
   with <code>ASP_DISABLE_PANORAMA_FALLBACK=1</code> under desktop load. See
-  <code>.agent/reports/chat/asp_full97_baseline_2026-08-29.md</code>.</li>
+  <code>.agent/reports/chat/asp_full97_baseline_2026-08-29.md</code>.</p>
+</li>
 <li>
 <p><strong>Gated multi-phase (piecewise per-phase P1) plate renderer (2026-08-29,
   Claude/Codex/Agy, <code>84af1be</code> + <code>7e352ba</code> + <code>cefd4df</code>):</strong> new default-off
