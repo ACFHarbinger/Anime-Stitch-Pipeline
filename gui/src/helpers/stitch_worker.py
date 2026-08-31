@@ -16,6 +16,7 @@ import numpy as np
 from asp_backend.hitl.hitl_session import load_session
 from asp_backend.hitl.hitl_session import save_session as _save_session_impl
 from asp_backend.ingestion.video_ingestion import ingest_video
+from gui.src.helpers.gc_safe import gc_disabled_run
 from PySide6.QtCore import QMutex, QThread, QWaitCondition, Signal
 
 from ._progress_pipeline import _TOTAL_STAGES, _build_pipeline_kwargs, _ProgressPipeline
@@ -232,6 +233,7 @@ class StitchWorker(QThread):
             self._hitl_session_overrides["video"] = override
         return override
 
+    @gc_disabled_run
     def run(self):
         cfg = self._pipeline_config
 

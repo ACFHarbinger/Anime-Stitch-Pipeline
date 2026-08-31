@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from gui.src.helpers.gc_safe import gc_disabled_run
 from PySide6.QtCore import QThread, Signal
 
 from .stitch_worker import (
@@ -40,6 +41,7 @@ class GraphStitchWorker(QThread):
     def cancel(self):
         self._cancel_flag[0] = True
 
+    @gc_disabled_run
     def run(self):
         cfg = self._cfg
         step_outputs: dict[str, str] = {}

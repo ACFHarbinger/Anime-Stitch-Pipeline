@@ -2,6 +2,7 @@ import json
 import os
 
 from backend.controllers.backend_dispatch import _collect_image_paths, _run_single_stitch
+from gui.src.helpers.gc_safe import gc_disabled_run
 from PySide6.QtCore import QThread, Signal
 
 
@@ -47,6 +48,7 @@ class BatchStitchWorker(QThread):
         (matches the project's existing §2.7B cancellation granularity)."""
         self._should_stop = True
 
+    @gc_disabled_run
     def run(self):  # noqa: C901
         progress_path = os.path.join(self.batch_dir, ".stitch_progress.json")
 

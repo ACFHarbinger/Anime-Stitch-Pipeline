@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import cv2
+from gui.src.helpers.gc_safe import gc_disabled_run
 from PySide6.QtCore import QThread, Signal
 
 
@@ -12,6 +13,7 @@ class MaskPreviewWorker(QThread):
         super().__init__()
         self._path = img_path
 
+    @gc_disabled_run
     def run(self):
         try:
             from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
