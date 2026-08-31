@@ -5,6 +5,11 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Overmix comparator recipe repair (2026-08-31, Codex, #474):** invoke
+  `run_overmix.py` by file path, not `-m`, so its ASP package-alias bootstrap
+  wins over Image-Toolkit's top-level `backend` package. The full-97
+  regeneration remains authorization-gated.
+
 - **Edgeless post-dedup recovery (2026-08-31, Codex, #472):** when spatial
   dedup removes every originally proposed edge and normal filtering is empty,
   re-match only the newly adjacent retained frames, then apply the unchanged

@@ -130,6 +130,12 @@ same filters; it does not relax the 50px static-edge protection. Unit coverage
 passes; the standard five-case slice completed in guarded segments without a
 normal-path regression. A full-corpus measurement needs separate authorization.
 
+**Comparator coverage prep (2026-08-31, #474).** Overmix remains absent for
+all 97 reference cases. The repaired `just bench::asp-run-overmix` invokes
+the script by file path, preserving its ASP alias bootstrap; the still-needed
+one-time `setup_overmix.sh` build and the serialized 97-case smart-variant
+regeneration require Harbinger authorization.
+
 **Full-session code review (2026-08-07, `/code-review high 0f3196a~1..HEAD`,
 278 files).** Despite the session's volume of change (packaging fixes,
 evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both

@@ -156,7 +156,7 @@ asp-triage-db:
 # Overmix comparator run (docs/moon/ROADMAP.md §0.3)
 asp-run-overmix *ARGS:
     cd ../.. && PYTHONPATH="{{_IMAGE_TOOLKIT_ROOT}}" {{_IMAGE_TOOLKIT_PY}} \
-        -m backend.benchmark.run_overmix {{ARGS}}
+        backend/benchmark/run_overmix.py {{ARGS}}
 
 # Hugin comparator run (docs/moon/ROADMAP.md §0.5)
 asp-run-hugin *ARGS:
