@@ -108,6 +108,20 @@ OOM-kill at 29/97 (partial: 7 raw_asp / 12 safe_asp / 10 scans, scans rate
 roughly halved vs. pre-fix), resumable from checkpoint. Full analysis:
 `.agent/reports/chat/asp_full97_baseline_2026-08-29.md`.
 
+**Full-corpus checkpoint (2026-08-31,
+`anime_stitch_20260831_023504.json`) — canonical Ground-Rule #1 reference.**
+Validated `3983f76` on all 97 RAW_ASP cases with the product
+`AnimeStitchPipeline.run()` path: **18 RAW_ASP / 79 guarded fallbacks** (43
+Safe-ASP, 36 SCANS), GT-SSIM 0.6699 vs simple 0.6916, and CV verdicts 6
+asp_better / 69 comparable / 22 simple_better. Critically,
+`disconnected_edge_graph` occurred **0** times (40 in the 2026-08-29
+canonical baseline); the remaining 15 `no_valid_edges` cases filter to zero
+edges after spatial dedup and are outside the disconnected-graph recovery's
+scope. This re-bases future product-path comparisons; it does not make the
+legacy 43-composite checkpoint comparable. The host's 30-minute process cap
+split collection into 1–29 and 30–97 segments; the merged JSON and report are
+manifested at `~/Downloads/Data/Tests/asp-470-full97-20260831/output/`.
+
 **Full-session code review (2026-08-07, `/code-review high 0f3196a~1..HEAD`,
 278 files).** Despite the session's volume of change (packaging fixes,
 evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both
