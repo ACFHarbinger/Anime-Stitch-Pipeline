@@ -1685,13 +1685,55 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
-<li><strong>Orphaned lineage recovery — Stitch-tab ASP/SCANS comparison (2026-08-26,
+<li><strong>Disconnected edge graph → recovery instead of hard-bail (2026-08-29,
+  Claude, <code>3983f76</code>):</strong> the §1.15 <code>_check_edge_graph_connectivity</code> gate in
+  <code>run_stage.py</code> returned SCANS the instant the edge graph wasn't fully
+  connected — before bundle adjustment, before Stage 7b's
+  <code>_recover_affine_health</code> (adjacent-only bundle + sequential gap-fill that
+  reconstructs isolated frames from the pan step), before PANORAMA fallback.
+  The legacy inline benchmark harness never had this gate; when M1b
+  (<code>b20d02c</code>, 2026-08-15) routed the default benchmark through
+  <code>AnimeStitchPipeline.run()</code>, the full-97 RAW_ASP count dropped from 43
+  (2026-08-07) to 8. The GUI stitch tab uses the same runner. The gate now
+  records the disconnection + component count and falls through to the
+  existing BA → validate → recover → PANORAMA → SCANS machinery;
+  <code>ASP_STRICT_EDGE_GRAPH_GATE=1</code> restores the hard bail. Probe (<code>asp_test10/
+  27/51</code>, previously all <code>disconnected_edge_graph</code>): all three now reach the
+  compositor, <code>test27</code> → clean RAW_ASP. 21 pipeline/edge/recovery unit tests
+  green. A full-97 validation run was started (partial: 7 raw_asp / 12
+  safe_asp / 10 scans at 29/97, vs. ~3/5/21 pre-fix) — interrupted by an
+  OOM-kill on a PANORAMA-fallback spike; resumable from checkpoint, best run
+  with <code>ASP_DISABLE_PANORAMA_FALLBACK=1</code> under desktop load. See
+  <code>.agent/reports/chat/asp_full97_baseline_2026-08-29.md</code>.</li>
+<li>
+<p><strong>Gated multi-phase (piecewise per-phase P1) plate renderer (2026-08-29,
+  Claude/Codex/Agy, <code>84af1be</code> + <code>7e352ba</code> + <code>cefd4df</code>):</strong> new default-off
+  <code>ASP_PLATE_MULTIPHASE</code> (presupposes <code>ASP_PLATE_SINGLE_POSE</code>). For a
+  multi-phase pan whose phase spans map to one contiguous canvas-<code>ty</code> band
+  each (~70 % of the frozen-<code>RAW_ASP</code> multi-phase set, per the §4
+  measurement <code>7d08ff68</code>), runs <code>composite_plate_single_pose</code> per span and
+  joins the per-phase plates with a plate-to-plate feather + Laplacian blend
+  (<code>_blend_phase_plates</code>); a hard runtime contiguity gate
+  (<code>_multiphase_plate_plan</code>, one <code>ty</code>-run per phase, forward or reverse)
+  routes everything else to the unchanged legacy skip. <code>n_phases==1</code> is
+  byte-identical to single-phase P1. Sweep on the 20-case discriminating set
+  (2 arms): mechanically sound, memory-safe (~5 GB peak, not the estimated
+  11), 2 stable RAW_ASP wins (<code>test05</code>, <code>test41</code>); the rest engage but fail
+  <code>seam_vis_gate</code> / <code>composite_gate_sb</code> on the band join — next work item is
+  the seam (<code>.agent/reports/chat/asp_multiphase_seam_fix_direction_2026-08-29.md</code>).
+  Option B (<code>ASP_PHASE_COMPOSITE</code> on/off) flipped zero verdicts → dropped.
+  Full design + sign-off: <code>.agent/reports/chat/asp_multiphase_renderer_design_2026-08-28.md</code>
+  (issue #463).</p>
+</li>
+<li>
+<p><strong>Orphaned lineage recovery — Stitch-tab ASP/SCANS comparison (2026-08-26,
   deepseek):</strong> restored the on-demand SCANS comparison preview unique to the
   orphaned lineage — <code>_ScansComparisonSignals</code>/<code>_ScansComparisonTask</code> in
   <code>_thumb_workers.py</code> (off-thread OpenCV SCANS baseline + ASP/SCANS quality
   readouts), the <code>Generate SCANS Comparison</code> button, the ASP/SCANS preview
   toggle with fade transition, and protocol/manager state wiring. New
-  <code>test_stitch_comparison.py</code>. 31 stitch-tab tests green.</li>
+  <code>test_stitch_comparison.py</code>. 31 stitch-tab tests green.</p>
+</li>
 <li><strong>Orphaned lineage recovery — run_stage.py reconciliation (2026-08-26,
   deepseek):</strong> applied the last orphaned-lineage diff to <code>run_stage.py</code> after
   <code>registration_gate.py</code>/<code>registration_telemetry.py</code> landed (<code>65e7192</code>).
