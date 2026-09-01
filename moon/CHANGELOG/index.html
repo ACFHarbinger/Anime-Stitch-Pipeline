@@ -1686,6 +1686,12 @@
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
 <li>
+<p><strong>Overmix comparator recipe repair (2026-08-31, Codex, #474):</strong> invoke
+  <code>run_overmix.py</code> by file path, not <code>-m</code>, so its ASP package-alias bootstrap
+  wins over Image-Toolkit's top-level <code>backend</code> package. The full-97
+  regeneration remains authorization-gated.</p>
+</li>
+<li>
 <p><strong>Edgeless post-dedup recovery (2026-08-31, Codex, #472):</strong> when spatial
   dedup removes every originally proposed edge and normal filtering is empty,
   re-match only the newly adjacent retained frames, then apply the unchanged

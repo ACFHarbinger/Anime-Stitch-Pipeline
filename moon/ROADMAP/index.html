@@ -1515,6 +1515,11 @@ only adjacent retained pairs when normal filtering is empty, then uses the
 same filters; it does not relax the 50px static-edge protection. Unit coverage
 passes; the standard five-case slice completed in guarded segments without a
 normal-path regression. A full-corpus measurement needs separate authorization.</p>
+<p><strong>Comparator coverage prep (2026-08-31, #474).</strong> Overmix remains absent for
+all 97 reference cases. The repaired <code>just bench::asp-run-overmix</code> invokes
+the script by file path, preserving its ASP alias bootstrap; the still-needed
+one-time <code>setup_overmix.sh</code> build and the serialized 97-case smart-variant
+regeneration require Harbinger authorization.</p>
 <p><strong>Full-session code review (2026-08-07, <code>/code-review high 0f3196a~1..HEAD</code>,
 278 files).</strong> Despite the session's volume of change (packaging fixes,
 evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both
