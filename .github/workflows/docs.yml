@@ -26,7 +26,7 @@ jobs:
       - run: uv venv .venv
       - run: uv pip install --python .venv/bin/python mkdocs-material mkdocstrings[python] mkdocs-jupyter
       - run: .venv/bin/mkdocs build --config-file docs/mkdocs.yml
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: "20"
           cache: npm
