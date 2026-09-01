@@ -15,7 +15,7 @@ jobs:
   lint-test-backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --extra dev
         working-directory: backend
@@ -42,7 +42,7 @@ jobs:
   lint-test-gui:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v5
       - run: uv sync --extra dev
         working-directory: gui
@@ -63,7 +63,7 @@ jobs:
       # repo out as the expected parent so a standalone build/test actually
       # works, instead of vendoring a copy that could drift.
       - name: Check out Image-Toolkit (parent repo)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ACFHarbinger/Image-Toolkit
           path: Image-Toolkit
@@ -71,7 +71,7 @@ jobs:
             base/include
           sparse-checkout-cone-mode: false
       - name: Check out this repo at the expected submodule path
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: Image-Toolkit/submodules/Anime-Stitch-Pipeline
       - run: |
