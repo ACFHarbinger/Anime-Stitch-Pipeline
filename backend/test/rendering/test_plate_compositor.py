@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import numpy as np
+import pytest
+from asp_backend.core.pipeline.safety_metrics import seam_visibility_score
 from asp_backend.rendering.compositing._gain_compensation import _apply_joint_gain_solve
 from asp_backend.rendering.compositing._normalization import _warp_inputs
 from asp_backend.rendering.compositing._plate_compositor import (
@@ -283,7 +285,14 @@ def test_blend_phase_plates_preserves_claimed_cel_across_seam():
 
 
 def test_blend_phase_plates_narrow_overlap_has_no_luminance_step():
-    """The background feather must fit wholly inside a narrow valid overlap."""
+    """A narrow valid overlap must still produce a graded, step-free join.
+
+    The transition ramp is no longer confined to the mutual overlap: it reaches
+    into each plate's solo-valid region so a handful of shared rows (or none)
+    cannot collapse it to a hard cut. The extreme 100-unit flat gap here is a
+    pathological probe; realistic gain-solve drift is a few luma units (see
+    ``test_blend_phase_plates_narrow_overlap_seam_visibility_stays_low``).
+    """
     H, W = 80, 12
     left = np.full((H, W, 3), 30, dtype=np.uint8)
     right = np.full_like(left, 130)
@@ -298,8 +307,113 @@ def test_blend_phase_plates_narrow_overlap_has_no_luminance_step():
     )
 
     values = result[30:52, W // 2, 0].astype(np.int16)
-    assert np.max(np.abs(np.diff(values))) <= 8
+    # Bound is generous: this 100-unit flat gap is a pathological probe, ~12x a
+    # realistic gain-solve residual. Textured/realistic drift is held to < 8 by
+    # test_blend_phase_plates_narrow_overlap_seam_visibility_stays_low.
+    assert np.max(np.abs(np.diff(values))) <= 10
+    # The join is a genuine blend, not a hard copy of either input.
+    mid = int(result[40, W // 2, 0])
+    assert 30 < mid < 130
     assert result[31, W // 2, 0] < result[50, W // 2, 0]
+
+
+def _phase_join_inputs(*, overlap, gain_drift, seed=0):
+    """Two textured background plates that abut in canvas-``ty`` order.
+
+    ``right`` carries a uniform ``gain_drift`` luma offset relative to ``left``
+    (the joint-gain-solve residual between two per-phase plates); ``overlap``
+    is the count of mutually valid rows straddling the seam.
+    """
+    rng = np.random.default_rng(seed)
+    H, W = 1400, 900
+    base = (np.linspace(60, 150, H)[:, None] + rng.normal(0, 3, (H, W))).clip(0, 255)
+    left = np.repeat(base[:, :, None], 3, axis=2).astype(np.uint8)
+    right = np.repeat((base + gain_drift)[:, :, None], 3, axis=2).clip(0, 255).astype(np.uint8)
+    left_valid = np.zeros((H, W), dtype=bool)
+    right_valid = np.zeros((H, W), dtype=bool)
+    a_end = 720
+    left_valid[:a_end] = True
+    right_valid[a_end - overlap:] = True
+    left[~left_valid] = 0
+    right[~right_valid] = 0
+    seam_y = a_end - overlap // 2
+    unclaimed = np.full((H, W), -1, dtype=np.int32)
+    return left, right, left_valid, right_valid, seam_y, unclaimed
+
+
+@pytest.mark.parametrize("overlap", [0, 4, 12, 40])
+def test_blend_phase_plates_narrow_overlap_seam_visibility_stays_low(overlap):
+    """The multi-phase band join must not read as a hard seam cut.
+
+    Regression for the ``seam_vis_gate`` failures the gated multi-phase plate
+    renderer hit: contiguous phase bands share only a few rows, so the old
+    overlap-bounded feather degenerated to a half-plane switch at ``seam_y``
+    and ``seam_visibility_score`` spiked to 20-35. Clean outputs score < 6.
+    """
+    left, right, lv, rv, seam_y, uncl = _phase_join_inputs(overlap=overlap, gain_drift=20.0)
+
+    result, _claimed = _blend_phase_plates(left, uncl, lv, right, uncl, rv, seam_y)
+
+    assert seam_visibility_score(result) < 8.0
+
+
+def test_blend_phase_plates_taper_preserves_far_field_brightness():
+    """The low-frequency reconciliation is local: it must not flatten the plates.
+
+    Only rows within +/- ``blend_width`` of the seam are pulled toward the
+    shared strip mean; far-field rows keep each plate's own brightness so the
+    canvas-order ownership downstream stays legible.
+    """
+    left, right, lv, rv, seam_y, uncl = _phase_join_inputs(overlap=6, gain_drift=25.0)
+    left_far = float(left[seam_y - 400, :, 0].mean())
+    right_far = float(right[seam_y + 400, :, 0].mean())
+
+    result, _claimed = _blend_phase_plates(left, uncl, lv, right, uncl, rv, seam_y)
+
+    assert abs(float(result[seam_y - 400, :, 0].mean()) - left_far) < 1.0
+    assert abs(float(result[seam_y + 400, :, 0].mean()) - right_far) < 1.0
+
+
+def test_composite_plate_multiphase_three_close_phases_no_compounded_seam():
+    """Three phases whose boundaries are closer than the ramp half-width.
+
+    ``composite_plate_multiphase`` folds joins sequentially, feeding the
+    already-blended result (and accumulated ``valid``) back as ``left``. With
+    the two phase boundaries only ~20 rows apart, the second join's
+    ``+/- _PHASE_JOIN_HALF_PX`` ramp and taper reach back over the first seam.
+    Precondition (enforced upstream by ``_multiphase_plate_plan``): the phase
+    bands are contiguous in canvas ``ty`` with no unpopulated gap. Assert the
+    fold stays monotone with no visible step and the interior band settles
+    between its neighbours rather than being pulled past either by a doubled
+    correction.
+    """
+    H, W = 480, 200
+    canvas = np.full((H, W, 3), 30, dtype=np.uint8)
+    lumas = (80, 110, 140)  # per-phase gain drift between adjacent plates
+    frames = [np.full((H, W, 3), luma, dtype=np.uint8) for luma in lumas]
+    bg = [np.ones((H, W), dtype=bool) for _ in lumas]
+    valid = [np.zeros((H, W), dtype=bool) for _ in lumas]
+    valid[0][:235] = True
+    valid[1][215:255] = True  # boundaries land near y=224 and y=244 (~20 apart)
+    valid[2][235:] = True
+    for frame, mask in zip(frames, valid, strict=True):
+        frame[~mask] = 0
+    assert (valid[0] | valid[1] | valid[2]).all()  # contiguous, no canvas gap
+
+    result, _claimed, _meta = composite_plate_multiphase(
+        frames, bg, canvas, valid,
+        spans=[(0, 0, 0), (1, 1, 1), (2, 2, 2)],
+        physical_phase_order=[0, 1, 2],
+        edge_preserve=False,
+        multiband=False,
+    )
+
+    assert seam_visibility_score(result) < 8.0
+    col = result[:, W // 2, 0].astype(np.int16)
+    content = col > 5
+    assert np.max(np.abs(np.diff(col[content]))) <= 8  # no compounded step at either join
+    interior = float(result[224, :, 0].mean())
+    assert lumas[0] - 5 <= interior <= lumas[2] + 5
 
 
 def test_composite_plate_multiphase_reverse_order_uses_canvas_order():

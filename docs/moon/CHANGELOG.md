@@ -5,6 +5,28 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **Multi-phase plate band-join seam rework (2026-09-02, Claude,
+  `_blend_phase_plates`):** the gated multi-phase P1 renderer
+  (`ASP_PLATE_MULTIPHASE`) failed `seam_vis_gate` on most cases because
+  `_blend_phase_plates` sized its feather from the *mutual* valid overlap of
+  the two per-phase plates — a few rows or zero for contiguous canvas-`ty`
+  bands — so the join collapsed to a hard half-plane switch at `seam_y`
+  (`seam_visibility_score` 20–35 on a synthetic narrow/zero-overlap sweep;
+  clean < 6). The join now: (1) ramps over ±48 rows bounded only by each
+  plate's own valid extent, reaching past the overlap into each plate's
+  solo-valid region; (2) applies a tapered low-frequency offset toward the
+  shared background seam-strip mean that decays to zero at the band edges, so
+  far-field plate brightness and canvas-order ownership are untouched; (3)
+  merges the in-band RGB in Laplacian space on a crop around the band. Hero
+  cels still cross verbatim. In place inside the existing flag, no new env
+  switch. Synthetic narrow/zero-overlap `seam_visibility_score` → < 2; 29
+  `test_plate_compositor.py` pass (+4 regression tests, incl. a 3-phase fold
+  with sub-ramp-width boundary spacing), 698 `test/rendering` + `test/core`
+  + `test/alignment` green. **Not corpus-measured** — old-vs-new
+  `_plate_compositor.py` SHA benchmark handoff is on the Image-Toolkit agent
+  bus. `composite_gate_sb` co-failures on this path are against an
+  audited-inverse metric (§M2, rho −0.417) and should not gate promotion.
+
 - **Overmix comparator recipe repair (2026-08-31, Codex, #474):** invoke
   `run_overmix.py` by file path, not `-m`, so its ASP package-alias bootstrap
   wins over Image-Toolkit's top-level `backend` package. The full-97

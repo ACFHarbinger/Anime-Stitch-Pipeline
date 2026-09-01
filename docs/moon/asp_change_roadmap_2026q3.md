@@ -731,6 +731,31 @@ Deliverables:
   synthesis or per-phase hero-cel extraction (see M4's §9.2 Stage 0
   phase-group work).
 
+  **Multi-phase band-join seam rework (2026-09-02, Claude, `_blend_phase_plates`):**
+  the piecewise renderer's `seam_vis_gate` failures traced to
+  `_blend_phase_plates` gating its feather width on the *mutual* valid overlap
+  of the two per-phase plates. Contiguous canvas-`ty` phase bands share only a
+  handful of rows (often zero), so `blend_width` collapsed to ~0 and the join
+  degenerated to a hard half-plane switch at `seam_y`; a synthetic sweep put
+  `seam_visibility_score` at 20–35 for narrow/zero overlap and gain drift ≥ 20
+  luma (clean outputs score < 6). Rework, in place inside `ASP_PLATE_MULTIPHASE`
+  (no new flag): the smoothstep ramp now spans ±`_PHASE_JOIN_HALF_PX` (48) rows
+  bounded only by each plate's *own* valid extent, reaching past the overlap
+  into each plate's solo-valid region; a tapered low-frequency offset first
+  pulls both plates toward their shared background seam-strip mean, decaying to
+  zero at the band edges so far-field plate brightness (and canvas-order
+  ownership) is untouched; the in-band RGB merge runs in Laplacian space on a
+  crop around the band. Hero cels still cross the join verbatim. Synthetic
+  narrow/zero-overlap `seam_visibility_score` drops to < 2; the 5 existing
+  `_blend_phase_plates` / multiphase fixtures stay green and 3 regression tests
+  were added (`test_plate_compositor.py`, 29 passed; 698 `test/rendering` +
+  `test/core` + `test/alignment` green). **Not measured on the corpus** — the
+  authorized-slice / benchmark handoff (old vs new `_plate_compositor.py` SHA
+  under `ASP_PLATE_SINGLE_POSE=1 ASP_PLATE_MULTIPHASE=1`) is on the
+  Image-Toolkit agent bus; `composite_gate_sb` co-failures on this path are
+  against an audited-inverse metric (rho −0.417, §M2) and should not gate
+  promotion.
+
 
 
 

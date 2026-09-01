@@ -408,6 +408,14 @@ def _laplacian_blend(left: np.ndarray, right: np.ndarray, alpha: np.ndarray) -> 
     return np.clip(merged, 0, 255).astype(np.uint8)
 
 
+# Target half-width (rows) of the plate-to-plate transition. Bounded per side
+# only by how far each plate's own valid content reaches from the seam -- NOT
+# by the mutual valid overlap. Contiguous canvas-``ty`` phase bands overlap by
+# only a handful of rows (often zero), which collapsed the old feather to a
+# hard cut and drove the ``seam_vis_gate`` failures on the multi-phase join.
+_PHASE_JOIN_HALF_PX: int = 48
+
+
 def _blend_phase_plates(
     left: np.ndarray,
     left_claimed: np.ndarray,
@@ -417,39 +425,89 @@ def _blend_phase_plates(
     right_valid: np.ndarray,
     seam_y: int,
     *,
-    blend_width: int = 48,
+    blend_width: int = _PHASE_JOIN_HALF_PX,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Join adjacent physical phase bands without feathering hero cels."""
+    """Join adjacent physical phase bands without feathering hero cels.
+
+    The transition ramp spans ``+/- blend_width`` rows around ``seam_y``,
+    clamped only by each plate's own valid extent (so it reaches past a narrow
+    or empty mutual overlap into each plate's solo-valid region). A tapered
+    low-frequency offset first pulls both plates toward their shared seam-strip
+    mean, so the ramp only has to hide residual mid-frequency detail; the
+    offset decays to zero at the band edges, leaving far-field plate brightness
+    untouched. Any pre-composited hero cel crosses the join verbatim.
+    """
     H, W = left.shape[:2]
-    overlap_rows = np.flatnonzero((left_valid & right_valid).any(axis=1))
-    if len(overlap_rows):
-        available_overlap = min(
-            seam_y - int(overlap_rows[0]), int(overlap_rows[-1]) - seam_y
-        )
-        blend_width = min(blend_width, max(0, available_overlap))
-    else:
-        blend_width = 0
-    y0 = max(0, seam_y - blend_width)
-    y1 = min(H, seam_y + blend_width + 1)
     rows = np.arange(H, dtype=np.float32)
-    right_weight = np.clip((rows - y0) / max(1, y1 - y0 - 1), 0.0, 1.0)
-    alpha_left = 1.0 - np.broadcast_to(right_weight[:, None], (H, W))
-    bg_blend = _laplacian_blend(left, right, alpha_left)
+
+    left_rows = np.flatnonzero(left_valid.any(axis=1))
+    right_rows = np.flatnonzero(right_valid.any(axis=1))
+    if len(left_rows) == 0:
+        return right.copy(), right_claimed.copy()
+    if len(right_rows) == 0:
+        return left.copy(), left_claimed.copy()
+
+    up = min(int(blend_width), seam_y - int(left_rows[0]))
+    down = min(int(blend_width), int(right_rows[-1]) - seam_y)
+    half = max(1, min(up, down))
+    y0 = max(0, seam_y - half)
+    y1 = min(H, seam_y + half + 1)
+
+    # Smoothstep ramp: 1.0 (all left) at y0 -> 0.0 (all right) at y1 - 1.
+    t = np.clip((rows - y0) / max(1, y1 - 1 - y0), 0.0, 1.0)
+    t = t * t * (3.0 - 2.0 * t)
 
     result = left.copy()
     claimed = left_claimed.copy()
+
+    # Background ownership outside the ramp stays a hard hand-off at seam_y.
     right_only = right_valid & ~left_valid
     right_side = np.broadcast_to((rows >= seam_y)[:, None], (H, W))
     use_right = right_only | (left_valid & right_valid & right_side)
     result[use_right] = right[use_right]
     claimed[use_right] = right_claimed[use_right]
 
-    both_bg = left_valid & right_valid & (left_claimed < 0) & (right_claimed < 0)
-    if blend_width > 0:
-        band = np.zeros((H, W), dtype=bool)
-        band[y0:y1] = True
-        blend_bg = both_bg & band
-        result[blend_bg] = bg_blend[blend_bg]
+    # Tapered low-frequency reconciliation, measured on the background
+    # (non-cel) seam strip that each plate individually validates.
+    lf = left.astype(np.float32)
+    rf = right.astype(np.float32)
+    strip = max(2, half // 2)
+    ls = slice(max(0, seam_y - strip), seam_y)
+    rs = slice(seam_y, min(H, seam_y + strip))
+    left_strip = left_valid[ls] & (left_claimed[ls] < 0) & (left[ls].max(axis=2) > 5)
+    right_strip = right_valid[rs] & (right_claimed[rs] < 0) & (right[rs].max(axis=2) > 5)
+    left_vals = lf[ls][left_strip]
+    right_vals = rf[rs][right_strip]
+    if left_vals.size and right_vals.size:
+        left_mean = left_vals.mean(axis=0)
+        right_mean = right_vals.mean(axis=0)
+        midpoint = 0.5 * (left_mean + right_mean)
+        taper = np.clip(1.0 - np.abs(rows - seam_y) / max(1, half), 0.0, 1.0)
+        taper = (taper * taper * (3.0 - 2.0 * taper))[:, None, None]
+        lf = lf + taper * (midpoint - left_mean)
+        rf = rf + taper * (midpoint - right_mean)
+
+    # Inside the ramp, blend each plate's own valid pixels (Laplacian space,
+    # cropped to a neighbourhood of the band so the pyramid alpha resolves the
+    # ramp instead of averaging it away at the coarsest level).
+    band = np.zeros((H, W), dtype=bool)
+    band[y0:y1] = True
+    blend_bg = band & (left_claimed < 0) & (right_claimed < 0) & (left_valid | right_valid)
+    if blend_bg.any():
+        left_fill = np.where(left_valid[..., None], lf, rf)
+        right_fill = np.where(right_valid[..., None], rf, lf)
+        cy0 = max(0, y0 - half)
+        cy1 = min(H, y1 + half)
+        crop_alpha = np.ascontiguousarray(
+            np.broadcast_to((1.0 - t)[cy0:cy1, None], (cy1 - cy0, W))
+        )
+        merged_crop = _laplacian_blend(
+            np.ascontiguousarray(np.clip(left_fill[cy0:cy1], 0, 255).astype(np.uint8)),
+            np.ascontiguousarray(np.clip(right_fill[cy0:cy1], 0, 255).astype(np.uint8)),
+            crop_alpha,
+        )
+        blend_local = blend_bg[cy0:cy1]
+        result[cy0:cy1][blend_local] = merged_crop[blend_local]
 
     # Apply upper-band then lower-band cels: in an overlap, the lower physical
     # band wins. Each source already carries composite_plate_single_pose's
