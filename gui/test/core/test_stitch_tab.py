@@ -1,9 +1,29 @@
 from unittest.mock import patch
 
 from asp_gui.elements import StitchTab
+from PySide6.QtWidgets import QScrollArea
 
 
 class TestStitchTabFrameCounter:
+    def test_pipeline_stage_labels_fit_at_minimum_width(self, q_app):
+        with patch("asp_gui.elements._stitch_execution.StitchWorker"):
+            host = QScrollArea()
+            host.setWidgetResizable(True)
+            tab = StitchTab()
+            host.setWidget(tab)
+            host.resize(800, 700)
+            host.show()
+            q_app.processEvents()
+
+            for checkbox in (
+                tab._cb_basic,
+                tab._cb_birefnet,
+                tab._cb_loftr,
+                tab._cb_ecc,
+                tab._cb_composite_fg,
+            ):
+                assert checkbox.width() >= checkbox.sizeHint().width()
+
     def test_frame_counter_initialization(self, q_app):
         with patch("asp_gui.elements._stitch_execution.StitchWorker"):
             tab = StitchTab()

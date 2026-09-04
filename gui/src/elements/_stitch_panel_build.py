@@ -270,14 +270,14 @@ class _StitchPanelBuildMixin(_Base):
         pipeline_group = QGroupBox("Pipeline Stages")
         pipeline_form = QFormLayout(pipeline_group)
 
-        self._cb_basic = QCheckBox("BaSiC photometric correction")
+        self._cb_basic = QCheckBox("BaSiC photometric\ncorrection")
         self._cb_basic.setChecked(True)
         self._cb_basic.setToolTip(
             "Remove broadcast dimming and vignettes before matching."
         )
         pipeline_form.addRow(self._cb_basic)
 
-        self._cb_birefnet = QCheckBox("BiRefNet foreground masking")
+        self._cb_birefnet = QCheckBox("BiRefNet foreground\nmasking")
         self._cb_birefnet.setChecked(True)
         self._cb_birefnet.setToolTip(
             "Detect and exclude anime character regions from LoFTR matching.\n"
@@ -285,7 +285,7 @@ class _StitchPanelBuildMixin(_Base):
         )
         pipeline_form.addRow(self._cb_birefnet)
 
-        self._cb_loftr = QCheckBox("LoFTR dense matching")
+        self._cb_loftr = QCheckBox("LoFTR dense\nmatching")
         self._cb_loftr.setChecked(True)
         self._cb_loftr.setToolTip(
             "Use LoFTR for subpixel-accurate correspondences.\n"
@@ -293,14 +293,14 @@ class _StitchPanelBuildMixin(_Base):
         )
         pipeline_form.addRow(self._cb_loftr)
 
-        self._cb_ecc = QCheckBox("ECC sub-pixel refinement")
+        self._cb_ecc = QCheckBox("ECC sub-pixel\nrefinement")
         self._cb_ecc.setChecked(True)
         self._cb_ecc.setToolTip(
             "Apply ECC after bundle adjustment for sub-pixel accuracy."
         )
         pipeline_form.addRow(self._cb_ecc)
 
-        self._cb_composite_fg = QCheckBox("Composite foreground")
+        self._cb_composite_fg = QCheckBox("Composite\nforeground")
         self._cb_composite_fg.setChecked(True)
         self._cb_composite_fg.setToolTip(
             "Paste the character from the best single frame back onto the\n"
