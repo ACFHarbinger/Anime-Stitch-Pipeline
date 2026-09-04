@@ -35,7 +35,7 @@ from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsScene,
     QGraphicsView,
-    QHBoxLayout,
+    QGridLayout,
     QLabel,
     QPushButton,
     QSplitter,
@@ -157,7 +157,7 @@ class _CPCanvas(QGraphicsView):
         self.setTransformationAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         self.setResizeAnchor(QGraphicsView.ViewportAnchor.AnchorUnderMouse)
         self.setBackgroundBrush(QBrush(QColor("#1a1a1a")))
-        self.setMinimumSize(300, 220)
+        self.setMinimumSize(220, 180)
 
     # ── public API ──────────────────────────────────────────────────────
 
@@ -307,18 +307,18 @@ class ControlPointEditor(QWidget):
         root.setSpacing(4)
 
         # ── Toolbar ──────────────────────────────────────────────────
-        tb = QHBoxLayout()
+        tb = QGridLayout()
         self._mode_btn = QPushButton("✎ Add Points")
         self._mode_btn.setCheckable(True)
         self._mode_btn.setChecked(True)
         self._mode_btn.toggled.connect(self._on_mode_toggle)
         apply_shadow_effect(self._mode_btn, radius=4, y_offset=2)
-        tb.addWidget(self._mode_btn)
+        tb.addWidget(self._mode_btn, 0, 0)
 
         btn_clear = QPushButton("Clear All")
         btn_clear.clicked.connect(self._clear_all)
         apply_shadow_effect(btn_clear, radius=4, y_offset=2)
-        tb.addWidget(btn_clear)
+        tb.addWidget(btn_clear, 0, 1)
 
         btn_auto = QPushButton("⚡ Auto-Detect (ORB)")
         btn_auto.setToolTip(
@@ -326,7 +326,7 @@ class ControlPointEditor(QWidget):
         )
         btn_auto.clicked.connect(self._auto_detect)
         apply_shadow_effect(btn_auto, radius=4, y_offset=2)
-        tb.addWidget(btn_auto)
+        tb.addWidget(btn_auto, 0, 2)
 
         btn_suggest = QPushButton("💡 Suggest Next")
         btn_suggest.setToolTip(
@@ -334,9 +334,7 @@ class ControlPointEditor(QWidget):
         )
         btn_suggest.clicked.connect(self._suggest_next)
         apply_shadow_effect(btn_suggest, radius=4, y_offset=2)
-        tb.addWidget(btn_suggest)
-
-        tb.addStretch()
+        tb.addWidget(btn_suggest, 0, 3)
 
         self._solve_mode = QComboBox()
         self._solve_mode.addItems(["DLT (exact)", "DLT + RANSAC", "Auto + Manual"])
@@ -346,8 +344,8 @@ class ControlPointEditor(QWidget):
             "DLT + RANSAC: robust to a few bad clicks.\n"
             "Auto + Manual: appends user pairs on top of auto-detected ones."
         )
-        tb.addWidget(QLabel("Solve:"))
-        tb.addWidget(self._solve_mode)
+        tb.addWidget(QLabel("Solve:"), 1, 0)
+        tb.addWidget(self._solve_mode, 1, 1, 1, 2)
 
         btn_solve = QPushButton("🔧 Solve Homography")
         btn_solve.setStyleSheet(
@@ -355,7 +353,7 @@ class ControlPointEditor(QWidget):
         )
         btn_solve.clicked.connect(self._solve)
         apply_shadow_effect(btn_solve, radius=4, y_offset=2)
-        tb.addWidget(btn_solve)
+        tb.addWidget(btn_solve, 1, 3)
 
         root.addLayout(tb)
 

@@ -225,6 +225,8 @@ class RealHybridStitchPanel(QWidget):
             "QTabBar::tab { background:#3a3d42; color:#ccc; padding:5px 12px; } "
             "QTabBar::tab:selected { background:#1976D2; color:white; }"
         )
+        self._tools.tabBar().setUsesScrollButtons(True)
+        self._tools.tabBar().setElideMode(Qt.TextElideMode.ElideNone)
 
         self._cp_editor = ControlPointEditor()
         self._cp_editor.homography_solved.connect(self._on_h_solved)

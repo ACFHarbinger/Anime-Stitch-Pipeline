@@ -258,10 +258,10 @@ class _StitchPanelBuildMixin(_Base):
 
         # ── RIGHT: pipeline config ────────────────────────────────────
         right = QWidget()
-        right.setMinimumWidth(230)
-        right.setMaximumWidth(290)
+        right.setFixedWidth(280)
         right_scroll = QScrollArea()
         right_scroll.setWidgetResizable(True)
+        right_scroll.setFixedWidth(280)
         right_scroll.setWidget(right)
         right_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         right_layout = QVBoxLayout(right)
@@ -444,7 +444,7 @@ class _StitchPanelBuildMixin(_Base):
         splitter.setStretchFactor(0, 0)
         splitter.setStretchFactor(1, 1)
         splitter.setStretchFactor(2, 0)
-        splitter.setSizes([180, 1200, 220])
+        splitter.setSizes([180, 1200, 280])
 
         persist_splitter(splitter, "StitchPanel/main")
         root.addWidget(splitter, stretch=1)

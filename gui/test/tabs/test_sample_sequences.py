@@ -18,6 +18,7 @@ import pytest
 from asp_gui.tabs.stencil.hybrid_stitch_panel import RealHybridStitchPanel
 from asp_gui.tabs.stencil.sample_sequences import list_sample_sequences
 from PIL import Image
+from PySide6.QtCore import Qt
 
 pytestmark = pytest.mark.gui
 
@@ -115,6 +116,13 @@ class TestHybridStitchPanelTrySample:
         actions = panel._sample_menu.actions()
         assert len(actions) >= 2
         assert all(a.isEnabled() for a in actions)
+
+    def test_tool_tabs_keep_full_labels_with_scroll_buttons(self, q_app):
+        panel = RealHybridStitchPanel()
+        tab_bar = panel._tools.tabBar()
+
+        assert tab_bar.usesScrollButtons() is True
+        assert tab_bar.elideMode() == Qt.TextElideMode.ElideNone
 
     def test_selecting_a_sample_loads_it_into_the_sequence_sidebar(self, q_app):
         panel = RealHybridStitchPanel()

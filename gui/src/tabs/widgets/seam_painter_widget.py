@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QGraphicsPixmapItem,
     QGraphicsScene,
     QGraphicsView,
-    QHBoxLayout,
+    QGridLayout,
     QLabel,
     QPushButton,
     QSpinBox,
@@ -54,7 +54,7 @@ class _PaintCanvas(QGraphicsView):
 
         self.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.setBackgroundBrush(QBrush(QColor("#111")))
-        self.setMinimumSize(300, 250)
+        self.setMinimumSize(220, 180)
 
     # ── Public API ───────────────────────────────────────────────────
 
@@ -191,40 +191,38 @@ class SeamPainterWidget(QWidget):
         root.setSpacing(4)
 
         # Toolbar
-        tb = QHBoxLayout()
-        tb.addWidget(QLabel("Brush:"))
+        tb = QGridLayout()
+        tb.addWidget(QLabel("Brush:"), 0, 0)
 
         self._btn_a = QPushButton("Force A (red)")
         self._btn_a.setCheckable(True)
         self._btn_a.setChecked(True)
         self._btn_a.setStyleSheet("background:#c62828; color:white; font-weight:bold;")
         self._btn_a.clicked.connect(lambda: self._set_brush("A"))
-        tb.addWidget(self._btn_a)
+        tb.addWidget(self._btn_a, 0, 1)
 
         self._btn_b = QPushButton("Force B (blue)")
         self._btn_b.setCheckable(True)
         self._btn_b.setStyleSheet("background:#1565C0; color:white; font-weight:bold;")
         self._btn_b.clicked.connect(lambda: self._set_brush("B"))
-        tb.addWidget(self._btn_b)
+        tb.addWidget(self._btn_b, 0, 2)
 
         self._btn_erase = QPushButton("Erase")
         self._btn_erase.setCheckable(True)
         self._btn_erase.clicked.connect(lambda: self._set_brush("neutral"))
-        tb.addWidget(self._btn_erase)
+        tb.addWidget(self._btn_erase, 0, 3)
 
-        tb.addWidget(QLabel("Size:"))
+        tb.addWidget(QLabel("Size:"), 1, 0)
         self._size_spin = QSpinBox()
         self._size_spin.setRange(2, 80)
         self._size_spin.setValue(20)
         self._size_spin.valueChanged.connect(self._update_brush)
-        tb.addWidget(self._size_spin)
-
-        tb.addStretch()
+        tb.addWidget(self._size_spin, 1, 1)
 
         btn_blend = QPushButton("Preview Blend")
         btn_blend.clicked.connect(self._preview_blend)
         apply_shadow_effect(btn_blend, radius=4, y_offset=2)
-        tb.addWidget(btn_blend)
+        tb.addWidget(btn_blend, 1, 2)
 
         btn_seam = QPushButton("🔧 Compute Seam")
         btn_seam.setStyleSheet(
@@ -232,11 +230,11 @@ class SeamPainterWidget(QWidget):
         )
         btn_seam.clicked.connect(self._compute_seam)
         apply_shadow_effect(btn_seam, radius=4, y_offset=2)
-        tb.addWidget(btn_seam)
+        tb.addWidget(btn_seam, 1, 3)
 
         btn_clear = QPushButton("Clear Paint")
         btn_clear.clicked.connect(self._clear)
-        tb.addWidget(btn_clear)
+        tb.addWidget(btn_clear, 1, 4)
 
         root.addLayout(tb)
 
