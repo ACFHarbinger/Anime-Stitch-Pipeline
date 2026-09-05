@@ -2743,6 +2743,30 @@ segmentation model.</p>
   not "resolved". A real multi-phase renderer needs piecewise multi-plate
   synthesis or per-phase hero-cel extraction (see M4's §9.2 Stage 0
   phase-group work).</p>
+<p><strong>Multi-phase band-join seam rework (2026-09-02, Claude, <code>_blend_phase_plates</code>):</strong>
+  the piecewise renderer's <code>seam_vis_gate</code> failures traced to
+  <code>_blend_phase_plates</code> gating its feather width on the <em>mutual</em> valid overlap
+  of the two per-phase plates. Contiguous canvas-<code>ty</code> phase bands share only a
+  handful of rows (often zero), so <code>blend_width</code> collapsed to ~0 and the join
+  degenerated to a hard half-plane switch at <code>seam_y</code>; a synthetic sweep put
+  <code>seam_visibility_score</code> at 20–35 for narrow/zero overlap and gain drift ≥ 20
+  luma (clean outputs score &lt; 6). Rework, in place inside <code>ASP_PLATE_MULTIPHASE</code>
+  (no new flag): the smoothstep ramp now spans ±<code>_PHASE_JOIN_HALF_PX</code> (48) rows
+  bounded only by each plate's <em>own</em> valid extent, reaching past the overlap
+  into each plate's solo-valid region; a tapered low-frequency offset first
+  pulls both plates toward their shared background seam-strip mean, decaying to
+  zero at the band edges so far-field plate brightness (and canvas-order
+  ownership) is untouched; the in-band RGB merge runs in Laplacian space on a
+  crop around the band. Hero cels still cross the join verbatim. Synthetic
+  narrow/zero-overlap <code>seam_visibility_score</code> drops to &lt; 2; the 5 existing
+  <code>_blend_phase_plates</code> / multiphase fixtures stay green and 3 regression tests
+  were added (<code>test_plate_compositor.py</code>, 29 passed; 698 <code>test/rendering</code> +
+  <code>test/core</code> + <code>test/alignment</code> green). <strong>Not measured on the corpus</strong> — the
+  authorized-slice / benchmark handoff (old vs new <code>_plate_compositor.py</code> SHA
+  under <code>ASP_PLATE_SINGLE_POSE=1 ASP_PLATE_MULTIPHASE=1</code>) is on the
+  Image-Toolkit agent bus; <code>composite_gate_sb</code> co-failures on this path are
+  against an audited-inverse metric (rho −0.417, §M2) and should not gate
+  promotion.</p>
 <p>Exit criteria:</p>
 <ul>
 <li>No torn anatomy, duplicated limbs/strips, or mixed-pose foreground on the

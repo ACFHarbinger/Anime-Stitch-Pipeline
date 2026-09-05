@@ -1685,6 +1685,29 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
+<li><strong>Multi-phase plate band-join seam rework (2026-09-02, Claude,
+  <code>_blend_phase_plates</code>):</strong> the gated multi-phase P1 renderer
+  (<code>ASP_PLATE_MULTIPHASE</code>) failed <code>seam_vis_gate</code> on most cases because
+  <code>_blend_phase_plates</code> sized its feather from the <em>mutual</em> valid overlap of
+  the two per-phase plates — a few rows or zero for contiguous canvas-<code>ty</code>
+  bands — so the join collapsed to a hard half-plane switch at <code>seam_y</code>
+  (<code>seam_visibility_score</code> 20–35 on a synthetic narrow/zero-overlap sweep;
+  clean &lt; 6). The join now: (1) ramps over ±48 rows bounded only by each
+  plate's own valid extent, reaching past the overlap into each plate's
+  solo-valid region; (2) applies a tapered low-frequency offset toward the
+  shared background seam-strip mean that decays to zero at the band edges, so
+  far-field plate brightness and canvas-order ownership are untouched; (3)
+  merges the in-band RGB in Laplacian space on a crop around the band. Hero
+  cels still cross verbatim. In place inside the existing flag, no new env
+  switch. Synthetic narrow/zero-overlap <code>seam_visibility_score</code> → &lt; 2; 29
+  <code>test_plate_compositor.py</code> pass (+4 regression tests, incl. a 3-phase fold
+  with sub-ramp-width boundary spacing), 698 <code>test/rendering</code> + <code>test/core</code></li>
+<li>
+<p><code>test/alignment</code> green. <strong>Not corpus-measured</strong> — old-vs-new
+  <code>_plate_compositor.py</code> SHA benchmark handoff is on the Image-Toolkit agent
+  bus. <code>composite_gate_sb</code> co-failures on this path are against an
+  audited-inverse metric (§M2, rho −0.417) and should not gate promotion.</p>
+</li>
 <li>
 <p><strong>Overmix comparator recipe repair (2026-08-31, Codex, #474):</strong> invoke
   <code>run_overmix.py</code> by file path, not <code>-m</code>, so its ASP package-alias bootstrap
