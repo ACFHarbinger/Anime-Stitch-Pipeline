@@ -36,10 +36,10 @@ inline py::array_t<uint8_t> as_ndarray(const cv::Mat& mat) {
     std::vector<ssize_t> strides;
     if (mat.channels() == 3) {
         shape = {mat.rows, mat.cols, 3};
-        strides = {mat.step[0], mat.step[1], 1};
+        strides = {static_cast<ssize_t>(mat.step[0]), static_cast<ssize_t>(mat.step[1]), 1};
     } else {
         shape = {mat.rows, mat.cols};
-        strides = {mat.step[0], 1};
+        strides = {static_cast<ssize_t>(mat.step[0]), 1};
     }
     auto result = py::array_t<uint8_t>(shape, strides);
     auto req = result.request();
