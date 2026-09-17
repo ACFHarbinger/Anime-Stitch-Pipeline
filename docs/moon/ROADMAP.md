@@ -130,6 +130,43 @@ same filters; it does not relax the 50px static-edge protection. Unit coverage
 passes; the standard five-case slice completed in guarded segments without a
 normal-path regression. A full-corpus measurement needs separate authorization.
 
+**#472 full-97 validation (2026-09-17, Harbinger-authorized) — DoD not met on
+raw-ASP yield, but the fix's own mechanism confirms clean.** Segmented run
+(1–25/26–50/51–75/76–97, `ASP_DISABLE_PANORAMA_FALLBACK=1`, merged
+`anime_stitch_472_full97_20260917.json`) against the 2026-08-31 reference:
+**18 RAW_ASP / 48 Safe-ASP / 31 SCANS** vs. 18/43/36. `no_valid_edges`
+dropped **15 → 7**, and the 7 remaining are a strict subset of the original
+15 (asp_test34/50/55/66/70/90/93) — the re-proposal fix recovers 8 of 15
+edgeless-graph cases into the normal gate pipeline, exactly as designed. The
+DoD's literal "raw-ASP yield > 18/97" was **not** met — the count tied at 18,
+not because the fix failed, but because of a separate, more important
+finding below. Not closing #472; see the GitHub issue for the full
+side-by-side numbers.
+
+**Non-determinism in the product-path pipeline, discovered while validating
+#472 (2026-09-17) — new, unfiled finding, larger blast radius than #472
+alone.** The RAW_ASP *set* is not stable run-to-run even with identical
+input, `pipeline_config`, and env: comparing today's full-97 against the
+2026-08-31 reference, 9 datasets gained RAW_ASP (asp_test27/45/52/68/69/72/
+81/91/95) while 9 *different* ones lost it (asp_test22/31/33/35/38/62/67/87/
+88) — net zero, but the underlying set churned. `pipeline_config` was
+confirmed byte-identical for all 18 swapped cases, ruling out a config
+confound. A direct re-run of the 9 "lost" cases minutes later, same env,
+flipped **3 of 9 back to RAW_ASP** (asp_test38/62/87) — and even among the 6
+that stayed non-RAW_ASP, the specific gate values moved substantially run to
+run (e.g. asp_test22: `affine_invalid:min_gap=22.7px` → `seam_vis_gate:
+asp=53.7`; asp_test67: `seam_vis_gate:asp=56.4` → `composite_gate_sb:
+asp_sc=30.2`). This means the pipeline (almost certainly the neural
+matching/masking stack — EfficientLoFTR, BiRefNet, ALIKED+LightGlue — none
+of which fix a seed) produces genuinely different quantitative output on
+identical input, not just borderline threshold noise. **Ground-Rule #1's
+"fixed reference" framing does not hold**: any single full-97 run is a
+sample, not a stable ground truth, which touches #470's already-closed
+rebase and the upcoming #473 human-rating pass (a rating done against one
+run's renders may not describe the renders a re-run would produce). Flagged
+to Harbinger; a dedicated tracking issue and a seed/determinism audit of the
+neural components is the likely next step, pending their go-ahead.
+
 **Comparator coverage prep (2026-08-31, #474).** Overmix remains absent for
 all 97 reference cases. The repaired `just bench::asp-run-overmix` invokes
 the script by file path, preserving its ASP alias bootstrap; the still-needed

@@ -5,6 +5,43 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **#472 full-97 validation + a bigger finding: product-path non-determinism
+  (2026-09-17, Claude, Harbinger-authorized):** re-ran the full 97-case
+  corpus against `01f48a7`'s edgeless-graph edge re-proposal fix, segmented
+  (1–25/26–50/51–75/76–97, `ASP_DISABLE_PANORAMA_FALLBACK=1`) to respect the
+  host's 30-min process cap; merged explicitly by path (`merge_run_json.py
+  --inputs ...`), not via its default glob (which unions every historical
+  `anime_stitch_*.json` in `output/`, not just one run's segments — also
+  fixed a crash in that merge path this session, see below). Result vs. the
+  2026-08-31 reference (`anime_stitch_20260831_023504.json`): **18 RAW_ASP /
+  48 Safe-ASP / 31 SCANS** (was 18/43/36). `no_valid_edges` dropped **15 →
+  7**, and the survivors are a strict subset of the original 15 — the fix
+  recovers 8/15 edgeless-graph cases into the normal gate pipeline exactly as
+  designed. The DoD's literal "yield > 18/97" was not met (tied at 18) — but
+  investigating why surfaced a materially bigger issue: **the RAW_ASP set
+  itself is not stable run-to-run** on identical input/config/env. 9 cases
+  gained RAW_ASP, 9 different ones lost it (net zero); a direct re-run of the
+  9 "lost" cases minutes later, same env, flipped 3/9 back to RAW_ASP, and
+  gate metric values moved substantially even among cases that stayed
+  non-RAW_ASP both times. `pipeline_config` confirmed byte-identical across
+  all 18 swapped cases, ruling out a config confound — this is the neural
+  matching/masking stack (EfficientLoFTR, BiRefNet, ALIKED+LightGlue; none
+  seed-fixed) producing genuinely different output per run. Ground-Rule #1's
+  "fixed reference" framing does not hold as a result; flagged to Harbinger,
+  #472 left open (not closed) pending their call, full write-up in
+  `docs/moon/ROADMAP.md` and posted to GitHub #472.
+- **Merge-JSON crash on legacy partial dumps (2026-09-17, Claude):**
+  `merge_run_json.py`'s `maybe_write_consolidated()` (fired automatically
+  after every `bench_anime_stitch.py` write) crashed with
+  `AttributeError("'list' object has no attribute 'get'")` whenever a legacy
+  recovery/partial dump (a bare list of dataset entries, not the full run
+  envelope) was present in `output/` — silently eating the consolidated
+  merge on every run since. Fixed by skipping non-dict docs instead of
+  crashing (`3e323dc`). Separately noted, not fixed: `discover_run_files()`'s
+  glob unions *every* historical `anime_stitch_*.json` ever produced, not
+  just a given run's own segments — callers doing a segmented full-corpus
+  run should pass `--inputs` explicitly.
+
 - **Multi-phase plate band-join seam rework (2026-09-02, Claude,
   `_blend_phase_plates`):** the gated multi-phase P1 renderer
   (`ASP_PLATE_MULTIPHASE`) failed `seam_vis_gate` on most cases because
