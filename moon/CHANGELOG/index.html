@@ -1685,7 +1685,46 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
-<li><strong>Multi-phase plate band-join seam rework (2026-09-02, Claude,
+<li><strong>#472 full-97 validation + a bigger finding: product-path non-determinism
+  (2026-09-17, Claude, Harbinger-authorized):</strong> re-ran the full 97-case
+  corpus against <code>01f48a7</code>'s edgeless-graph edge re-proposal fix, segmented
+  (1–25/26–50/51–75/76–97, <code>ASP_DISABLE_PANORAMA_FALLBACK=1</code>) to respect the
+  host's 30-min process cap; merged explicitly by path (<code>merge_run_json.py
+  --inputs ...</code>), not via its default glob (which unions every historical
+  <code>anime_stitch_*.json</code> in <code>output/</code>, not just one run's segments — also
+  fixed a crash in that merge path this session, see below). Result vs. the
+  2026-08-31 reference (<code>anime_stitch_20260831_023504.json</code>): <strong>18 RAW_ASP /
+  48 Safe-ASP / 31 SCANS</strong> (was 18/43/36). <code>no_valid_edges</code> dropped <strong>15 →
+  7</strong>, and the survivors are a strict subset of the original 15 — the fix
+  recovers 8/15 edgeless-graph cases into the normal gate pipeline exactly as
+  designed. The DoD's literal "yield &gt; 18/97" was not met (tied at 18) — but
+  investigating why surfaced a materially bigger issue: <strong>the RAW_ASP set
+  itself is not stable run-to-run</strong> on identical input/config/env. 9 cases
+  gained RAW_ASP, 9 different ones lost it (net zero); a direct re-run of the
+  9 "lost" cases minutes later, same env, flipped 3/9 back to RAW_ASP, and
+  gate metric values moved substantially even among cases that stayed
+  non-RAW_ASP both times. <code>pipeline_config</code> confirmed byte-identical across
+  all 18 swapped cases, ruling out a config confound — this is the neural
+  matching/masking stack (EfficientLoFTR, BiRefNet, ALIKED+LightGlue; none
+  seed-fixed) producing genuinely different output per run. Ground-Rule #1's
+  "fixed reference" framing does not hold as a result; flagged to Harbinger,
+  #472 left open (not closed) pending their call, full write-up in
+  <code>docs/moon/ROADMAP.md</code> and posted to GitHub #472.</li>
+<li>
+<p><strong>Merge-JSON crash on legacy partial dumps (2026-09-17, Claude):</strong>
+  <code>merge_run_json.py</code>'s <code>maybe_write_consolidated()</code> (fired automatically
+  after every <code>bench_anime_stitch.py</code> write) crashed with
+  <code>AttributeError("'list' object has no attribute 'get'")</code> whenever a legacy
+  recovery/partial dump (a bare list of dataset entries, not the full run
+  envelope) was present in <code>output/</code> — silently eating the consolidated
+  merge on every run since. Fixed by skipping non-dict docs instead of
+  crashing (<code>3e323dc</code>). Separately noted, not fixed: <code>discover_run_files()</code>'s
+  glob unions <em>every</em> historical <code>anime_stitch_*.json</code> ever produced, not
+  just a given run's own segments — callers doing a segmented full-corpus
+  run should pass <code>--inputs</code> explicitly.</p>
+</li>
+<li>
+<p><strong>Multi-phase plate band-join seam rework (2026-09-02, Claude,
   <code>_blend_phase_plates</code>):</strong> the gated multi-phase P1 renderer
   (<code>ASP_PLATE_MULTIPHASE</code>) failed <code>seam_vis_gate</code> on most cases because
   <code>_blend_phase_plates</code> sized its feather from the <em>mutual</em> valid overlap of
@@ -1701,7 +1740,8 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   cels still cross verbatim. In place inside the existing flag, no new env
   switch. Synthetic narrow/zero-overlap <code>seam_visibility_score</code> → &lt; 2; 29
   <code>test_plate_compositor.py</code> pass (+4 regression tests, incl. a 3-phase fold
-  with sub-ramp-width boundary spacing), 698 <code>test/rendering</code> + <code>test/core</code></li>
+  with sub-ramp-width boundary spacing), 698 <code>test/rendering</code> + <code>test/core</code></p>
+</li>
 <li>
 <p><code>test/alignment</code> green. <strong>Not corpus-measured</strong> — old-vs-new
   <code>_plate_compositor.py</code> SHA benchmark handoff is on the Image-Toolkit agent
