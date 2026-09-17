@@ -32,6 +32,11 @@ def merge_run_docs(
     by_name: dict[str, dict[str, Any]] = {}
     source_meta: list[dict[str, Any]] = []
     for i, doc in enumerate(docs):
+        if not isinstance(doc, dict):
+            # Older recovery/partial dumps (e.g. *_recovery_*_partial.json)
+            # are a bare list of dataset entries, not the full run envelope.
+            # Skip rather than crash the whole merge on one legacy file.
+            continue
         meta = dict(doc.get("metadata") or {})
         if sources and i < len(sources):
             meta["path"] = sources[i]
