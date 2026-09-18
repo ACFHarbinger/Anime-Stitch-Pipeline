@@ -189,6 +189,20 @@ practical ceiling (see the 2026-09-17 entries above and
 ("inspector shows all 5 comparators for the full corpus") is not fully
 satisfiable without further input from Harbinger on those two.
 
+**#474 Hugin: one of the two non-structural failures recovered, 37 ->
+38/97 (2026-09-18).** Of the 60 missing Hugin cases, 58 hit the
+canvas-size FOV-model wall above (genuinely unfixable); the other 2
+looked recoverable at a glance, but investigation found only 1 actually
+was -- `asp_test74` failed with a distinct error, `enblend: unable to
+run Dijkstra optimizer` / `seam-line end point outside of cost-image`
+(enblend's graph-cut seam optimizer failing to place a seam, not a
+projection-model problem). Added a targeted retry with enblend's
+`--no-optimize` flag (blends along a straight cut instead of an
+optimized seam) when that specific error is seen; verified `asp_test74`
+now produces a real, correctly-sized output. Hugin: **37 -> 38/97**.
+GT (55/97) is unchanged -- still needs hand-sourced reference images,
+not automatable.
+
 **Full-session code review (2026-08-07, `/code-review high 0f3196a~1..HEAD`,
 278 files).** Despite the session's volume of change (packaging fixes,
 evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both

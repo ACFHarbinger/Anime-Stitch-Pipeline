@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **#474 Hugin 37 -> 38/97 (2026-09-18, Claude):** of Hugin's 60 missing
+  cases, 58 hit the canvas-size FOV-model wall (unfixable). The other 2
+  looked similar at a glance but only 1 actually was recoverable --
+  `asp_test74` failed with a distinct error (`enblend: unable to run
+  Dijkstra optimizer` / `seam-line end point outside of cost-image`,
+  enblend's graph-cut seam optimizer failing to place a valid seam, not
+  a Hugin projection problem). Added a targeted `enblend --no-optimize`
+  retry (blends along a straight cut instead) triggered only on that
+  specific error string -- no risk to the other 96 cases (`c1db809`).
+  Verified: `asp_test74` now produces a real, correctly-sized
+  `hugin_stitch.png`.
 - **#474 Overmix coverage 0 -> 97/97 (2026-09-18, Claude, Harbinger-
   authorized):** two real blockers found and fixed. (1) `setup_overmix.sh`
   couldn't even configure without a chain of missing system dev packages
