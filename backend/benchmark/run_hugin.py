@@ -202,13 +202,25 @@ def _run_hugin_toolchain(frames: list[str], out_path: str) -> dict:
             # overlap-check-threshold=0 disables that specific check; the
             # blend itself is unaffected.
             result_tif = os.path.join(tmp, "result.tif")
-            proc = _run(
-                [
+
+            def _enblend_cmd(*extra_flags: str) -> list[str]:
+                return [
                     "enblend", "--parameter=overlap-check-threshold=0",
-                    "-o", result_tif, *layers,
-                ],
-                cwd=tmp, env=env,
-            )
+                    *extra_flags, "-o", result_tif, *layers,
+                ]
+
+            proc = _run(_enblend_cmd(), cwd=tmp, env=env)
+            if (proc.returncode != 0 or not os.path.exists(result_tif)) and (
+                "unable to run Dijkstra optimizer" in (proc.stderr or "")
+                or "seam-line end point outside of cost-image" in (proc.stderr or "")
+            ):
+                # The graph-cut seam optimizer occasionally can't place a
+                # valid seam on these near-total-overlap frames (distinct
+                # from the overlap-check guard above). --no-optimize skips
+                # seam optimization entirely and blends along a straight
+                # cut instead -- lower visual quality at the seam, but a
+                # real result rather than a hard failure.
+                proc = _run(_enblend_cmd("--no-optimize"), cwd=tmp, env=env)
             if proc.returncode != 0 or not os.path.exists(result_tif):
                 return {
                     "ok": False,
