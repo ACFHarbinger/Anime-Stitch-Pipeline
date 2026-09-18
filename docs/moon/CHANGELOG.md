@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **#654 seed audit -- ASP_DETERMINISTIC=1 already fixes it (2026-09-18,
+  Claude):** the proposed seed audit turned out to already exist in the
+  codebase (`configure_reproducibility()`, `manifest.py`) and just never be
+  enabled during any prior full-97/#472/#654 run. Three re-runs of the same
+  9 "flaky" cases from #654's finding, with `ASP_DETERMINISTIC=1
+  ASP_REPRO_SEED=42` set: two independent runs (no `CUBLAS_WORKSPACE_CONFIG`)
+  matched exactly on all 9 -- identity and fallback-gate values down to the
+  decimal, despite ~3241 CuBLAS non-determinism warnings per run. A third run
+  adding `CUBLAS_WORKSPACE_CONFIG=:4096:8` silenced the warnings entirely and
+  still matched exactly. No code change needed -- this is an env-var
+  activation, not a fix, and the recommendation (pending Harbinger) is to
+  default it on in the benchmark justfile recipes.
 - **#474 Hugin 37 -> 38/97 (2026-09-18, Claude):** of Hugin's 60 missing
   cases, 58 hit the canvas-size FOV-model wall (unfixable). The other 2
   looked similar at a glance but only 1 actually was recoverable --

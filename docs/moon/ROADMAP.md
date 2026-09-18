@@ -167,6 +167,34 @@ run's renders may not describe the renders a re-run would produce). Flagged
 to Harbinger; a dedicated tracking issue and a seed/determinism audit of the
 neural components is the likely next step, pending their go-ahead.
 
+**#654 seed audit: `ASP_DETERMINISTIC=1` already exists and already fixes
+this (2026-09-18).** The proposed "seed audit" turned out to already be
+implemented and just never enabled: `configure_reproducibility()`
+(`backend/src/core/pipeline/manifest.py`, called unconditionally on every
+`PipelineSession.create()`) seeds Python/NumPy/OpenCV/Torch RNGs, disables
+`cudnn.benchmark`, sets `cudnn.deterministic=True`, and calls
+`torch.use_deterministic_algorithms(True, warn_only=True)` — but only when
+`ASP_DETERMINISTIC=1` is set, which no full-97 run (including the ones that
+produced the non-determinism finding above) ever did. Three independent
+re-runs of the same 9 "flaky" cases from the finding above, all with
+`ASP_DISABLE_PANORAMA_FALLBACK=1 ASP_DETERMINISTIC=1 ASP_REPRO_SEED=42`:
+runs A and B (no `CUBLAS_WORKSPACE_CONFIG`) matched **exactly** on all 9
+cases — identical `result_identity` and identical `fallback_reason` strings
+down to the decimal (e.g. both `seam_vis_gate:asp=108.5_sim=6.9_limit=35.0`
+for `asp_test31`) — despite ~3241 PyTorch warnings per run that CuBLAS ops
+stay non-deterministic without `CUBLAS_WORKSPACE_CONFIG` also set. Run C
+added `CUBLAS_WORKSPACE_CONFIG=:4096:8`: zero warnings, and still matched A
+exactly on all 9 cases. **`ASP_DETERMINISTIC=1` alone, with a fixed seed,
+appears to fully solve the practical non-determinism found above** — the
+CuBLAS gap is real (per PyTorch's own warning) but doesn't manifest as a
+measurable outcome difference for this workload. Caveat: only tested on
+these 9 cases (5–30 frames each), not a full-97 reproduction of the
+original 9-in/9-out swap — a full-97 A/B under `ASP_DETERMINISTIC=1` would
+be the complete confirmation, not yet run (bigger compute ask, pending
+Harbinger authorization). Recommendation pending Harbinger's call: set
+`ASP_DETERMINISTIC=1` (+ a fixed `ASP_REPRO_SEED`) by default in the
+`tools/benchmark/justfile` recipes used for Ground-Rule #1 reference runs.
+
 **Comparator coverage prep (2026-08-31, #474).** Overmix remains absent for
 all 97 reference cases. The repaired `just bench::asp-run-overmix` invokes
 the script by file path, preserving its ASP alias bootstrap; the still-needed
