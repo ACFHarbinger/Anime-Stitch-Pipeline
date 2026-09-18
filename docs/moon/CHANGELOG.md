@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **#474 Overmix coverage 0 -> 97/97 (2026-09-18, Claude, Harbinger-
+  authorized):** two real blockers found and fixed. (1) `setup_overmix.sh`
+  couldn't even configure without a chain of missing system dev packages
+  (`qtbase5-dev`, `libqt5x11extras5-dev`, `libjpeg-dev`, `libpugixml-dev`,
+  `libraw-dev`, `libavformat-dev`/`libavcodec-dev`/`libavutil-dev`,
+  `libpng++-dev`, `libboost-math-dev`) -- installed one at a time as CMake
+  surfaced each missing `find_package`/`pkg_check_modules`. (2) Once
+  `OvermixCli` built, every regen case still failed with "OvermixCli not
+  built" -- `run_overmix.py`'s `_TOOLKIT_ROOT` used 3 `os.path.dirname()`
+  calls from `__file__`, correct only from before ASP became a nested git
+  submodule (this file now sits one level deeper, and `submodules/ASP` --
+  where the old math landed -- has no `vendor/` dir of its own; `vendor/
+  Overmix` is only a plain submodule of the real Image-Toolkit root). Fixed
+  to 5 `dirname()` calls (`6324153`). Verified: full 97-case smart-variant
+  regen against `~/Downloads/Data/Dump` -- **97/97 succeeded, 0 failures**.
 - **#472 full-97 validation + a bigger finding: product-path non-determinism
   (2026-09-17, Claude, Harbinger-authorized):** re-ran the full 97-case
   corpus against `01f48a7`'s edgeless-graph edge re-proposal fix, segmented
