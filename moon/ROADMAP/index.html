@@ -1555,6 +1555,21 @@ all 97 reference cases. The repaired <code>just bench::asp-run-overmix</code> in
 the script by file path, preserving its ASP alias bootstrap; the still-needed
 one-time <code>setup_overmix.sh</code> build and the serialized 97-case smart-variant
 regeneration require Harbinger authorization.</p>
+<p><strong>#474 Overmix coverage: 0 -&gt; 97/97 (2026-09-18, Harbinger-authorized).</strong>
+<code>setup_overmix.sh</code> needed a chain of missing system dev packages before it
+would even configure (<code>qtbase5-dev</code>, <code>libqt5x11extras5-dev</code>, <code>libjpeg-dev</code>,
+<code>libpugixml-dev</code>, <code>libraw-dev</code>, <code>libavformat-dev</code>/<code>libavcodec-dev</code>/
+<code>libavutil-dev</code>, <code>libpng++-dev</code>, <code>libboost-math-dev</code> -- none of this was
+apt-installed on this machine before). Once built, <code>run_overmix.py</code> still
+failed every case ("OvermixCli not built") -- <code>_TOOLKIT_ROOT</code>'s directory
+walk was off by two levels, a leftover from before ASP became a nested git
+submodule (see the ASP commit below). Fixed, then the full 97-case smart-
+variant regen (<code>~/Downloads/Data/Dump</code>) completed <strong>97/97 succeeded, 0
+failures</strong>. Hugin and GT coverage are unchanged and separately near their
+practical ceiling (see the 2026-09-17 entries above and
+<code>.agent/bus/2026-09-17.md</code> in the Image-Toolkit repo) -- #474's full DoD
+("inspector shows all 5 comparators for the full corpus") is not fully
+satisfiable without further input from Harbinger on those two.</p>
 <p><strong>Full-session code review (2026-08-07, <code>/code-review high 0f3196a~1..HEAD</code>,
 278 files).</strong> Despite the session's volume of change (packaging fixes,
 evaluation-dir relocation, mypy/ruff cleanup across ~70 files in both
