@@ -66,7 +66,13 @@ _load_package("asp_backend", Path(__file__).resolve().parents[1] / "src")
 
 from asp_backend.ingestion.frame_selection import smart_select_frames  # noqa: E402
 
-_TOOLKIT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Pre-submodule-migration this file lived 3 levels under the Image-Toolkit
+# root; it's now nested one level deeper at submodules/ASP/backend/benchmark,
+# and vendor/Overmix (a plain submodule, not something ASP owns a copy of)
+# only exists at the actual Image-Toolkit root.
+_TOOLKIT_ROOT = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+)
 _OVERMIX_BIN = os.path.join(_TOOLKIT_ROOT, "vendor", "Overmix", "build", "OvermixCli")
 
 # Same settings the setup smoke-test validated: Gradient's coarse-to-fine
