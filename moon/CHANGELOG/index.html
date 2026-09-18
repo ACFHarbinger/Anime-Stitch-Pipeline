@@ -1685,6 +1685,17 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
+<li><strong>#474 Hugin 37 -&gt; 38/97 (2026-09-18, Claude):</strong> of Hugin's 60 missing
+  cases, 58 hit the canvas-size FOV-model wall (unfixable). The other 2
+  looked similar at a glance but only 1 actually was recoverable --
+  <code>asp_test74</code> failed with a distinct error (<code>enblend: unable to run
+  Dijkstra optimizer</code> / <code>seam-line end point outside of cost-image</code>,
+  enblend's graph-cut seam optimizer failing to place a valid seam, not
+  a Hugin projection problem). Added a targeted <code>enblend --no-optimize</code>
+  retry (blends along a straight cut instead) triggered only on that
+  specific error string -- no risk to the other 96 cases (<code>c1db809</code>).
+  Verified: <code>asp_test74</code> now produces a real, correctly-sized
+  <code>hugin_stitch.png</code>.</li>
 <li><strong>#474 Overmix coverage 0 -&gt; 97/97 (2026-09-18, Claude, Harbinger-
   authorized):</strong> two real blockers found and fixed. (1) <code>setup_overmix.sh</code>
   couldn't even configure without a chain of missing system dev packages
