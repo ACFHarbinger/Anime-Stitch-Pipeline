@@ -44,13 +44,17 @@ from ._frame_utils import (
     _reload_scans_frames,
     _sort_frames_by_index,
     _spatial_dedup_frames,
+    compose_retained_adjacent_edges,
+    edgeless_compose_enabled,
+    edgeless_reproposal_enabled,
+    kept_original_indices,
 )
 from ._manual_edges import _build_landmark_affine, _build_manual_edge
 from ._probes import _ALIKED_OK, _BIREFNET_OK, _DY_CV_MAX, _ELOFTR_OK, _LOFTR_OK, _USE_SAM2
 from .bench_adapter import bench_legacy_enabled, run_canonical_asp
 from .manager import AnimeStitchPipeline
-from .safety_policy import SafeAspPolicy, default_benchmark_policy
 from .registration_gate import RegistrationRiskGate, RegistrationThresholds, RiskLevel
+from .safety_policy import SafeAspPolicy, default_benchmark_policy
 from .session import (
     HitlCheckpoint,
     PipelineSession,
@@ -102,5 +106,9 @@ __all__ = [
     "_reload_scans_frames",
     "_sort_frames_by_index",
     "_spatial_dedup_frames",
+    "compose_retained_adjacent_edges",
+    "edgeless_compose_enabled",
+    "edgeless_reproposal_enabled",
+    "kept_original_indices",
     "logger",
 ]
