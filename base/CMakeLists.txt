@@ -84,6 +84,9 @@ target_link_libraries(animation_impl PUBLIC
     ${OpenCV_LIBS}
     OpenMP::OpenMP_CXX
 )
+# Catch2 tests must not pull pybind11's Python symbols. Same define as
+# Image-Toolkit base/tests/CMakeLists.txt (BATCH_TESTS=1).
+target_compile_definitions(animation_impl PUBLIC BATCH_TESTS=1)
 
 if(BUILD_TESTING)
     enable_testing()

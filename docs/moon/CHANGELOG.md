@@ -14,7 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   — env: CMake `find_package(OpenCV)` with no apt install; install
   `libopencv-dev`. (3) pip-audit — workflow: `uv sync --group dev` but
   `dev` is an extra; switched to `--extra dev` and added `pip-audit`.
-  gui pytest continue-on-error matching backend (issue #3).
+  gui pytest continue-on-error matching backend (issue #3). After OpenCV
+  installed, the C++ tests still failed to link (`PyUnicode_*` undefined)
+  because `animation_impl` omitted `BATCH_TESTS=1` (parent Catch2 binary
+  sets it so pybind11 Python symbols are compiled out).
 - **#472 edgeless compose of retained-adjacent hops (2026-09-20, Grok):**
   the `01f48a7` rematch recovered 8/15 `no_valid_edges` cases; the
   remaining 7 mostly logged `edgeless_reproposal_input: 0` (matcher
