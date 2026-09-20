@@ -16,3 +16,11 @@ members = ["backend", "gui"]
 # gui/. Don't try to build/install it as a package (avoids setuptools'
 # flat-layout autodiscovery tripping over base/, docs/, tools/, etc).
 package = false
+# paramiko arrives via the optional benchmark-eval extra (fiftyone →
+# voxel51-eta). eta 0.16.0 requires paramiko>=3,<4; a paramiko 5 bump
+# forces fiftyone 1.21 + eta 0.17 as a side effect (Dependabot PR #53,
+# same chain as Image-Toolkit #656). Keep on the tested line until the
+# trio is updated deliberately.
+constraint-dependencies = [
+    "paramiko>=3,<4",
+]
