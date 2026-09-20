@@ -7,12 +7,9 @@ Synthetic clip + threshold-mask fallback only -- no GPU, no model deps.
 
 from __future__ import annotations
 
-import os
-
+import cv2
 import numpy as np
 import pytest
-import cv2
-
 from asp_backend.rendering.wallpaper.wallpaper_pipeline import (
     STAGE_HERO_SELECT,
     STAGE_PLATE,
@@ -89,5 +86,5 @@ class TestWallpaperPipeline:
         ) < 1e-6
 
     def test_missing_clip_raises(self, tmp_path):
-        with pytest.raises(Exception):
+        with pytest.raises((FileNotFoundError, OSError, RuntimeError, ValueError)):
             run_wallpaper_pipeline(str(tmp_path / "nope.mp4"), str(tmp_path / "o.png"))

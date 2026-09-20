@@ -21,7 +21,6 @@ extra matching (see `asp_connectivity_vendor_scope_2026-08-23.md` P2).
 
 from __future__ import annotations
 
-from dataclasses import asdict
 from typing import Any
 
 import cv2
@@ -192,7 +191,7 @@ def build_overlap_bridge_proposals(
                 cross.append((ov, i, j))
         cross.sort(reverse=True)
         joined: set[int] = set()
-        for ov, i, j in cross:
+        for _ov, i, j in cross:
             if len(added) >= budget:
                 break
             ci, cj = comp_id[i], comp_id[j]

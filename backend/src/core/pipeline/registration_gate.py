@@ -3,13 +3,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from .safety_policy import GateDecision
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     LOW_RISK = "low_risk"
     UNCERTAIN = "uncertain"
     HIGH_RISK = "high_risk"

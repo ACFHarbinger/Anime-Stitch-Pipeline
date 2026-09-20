@@ -4,6 +4,7 @@ and ``run()``'s affine-validation retry chain."""
 from __future__ import annotations
 
 import numpy as np
+
 try:
     from backend.src.constants.animation import (
         ADAPTIVE_MIN_DISP_FRAC,

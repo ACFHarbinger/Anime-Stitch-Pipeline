@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.rendering.compositing._multiband import multiband_blend_background
 
 

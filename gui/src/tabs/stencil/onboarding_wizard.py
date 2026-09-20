@@ -15,12 +15,13 @@ favourites/theme reads) rather than inventing a new settings mechanism.
 
 from __future__ import annotations
 
+import os
+
 from gui.src.windows.settings.app_settings import AppSettings
 from PySide6.QtCore import Qt
-import os
 from PySide6.QtWidgets import (
-    QPushButton,
     QLabel,
+    QPushButton,
     QVBoxLayout,
     QWizard,
     QWizardPage,
@@ -59,7 +60,7 @@ def _make_page(title: str, subtitle: str, body: str) -> QWizardPage:
 
 
 
-def _make_sample_page(wizard: 'HybridStitchOnboardingWizard') -> QWizardPage:
+def _make_sample_page(wizard: HybridStitchOnboardingWizard) -> QWizardPage:
     page = QWizardPage()
     page.setTitle("Bundled Samples")
     page.setSubTitle("Try Hybrid Stitch with a sample sequence.")
@@ -188,7 +189,9 @@ class HybridStitchOnboardingWizard(QWizard):
 
 
     def _load_sample_sequence(self):
-        sample_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../../data/samples/test_scroll_gradient"))
+        sample_dir = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "../../../../data/samples/test_scroll_gradient")
+        )
         if not os.path.exists(sample_dir):
             return
         frames = [os.path.join(sample_dir, f) for f in sorted(os.listdir(sample_dir)) if f.endswith('.png')]

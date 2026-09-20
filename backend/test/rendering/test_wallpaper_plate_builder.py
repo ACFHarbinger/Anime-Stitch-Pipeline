@@ -91,7 +91,8 @@ def test_joint_gain_compensation_applied() -> None:
     assert plate.gains.shape == (2,)
     # The solve regularizes toward 1.0 but must pull the two frames together.
     overlap = (bg_mask_for(40) & bg_mask_for(200)).astype(bool)
-    lum = lambda f: f[overlap].astype(np.float64).dot(np.array([0.114, 0.587, 0.299])).mean()
+    def lum(f):
+        return f[overlap].astype(np.float64).dot(np.array([0.114, 0.587, 0.299])).mean()
     d_raw = abs(lum(bg0) - lum(bg1))
     d_corr = abs(lum(bg0) * plate.gains[0] - lum(bg1) * plate.gains[1])
     assert d_corr < 0.5 * d_raw

@@ -63,7 +63,7 @@ class TestGenerateSampleSequences:
         paths = generator.generate_sequence("scroll_c_textgrid", tmp_path / "seq")
         overlap_h = generator._FRAME_H - generator._STRIDE
         assert overlap_h > 0
-        for a, b in zip(paths, paths[1:]):
+        for a, b in zip(paths, paths[1:], strict=False):
             with Image.open(a) as img_a, Image.open(b) as img_b:
                 bottom_of_a = img_a.crop((0, generator._STRIDE, img_a.width, img_a.height))
                 top_of_b = img_b.crop((0, 0, img_b.width, overlap_h))

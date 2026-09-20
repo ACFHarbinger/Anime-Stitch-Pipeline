@@ -329,9 +329,15 @@ class _SeamCard(QFrame):
         # ── In-context suggestion (§6.4) ───────────────────────────────
         suggestion = ""
         if is_single_pose:
-            suggestion = "💡 <b>Why Force Blend?</b> Fallback triggered due to weak match. Use blend if you drew flow arrows."
+            suggestion = (
+                "💡 <b>Why Force Blend?</b> Fallback triggered due to weak match. "
+                "Use blend if you drew flow arrows."
+            )
         elif post_diff >= SEAM_OVERLAY_RED_THRESH:
-            suggestion = "💡 <b>Why Force SP?</b> High difference (red) causes ghosting. Force SP to use one frame."
+            suggestion = (
+                "💡 <b>Why Force SP?</b> High difference (red) causes ghosting. "
+                "Force SP to use one frame."
+            )
         elif post_diff >= SEAM_OVERLAY_AMBER_THRESH:
             suggestion = "💡 <b>Suggestion:</b> Moderate difference. If misaligned, draw flow or force SP."
         

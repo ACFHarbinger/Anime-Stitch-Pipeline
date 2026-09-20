@@ -28,6 +28,7 @@ from asp_backend.core.validation import (  # noqa: E402
     _compute_adaptive_rot_scale,
     _validate_affines,
 )
+
 from conftest import make_rotation_affine, make_translation_affine  # noqa: E402
 
 

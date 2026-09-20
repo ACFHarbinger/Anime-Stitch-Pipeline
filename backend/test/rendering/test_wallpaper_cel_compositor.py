@@ -3,10 +3,9 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.rendering.wallpaper import CelCompositeResult, composite_hero_cel, select_hero_cel
-from .wallpaper._synthetic_scene import H, W, IDENTITY, add_char, bg_mask_for, make_background
+
+from .wallpaper._synthetic_scene import IDENTITY, H, W, add_char, bg_mask_for, make_background
 
 
 def test_composite_hero_cel_rigid_placement():

@@ -21,12 +21,11 @@ from __future__ import annotations
 
 import logging
 import warnings
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import cv2
 import numpy as np
-
 from asp_backend.rendering.compositing._flags import (
     _JOINT_GAIN_SIGMA_G,
     _JOINT_GAIN_SIGMA_N,

@@ -29,6 +29,7 @@ from asp_backend.alignment.canvas import (  # noqa: E402
 )
 from asp_backend.core.pipeline import _compute_row_coverage  # noqa: E402
 from backend.src.constants import CANVAS_MAX_DIM as _CANVAS_MAX_DIM  # noqa: E402
+
 from conftest import make_frame, make_translation_affine  # noqa: E402
 
 # ---------------------------------------------------------------------------

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-
 from asp_backend.alignment.registration_telemetry import collect_registration_telemetry, edge_graph_components
 
 

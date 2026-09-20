@@ -29,6 +29,7 @@ from asp_backend.alignment.bundle_adjust import (  # noqa: E402
     _prepare_solver_edges,
     _spanning_tree_inlier_filter,
 )
+
 from conftest import compute_ty_gaps, make_edge  # noqa: E402
 
 # ---------------------------------------------------------------------------

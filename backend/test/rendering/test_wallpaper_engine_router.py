@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-import pytest
-
 from asp_backend.rendering.wallpaper import (
     RoutingDecision,
     evaluate_routing_gate,
 )
-from .wallpaper._synthetic_scene import H, W, IDENTITY, add_char, make_background
+
+from .wallpaper._synthetic_scene import IDENTITY, make_background
 
 
 def test_evaluate_routing_gate_defaults_to_asp_on_planar_pan():
@@ -90,7 +89,6 @@ class TestPipelineRouting:
 
     def test_severe_gradient_clip_routes_to_hugin(self, tmp_path, monkeypatch):
         import cv2
-
         from asp_backend.rendering.wallpaper._aspect_framer import frame_wallpaper
         from asp_backend.rendering.wallpaper._engine_router import HuginRouteResult
         from asp_backend.rendering.wallpaper.wallpaper_pipeline import (

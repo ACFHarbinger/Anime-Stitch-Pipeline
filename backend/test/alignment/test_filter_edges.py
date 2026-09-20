@@ -27,6 +27,7 @@ from asp_backend.core.pipeline import (  # noqa: E402
     _reject_static_edges,
 )
 from backend.src.constants.animation import STATIC_EDGE_MIN_DISP_PX  # noqa: E402
+
 from conftest import make_edge, make_frame  # noqa: E402
 
 # §3.13B — all tests in this module create 480×640 frame arrays (≥900 KB each);

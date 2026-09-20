@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-import pytest
-
 from asp_backend.ingestion.trapped_ball import (
     compute_trapped_ball_masks,
     get_trapped_ball_radius,

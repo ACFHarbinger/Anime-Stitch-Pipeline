@@ -3,15 +3,14 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.rendering.wallpaper import (
     FramedWallpaper,
     composite_hero_cel,
     frame_wallpaper,
     select_hero_cel,
 )
-from .wallpaper._synthetic_scene import H, W, IDENTITY, add_char, bg_mask_for, make_background
+
+from .wallpaper._synthetic_scene import IDENTITY, H, W, add_char, bg_mask_for, make_background
 
 
 def test_frame_wallpaper_standard_16_9():

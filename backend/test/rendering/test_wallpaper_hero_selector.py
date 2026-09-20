@@ -3,9 +3,8 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.rendering.wallpaper import HeroCel, score_candidate_frame, select_hero_cel
+
 from .wallpaper._synthetic_scene import H, W, add_char, bg_mask_for, make_background
 
 

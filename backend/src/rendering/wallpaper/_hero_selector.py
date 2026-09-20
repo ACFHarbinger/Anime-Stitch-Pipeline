@@ -12,8 +12,8 @@ user override) and extracts the master HeroCel + alpha matte.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Any, Sequence
 
 import cv2
 import numpy as np
@@ -148,7 +148,7 @@ def select_hero_cel(
     all_scores: list[tuple[int, float]] = []
     breakdowns: dict[int, dict[str, float]] = {}
 
-    for idx, (frame, raw_mask) in enumerate(zip(frames, fg_masks)):
+    for idx, (frame, raw_mask) in enumerate(zip(frames, fg_masks, strict=True)):
         mask = (raw_mask > 0).astype(np.uint8) * 255
         score, bd = score_candidate_frame(
             frame,

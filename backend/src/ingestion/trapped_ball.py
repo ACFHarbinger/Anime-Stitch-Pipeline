@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Sequence
 
 import cv2
 import numpy as np
@@ -81,8 +80,6 @@ def trapped_ball_segmentation(
     # Create floodfill mask with 2px border per cv2.floodFill requirement
     ff_mask = np.zeros((H + 2, W + 2), dtype=np.uint8)
     ff_mask[1:-1, 1:-1] = (free_space == 0).astype(np.uint8)
-
-    bg_fill = np.zeros((H, W), dtype=np.uint8)
 
     # Seed floodfill along 4 borders where free_space is active
     seed_points: list[tuple[int, int]] = []
