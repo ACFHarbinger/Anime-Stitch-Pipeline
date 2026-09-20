@@ -130,6 +130,16 @@ same filters; it does not relax the 50px static-edge protection. Unit coverage
 passes; the standard five-case slice completed in guarded segments without a
 normal-path regression. A full-corpus measurement needs separate authorization.
 
+**Edgeless compose before rematch (2026-09-20, #472, Grok).** Remaining 7
+`no_valid_edges` cases after the rematch fix (`asp_test34/50/55/66/70/90/93`)
+mostly had `edgeless_reproposal_input: 0`: LoFTR/template cannot match the
+new first-vs-last neighbours. Those neighbours are connected by the
+pre-dedup adjacent hops (each < `SPATIAL_DEDUP_PX`, sum often ≫ 50 px).
+The recovery now composes that chain first, re-runs the existing filter,
+and rematches only if a hop is missing. Flag `ASP_EDGELESS_REPROPOSAL`
+(default on) for A/B. Unit tests cover compose/filter/flag; full-97 still
+needs Harbinger authorization — this change is not itself a DoD close.
+
 **#472 full-97 validation (2026-09-17, Harbinger-authorized) — DoD not met on
 raw-ASP yield, but the fix's own mechanism confirms clean.** Segmented run
 (1–25/26–50/51–75/76–97, `ASP_DISABLE_PANORAMA_FALLBACK=1`, merged

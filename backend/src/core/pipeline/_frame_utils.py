@@ -193,6 +193,100 @@ def _spatial_dedup_frames(
     )
 
 
+def edgeless_reproposal_enabled() -> bool:
+    """#472 A/B: ``ASP_EDGELESS_REPROPOSAL=0`` disables compose+rematch."""
+    return os.environ.get("ASP_EDGELESS_REPROPOSAL", "1") == "1"
+
+
+def kept_original_indices(pre_paths: list[str], post_paths: list[str]) -> list[int] | None:
+    """Map post-dedup paths back to a strictly increasing original index list."""
+    kept: list[int] = []
+    start = 0
+    for path in post_paths:
+        try:
+            idx = pre_paths.index(path, start)
+        except ValueError:
+            return None
+        kept.append(idx)
+        start = idx + 1
+    return kept
+
+
+def compose_retained_adjacent_edges(
+    pre_dedup_edges: list[dict],
+    kept_orig: list[int],
+    frames: list[np.ndarray],
+    bg_masks: list[np.ndarray | None] | None = None,
+) -> list[dict]:
+    """Rebuild edges between spatial-dedup survivors by chaining original hops.
+
+    Spatial dedup drops near-static neighbours (< ``SPATIAL_DEDUP_PX``) and
+    with them the skip-edges that used those endpoints. The retained pair
+    (often first vs last of a 2-frame remainder) may still be a real pan:
+    composing the dropped adjacent translations recovers that displacement
+    without rematching, and without relaxing the 50 px static-edge floor.
+    Missing hops skip that pair (caller may rematch).
+    """
+    adj: dict[int, dict] = {
+        int(edge["i"]): edge
+        for edge in pre_dedup_edges
+        if int(edge["j"]) == int(edge["i"]) + 1
+    }
+    composed: list[dict] = []
+    for new_i, (orig_i, orig_j) in enumerate(zip(kept_orig, kept_orig[1:], strict=False)):
+        chain = _compose_adjacent_chain(adj, orig_i, orig_j)
+        if chain is None:
+            continue
+        dx, dy, weight, hops = chain
+        M = np.array([[1.0, 0.0, dx], [0.0, 1.0, dy]], dtype=np.float32)
+        h, w = frames[new_i].shape[:2]
+        mask = bg_masks[new_i] if bg_masks is not None else None
+        if mask is not None:
+            ys, xs = np.nonzero(mask > 127)
+            if len(xs) >= 8:
+                pick = np.linspace(0, len(xs) - 1, num=min(50, len(xs)), dtype=int)
+                pts_i = np.stack([xs[pick].astype(np.float32), ys[pick].astype(np.float32)], axis=1)
+            else:
+                pts_i = np.array([[w * 0.5, h * 0.5]], dtype=np.float32)
+        else:
+            pts_i = np.array([[w * 0.5, h * 0.5]], dtype=np.float32)
+        composed.append(
+            {
+                "i": new_i,
+                "j": new_i + 1,
+                "M": M,
+                "pts_i": pts_i,
+                "pts_j": pts_i + M[:2, 2],
+                "weight": weight,
+                "composed_hops": hops,
+                "source": "edgeless_compose",
+            }
+        )
+    return composed
+
+
+def _compose_adjacent_chain(
+    adj: dict[int, dict], orig_i: int, orig_j: int
+) -> tuple[float, float, float, int] | None:
+    if orig_j <= orig_i:
+        return None
+    dx = 0.0
+    dy = 0.0
+    weights: list[float] = []
+    i = orig_i
+    while i < orig_j:
+        edge = adj.get(i)
+        if edge is None:
+            return None
+        dx += float(edge["M"][0, 2])
+        dy += float(edge["M"][1, 2])
+        weights.append(float(edge.get("weight", 1.0)))
+        i += 1
+    hops = orig_j - orig_i
+    weight = float(min(weights)) if weights else 1.0
+    return dx, dy, weight, hops
+
+
 def _reload_scans_frames(paths: list[str]) -> list[np.ndarray]:
     """§1.9C: Reload and width-normalise original frames from disk on demand.
 

@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **#472 edgeless compose of retained-adjacent hops (2026-09-20, Grok):**
+  the `01f48a7` rematch recovered 8/15 `no_valid_edges` cases; the
+  remaining 7 mostly logged `edgeless_reproposal_input: 0` (matcher
+  returns nothing on the new neighbours after spatial dedup collapsed
+  10–34 frames to 2–3). Spatial dedup already had the adjacent hops
+  whose sum *is* the retained-pair displacement — composing that chain
+  (no rematch, no 50 px floor change) then re-running the existing
+  filter. Rematch stays as the fallback when a hop is missing.
+  `ASP_EDGELESS_REPROPOSAL` (default `1`) disables both for A/B.
+  Targeted unit tests only; no full-97 this change.
 - **#654 seed audit -- ASP_DETERMINISTIC=1 already fixes it (2026-09-18,
   Claude):** the proposed seed audit turned out to already exist in the
   codebase (`configure_reproducibility()`, `manifest.py`) and just never be
