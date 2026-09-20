@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   rematch stays default-on. `ASP_EDGELESS_REPROPOSAL=0` disables all
   edgeless recovery for A/B.
   Targeted unit tests only; no full-97 this change.
+- **#433 unwired plate-frame coverage prototype (2026-09-20, Cursor):**
+  greedy set-cover / facility-location over canvas coverage masks, with a
+  blend-quality redundancy floor (`min_samples`) and Fast/Balanced/Max
+  budgets. Distinct from hero selection (still a scoring function).
+  `ASP_PLATE_FRAME_COVER` defaults **off**; `maybe_select_plate_frames` is
+  a pass-through until the flag is on. Not wired into the plate builder or
+  wallpaper pipeline. Synthetic unit tests only; Ground Rules still require
+  a benchmark before this is ever enabled. Not closing #433.
 - **#654 seed audit -- ASP_DETERMINISTIC=1 already fixes it (2026-09-18,
   Claude):** the proposed seed audit turned out to already exist in the
   codebase (`configure_reproducibility()`, `manifest.py`) and just never be

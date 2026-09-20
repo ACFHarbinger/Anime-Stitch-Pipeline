@@ -74,6 +74,9 @@ get composited rather than the smaller one being dropped.
 - `_hero_selector.py` — `S_f` ranking + hero-cel + alpha matte extraction.
 - `_plate_builder.py` — temporal median plate + exclusion mask + classical
   inpainting; also owns the joint gain-compensation solve (see Slice 1).
+- `_plate_frame_cover.py` — unwired #433 prototype: greedy set-cover /
+  facility-location over coverage masks. Flag-off pass-through; not a
+  pipeline stage until a benchmark says keep.
 - `_cel_compositor.py` — rigid anchor registration + Poisson blending
   (`cv2.seamlessClone`).
 - `_aspect_framer.py` — aspect solver (16:9/9:16/21:9), background
@@ -117,8 +120,12 @@ directly motivated by a measured defect, not speculative.
 - **Plate-frame coverage optimization** — which non-hero frames feed the
   plate is a set-cover/facility-location problem distinct from hero
   *selection* (now a scoring function, not set-cover, per Harbinger's
-  answer to pivot frame selection). Worth revisiting once Slice 1's plate
-  builder has real usage data.
+  answer to pivot frame selection). Unwired prototype in
+  `_plate_frame_cover.py` (2026-09-20, Cursor, #433): greedy cover with a
+  redundancy floor, `ASP_PLATE_FRAME_COVER` default off, not called from
+  the plate builder or pipeline. Still needs a Harbinger-authorized
+  benchmark before enable; Slice 1 continues to even-decimate at
+  `_MAX_TEMPORAL_SAMPLES`.
 - **Bayesian hyperparameter tuning** against the benchmark corpus (gate
   thresholds, `ASP_HOLD_BG_SUB`, ...) — orthogonal to the pivot, lower
   priority.
