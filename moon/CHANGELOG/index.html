@@ -1698,6 +1698,14 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
   rematch stays default-on. <code>ASP_EDGELESS_REPROPOSAL=0</code> disables all
   edgeless recovery for A/B.
   Targeted unit tests only; no full-97 this change.</li>
+<li><strong>#433 unwired plate-frame coverage prototype (2026-09-20, Cursor):</strong>
+  greedy set-cover / facility-location over canvas coverage masks, with a
+  blend-quality redundancy floor (<code>min_samples</code>) and Fast/Balanced/Max
+  budgets. Distinct from hero selection (still a scoring function).
+  <code>ASP_PLATE_FRAME_COVER</code> defaults <strong>off</strong>; <code>maybe_select_plate_frames</code> is
+  a pass-through until the flag is on. Not wired into the plate builder or
+  wallpaper pipeline. Synthetic unit tests only; Ground Rules still require
+  a benchmark before this is ever enabled. Not closing #433.</li>
 <li><strong>#654 seed audit -- ASP_DETERMINISTIC=1 already fixes it (2026-09-18,
   Claude):</strong> the proposed seed audit turned out to already exist in the
   codebase (<code>configure_reproducibility()</code>, <code>manifest.py</code>) and just never be
