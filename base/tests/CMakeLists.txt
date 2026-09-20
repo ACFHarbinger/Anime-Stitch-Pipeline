@@ -19,7 +19,11 @@ add_executable(animation_tests
     test_validation.cpp
     test_fuzz.cpp
 )
-target_link_libraries(animation_tests PRIVATE animation_impl Catch2::Catch2WithMain)
+target_link_libraries(animation_tests PRIVATE
+    animation_impl
+    Catch2::Catch2WithMain
+    Python3::Python
+)
 
 include(CTest)
 include(Catch)
