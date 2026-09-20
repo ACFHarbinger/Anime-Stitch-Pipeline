@@ -1685,6 +1685,19 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
+<li><strong>#472 edgeless compose of retained-adjacent hops (2026-09-20, Grok):</strong>
+  the <code>01f48a7</code> rematch recovered 8/15 <code>no_valid_edges</code> cases; the
+  remaining 7 mostly logged <code>edgeless_reproposal_input: 0</code> (matcher
+  returns nothing on the new neighbours after spatial dedup collapsed
+  10–34 frames to 2–3). Spatial dedup already had the adjacent hops
+  whose sum <em>is</em> the retained-pair displacement — composing that chain
+  (no rematch, no 50 px floor change) then re-running the existing
+  filter. Rematch stays as the fallback when a hop is missing.
+  Compose is <strong>opt-in</strong> (<code>ASP_EDGELESS_COMPOSE=1</code>, default off) until a
+  full-97 run shows the yield gain with no regression; the pre-existing
+  rematch stays default-on. <code>ASP_EDGELESS_REPROPOSAL=0</code> disables all
+  edgeless recovery for A/B.
+  Targeted unit tests only; no full-97 this change.</li>
 <li><strong>#654 seed audit -- ASP_DETERMINISTIC=1 already fixes it (2026-09-18,
   Claude):</strong> the proposed seed audit turned out to already exist in the
   codebase (<code>configure_reproducibility()</code>, <code>manifest.py</code>) and just never be
