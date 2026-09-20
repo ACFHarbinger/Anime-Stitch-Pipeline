@@ -81,7 +81,7 @@ jobs:
         with:
           path: Image-Toolkit/submodules/Anime-Stitch-Pipeline
       - name: Install OpenCV (required by base/CMakeLists.txt)
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libopencv-dev
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libopencv-dev python3-dev
       - run: |
           cmake -S base -B base/build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
           cmake --build base/build --parallel

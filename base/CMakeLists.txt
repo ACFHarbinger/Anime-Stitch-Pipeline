@@ -22,6 +22,7 @@ option(BUILD_TESTING "Build tests" OFF)
 set(IMAGE_TOOLKIT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../..")
 
 find_package(OpenCV 4.6 REQUIRED COMPONENTS core imgproc imgcodecs stitching photo)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 include(FetchContent)
 find_package(Eigen3 QUIET)
