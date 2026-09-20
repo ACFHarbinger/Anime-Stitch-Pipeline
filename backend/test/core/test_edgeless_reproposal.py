@@ -12,6 +12,7 @@ import pytest
 from asp_backend.core.pipeline._edge_filters import _reject_static_edges
 from asp_backend.core.pipeline._frame_utils import (
     compose_retained_adjacent_edges,
+    edgeless_compose_enabled,
     edgeless_reproposal_enabled,
     kept_original_indices,
 )
@@ -70,6 +71,15 @@ def test_edgeless_reproposal_flag_defaults_on(monkeypatch):
     assert edgeless_reproposal_enabled() is False
     monkeypatch.setenv("ASP_EDGELESS_REPROPOSAL", "1")
     assert edgeless_reproposal_enabled() is True
+
+
+def test_edgeless_compose_flag_defaults_off(monkeypatch):
+    monkeypatch.delenv("ASP_EDGELESS_COMPOSE", raising=False)
+    assert edgeless_compose_enabled() is False
+    monkeypatch.setenv("ASP_EDGELESS_COMPOSE", "1")
+    assert edgeless_compose_enabled() is True
+    monkeypatch.setenv("ASP_EDGELESS_COMPOSE", "0")
+    assert edgeless_compose_enabled() is False
 
 
 def test_edgeless_reproposal_matches_only_retained_neighbours(monkeypatch):

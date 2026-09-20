@@ -194,8 +194,17 @@ def _spatial_dedup_frames(
 
 
 def edgeless_reproposal_enabled() -> bool:
-    """#472 A/B: ``ASP_EDGELESS_REPROPOSAL=0`` disables compose+rematch."""
+    """#472 master switch: ``ASP_EDGELESS_REPROPOSAL=0`` disables all edgeless
+    recovery (rematch and compose). Default on -- the rematch pre-dates #472's
+    compose work and was always active."""
     return os.environ.get("ASP_EDGELESS_REPROPOSAL", "1") == "1"
+
+
+def edgeless_compose_enabled() -> bool:
+    """#472: compose retained-adjacent hops before rematching. Default OFF until
+    a full-97 benchmark shows the yield gain with no regression (Ground Rules);
+    enable with ``ASP_EDGELESS_COMPOSE=1`` to A/B."""
+    return os.environ.get("ASP_EDGELESS_COMPOSE", "0") == "1"
 
 
 def kept_original_indices(pre_paths: list[str], post_paths: list[str]) -> list[int] | None:

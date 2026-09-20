@@ -135,9 +135,10 @@ normal-path regression. A full-corpus measurement needs separate authorization.
 mostly had `edgeless_reproposal_input: 0`: LoFTR/template cannot match the
 new first-vs-last neighbours. Those neighbours are connected by the
 pre-dedup adjacent hops (each < `SPATIAL_DEDUP_PX`, sum often ≫ 50 px).
-The recovery now composes that chain first, re-runs the existing filter,
-and rematches only if a hop is missing. Flag `ASP_EDGELESS_REPROPOSAL`
-(default on) for A/B. Unit tests cover compose/filter/flag; full-97 still
+With `ASP_EDGELESS_COMPOSE=1` (default **off** until benchmarked) the
+recovery composes that chain first, re-runs the existing filter, and
+rematches only if a hop is missing. `ASP_EDGELESS_REPROPOSAL=0` (default
+on) disables all edgeless recovery for A/B. Unit tests cover compose/filter/flag; full-97 still
 needs Harbinger authorization — this change is not itself a DoD close.
 
 **#472 full-97 validation (2026-09-17, Harbinger-authorized) — DoD not met on

@@ -72,6 +72,7 @@ from ._frame_utils import (
     _sort_frames_by_index,
     _spatial_dedup_frames,
     compose_retained_adjacent_edges,
+    edgeless_compose_enabled,
     edgeless_reproposal_enabled,
     kept_original_indices,
 )
@@ -465,13 +466,18 @@ class _RunStageMixin(_Base):
         )
         # Spatial dedup can make frames that were farther apart than the
         # initial temporal window become neighbours.  Their old skip edge was
-        # dropped with the endpoints. First compose the original adjacent
-        # hops between retained frames (no rematch, no threshold change);
-        # if that is empty or filtered out, rematch those neighbours.
-        # ASP_EDGELESS_REPROPOSAL=0 disables both for A/B (#472).
+        # dropped with the endpoints. If ASP_EDGELESS_COMPOSE=1 (default off,
+        # #472), first compose the original adjacent hops between retained
+        # frames (no rematch, no threshold change); if that is empty or
+        # filtered out -- or compose is off -- rematch those neighbours.
+        # ASP_EDGELESS_REPROPOSAL=0 disables all edgeless recovery.
         if not edges and N >= 2 and edgeless_reproposal_enabled():
-            kept_orig = kept_original_indices(_pre_dedup_paths, image_paths)
             composed_edges: list = []
+            kept_orig = (
+                kept_original_indices(_pre_dedup_paths, image_paths)
+                if edgeless_compose_enabled()
+                else None
+            )
             if kept_orig is not None:
                 composed_edges = compose_retained_adjacent_edges(
                     _pre_dedup_edges, kept_orig, frames, bg_masks

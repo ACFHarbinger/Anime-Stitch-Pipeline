@@ -45,6 +45,7 @@ from ._frame_utils import (
     _sort_frames_by_index,
     _spatial_dedup_frames,
     compose_retained_adjacent_edges,
+    edgeless_compose_enabled,
     edgeless_reproposal_enabled,
     kept_original_indices,
 )
@@ -106,6 +107,7 @@ __all__ = [
     "_sort_frames_by_index",
     "_spatial_dedup_frames",
     "compose_retained_adjacent_edges",
+    "edgeless_compose_enabled",
     "edgeless_reproposal_enabled",
     "kept_original_indices",
     "logger",

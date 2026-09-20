@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   whose sum *is* the retained-pair displacement — composing that chain
   (no rematch, no 50 px floor change) then re-running the existing
   filter. Rematch stays as the fallback when a hop is missing.
-  `ASP_EDGELESS_REPROPOSAL` (default `1`) disables both for A/B.
+  Compose is **opt-in** (`ASP_EDGELESS_COMPOSE=1`, default off) until a
+  full-97 run shows the yield gain with no regression; the pre-existing
+  rematch stays default-on. `ASP_EDGELESS_REPROPOSAL=0` disables all
+  edgeless recovery for A/B.
   Targeted unit tests only; no full-97 this change.
 - **#654 seed audit -- ASP_DETERMINISTIC=1 already fixes it (2026-09-18,
   Claude):** the proposed seed audit turned out to already exist in the
