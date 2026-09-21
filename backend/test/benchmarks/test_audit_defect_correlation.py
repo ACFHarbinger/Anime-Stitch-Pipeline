@@ -5,8 +5,6 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
-import pytest
-
 _AUDIT_PATH = (
     Path(__file__).resolve().parents[3]
     / "backend"

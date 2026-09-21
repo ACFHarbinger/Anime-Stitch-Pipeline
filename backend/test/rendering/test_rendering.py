@@ -32,6 +32,7 @@ from asp_backend.rendering.rendering import (
     _render_laplacian,
     _render_median,
 )  # noqa: E402
+
 from conftest import make_frame, make_rotation_affine, make_translation_affine  # noqa: E402
 
 _repo_root = os.path.dirname(

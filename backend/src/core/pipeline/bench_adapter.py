@@ -16,6 +16,7 @@ from typing import Any
 
 import cv2
 import numpy as np
+from asp_backend.core.pipeline._frame_utils import _sort_frames_by_index
 from asp_backend.core.pipeline.manager import AnimeStitchPipeline
 from asp_backend.core.pipeline.safety_policy import (
     SafeAspPolicy,
@@ -28,7 +29,6 @@ from asp_backend.core.pipeline.session import (
     ResultIdentity,
     snapshot_pipeline_config,
 )
-from asp_backend.core.pipeline._frame_utils import _sort_frames_by_index
 
 
 def bench_legacy_enabled() -> bool:

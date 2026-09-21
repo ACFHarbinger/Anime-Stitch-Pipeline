@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import pytest
 
@@ -22,15 +21,12 @@ try:
     )
 except ImportError:
     from backend.benchmark.slices import (
-        CANONICAL_SLICES,
         SMOKE_SET_V1,
         STRUCTURAL_RED_SET_V1,
         DevelopmentSlice,
         export_slices_manifest,
         get_cases_for_failure_mode,
         get_slice,
-        get_slice_cases,
-        list_slices,
         verify_slice_coverage,
     )
 

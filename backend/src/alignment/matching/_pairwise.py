@@ -10,15 +10,14 @@ import time
 from dataclasses import asdict, dataclass
 from typing import Any
 
-import cv2
 import numpy as np
 import torch
 from backend.src.constants import MATCH_EDGE_CROP, MAX_DX_DRIFT_RATIO
 
+from ._estimators import estimate_affine2d, estimate_affine_partial2d
 from ._matchers import _phase_correlate, _segment_guided_match, _template_match
 from ._math import _compute_bg_match_ratio, _compute_translation_spread, _extract_similarity
 from ._sampling import _sample_bg_points_grid
-from ._estimators import estimate_affine2d, estimate_affine_partial2d
 
 logger = logging.getLogger(__name__)
 
@@ -279,7 +278,8 @@ def _match_pair(  # noqa: C901
                         observed_pts_i = actual_pts_i
                         observed_pts_j = actual_pts_j
                         logger.debug(
-                            f"[Stitch]   {i}→{j}: LoFTR dx={M[0, 2]:.1f} dy={M[1, 2]:.1f} conf={mean_conf:.3f} (pts={len(pts1)})"
+                            "[Stitch]   %d→%d: LoFTR dx=%.1f dy=%.1f conf=%.3f (pts=%d)",
+                            i, j, M[0, 2], M[1, 2], mean_conf, len(pts1),
                         )
 
         except Exception as _match_error:

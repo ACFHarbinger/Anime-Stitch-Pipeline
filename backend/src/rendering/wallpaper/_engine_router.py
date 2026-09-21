@@ -10,23 +10,21 @@ Ensures ASP always wraps the execution with:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
-import os
 import shutil
 import subprocess
 import tempfile
-from typing import Any, Callable, Sequence
+from collections.abc import Sequence
+from dataclasses import dataclass
+from pathlib import Path
 
 import cv2
 import numpy as np
-
 from asp_backend.rendering.compositing._gain_compensation import _adaptive_gain_clamp
 
 from ._aspect_framer import FramedWallpaper, frame_wallpaper
 from ._cel_compositor import composite_hero_cel
-from ._hero_selector import HeroCel, select_hero_cel
-from ._plate_builder import build_background_plate
+from ._hero_selector import HeroCel
 
 log = logging.getLogger(__name__)
 
@@ -160,7 +158,7 @@ def _gain_normalize_frames(
     ]
     ref_lum = float(np.median(lumas))
     out: list[np.ndarray] = []
-    for f, lum in zip(frames, lumas):
+    for f, lum in zip(frames, lumas, strict=True):
         gain = _adaptive_gain_clamp(ref_lum, lum)
         out.append(np.clip(f.astype(np.float32) * gain, 0, 255).astype(np.uint8))
     return out

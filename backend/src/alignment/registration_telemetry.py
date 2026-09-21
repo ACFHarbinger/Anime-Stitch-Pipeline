@@ -56,7 +56,12 @@ def _cycle_errors(edges: list[dict]) -> list[float]:
     ]
 
 
-def collect_registration_telemetry(raw_edges: list[dict], filtered_edges: list[dict], affines: list[np.ndarray], pair_proposal: dict | None = None) -> dict:
+def collect_registration_telemetry(
+    raw_edges: list[dict],
+    filtered_edges: list[dict],
+    affines: list[np.ndarray],
+    pair_proposal: dict | None = None,
+) -> dict:
     """Return solve-independent registration evidence for the M2 gate."""
     residuals = [value for edge in filtered_edges if (value := _edge_residual(edge, affines)) is not None]
     cycles = _cycle_errors(filtered_edges)

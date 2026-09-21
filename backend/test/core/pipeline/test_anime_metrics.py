@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.core.pipeline.anime_metrics import (
     cel_flatness_variance,
     extract_flat_cel_mask,

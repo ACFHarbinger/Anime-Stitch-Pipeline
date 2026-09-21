@@ -24,8 +24,8 @@ from asp_backend.rendering.compositing import (  # noqa: E402
     _blocks_gain_compensate,
     _blocks_lum_compensate,
     _equalize_warped_gains,
-    _overlap_graph_connected,
     _feather_gc_boundaries,
+    _overlap_graph_connected,
 )
 
 _repo_root = os.path.dirname(
@@ -58,6 +58,7 @@ from backend.src.constants import (  # noqa: E402
 from backend.src.constants import (  # noqa: E402
     FEATHER_TABLE as _FEATHER_TABLE,  # noqa: F401
 )
+
 from conftest import make_frame, make_translation_affine  # noqa: E402
 
 

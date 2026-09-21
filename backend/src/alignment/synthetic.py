@@ -96,7 +96,7 @@ def _create_textured_background(
         cv2.line(bg, (0, y), (width, y), (70, 70, 80), 1)
 
     # Scenery elements: high-contrast geometric landmarks
-    for i in range(12):
+    for _i in range(12):
         cx = int(rng.uniform(40, width - 40))
         cy = int(rng.uniform(40, height - 40))
         radius = int(rng.uniform(15, 35))

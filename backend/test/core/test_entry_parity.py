@@ -11,7 +11,6 @@ from asp_backend.core.pipeline.bench_adapter import run_canonical_asp
 from asp_backend.core.pipeline.manager import AnimeStitchPipeline
 from asp_backend.core.pipeline.safety_policy import SafeAspPolicy
 from asp_gui.helpers._progress_pipeline import _ProgressPipeline
-from PIL import Image
 
 _SAMPLES = (
     Path(__file__).resolve().parents[3] / "data" / "samples" / "test_scroll_gradient"

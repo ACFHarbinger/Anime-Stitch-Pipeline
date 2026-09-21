@@ -247,7 +247,8 @@ def _register_foreground_poses(
                 fg_b = (warped_bg[fi_b] <= 127) if warped_bg[fi_b].dtype == np.uint8 else ~warped_bg[fi_b].astype(bool)
 
                 if _check_preemptive_escalations(
-                    k, by, fi_a, fi_b, fg_a, fg_b, affines, warped_norm, feathers, seam_overrides, seam_single_pose, seam_post_diffs, H, phase_ids
+                    k, by, fi_a, fi_b, fg_a, fg_b, affines, warped_norm,
+                    feathers, seam_overrides, seam_single_pose, seam_post_diffs, H, phase_ids,
                 ):
                     continue
 

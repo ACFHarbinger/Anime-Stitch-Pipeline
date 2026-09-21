@@ -8,8 +8,6 @@ translated frames (a shifted stripe pattern that phase correlation recovers).
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.alignment.matching._overlap_proposal import (
     build_overlap_bridge_proposals,
     estimate_provisional_positions,
@@ -131,7 +129,7 @@ def test_pairwise_match_appends_extra_proposals_deduplicated():
     pw._match_pair = fake_match
     try:
         telemetry: dict = {}
-        edges = _pairwise_match(
+        _pairwise_match(
             frames, [None] * 5, use_loftr=False, proposal_telemetry=telemetry,
             extra_proposals=extra,
         )

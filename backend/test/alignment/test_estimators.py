@@ -8,8 +8,6 @@ path stays on RANSAC (USAC_MAGSAC is unsupported there).
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.alignment.matching._estimators import (
     estimate_affine2d,
     estimate_affine_partial2d,
@@ -37,7 +35,6 @@ def test_estimate_affine2d_runs(monkeypatch):
 
 def test_partial_affine_stays_ransac():
     import cv2
-
     from asp_backend.alignment.matching import _estimators as mod
 
     calls = []
@@ -57,7 +54,6 @@ def test_partial_affine_stays_ransac():
 
 def test_flag_selects_magsac(monkeypatch):
     import cv2
-
     from asp_backend.alignment.matching import _estimators as mod
 
     monkeypatch.setattr(mod, "_USAC_MAGSAC", True)

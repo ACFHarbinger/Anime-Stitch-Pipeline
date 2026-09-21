@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+- **E1 ASP main CI hygiene (2026-09-20, Grok):** `CI` on main was red
+  for every recent merge (including #54/#55). Jobs classified: (1)
+  lint-test-backend/gui — real: `ruff check .` at 100 cols scanned
+  `validation/` (515 backend errors). Scoped to `src test`, line-length
+  120, autofix + a few undefined-name/export cleanups. mypy left
+  continue-on-error (~80 pre-existing type errors). (2) build-test-base
+  — env: CMake `find_package(OpenCV)` with no apt install; install
+  `libopencv-dev`. (3) pip-audit — workflow: `uv sync --group dev` but
+  `dev` is an extra; switched to `--extra dev` and added `pip-audit`.
+  gui pytest continue-on-error matching backend (issue #3). After OpenCV
+  installed, the C++ tests still failed to link (`PyUnicode_*` undefined)
+  because `animation_impl` omitted `BATCH_TESTS=1` (parent Catch2 binary
+  sets it so pybind11 Python symbols are compiled out).
 - **#472 edgeless compose of retained-adjacent hops (2026-09-20, Grok):**
   the `01f48a7` rematch recovered 8/15 `no_valid_edges` cases; the
   remaining 7 mostly logged `edgeless_reproposal_input: 0` (matcher

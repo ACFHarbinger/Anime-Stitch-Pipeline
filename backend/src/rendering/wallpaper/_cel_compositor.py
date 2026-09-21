@@ -8,8 +8,8 @@ Supports feathered alpha blending and Poisson seamless cloning (cv2.seamlessClon
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 
 import cv2
 import numpy as np

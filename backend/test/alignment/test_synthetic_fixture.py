@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 import cv2
 import numpy as np
@@ -18,8 +17,6 @@ try:
     )
 except ImportError:
     from backend.src.alignment.synthetic import (
-        HeldCel,
-        SyntheticPanSequence,
         export_synthetic_sequence,
         generate_layered_pan_sequence,
     )

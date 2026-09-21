@@ -576,7 +576,7 @@ def _refine_masks_with_clicks(
             if 1 in _obj_ids:
                 _li = list(_obj_ids).index(1)
                 _prob = torch.sigmoid(_logits[_li, 0]).cpu().numpy()
-                _frame_h, _frame_w = frame_shapes[_idx]
+                _frame_h, _frame_w = frame_h, frame_w
                 if _prob.shape != (_frame_h, _frame_w):
                     _prob = cv2.resize(
                         _prob, (_frame_w, _frame_h), interpolation=cv2.INTER_LINEAR
@@ -609,6 +609,4 @@ __all__ = [
     "_cleanup_sam2_state",
     "_compute_fg_masks_grounded_sam2",
     "_refine_masks_with_clicks",
-    "compute_temporal_mask_uncertainty",
-    "mask_uncertainty_enabled",
 ]

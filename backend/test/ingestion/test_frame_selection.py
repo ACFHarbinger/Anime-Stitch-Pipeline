@@ -1244,7 +1244,7 @@ class TestBackgroundPlateAndCelSeparation:
         """Subtracting background plate isolates character cels."""
         bg = np.full((32, 32), 0.2, dtype=np.float32)
         thumbs = []
-        for i in range(3):
+        for _i in range(3):
             t = bg.copy()
             t[10:20, 10:20] = 0.8
             thumbs.append(t)
@@ -1277,9 +1277,12 @@ class TestDPHoldKeyframeSelection:
     def test_select_hold_keyframes_dp_prefers_stable_interior(self):
         """DP keyframe selection prefers stable interior drawing over noisy hold boundaries."""
         bg = np.full((32, 32), 0.2, dtype=np.float32)
-        t0 = bg.copy(); t0[10:20, 10:20] = 0.75
-        t1 = bg.copy(); t1[10:20, 10:20] = 0.80
-        t2 = bg.copy(); t2[10:20, 10:20] = 0.85
+        t0 = bg.copy()
+        t0[10:20, 10:20] = 0.75
+        t1 = bg.copy()
+        t1[10:20, 10:20] = 0.80
+        t2 = bg.copy()
+        t2[10:20, 10:20] = 0.85
 
         thumbs = [t0, t1, t2]
         hold_ids = [0, 0, 0]

@@ -28,13 +28,13 @@ Slice-1 scope notes (from the locked roadmap):
 from __future__ import annotations
 
 import time
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional, Sequence
+from typing import Any
 
 import cv2
 import numpy as np
-
 from asp_backend.core.pipeline.session import PipelineSession, PipelineStage
 from asp_backend.rendering.wallpaper._aspect_framer import FramedWallpaper, frame_wallpaper
 from asp_backend.rendering.wallpaper._cel_compositor import CelCompositeResult, composite_hero_cel
@@ -84,7 +84,9 @@ class WallpaperResult:
     routing_reason: str = ""
 
 
-def _sample_frames(clip: str, *, interval: int = DEFAULT_FRAME_INTERVAL, max_frames: int = MAX_SAMPLED_FRAMES) -> list[np.ndarray]:
+def _sample_frames(
+    clip: str, *, interval: int = DEFAULT_FRAME_INTERVAL, max_frames: int = MAX_SAMPLED_FRAMES
+) -> list[np.ndarray]:
     """Read frames from the clip at a fixed interval (BGR uint8)."""
     cap = cv2.VideoCapture(clip)
     if not cap.isOpened():
@@ -147,8 +149,8 @@ def run_wallpaper_pipeline(
     *,
     aspect: str = "16:9",
     quality: str = "balanced",
-    fg_masks: Optional[Sequence[np.ndarray]] = None,
-    override_frame_idx: Optional[int] = None,
+    fg_masks: Sequence[np.ndarray] | None = None,
+    override_frame_idx: int | None = None,
     canvas_h: int = DEFAULT_CANVAS_H,
     canvas_w: int = DEFAULT_CANVAS_W,
     pause_hook: Any = None,
@@ -256,7 +258,10 @@ def run_wallpaper_pipeline(
     hx1 = min(hx1, canvas_w)
     hy1 = min(hy1, canvas_h)
     if hx0 < canvas_w and hy0 < canvas_h:
-        footprint[hy0:hy1, hx0:hx1] = hero.alpha_mask[hy0:hy1, hx0:hx1] > 0 if hero.alpha_mask.shape == (canvas_h, canvas_w) else True
+        if hero.alpha_mask.shape == (canvas_h, canvas_w):
+            footprint[hy0:hy1, hx0:hx1] = hero.alpha_mask[hy0:hy1, hx0:hx1] > 0
+        else:
+            footprint[hy0:hy1, hx0:hx1] = True
     plate = build_background_plate(
         frames, affines, list(fg_masks), footprint, (canvas_h, canvas_w),
         hero_frame_idx=hero.frame_idx,

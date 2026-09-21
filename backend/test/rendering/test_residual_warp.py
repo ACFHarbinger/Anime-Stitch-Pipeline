@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import numpy as np
-import pytest
-
 from asp_backend.rendering.compositing._residual_warp import (
     apply_residual_warp_to_frame,
     compute_tps_bending_energy,

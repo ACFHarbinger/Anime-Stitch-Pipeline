@@ -205,7 +205,12 @@ class COCOAnnotationBuilder:
             area = float(np.count_nonzero(mask > 127))
         elif bbox is not None:
             x, y, w, h = bbox
-            polygons = [[float(x), float(y), float(x + w), float(y), float(x + w), float(y + h), float(x), float(y + h)]]
+            polygons = [
+                [
+                    float(x), float(y), float(x + w), float(y),
+                    float(x + w), float(y + h), float(x), float(y + h),
+                ]
+            ]
             area = float(w * h)
 
         ann: dict[str, Any] = {
@@ -366,7 +371,12 @@ class LabelStudioExporter:
                     ann_results.append({
                         "id": f"{task_id}_pos_{ci}",
                         "type": "keypointlabels",
-                        "value": {"x": cx / w * 100, "y": cy / h * 100, "width": 0.5, "keypointlabels": ["positive_click"]},
+                        "value": {
+                            "x": cx / w * 100,
+                            "y": cy / h * 100,
+                            "width": 0.5,
+                            "keypointlabels": ["positive_click"],
+                        },
                         "from_name": "keypoint",
                         "to_name": "image",
                         "origin": "human",
@@ -377,7 +387,12 @@ class LabelStudioExporter:
                     ann_results.append({
                         "id": f"{task_id}_neg_{ci}",
                         "type": "keypointlabels",
-                        "value": {"x": cx / w * 100, "y": cy / h * 100, "width": 0.5, "keypointlabels": ["negative_click"]},
+                        "value": {
+                            "x": cx / w * 100,
+                            "y": cy / h * 100,
+                            "width": 0.5,
+                            "keypointlabels": ["negative_click"],
+                        },
                         "from_name": "keypoint",
                         "to_name": "image",
                         "origin": "human",

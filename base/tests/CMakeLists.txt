@@ -19,8 +19,14 @@ add_executable(animation_tests
     test_validation.cpp
     test_fuzz.cpp
 )
-target_link_libraries(animation_tests PRIVATE animation_impl Catch2::Catch2WithMain)
+target_link_libraries(animation_tests PRIVATE
+    animation_impl
+    Catch2::Catch2WithMain
+    Python3::Python
+)
 
 include(CTest)
-include(Catch)
-catch_discover_tests(animation_tests)
+# catch_discover_tests concatenates Catch2 case names with ';' into one
+# CTest filter; names with commas then match nothing. Run the binary as
+# a single CTest entry instead.
+add_test(NAME animation_tests COMMAND animation_tests)

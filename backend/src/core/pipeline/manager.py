@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import numpy as np
+
 try:
     from backend.src.constants.animation import LAPLACIAN_BANDS
 except ImportError:
@@ -32,6 +33,7 @@ if TYPE_CHECKING:
     from asp_backend.models.wrappers.efficient_loftr_wrapper import EfficientLoFTRWrapper
     from backend.src.models.wrappers.birefnet_wrapper import BiRefNetWrapper
     from backend.src.models.wrappers.loftr_wrapper import LoFTRWrapper
+
     from .session import PauseHook
 
 

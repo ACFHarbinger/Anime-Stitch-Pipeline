@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 
 import numpy as np
+from gui.src.utils.manager.shortcut_manager import get_registry
 from PySide6.QtCore import QThread, QTimer
 from PySide6.QtGui import QKeyEvent, QPixmap
 from PySide6.QtWidgets import QListWidgetItem, QTableWidgetItem, QTabWidget, QVBoxLayout, QWidget
@@ -28,7 +29,6 @@ from ..helpers import (
     StatsWorker,
     StitchWorker,
 )
-from gui.src.utils.manager.shortcut_manager import get_registry
 from ._adjust_panel import _AdjustPanelMixin
 from ._anim_clusters_panel import _AnimClustersPanelMixin
 from ._canvas_panel import _CanvasPanelMixin
