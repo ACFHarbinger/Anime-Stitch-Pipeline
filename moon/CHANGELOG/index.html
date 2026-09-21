@@ -1685,6 +1685,19 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <ul>
+<li><strong>E1 ASP main CI hygiene (2026-09-20, Grok):</strong> <code>CI</code> on main was red
+  for every recent merge (including #54/#55). Jobs classified: (1)
+  lint-test-backend/gui — real: <code>ruff check .</code> at 100 cols scanned
+  <code>validation/</code> (515 backend errors). Scoped to <code>src test</code>, line-length
+  120, autofix + a few undefined-name/export cleanups. mypy left
+  continue-on-error (~80 pre-existing type errors). (2) build-test-base
+  — env: CMake <code>find_package(OpenCV)</code> with no apt install; install
+  <code>libopencv-dev</code>. (3) pip-audit — workflow: <code>uv sync --group dev</code> but
+  <code>dev</code> is an extra; switched to <code>--extra dev</code> and added <code>pip-audit</code>.
+  gui pytest continue-on-error matching backend (issue #3). After OpenCV
+  installed, the C++ tests still failed to link (<code>PyUnicode_*</code> undefined)
+  because <code>animation_impl</code> omitted <code>BATCH_TESTS=1</code> (parent Catch2 binary
+  sets it so pybind11 Python symbols are compiled out).</li>
 <li><strong>#472 edgeless compose of retained-adjacent hops (2026-09-20, Grok):</strong>
   the <code>01f48a7</code> rematch recovered 8/15 <code>no_valid_edges</code> cases; the
   remaining 7 mostly logged <code>edgeless_reproposal_input: 0</code> (matcher
