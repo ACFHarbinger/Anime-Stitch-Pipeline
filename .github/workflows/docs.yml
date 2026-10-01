@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
       - run: uv venv .venv
       - run: uv pip install --python .venv/bin/python mkdocs-material mkdocstrings[python] mkdocs-jupyter
       - run: .venv/bin/mkdocs build --config-file docs/mkdocs.yml
