@@ -11,7 +11,7 @@ def edge_graph_components(edges: list[dict], n_frames: int) -> list[list[int]]:
     """Return sorted undirected components, including isolated frames."""
     if n_frames < 0:
         raise ValueError("n_frames must be non-negative")
-    graph = [set() for _ in range(n_frames)]
+    graph: list[set[int]] = [set() for _ in range(n_frames)]
     for edge in edges:
         i, j = int(edge.get("i", -1)), int(edge.get("j", -1))
         if 0 <= i < n_frames and 0 <= j < n_frames:
@@ -43,7 +43,8 @@ def _edge_residual(edge: dict, affines: list[np.ndarray]) -> float | None:
 
 
 def _cycle_errors(edges: list[dict]) -> list[float]:
-    transforms, nodes = {}, set()
+    transforms: dict[tuple[int, int], np.ndarray] = {}
+    nodes: set[int] = set()
     for edge in edges:
         i, j = int(edge["i"]), int(edge["j"])
         vector = np.asarray(edge["M"][:2, 2], dtype=float)
