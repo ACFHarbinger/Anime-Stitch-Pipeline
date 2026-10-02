@@ -285,7 +285,7 @@ def _overlap_graph_connected(
     """Return whether every frame remains connected by overlap observations."""
     if num_frames <= 1:
         return True
-    graph = [set() for _ in range(num_frames)]
+    graph: list[set[int]] = [set() for _ in range(num_frames)]
     for i, j, *_ in overlaps:
         if 0 <= i < num_frames and 0 <= j < num_frames:
             graph[i].add(j)

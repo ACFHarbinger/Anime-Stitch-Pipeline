@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 _MIN_CORRESPONDENCES = 3
@@ -22,7 +24,7 @@ def _missing_adjacent_edge_count(edges: list[dict], n_frames: int) -> int:
 
 def _edge_graph_components(edges: list[dict], n_frames: int) -> list[list[int]]:
     """Return sorted undirected edge-graph components without telemetry imports."""
-    neighbours = [set() for _ in range(n_frames)]
+    neighbours: list[set[int]] = [set() for _ in range(n_frames)]
     for edge in edges:
         i, j = int(edge.get("i", -1)), int(edge.get("j", -1))
         if 0 <= i < n_frames and 0 <= j < n_frames:
@@ -84,7 +86,7 @@ def recover_clean_correspondence_edges(
     set when that consensus connects the entire frame graph.
     """
     before_components = _edge_graph_components(filtered_edges, n_frames)
-    telemetry = {
+    telemetry: dict[str, Any] = {
         "attempted": True,
         "accepted": False,
         "raw_candidates": len(raw_edges),
