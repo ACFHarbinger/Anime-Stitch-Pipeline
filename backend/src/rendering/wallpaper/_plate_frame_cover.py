@@ -17,6 +17,7 @@ from __future__ import annotations
 import os
 from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 
@@ -80,7 +81,7 @@ def _or_pool(mask: np.ndarray, cell_size: int) -> np.ndarray:
     pad_w = cw * cell_size - w
     if pad_h or pad_w:
         mask = np.pad(mask, ((0, pad_h), (0, pad_w)), constant_values=False)
-    return mask.reshape(ch, cell_size, cw, cell_size).any(axis=(1, 3))
+    return cast(np.ndarray, mask.reshape(ch, cell_size, cw, cell_size).any(axis=(1, 3)))
 
 
 def _resolve_budget(

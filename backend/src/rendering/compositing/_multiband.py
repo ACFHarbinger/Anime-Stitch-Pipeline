@@ -66,9 +66,9 @@ def multiband_blend_background(
 
     # Build Gaussian Pyramids for img_a, img_b, and mask_float
     # Level 0 is full resolution, level K-1 is smallest
-    ga = [img_a.astype(np.float32)]
-    gb = [img_b.astype(np.float32)]
-    gm = [mask_float.astype(np.float32)]
+    ga: list[np.ndarray] = [img_a.astype(np.float32)]
+    gb: list[np.ndarray] = [img_b.astype(np.float32)]
+    gm: list[np.ndarray] = [mask_float.astype(np.float32)]
 
     for _ in range(levels - 1):
         ga.append(cv2.pyrDown(ga[-1]))
@@ -76,8 +76,8 @@ def multiband_blend_background(
         gm.append(cv2.pyrDown(gm[-1]))
 
     # Build Laplacian Pyramids (Level 0 is finest detail, Level K-1 is coarsest base)
-    la = []
-    lb = []
+    la: list[np.ndarray] = []
+    lb: list[np.ndarray] = []
     for k in range(levels - 1):
         dst_size = (ga[k].shape[1], ga[k].shape[0])
         la.append(ga[k] - cv2.pyrUp(ga[k + 1], dstsize=dst_size))
@@ -87,7 +87,7 @@ def multiband_blend_background(
     lb.append(gb[-1])
 
     # Blend each pyramid band
-    blended_pyr = []
+    blended_pyr: list[np.ndarray] = []
     for k in range(levels):
         h_k, w_k = la[k].shape[:2]
         m = gm[k]

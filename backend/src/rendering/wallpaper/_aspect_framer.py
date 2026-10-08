@@ -105,7 +105,7 @@ def frame_wallpaper(
         )
 
     # 4. Handle window overflow (requires background extension / padding)
-    out_canvas = np.zeros((win_h, win_w, 3), dtype=np.uint8)
+    out_canvas: np.ndarray = np.zeros((win_h, win_w, 3), dtype=np.uint8)
     out_valid = np.zeros((win_h, win_w), dtype=bool)
 
     # Calculate overlap region between canvas and window

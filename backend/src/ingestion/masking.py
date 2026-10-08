@@ -10,7 +10,7 @@ import os
 import shutil
 import tempfile
 import warnings
-from typing import Any
+from typing import Any, cast
 
 import cv2
 import numpy as np
@@ -64,7 +64,7 @@ def _compute_fg_masks(
 
     if trapped_ball_enabled():
         print(f"[Stitch]   Generating Trapped-Ball background masks ({len(frames)} frames)...", flush=True)
-        return compute_trapped_ball_masks(frames)
+        return cast(list[np.ndarray | None], compute_trapped_ball_masks(frames))
 
     if not use_birefnet or birefnet_wrapper is None:
         return [None] * len(frames)

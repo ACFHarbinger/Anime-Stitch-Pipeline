@@ -38,6 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   still matched exactly. No code change needed -- this is an env-var
   activation, not a fix, and the recommendation (pending Harbinger) is to
   default it on in the benchmark justfile recipes.
+- **#654 reproducible benchmark defaults (2026-10-02, Codex):** ASP benchmark
+  recipes now default to deterministic mode, seed 42, `PYTHONHASHSEED=42`,
+  and `CUBLAS_WORKSPACE_CONFIG=:4096:8`, with caller overrides preserved.
+  The full-97 confirmation attempt stopped after `asp_test01` when the built-in
+  host-RAM guardrail reached 85% (threshold 80%). No full-corpus conclusion is
+  drawn; see `anime_stitch_20261002_144254.json` for the partial result.
 - **#474 Hugin 37 -> 38/97 (2026-09-18, Claude):** of Hugin's 60 missing
   cases, 58 hit the canvas-size FOV-model wall (unfixable). The other 2
   looked similar at a glance but only 1 actually was recoverable --

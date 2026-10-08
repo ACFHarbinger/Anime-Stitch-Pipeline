@@ -173,30 +173,18 @@ def seam_visibility_score(
 
 
 try:
-    from .anime_metrics import (
-        cel_flatness_variance,
-        extract_flat_cel_mask,
-        extract_line_art,
-        flat_region_edge_leakage,
-        line_art_fracture_score,
-    )
+    from . import anime_metrics as _anime_metrics
 except ImportError:
     try:
-        from asp_backend.core.pipeline.anime_metrics import (
-            cel_flatness_variance,
-            extract_flat_cel_mask,
-            extract_line_art,
-            flat_region_edge_leakage,
-            line_art_fracture_score,
-        )
+        from asp_backend.core.pipeline import anime_metrics as _anime_metrics  # type: ignore[no-redef]
     except ImportError:
-        from backend.src.core.pipeline.anime_metrics import (
-            cel_flatness_variance,
-            extract_flat_cel_mask,
-            extract_line_art,
-            flat_region_edge_leakage,
-            line_art_fracture_score,
-        )
+        from backend.src.core.pipeline import anime_metrics as _anime_metrics  # type: ignore[no-redef]
+
+cel_flatness_variance = _anime_metrics.cel_flatness_variance
+extract_flat_cel_mask = _anime_metrics.extract_flat_cel_mask
+extract_line_art = _anime_metrics.extract_line_art
+flat_region_edge_leakage = _anime_metrics.flat_region_edge_leakage
+line_art_fracture_score = _anime_metrics.line_art_fracture_score
 
 __all__ = [
     "ghosting_score_v2",

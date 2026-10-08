@@ -200,11 +200,14 @@ appears to fully solve the practical non-determinism found above** — the
 CuBLAS gap is real (per PyTorch's own warning) but doesn't manifest as a
 measurable outcome difference for this workload. Caveat: only tested on
 these 9 cases (5–30 frames each), not a full-97 reproduction of the
-original 9-in/9-out swap — a full-97 A/B under `ASP_DETERMINISTIC=1` would
-be the complete confirmation, not yet run (bigger compute ask, pending
-Harbinger authorization). Recommendation pending Harbinger's call: set
-`ASP_DETERMINISTIC=1` (+ a fixed `ASP_REPRO_SEED`) by default in the
-`tools/benchmark/justfile` recipes used for Ground-Rule #1 reference runs.
+original 9-in/9-out swap — a full-97 A/B under `ASP_DETERMINISTIC=1` is
+still the complete confirmation. The 2026-10-02 attempt stopped after its
+first dataset when the built-in host-RAM guardrail reached 85% (threshold
+80%); it did not produce full-corpus evidence. ASP benchmark recipes now default to
+`ASP_DETERMINISTIC=1`, seed 42, `PYTHONHASHSEED=42`, and
+`CUBLAS_WORKSPACE_CONFIG=:4096:8`; each can be overridden in the caller's
+environment. Full-97 confirmation remains outstanding until host memory
+headroom is sufficient to pass the guardrail.
 
 **Comparator coverage prep (2026-08-31, #474).** Overmix remains absent for
 all 97 reference cases. The repaired `just bench::asp-run-overmix` invokes

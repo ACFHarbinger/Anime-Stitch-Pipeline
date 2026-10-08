@@ -272,15 +272,15 @@ def _select_hold_keyframes_dp(
             continue
 
         block_cels = [cels[i] for i in indices]
-        h_min = min(c.shape[0] for c in block_cels)
-        w_min = min(c.shape[1] for c in block_cels)
-        stacked = np.stack([c[:h_min, :w_min] for c in block_cels], axis=0)
+        h_min = min(cel.shape[0] for cel in block_cels)
+        w_min = min(cel.shape[1] for cel in block_cels)
+        stacked = np.stack([cel[:h_min, :w_min] for cel in block_cels], axis=0)
         med_cel = np.median(stacked, axis=0)
 
         instabilities: dict[int, float] = {}
         for i in indices:
-            c = cels[i][:h_min, :w_min]
-            inst = float(np.mean(np.abs(c - med_cel)))
+            cel = cels[i][:h_min, :w_min]
+            inst = float(np.mean(np.abs(cel - med_cel)))
             edge_penalty = 0.01 if (i == indices[0] or i == indices[-1]) else 0.0
             instabilities[i] = inst + edge_penalty
 
@@ -288,7 +288,7 @@ def _select_hold_keyframes_dp(
         layer_instabilities.append(instabilities)
 
     if len(layer_candidates) <= 1:
-        return [min(layer_instabilities[0], key=layer_instabilities[0].get)]
+        return [min(layer_instabilities[0], key=lambda idx: layer_instabilities[0][idx])]
 
     costs: list[dict[int, float]] = [
         {layer_candidates[0][0]: layer_instabilities[0][layer_candidates[0][0]]}
@@ -301,30 +301,30 @@ def _select_hold_keyframes_dp(
         candidates = layer_candidates[L]
         prev_layer = layer_candidates[L - 1]
 
-        for c in candidates:
+        for candidate in candidates:
             best_val = float("inf")
             best_p: int | None = None
-            inst_c = layer_instabilities[L][c]
+            inst_c = layer_instabilities[L][candidate]
 
             for p in prev_layer:
-                if c <= p:
+                if candidate <= p:
                     continue
                 prior = costs[-1][p]
 
                 if cumpos is not None:
                     step = (
-                        (cumpos[c] - cumpos[p]) * dominant_sign
+                        (cumpos[candidate] - cumpos[p]) * dominant_sign
                         if dominant_sign != 0
-                        else abs(cumpos[c] - cumpos[p])
+                        else abs(cumpos[candidate] - cumpos[p])
                     )
                     prog_penalty = abs(step - target_step) / max(target_step, 1.0)
                 else:
                     prog_penalty = 0.0
 
-                h_c = min(cels[p].shape[0], cels[c].shape[0])
-                w_c = min(cels[p].shape[1], cels[c].shape[1])
+                h_c = min(cels[p].shape[0], cels[candidate].shape[0])
+                w_c = min(cels[p].shape[1], cels[candidate].shape[1])
                 cel_diff = float(
-                    np.mean(np.abs(cels[p][:h_c, :w_c] - cels[c][:h_c, :w_c]))
+                    np.mean(np.abs(cels[p][:h_c, :w_c] - cels[candidate][:h_c, :w_c]))
                 )
 
                 total = prior + inst_c + 0.1 * prog_penalty + 0.5 * cel_diff
@@ -333,8 +333,8 @@ def _select_hold_keyframes_dp(
                     best_p = p
 
             if best_p is not None:
-                curr_cost[c] = best_val
-                curr_parent[c] = best_p
+                curr_cost[candidate] = best_val
+                curr_parent[candidate] = best_p
 
         if not curr_cost:
             return [indices[len(indices) // 2] for indices in blocks.values()]
@@ -342,7 +342,7 @@ def _select_hold_keyframes_dp(
         costs.append(curr_cost)
         parents.append(curr_parent)
 
-    best_last = min(costs[-1], key=costs[-1].get)
+    best_last = min(costs[-1], key=lambda idx: costs[-1][idx])
     path = [best_last]
     for L in range(len(layer_candidates) - 1, 0, -1):
         path.append(parents[L][path[-1]])
@@ -555,4 +555,3 @@ __all__ = [
     "_drop_exact_dhash_duplicates",
     "_refine_hold_ids_by_response",
 ]
-

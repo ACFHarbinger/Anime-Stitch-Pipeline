@@ -174,6 +174,7 @@ class _RunStageMixin(_Base):
         _eloftr: EfficientLoFTRWrapper | None
         _aliked: ALIKEDLightGlueWrapper | None
         _roma: RoMaWrapper | None
+        last_session: PipelineSession | None
 
     def run(  # noqa: C901
         self,
