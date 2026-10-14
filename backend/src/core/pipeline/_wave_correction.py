@@ -26,6 +26,8 @@ validity gate itself.
 
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 
 
@@ -45,7 +47,7 @@ def _to_translations(affines) -> tuple[np.ndarray, object]:
 
 def _rebuild(affines, pts: np.ndarray, ref) -> list:
     """Rebuild the affine container with corrected translations."""
-    out = []
+    out: list[Any] = []
     for i, a in enumerate(affines):
         tx, ty = pts[i, 0], pts[i, 1]
         if isinstance(ref, np.ndarray):
@@ -94,6 +96,7 @@ def wave_correct_affines(affines, kind: str = "auto"):
 
     positions, ref = _to_translations(affines)
 
+    u: np.ndarray | None
     if kind == "horizontal":
         u = np.array([1.0, 0.0])
     elif kind == "vertical":

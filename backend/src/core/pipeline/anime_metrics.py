@@ -66,7 +66,7 @@ def extract_flat_cel_mask(img: np.ndarray, lines: np.ndarray | None = None) -> n
 
 def _skeletonize(img_bin: np.ndarray) -> np.ndarray:
     """Morphological 1-pixel skeletonization of binary mask."""
-    skel = np.zeros_like(img_bin, dtype=np.uint8)
+    skel: np.ndarray = np.zeros_like(img_bin, dtype=np.uint8)
     element = cv2.getStructuringElement(cv2.MORPH_CROSS, (3, 3))
     img = img_bin.copy()
     while cv2.countNonZero(img) > 0:

@@ -80,11 +80,11 @@ def _filter_shot_boundaries(
     starts = [0]
     previous = cv2.normalize(
         cv2.calcHist([thumbs[0]], [0], None, [32], [0.0, 1.0]), None
-    )
+    )  # type: ignore[call-overload]  # OpenCV accepts dst=None at runtime.
     for i, thumb in enumerate(thumbs[1:], start=1):
         current = cv2.normalize(
             cv2.calcHist([thumb], [0], None, [32], [0.0, 1.0]), None
-        )
+        )  # type: ignore[call-overload]  # OpenCV accepts dst=None at runtime.
         if cv2.compareHist(previous, current, cv2.HISTCMP_BHATTACHARYYA) >= threshold:
             starts.append(i)
         previous = current

@@ -319,11 +319,12 @@ def _apply_joint_gain_solve(
     result = []
     for i, wf in enumerate(warped_frames):
         gain = float(gains[i])
-        if warped_bg[i] is None or abs(gain - 1.0) < 1e-6:
+        bg_mask = warped_bg[i]
+        if bg_mask is None or abs(gain - 1.0) < 1e-6:
             result.append(wf.copy())
             continue
         out = wf.astype(np.float32)
-        bg_sel = _confirmed_background(warped_bg[i]) & (wf.max(axis=2) > 10)
+        bg_sel = _confirmed_background(bg_mask) & (wf.max(axis=2) > 10)
         out[bg_sel] = np.clip(out[bg_sel] * gain, 0, 255)
         result.append(out.astype(np.uint8))
     return result

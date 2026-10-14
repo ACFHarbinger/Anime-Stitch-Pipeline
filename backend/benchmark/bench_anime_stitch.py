@@ -19,9 +19,20 @@ import math
 import os
 import platform
 import shutil
+import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
+
+# The supervisor must stay outside native imports: a blocked CUDA call must
+# not prevent it from observing host pressure or terminating the workers.
+if __name__ == "__main__" and not os.environ.get("ASP_BENCH_SUPERVISED"):
+    from resource_guard import results_directory, supervise
+
+    raise SystemExit(
+        supervise([sys.executable, "-u", __file__, *sys.argv[1:]], results_directory())
+    )
 
 # Native thread pools read these settings at import time. Keep this before
 # NumPy/OpenCV/Torch so a deterministic benchmark does not inherit host-wide
@@ -75,6 +86,7 @@ def _load_package(alias: str, src_dir: Path) -> None:
 
 
 _load_package("asp_backend", Path(__file__).resolve().parents[1] / "src")
+_load_package("asp_backend_benchmark", Path(__file__).resolve().parent)
 
 from asp_backend.alignment.bundle_adjust import _bundle_adjust_affine  # noqa: E402
 from asp_backend.alignment.canvas import (  # noqa: E402
@@ -2408,7 +2420,7 @@ def generate_json_results(results: list[dict], suite_start_time: float) -> str:
     ts_str = ts.strftime("%Y%m%d_%H%M%S")
     ts_iso = ts.isoformat()
 
-    results_dir = os.path.join(os.path.dirname(__file__), "output")
+    results_dir = os.path.dirname(default_checkpoint_path())
     os.makedirs(results_dir, exist_ok=True)
     out_path = os.path.join(results_dir, f"anime_stitch_{ts_str}.json")
 
@@ -3140,7 +3152,7 @@ def _find_latest_baseline(results_dir: str | None = None) -> list[dict] | None:
     (nothing in output/ yet) or if the newest file fails to parse.
     """
     if results_dir is None:
-        results_dir = os.path.join(os.path.dirname(__file__), "output")
+        results_dir = os.path.dirname(default_checkpoint_path())
     candidates = sorted(glob.glob(os.path.join(results_dir, "anime_stitch_*.json")))
     if not candidates:
         return None
@@ -3815,7 +3827,24 @@ def generate_report(results: list[dict], output_dir: str) -> str:
 
 
 def default_checkpoint_path() -> str:
-    return os.path.join(os.path.dirname(__file__), "output", "_checkpoint.json")
+    from asp_backend_benchmark.resource_guard import results_directory
+
+    return str(results_directory() / "_checkpoint.json")
+
+
+def _process_isolated(dataset: str) -> dict | None:
+    """Release all native/model allocations by exiting after each dataset."""
+    directory = Path(default_checkpoint_path()).parent
+    directory.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=directory, prefix="worker-") as temporary:
+        result_path = Path(temporary) / "result.json"
+        subprocess.run(
+            [sys.executable, "-u", __file__, "--worker-dataset", dataset,
+             "--worker-result", str(result_path)],
+            check=True,
+        )
+        return json.loads(result_path.read_text(encoding="utf-8"))
+
 
 
 def _checkpoint_done_names() -> set[str]:
@@ -3978,7 +4007,17 @@ Examples:
         metavar="DIR",
         help="Root data directory containing asp_testXX subdirectories",
     )
+    parser.add_argument("--worker-dataset", help=argparse.SUPPRESS)
+    parser.add_argument("--worker-result", help=argparse.SUPPRESS)
     args = parser.parse_args()
+
+    from asp_backend_benchmark.resource_guard import write_json_atomic
+
+    if args.worker_dataset:
+        if not args.worker_result:
+            parser.error("worker result path is required")
+        write_json_atomic(Path(args.worker_result), process_dataset(args.worker_dataset))
+        raise SystemExit(0)
 
     base_dir = args.data_dir
     datasets = _resolve_datasets(base_dir, args)
@@ -4002,9 +4041,12 @@ Examples:
         f"(abort thresholds: RAM>={_RAM_ABORT_PCT:.0f}%, VRAM>={_VRAM_ABORT_PCT:.0f}%)"
     )
     results = []
+    if args.resume_checkpoint and Path(_checkpoint_path).is_file():
+        results = json.loads(Path(_checkpoint_path).read_text(encoding="utf-8"))
+    failed = False
     for ds in datasets:
         try:
-            result = process_dataset(ds)
+            result = _process_isolated(ds)
         except Exception as _ds_exc:
             # A single dataset's uncaught exception (e.g. SCANS fallback
             # failure inside process_dataset's own fallback path) must not
@@ -4012,6 +4054,7 @@ Examples:
             # accumulated result would be lost with nothing written to JSON.
             print(f"  [FATAL] {os.path.basename(ds)} crashed: {_ds_exc!r} — skipping.")
             result = None
+            failed = True
         if result is not None:
             results.append(result)
             # Incremental checkpoint: a multi-hour batch can still be killed
@@ -4019,12 +4062,7 @@ Examples:
             # signal) even with the try/except above catching in-process
             # crashes. Persist progress after every dataset so a killed run
             # loses at most the in-flight dataset, not the whole batch.
-            try:
-                os.makedirs(os.path.dirname(_checkpoint_path), exist_ok=True)
-                with open(_checkpoint_path, "w") as _cp_fh:
-                    json.dump(results, _cp_fh)
-            except Exception:
-                pass
+            write_json_atomic(Path(_checkpoint_path), results)
         gc.collect()
         # Unconditional (unlike _log_resource's internal per-stage flush,
         # still gated behind ASP_RESOURCE_FLUSH_CUDA): this fires once per
@@ -4051,6 +4089,7 @@ Examples:
                 "Stopping the batch here to protect the host — "
                 f"{len(results)} dataset(s) already completed are still written out below."
             )
+            failed = True
             break
 
     if results:
@@ -4061,3 +4100,5 @@ Examples:
         print(f"\nAll done. {len(results)} datasets processed.")
     else:
         print("No results to report.")
+
+    raise SystemExit(1 if failed else 0)
