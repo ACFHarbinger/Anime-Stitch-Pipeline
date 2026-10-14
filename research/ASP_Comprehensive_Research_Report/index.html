@@ -4602,7 +4602,7 @@ User types <code>"route seam around the right arm"</code>. GroundingDINO detects
 <p>Solves the Poisson equation to find the blended output <em>f</em> such that:</p>
 <pre><code>∇²f = ∇²g,  f|∂Ω = f*|∂Ω
 </code></pre>
-<p>where <em>g</em> is the source patch, <em>f</em><em> is the target, and </em>∂Ω* is the seam boundary. This matches gradient fields rather than pixel values, producing smooth transitions through any seam regardless of absolute color difference.</p>
+<p>where <em>g</em> is the source patch, <em>f</em>* is the target, and <em>∂Ω</em> is the seam boundary. This matches gradient fields rather than pixel values, producing smooth transitions through any seam regardless of absolute color difference.</p>
 <p><strong>DSFN adaptive ramp:</strong> Per-pixel gain normalization using a spatially varying feather ramp that widens or narrows based on photometric compatibility between adjacent strips. Prevents over-brightening at seam edges.</p>
 <hr />
 <h2 id="12-background-completion-and-generative-compositing">12. Background Completion and Generative Compositing</h2>

@@ -1539,22 +1539,22 @@ finding below. Not closing #472; see the GitHub issue for the full
 side-by-side numbers.</p>
 <p>**Non-determinism in the product-path pipeline, discovered while validating</p>
 <h1 id="472-2026-09-17-new-unfiled-finding-larger-blast-radius-than-472">472 (2026-09-17) — new, unfiled finding, larger blast radius than #472</h1>
-<p>alone.<strong> The RAW_ASP <em>set</em> is not stable run-to-run even with identical
+<p>alone.** The RAW_ASP <em>set</em> is not stable run-to-run even with identical
 input, <code>pipeline_config</code>, and env: comparing today's full-97 against the
 2026-08-31 reference, 9 datasets gained RAW_ASP (asp_test27/45/52/68/69/72/
 81/91/95) while 9 <em>different</em> ones lost it (asp_test22/31/33/35/38/62/67/87/
 88) — net zero, but the underlying set churned. <code>pipeline_config</code> was
 confirmed byte-identical for all 18 swapped cases, ruling out a config
 confound. A direct re-run of the 9 "lost" cases minutes later, same env,
-flipped </strong>3 of 9 back to RAW_ASP<strong> (asp_test38/62/87) — and even among the 6
+flipped <strong>3 of 9 back to RAW_ASP</strong> (asp_test38/62/87) — and even among the 6
 that stayed non-RAW_ASP, the specific gate values moved substantially run to
 run (e.g. asp_test22: <code>affine_invalid:min_gap=22.7px</code> → <code>seam_vis_gate:
 asp=53.7</code>; asp_test67: <code>seam_vis_gate:asp=56.4</code> → <code>composite_gate_sb:
 asp_sc=30.2</code>). This means the pipeline (almost certainly the neural
 matching/masking stack — EfficientLoFTR, BiRefNet, ALIKED+LightGlue — none
 of which fix a seed) produces genuinely different quantitative output on
-identical input, not just borderline threshold noise. </strong>Ground-Rule #1's
-"fixed reference" framing does not hold**: any single full-97 run is a
+identical input, not just borderline threshold noise. <strong>Ground-Rule #1's
+"fixed reference" framing does not hold</strong>: any single full-97 run is a
 sample, not a stable ground truth, which touches #470's already-closed
 rebase and the upcoming #473 human-rating pass (a rating done against one
 run's renders may not describe the renders a re-run would produce). Flagged
@@ -1582,11 +1582,14 @@ appears to fully solve the practical non-determinism found above</strong> — th
 CuBLAS gap is real (per PyTorch's own warning) but doesn't manifest as a
 measurable outcome difference for this workload. Caveat: only tested on
 these 9 cases (5–30 frames each), not a full-97 reproduction of the
-original 9-in/9-out swap — a full-97 A/B under <code>ASP_DETERMINISTIC=1</code> would
-be the complete confirmation, not yet run (bigger compute ask, pending
-Harbinger authorization). Recommendation pending Harbinger's call: set
-<code>ASP_DETERMINISTIC=1</code> (+ a fixed <code>ASP_REPRO_SEED</code>) by default in the
-<code>tools/benchmark/justfile</code> recipes used for Ground-Rule #1 reference runs.</p>
+original 9-in/9-out swap — a full-97 A/B under <code>ASP_DETERMINISTIC=1</code> is
+still the complete confirmation. The 2026-10-02 attempt stopped after its
+first dataset when the built-in host-RAM guardrail reached 85% (threshold
+80%); it did not produce full-corpus evidence. ASP benchmark recipes now default to
+<code>ASP_DETERMINISTIC=1</code>, seed 42, <code>PYTHONHASHSEED=42</code>, and
+<code>CUBLAS_WORKSPACE_CONFIG=:4096:8</code>; each can be overridden in the caller's
+environment. Full-97 confirmation remains outstanding until host memory
+headroom is sufficient to pass the guardrail.</p>
 <p><strong>Comparator coverage prep (2026-08-31, #474).</strong> Overmix remains absent for
 all 97 reference cases. The repaired <code>just bench::asp-run-overmix</code> invokes
 the script by file path, preserving its ASP alias bootstrap; the still-needed
@@ -2100,7 +2103,7 @@ merely-<em>visited</em> test was written with null scores and then excluded from
 queue forever, and the whole per-test metrics block was loaded and never
 displayed. All fixed, with 198 tests where there were none.</p>
 <h3 id="02-coherence-aware-verdicts-veto-logic-done-2026-07-27-s222">0.2 Coherence-aware verdicts  `[veto logic done 2026-07-27, S222;</h3>
-<p>metric-calibration part still open — needs real rating data to run against]<code>- **Done**:</code>bench_anime_stitch.py<code>now loads the most recent</code>data/human_ratings/asp_ratings_<em>.json<code>(if any) and adds a</code>"human_coherence": {asp, simple, notes}<code>field per dataset (</code>None<code>if
+<p>metric-calibration part still open — needs real rating data to run against]<code>- **Done**:</code>bench_anime_stitch.py<code>now loads the most recent</code>data/human_ratings/asp_ratings_*.json<code>(if any) and adds a</code>"human_coherence": {asp, simple, notes}<code>field per dataset (</code>None<code>if
   unrated). The verdict may not report</code>asp_better<code>when the ASP coherence
   rating is below the simple stitch's — implemented as a one-directional veto
   (a human "asp better" preference does *not* force-upgrade a metric verdict,
@@ -2119,7 +2122,7 @@ displayed. All fixed, with 198 tests where there were none.</p>
   and defect-taxonomy tags per test and per region — so a metric can be
   correlated against the specific dimension it claims to measure rather than
   only against a single 0-4 blend. The FiftyOne surface exposes a derived</code>human_disagrees_with_metric` field, which matters because the veto above is
-  one-directional by design: every disagreement it does </em>not* veto was
+  one-directional by design: every disagreement it does <em>not</em> veto was
   previously invisible. None of this substitutes for the pass itself.</p>
 <h3 id="03-overmix-as-a-third-comparator-on-the-full-corpus-done-2026-07-28">0.3 Overmix as a third comparator on the full corpus  `[DONE 2026-07-28 —</h3>
 <p>full 97-corpus smart-variant run complete; see .agent/cache/overmix_field_notes.md]<code>- **Done**:</code>OvermixCli<code>built from source via</code>desktop/linux/scripts/setup_overmix.sh<code>(GPL-3.0 — external tool, never linked; needed a pinned</code>wgpu-native<code>release
